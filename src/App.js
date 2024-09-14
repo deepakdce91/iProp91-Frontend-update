@@ -9,12 +9,12 @@ function App() {
         <div className="Poppins">
           {/* <Footer /> */}
           <Routes>
-            {/* <Route path="/" element={<Login />} /> */}
+            <Route path="/" element={<Login />} />
             {/* <User/> */}
             {/* <Sidebar /> */}
             {/* <NRI/> */}
             {/* <Advice/> */}
-            <Route path="/*" element={<AllPage />} />
+            {/* <Route path="/*" element={<AllPage />} /> */}
             {/* <Footer/> */}
           </Routes>
         </div>
