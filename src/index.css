@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer  utilities{
+    .text-primary{
+        background: linear-gradient(90deg, #f9bc2e 0, #e29a1e 13%, #ffcd38 30%, #f0af30 73%, #e29a1e 83%, #ffcd38 96%, #dd931a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .text-secondary {
+        color: #8b8989;
+    }
+    .border-secondary {
+        border: 2px solid #b7b7b7;
+    }
+    .bg-primary {
+        background: linear-gradient(90deg, #f9bc2e 0, #e29a1e 13%, #ffcd38 30%, #f0af30 73%, #e29a1e 83%, #ffcd38 96%, #dd931a);
+    }
+    .bg-slate-100 {
+        --tw-bg-opacity: 1;
+        background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+    }
+    .border-simple {
+        border-color: #f9bc2e;
+    }
+    .bg-gray{
+        background-color: #f5f5f5;
+    }
+}
+
+@layer utilities {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+   /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+  }
+}
