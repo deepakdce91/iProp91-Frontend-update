@@ -60,11 +60,11 @@ function Verify({ onclick, phone }) {
 
     const HandleVerifyOTP = (e) => {
         e.preventDefault();
-        if(otp.length!==6){
+        if (otp.length !== 6) {
             toast.error("OTP should be of 6 digits");
             return;
         }
-        else{
+        else {
             toast.success("OTP Verified");
             setnamelogin(true);
         }
@@ -72,7 +72,7 @@ function Verify({ onclick, phone }) {
 
     return (
         <>
-          {!namelogin ?   <div className="min-h-screen flex items-center justify-center ">
+            {!namelogin ? <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
                     {/* Left Side - Form */}
                     <div className=" p-8">
@@ -85,7 +85,7 @@ function Verify({ onclick, phone }) {
                                 style={{ fontSize: "20px" }}
                             ></i>
 
-                            <span className="ml-2 text-gray-600">Change Phone Number</span>
+                            <span className="ml-2 text-gray-600">back</span>
                         </div>
                         <h2 className="text-3xl font-semibold mb-4">Verify Code</h2>
                         <p className="text-gray-500 mb-8">
@@ -110,15 +110,15 @@ function Verify({ onclick, phone }) {
 
                     <div className="w-3/6 max-h-96">
                         <img
-                            src="images/image2.jpg" 
+                            src="images/image2.jpg"
                             alt="Building"
                             className="w-full h-full object-cover rounded-xl"
                         />
                     </div>
                 </div>
             </div>
-            :( <EnterName  phone={phone} />)
-        }
+                : (<EnterName phone={phone} />)
+            }
         </>
     );
 }
@@ -145,22 +145,22 @@ export default function Signup() {
                 <div className="min-h-screen flex items-center justify-center ">
                     <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
                         {/* Left Side - Form */}
-                        <div className=" p-8">
-                            <Link to="/" ><div
-                                className="flex items-center mb-4 cursor-pointer"
-                            >
-                                <i
-                                    className="bx bxs-chevron-left "
-                                    style={{ fontSize: "20px" }}
-                                ></i>
-
-                                <span className="ml-2 text-gray-600">Login</span>
-                            </div></Link>
+                        <div className=" p-8 max-lg:m-auto ">
+                            <div
+                                className="flex items-center mb-4 "
+                            ><Link to="/" >
+                                    <i
+                                        className="bx bxs-chevron-left cursor-pointer"
+                                        style={{ fontSize: "20px" }}
+                                    ></i>
+                                </Link>
+                                <span className="ml-2 text-gray-600">Sign Up</span>
+                            </div>
                             <h2 className="text-3xl font-semibold mb-4">
                                 Enter your mobile Number
                             </h2>
                             <p className="text-gray-500 mb-8">
-                                Enter your mobile number to signup and get an OTP to your number
+                                Enter your mobile number to get and OTP and continue..
                             </p>
                             <div className="w-72">
                                 <Input
@@ -177,6 +177,23 @@ export default function Signup() {
                                     onclick={HandleSignup}
                                 />
                             </div>
+                            <div className="w-72 flex flex-row  my-8 items-center ml-2">
+                                <div className="h-1 w-full bg-gray-500 rounded-xl"></div>
+                                <span className="text-gray-500 text-center px-4">
+                                    or
+                                </span>
+                                <div className="h-1 w-full bg-gray-500 rounded-xl"></div>
+                            </div>
+                            <Link to="/login">
+                                <div className="w-72">
+                                    <Goldbutton
+                                        btnname={"Log in"}
+                                        bgcolor={"bg-gold ml-2"}
+                                       
+                                    />
+                                </div>
+                            </Link>
+                           
                         </div>
 
                         {/* Right Side - Image */}
