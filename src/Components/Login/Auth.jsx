@@ -3,6 +3,8 @@ import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
 import { useState } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
+import PhoneInput from "../CompoCards/PhoneInput"
+
 
 function Verify({ onclick, phone }) {
     const [otp, setOTP] = useState("");
@@ -10,6 +12,11 @@ function Verify({ onclick, phone }) {
 
     const HandleVerifyOTP = (e) => {
         e.preventDefault();
+        // otp should be numberic
+        if(isNaN(otp)){
+            toast.error("OTP should be numeric");
+            return;
+        }
         if(otp.length!==6){
             toast.error("OTP should be of 6 digits");
             return;
@@ -77,13 +84,19 @@ function Verify({ onclick, phone }) {
 
 
 export default function Login() {
-    const [phone, setPhone] = useState("");
+    const [selectedCountry, setSelectedCountry] = useState();
+    const [phone, setPhone] = useState('');
     const [passwordlogin, setpasswordlogin] = useState(true);
     const [password, setPassword] = useState("");
     const [verify, setVerify] = useState(false);
 
     const HandleOTPLogin=(e)=>{
         e.preventDefault();
+        // phone should be numberic
+        if(isNaN(phone)){
+            toast.error("Phone number should be numeric");
+            return;
+        }
         if(phone.length!==10){
             toast.error("Phone number should be of 10 digits");
             return;
@@ -107,21 +120,22 @@ export default function Login() {
                             >      
                                 <span className="ml-2 text-gray-600">Sign in / Sign up</span>
                             </div>
-                           
-
+                        
                             <h2 className="text-3xl font-semibold mb-4">
                                 Enter Phone Number
                             </h2>
                             <p className="text-gray-500 mb-8" onClick={onclick} >
                                 Enter your mobile number to  get an OTP to your number
                             </p>
+                         
                             <div className="w-72">
-                                <Input
-                                    type={"text"}
-                                    placeholder={"Phone Number"}
-                                    value={phone}
-                                    setValue={setPhone}
-                                />
+                              <PhoneInput
+                                selectedCountry={selectedCountry}
+                                setSelectedCountry={setSelectedCountry}
+                                phone={phone}
+                                setPhone={setPhone}
+                               />
+
                             </div>
                             <div className="w-72">
                                 <Goldbutton
@@ -169,19 +183,20 @@ export default function Login() {
                                 </div>
                           
                             <h2 className="text-3xl font-semibold mb-4">
-                                Enter Phone Number
+                                Enter Credentials
                             </h2>
                             <p className="text-gray-500 mb-8" onClick={onclick} >
                                 Enter your mobile number and password to continue with login ...
                             </p>
-                            <div className="w-72">
-                                <Input
-                                    type={"text"}
-                                    placeholder={"Phone Number"}
-                                    value={phone}
-                                    setValue={setPhone}
-                                />
-                            </div>
+                                <div className="w-72">
+                                    <PhoneInput
+                                        selectedCountry={selectedCountry}
+                                        setSelectedCountry={setSelectedCountry}
+                                        phone={phone}
+                                        setPhone={setPhone}
+                                    />
+
+                                </div>
                             <div className="w-72">
                                 <Input
                                     type={"password"}
