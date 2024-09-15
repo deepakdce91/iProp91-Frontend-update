@@ -2,8 +2,8 @@
 import AllPage from "./Components/Allpages/allpages.jsx";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import AskForLogin from "./Components/Login/askforlogin.jsx";
-import Signup from "./Components/Login/Signup.jsx";
-import Login from "./Components/Login/Login.jsx";
+import Auth from "./Components/Login/Auth.jsx";
+import AskName from "./Components/Login/AskName.jsx";
 function App() {
   return (
     <>
@@ -12,8 +12,8 @@ function App() {
           {/* <Footer /> */}
           <Routes>
             <Route path="/" element={<AskForLogin />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/authenticate" element={<Auth />} />
+          <Route path="/name" element={<AskName />} />
             {/* <User/> */}
             {/* <Sidebar /> */}
             {/* <NRI/> */}

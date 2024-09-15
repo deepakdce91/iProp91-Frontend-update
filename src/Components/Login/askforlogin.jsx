@@ -9,17 +9,9 @@ export default function AskForLogin() {
                     Your all in one Prop tech platform
                 </p>
                 <div className="w-72">
-                    <Link to="/signup">
+                    <Link to="/authenticate">
                         <Goldbutton
-                            btnname={"Sign up"}
-                            bgcolor={"bg-gray-200"}
-                        />
-                    </Link>
-                </div><br />
-                <div className="w-72">
-                    <Link to="/login">
-                        <Goldbutton
-                            btnname={"Login"}
+                            btnname={"Authenticate to Continue.."}
                             bgcolor={"bg-gold"}
                         />
                     </Link>
