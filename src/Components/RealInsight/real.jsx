@@ -226,14 +226,13 @@ const Favourites = () => {
   return (
     <>
       <p class=" text-xl font-semibold">Favourites</p>
-      <div class="flex flex-row overflow-x-scroll w-fit  gap-7 mt-4">
+      <div class="flex flex-row overflow-x-scroll w-full  gap-7 mt-4 ">
         <FavouritesCard />
         <FavouritesCard />
         <FavouritesCard />
         <FavouritesCard />
         <FavouritesCard />
-        <FavouritesCard />
-        <FavouritesCard />
+   
         {/* <Link class="flex flex-col gap-2" to="/insight/discussion/8">
           <div class="flex flex-col gap-2">
             <div class=" h-14 w-14 rounded-lg">
@@ -262,8 +261,23 @@ const Favourites = () => {
     </>
   );
 }
+const parseTextWithLinks = (text) => {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.split(urlRegex).map((part, index) => {
+      if (urlRegex.test(part)) {
+          return (
+              <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                  {part}
+              </a>
+          );
+      }
+      return part;
+  });
+};
 
-const PostCard = () => {
+
+const PostCard = ({text,imageUrl,VideoUrl}) => {
   return (
     <>
       <div class="flex flex-1 gap-2">
@@ -272,15 +286,18 @@ const PostCard = () => {
           <p class=" text-xs font-medium">
             Sahil D souza <span class=" text-secondary">Sahila9832</span>
           </p>
-          <p class=" text-sm mt-2 font-normal">
-            Finally achieving my biggest dream, I'm excited to share a picture
-            of my favourite spot in my palace.
+          <p class=" text-sm my-2 font-normal">
+          {parseTextWithLinks(text)}
           </p>
-          <img
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="home"
-            class=" rounded-xl mt-2"
-          />
+          {VideoUrl ? (
+            <div class="rounded-lg overflow-hidden">
+              <video class="w-full h-auto" controls src={VideoUrl} alt="User video" />
+            </div>
+          ) : (
+            <div class="rounded-lg overflow-hidden">
+              <img src={imageUrl} alt="Favorite spot in palace" class="w-full h-auto object-cover" />
+            </div>
+          )}
           <div class=" flex gap-6 text-xs mt-3">
             <div class=" flex gap-3">
               <img
@@ -332,16 +349,15 @@ const PostCard = () => {
 }
 
 const RecentDiscussion = () => {
+  // a text containing a link
+  const text = "Check out this amazing website: https://example.com";
   return (
     <>
       <div>
         <p class=" text-xl font-semibold">Recent Discussions</p>
         <div class=" px-5 gap-7 mt-7 flex flex-col bg-white py-5 rounded-xl">
-          <PostCard />
-          <PostCard />
-          <PostCard />
-          <PostCard />
-          <PostCard />
+          <PostCard text={text} imageUrl={'/images/image.jpg'}/>
+          <PostCard text={text} VideoUrl={'/video/video.mp4'}/>
         </div>
       </div>
     </>
@@ -597,7 +613,7 @@ const ReviewsHere = () => {
 export default function Real() {
   return (
     <>
-      <div class="flex-col w-full flex-1 px-7 h-svh lg:!h-screen hidden lg:!flex overflow-y-scroll justify-between bg-[#f9f9f9]">
+      <div class="flex-col w-full flex-1 px-7 h-svh lg:!h-screen hidden lg:!flex overflow-y-scroll justify-between bg-[#f9f9f9] no-scrollbar">
         <NameHeader />
         <div class=" mt-5 flex-1 grid grid-cols-[25%,50%,25%]">
           <RecentReviewCard />
@@ -624,7 +640,7 @@ export default function Real() {
       </div>
 
 
-      <div class="flex-col flex flex-1  h-svh lg:!hidden overflow-y-scroll justify-between bg-[#f9f9f9]">
+      <div class="flex-col flex flex-1  h-svh lg:!hidden overflow-y-scroll justify-between bg-[#f9f9f9] no-scrollbar">
         <div class="px-7 mt-5">
           <p class=" text-xl font-semibold mb-2">
             Real <span class=" text-primary">Insight</span>
@@ -661,19 +677,16 @@ export default function Real() {
             Search Projects{" "}
           </button>
           <div class=" ">
-            <div class="flex flex-row overflow-x-scroll gap-7 px-2 mt-4">
+            <div class="flex flex-row overflow-x-scroll gap-7 px-2 mt-4 no-scrollbar">
               <FavouritesCard />
               <FavouritesCard />
               <FavouritesCard />
               <FavouritesCard />
-              <FavouritesCard />
-              <FavouritesCard />
-              <FavouritesCard />
+          
             </div>
             <div class="px-5 gap-7 mt-4 flex flex-col bg-white py-5 rounded-xl">
-              <PostCard/>
-              <PostCard/>
-              <PostCard/>
+              <PostCard text="Check out this amazing website: https://example.com" imageUrl={'/images/image.jpg'}/>
+              <PostCard text="Check out this amazing website: https://example.com" VideoUrl={'/video/video.mp4'}/>
             </div>
           </div>
         </div>
