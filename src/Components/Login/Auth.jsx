@@ -6,11 +6,87 @@ import { useNavigate } from "react-router-dom"
 import PhoneInput from "../CompoCards/PhoneInput"
 import { Authenticate, initOTPless, verifyOTP } from '../../config/initOTPless'
 
+
+function AskName({phone}) {
+    const navigate = useNavigate();
+    const [name, setName] = useState("");
+
+    const handleSignup = async (e) => {
+        e.preventDefault();
+        if (name === "") {
+            toast.error("Name is required");
+            return;
+        }
+        try {
+            let response = await fetch("http://localhost:3300/api/users/adduser", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                }),
+            });
+            let data = await response.json();
+            // console.log(data);
+            localStorage.setItem("user", JSON.stringify(data));
+            toast.success("User Created Successfully");
+            navigate("/dash/concierge");
+        } catch (err) {
+            toast.error("Something went wrong");
+            navigate("/");
+        }
+    }
+
+    return (
+        <>
+            <div className="min-h-screen flex items-center justify-center ">
+                <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
+                    {/* Left Side - Form */}
+                    <div className=" p-8">
+                        <h2 className="text-3xl font-semibold mb-4"> Enter Your Name</h2>
+                        <p className="text-gray-500 mb-8">
+                            Welcome to Iprop 91,
+                            Please enter your name to continue..
+                        </p>
+                        <div className="w-72 max-lg:m-auto">
+                            <Input
+                                type={"text"}
+                                placeholder={"Enter Name"}
+                                value={name}
+                                setValue={setName}
+                            />
+                        </div>
+                        <div className="w-72 max-lg:m-auto">
+                            <Goldbutton
+                                btnname={"Sign Up"}
+                                bgcolor={"bg-gold ml-2"}
+                                onclick={handleSignup}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right Side - Image */}
+                    <div className="w-3/6 hidden lg:block">
+                        <img
+                            src="images/image.jpg" // Replace this with the actual image URL
+                            alt="Building"
+                            className="w-full h-full object-cover rounded-xl"
+                        />
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
 function Verify({ onclick, phone }) {
     const [otp, setOTP] = useState("");
     const [resend, setResend] = useState(false);
     const [timer, setTimer] = useState(5);
     const [showtimer, setShowtimer] = useState(false);
+    const [askforname, setAskforname] = useState(false);
     const navigate = useNavigate();
 
     const HandleResendOTP = async (e) => {
@@ -52,7 +128,26 @@ function Verify({ onclick, phone }) {
                     setTimer(5);
                     return;
                 }else{
-                    toast.success("Verification Successful");
+                    try{
+                        let response = await fetch (`http://localhost:3300/api/users/fetchuserbyphone/${phone}`,
+                        {   method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        });
+                        if(response.status===404){
+                            setAskforname(true);
+                            return;
+                        }
+                        else{
+                            let data = await response.json();
+                            // console.log(data);
+                            localStorage.setItem("user",JSON.stringify(data));
+                            navigate("/dash/concierge");
+                        }  
+                    }catch(err){
+                        console.log(err);
+                    }
                     // navigate("/dash/concierge");
                 }
             } else {
@@ -64,7 +159,8 @@ function Verify({ onclick, phone }) {
 
     return (
         <>
-           <div className="min-h-screen flex items-center justify-center ">
+           { askforname ? <AskName phone={phone} /> :
+           ( <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
                     {/* Left Side - Form */}
                     <div className=" p-8">
@@ -123,8 +219,8 @@ function Verify({ onclick, phone }) {
                         />
                     </div>
                 </div>
-            </div>
-           
+            </div>)
+           }
         </>
     );
 }
@@ -260,7 +356,7 @@ export default function Login() {
                                     setValue={setPassword}
                                 />
                             </div>
-                            <div className="w-72">
+                            <div className="w-72 max-lg:m-auto">
                                 <Goldbutton
                                     btnname={"Submit"}
                                     bgcolor={"bg-gold ml-2"}

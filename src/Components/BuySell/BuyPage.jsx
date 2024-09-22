@@ -11,7 +11,7 @@ export default function Conci() {
       <div className="flex flex-col lg:h-screen ">
         <NameHeader />
 
-        <div class=" mt-5 w-full">
+        <div className=" mt-5 w-full">
           <div className="w-full">
             <Links />
           </div>

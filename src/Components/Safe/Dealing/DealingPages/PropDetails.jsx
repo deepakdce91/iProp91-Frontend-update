@@ -29,36 +29,36 @@ function PropertyForm() {
         </div>
         <div className="my-2 w-full">
           <label className="block mb-2">Nature of Property</label>
-          <ul class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div class="flex items-center ps-3">
+          <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
+              <div className="flex items-center ps-3">
                 <input
                   id="nature-residential"
                   type="radio"
                   value=""
                   name="nature"
-                  class="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
                 />
                 <label
                   for="nature-residential"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
+                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
                 >
                   Residential{" "}
                 </label>
               </div>
             </li>
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div class="flex items-center ps-3">
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
+              <div className="flex items-center ps-3">
                 <input
                   id="nature-commercial"
                   type="radio"
                   value=""
                   name="nature"
-                  class="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
                 />
                 <label
                   for="nature-commercial"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
+                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
                 >
                   Commercial
                 </label>
@@ -69,36 +69,36 @@ function PropertyForm() {
         <div className="my-2 w-full">
           <div className=" w-full">
             <label className="block w-full  mb-2">Status</label>
-            <ul class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div class="flex items-center ps-3">
+            <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
+              <div className="flex items-center ps-3">
                 <input
                   id="status-completed"
                   type="radio"
                   value=""
                   name="status"
-                  class="w-4 h-4 text-primary bg-gray-100 border-gray-300 "
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 "
                 />
                 <label
                   for="status-completed"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
+                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
                 >
                   Completed{" "}
                 </label>
               </div>
             </li>
-            <li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div class="flex items-center ps-3">
+            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
+              <div className="flex items-center ps-3">
                 <input
                   id="status-under-construction"
                   type="radio"
                   value=""
-                  class="w-4 h-4 text-primary bg-gray-100 border-gray-300  "
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300  "
                   name="status"
                 />
                 <label
                   for="status-under-construction"
-                  class="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
+                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
                 >
                   Under Construction
                 </label>

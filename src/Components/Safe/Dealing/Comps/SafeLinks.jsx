@@ -82,7 +82,7 @@ export default function Links() {
             </div>
           )}
         </div>
-        <Link to="/addproperty">
+        <Link to="/dash/addproperty">
           <button className="mt-auto mb-auto inactive  text-black hover:text-white border-black flex ml-auto border-2 sm:px-20 px-4 py-4 rounded-xl gap-2 ">
             <img
               alt="plus"

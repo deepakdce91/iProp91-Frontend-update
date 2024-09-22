@@ -237,8 +237,8 @@ const EmblaCarousel = (props) => {
 export default function MyProperties() {
   return (
     <>
-      <div class=" flex  flex-col">
-        <div class="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 justify-center">
+      <div className=" flex  flex-col">
+        <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 justify-center">
           <Link to="/safe/Dealing">
             <PropCard/>
           </Link>
@@ -271,7 +271,7 @@ export default function MyProperties() {
           </Link>
         </div>
 
-        <div class="lg:!hidden  pb-5 mt-10">
+        <div className="lg:!hidden  pb-5 mt-10">
           <EmblaCarousel slides={SLIDES} options={OPTIONS} />
         </div>
       </div>

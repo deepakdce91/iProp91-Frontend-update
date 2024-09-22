@@ -39,11 +39,11 @@ const PackageTable = () => {
 const RequestHanbook = () => {
   return (
     <>
-      <div class="ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex  flex-col ">
-        <div class="hidden lg:!block bg-primary min-h-[73px]  relative  py-16 px-20  w-full">
-          <div class="flex flex-col relative z-20">
-            <p class="text-white text-4xl">Request</p>
-            <p class="text-white text-4xl mb-4">Handbook</p>
+      <div className="ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex  flex-col ">
+        <div className="hidden lg:!block bg-primary min-h-[73px]  relative  py-16 px-20  w-full">
+          <div className="flex flex-col relative z-20">
+            <p className="text-white text-4xl">Request</p>
+            <p className="text-white text-4xl mb-4">Handbook</p>
             <div className="bg-white rounded-xl w-full">
               <PackageTable />
             </div>
@@ -55,7 +55,7 @@ const RequestHanbook = () => {
             height="411"
             decoding="async"
             data-nimg="1"
-            class="h-[300px] w-[451px] absolute z-10 left-[-2px] bottom-0"
+            className="h-[300px] w-[451px] absolute z-10 left-[-2px] bottom-0"
             src="/webp/bg1.webp"
             style={{ color: "transparent" }}
           />
@@ -66,15 +66,15 @@ const RequestHanbook = () => {
             height="391"
             decoding="async"
             data-nimg="1"
-            class="h-[285px] w-[382px] absolute z-10 right-0 bottom-0"
+            className="h-[285px] w-[382px] absolute z-10 right-0 bottom-0"
             src="/webp/bg2.webp"
             style={{ color: "transparent" }}
           />
         </div>
-        <div class="lg:!hidden relative bg-primary flex  flex-col gap-3 py-16 px-6 w-full">
-        <div class="flex flex-col relative z-20">
-            <p class="text-white text-4xl">Request</p>
-            <p class="text-white text-4xl mb-4">Handbook</p>
+        <div className="lg:!hidden relative bg-primary flex  flex-col gap-3 py-16 px-6 w-full">
+        <div className="flex flex-col relative z-20">
+            <p className="text-white text-4xl">Request</p>
+            <p className="text-white text-4xl mb-4">Handbook</p>
             <div className="bg-white rounded-xl w-full">
               <PackageTable />
             </div>
@@ -87,7 +87,7 @@ const RequestHanbook = () => {
             height="411"
             decoding="async"
             data-nimg="1"
-            class="h-[100px] w-[150px] absolute z-10 left-[-1px] bottom-0"
+            className="h-[100px] w-[150px] absolute z-10 left-[-1px] bottom-0"
             src="/webp/bg1.webp"
             style={{ color: "transparent" }}
           />
@@ -98,7 +98,7 @@ const RequestHanbook = () => {
             height="391"
             decoding="async"
             data-nimg="1"
-            class="h-[85px] w-[127px] absolute z-10 right-0 bottom-0"
+            className="h-[85px] w-[127px] absolute z-10 right-0 bottom-0"
             src="/webp/bg2.webp"
             style={{ color: "transparent" }}
           />
