@@ -13,7 +13,7 @@ function App() {
           <Routes>
             <Route path="/" element={<AskForLogin />} />
             <Route path="/authenticate" element={<Auth />} />
-          <Route path="/name" element={<AskName />} />
+            <Route path="/name" element={<AskName />} />
             {/* <User/> */}
             {/* <Sidebar /> */}
             {/* <NRI/> */}

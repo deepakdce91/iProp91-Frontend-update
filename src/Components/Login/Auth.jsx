@@ -1,32 +1,64 @@
 import Input from "../CompoCards/InputTag/simpleinput"
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
 import PhoneInput from "../CompoCards/PhoneInput"
-
+import { Authenticate, initOTPless, verifyOTP } from '../../config/initOTPless'
 
 function Verify({ onclick, phone }) {
     const [otp, setOTP] = useState("");
+    const [resend, setResend] = useState(false);
+    const [timer, setTimer] = useState(5);
+    const [showtimer, setShowtimer] = useState(false);
     const navigate = useNavigate();
 
-    const HandleVerifyOTP = (e) => {
+    const HandleResendOTP = async (e) => {
         e.preventDefault();
-        // otp should be numberic
-        if(isNaN(otp)){
-            toast.error("OTP should be numeric");
+        await Authenticate({ channel: "PHONE", phone: phone });
+        setResend(false);
+        setTimer(5);
+        setShowtimer(false);
+        toast.success("OTP Sent");
+    }
+
+    const HandleVerifyOTP = async (e) => {
+        e.preventDefault();
+        setShowtimer(true);
+        setResend(false);
+    
+        const interval = setInterval(() => {
+            setTimer((prev) => prev - 1);
+        }, 1000);
+
+    
+        setTimeout(() => {
+            clearInterval(interval);
+            setResend(true);
+            setTimer(5);
+        },5000);
+
+
+        if (isNaN(otp)) {
+            toast.error("Invalid OTP");
             return;
-        }
-        if(otp.length!==6){
-            toast.error("OTP should be of 6 digits");
-            return;
-        }
-        else{
-            toast.success("OTP Verified");
-            // if user is already registered then navigate to dashboard
-            return navigate("/dash/concierge");
-            // else navigate to AskName Page
-            return navigate("/name");
+        } else {
+            const res = await verifyOTP({ channel: "PHONE", otp: otp, phone: phone });
+            if (res) {
+                console.log('Response:', res);
+                if (res.response && res.response.verification === "FAILED") {
+                    toast.error(res.response.errorMessage.split(":")[1]);
+                    setResend(true);
+                    setTimer(5);
+                    return;
+                }else{
+                    toast.success("Verification Successful");
+                    // navigate("/dash/concierge");
+                }
+            } else {
+                toast.error("Verification Failed");
+                return;
+            }
         }
     }
 
@@ -51,7 +83,7 @@ function Verify({ onclick, phone }) {
                         <p className="text-gray-500 mb-8">
                             An authentication code has been sent to your Phone Number
                         </p>
-                        <div className="w-72">
+                        <div className="w-72 max-lg:m-auto">
                             <Input
                                 type={"text"}
                                 placeholder={"Enter OTP"}
@@ -59,18 +91,33 @@ function Verify({ onclick, phone }) {
                                 setValue={setOTP}
                             />
                         </div>
-                        <div className="w-72">
+                        <div className="w-72 max-lg:m-auto" >
                             <Goldbutton
                                 btnname={"Verify OTP"}
                                 bgcolor={"bg-gold ml-2"}
                                 onclick={HandleVerifyOTP}
                             />
                         </div>
+
+                        {resend ? <div className="w-72 max-lg:m-auto mt-2">
+                            <p className="text-gray-500 text-center">
+                                Didn't receive the code?{" "}
+                                <span className="cursor-pointer text-green-500"  onClick={HandleResendOTP} >
+                                    Resend
+                                </span>
+                            </p>
+                        </div> : showtimer ? <div className="w-72 max-lg:m-auto mt-2">   
+                            <p className="text-gray-500 text-center">
+                                Resend OTP in {timer} seconds
+                            </p>
+                        </div> : null
+                        }
+
                     </div>
 
-                    <div className="w-3/6 max-h-96">
+                    <div className="w-3/6 hidden lg:block">
                         <img
-                            src="images/image2.jpg" 
+                            src="images/image.jpg" 
                             alt="Building"
                             className="w-full h-full object-cover rounded-xl"
                         />
@@ -84,24 +131,32 @@ function Verify({ onclick, phone }) {
 
 
 export default function Login() {
-    const [selectedCountry, setSelectedCountry] = useState();
+    const [selectedCountry, setSelectedCountry] = useState('+91');
     const [phone, setPhone] = useState('');
     const [passwordlogin, setpasswordlogin] = useState(true);
     const [password, setPassword] = useState("");
     const [verify, setVerify] = useState(false);
 
+    useEffect(() => initOTPless(callback), []);
+
+    const callback = (otplessUser) => {
+      console.log(otplessUser);
+    };
+    
+
     const HandleOTPLogin=(e)=>{
         e.preventDefault();
         // phone should be numberic
         if(isNaN(phone)){
-            toast.error("Phone number should be numeric");
+            toast.error("Invalid Phone number");
             return;
         }
         if(phone.length!==10){
-            toast.error("Phone number should be of 10 digits");
+            toast.error("Inavlid Phone number");
             return;
         }
         else{
+            Authenticate({ channel: "PHONE", phone: phone });
             toast.success("OTP Sent");
             setVerify(true);setpasswordlogin(false) ;
         }
@@ -128,7 +183,7 @@ export default function Login() {
                                 Enter your mobile number to  get an OTP to your number
                             </p>
                          
-                            <div className="w-72">
+                            <div className="w-72 max-lg:m-auto">
                               <PhoneInput
                                 selectedCountry={selectedCountry}
                                 setSelectedCountry={setSelectedCountry}
@@ -137,7 +192,7 @@ export default function Login() {
                                />
 
                             </div>
-                            <div className="w-72">
+                            <div className="w-72 max-lg:m-auto">
                                 <Goldbutton
                                     btnname={"Send OTP"}
                                     bgcolor={"bg-gold ml-2"}
@@ -145,10 +200,10 @@ export default function Login() {
                                 />
                             </div> 
                             <div
-                                className="flex items-center mt-2 cursor-pointer"
+                                className="flex items-center mt-2 cursor-pointer "
                                 onClick={()=>{setpasswordlogin(false); setVerify(false)}}
                             >
-                                <p className="ml-2 ">Login with <span className="text-green-500 underline" >Password</span> </p>
+                                <p className="ml-2  ">Login with <span className="text-green-500 underline " >Password</span> </p>
                             </div>
 
                            
@@ -188,7 +243,7 @@ export default function Login() {
                             <p className="text-gray-500 mb-8" onClick={onclick} >
                                 Enter your mobile number and password to continue with login ...
                             </p>
-                                <div className="w-72">
+                                <div className="w-72 max-lg:m-auto">
                                     <PhoneInput
                                         selectedCountry={selectedCountry}
                                         setSelectedCountry={setSelectedCountry}
@@ -197,7 +252,7 @@ export default function Login() {
                                     />
 
                                 </div>
-                            <div className="w-72">
+                            <div className="w-72 max-lg:m-auto">
                                 <Input
                                     type={"password"}
                                     placeholder={"Password"}

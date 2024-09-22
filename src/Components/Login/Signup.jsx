@@ -1,9 +1,24 @@
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+// not needed file for now
+
 import Input from "../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useState } from "react";
+
 
 function EnterName({ phone }) {
     const navigate = useNavigate();
@@ -128,6 +143,8 @@ function Verify({ onclick, phone }) {
 export default function Signup() {
     const [phone, setPhone] = useState("");
     const [verify, setVerify] = useState(false);
+
+  
     const HandleSignup = (e) => {
         e.preventDefault();
         if (phone.length !== 10) {

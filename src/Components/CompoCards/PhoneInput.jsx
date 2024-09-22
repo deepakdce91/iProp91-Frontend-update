@@ -10,8 +10,6 @@ const countries = [
 ];
 
 const PhoneInput = ({selectedCountry,setSelectedCountry,phone,setPhone}) => {
-
-    setSelectedCountry(countries[0].dial_code);
   const handleCountryChange = (e) => {
     setSelectedCountry(e.target.value);
   };

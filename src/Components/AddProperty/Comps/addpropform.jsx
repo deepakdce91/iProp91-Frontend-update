@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-import { client } from '../../../supabase/s3client'
+import { client } from '../../../config/s3client'
 
 const uploadFileToCloud = async (myFile) => {
   const userNumber = "5566556656";
