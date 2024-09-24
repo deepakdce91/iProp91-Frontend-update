@@ -48,7 +48,7 @@ function EnterName({ phone }) {
                                 bgcolor={"bg-gold ml-2"}
                                 onclick={() => {
                                     toast.success("User Created Successfully");
-                                    navigate("/dash/concierge");
+                                    navigate("/concierge");
                                 }}
                             />
                         </div>

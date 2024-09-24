@@ -43,7 +43,7 @@ export default function NameHeader (){
               Upload all your real estate documents, applicable at different
               stages of ownership in an encrypted safe, accessible at all times
             </p>
-            <Link to="/dash/addproperty">
+            <Link to="/addproperty">
               <button className="text-black border-secondary hover:border-simple shadow-2xl flex border-[1.5px] px-5 text-xs py-3 rounded-md mt-4 gap-2">
                 Add property
                 <img

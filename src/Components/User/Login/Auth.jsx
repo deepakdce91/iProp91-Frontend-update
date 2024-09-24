@@ -1,16 +1,17 @@
-import Input from "../CompoCards/InputTag/simpleinput"
-import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
+import Input from "../../CompoCards/InputTag/simpleinput"
+import Goldbutton from "../../CompoCards/GoldButton/Goldbutton"
 import { useState, useEffect } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
-import PhoneInput from "../CompoCards/PhoneInput"
-import { Authenticate, initOTPless, verifyOTP } from '../../config/initOTPless'
+import PhoneInput from "../../CompoCards/PhoneInput"
+import { Authenticate, initOTPless, verifyOTP } from '../../../config/initOTPless'
+import { jwtDecode } from "jwt-decode";
 
 
-function AskName({phone}) {
+function AskName({phone,countryCode}) {
     const navigate = useNavigate();
     const [name, setName] = useState("");
-
+    const [email, setEmail] = useState("");
     const handleSignup = async (e) => {
         e.preventDefault();
         if (name === "") {
@@ -18,21 +19,37 @@ function AskName({phone}) {
             return;
         }
         try {
-            let response = await fetch("http://localhost:3300/api/users/adduser", {
+            let response = await fetch("http://localhost:3300/api/users/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     name: name,
-                    phone: phone,
+                    phone: countryCode+phone,
                 }),
             });
+            if (response.status === 500) {
+                toast.error("Something went wrong");
+                return;
+            }
+            if (response.success === false) {
+                toast.error("Something went wrong");
+                return;
+            }
             let data = await response.json();
-            // console.log(data);
-            localStorage.setItem("user", JSON.stringify(data));
-            toast.success("User Created Successfully");
-            navigate("/dash/concierge");
+            let token = data.token;
+            // console.log("Token = "+token);
+            localStorage.setItem("token", token);
+            setTimeout(() => {
+                localStorage.removeItem("token");
+            }, 3600000); // 1 hour in milliseconds
+
+            toast.success("Signup Successfull");
+    
+            setTimeout(() => {
+                navigate("/concierge");
+            }, 2000);
         } catch (err) {
             toast.error("Something went wrong");
             navigate("/");
@@ -59,6 +76,14 @@ function AskName({phone}) {
                             />
                         </div>
                         <div className="w-72 max-lg:m-auto">
+                            <Input
+                                type={"email"}
+                                placeholder={"Enter Email"}
+                                value={email}
+                                setValue={setEmail}
+                            />
+                        </div>
+                        <div className="w-72 max-lg:m-auto">
                             <Goldbutton
                                 btnname={"Sign Up"}
                                 bgcolor={"bg-gold ml-2"}
@@ -81,18 +106,16 @@ function AskName({phone}) {
     )
 }
 
-function Verify({ onclick, phone }) {
+function Verify({ onclick, phone, countryCode }) {
     const [otp, setOTP] = useState("");
-    const [resend, setResend] = useState(false);
-    const [timer, setTimer] = useState(5);
+    const [timer, setTimer] = useState(30);
     const [showtimer, setShowtimer] = useState(false);
     const [askforname, setAskforname] = useState(false);
     const navigate = useNavigate();
 
     const HandleResendOTP = async (e) => {
         e.preventDefault();
-        await Authenticate({ channel: "PHONE", phone: phone });
-        setResend(false);
+        await Authenticate({ channel: "PHONE", phone: phone, countryCode: countryCode });
         setTimer(5);
         setShowtimer(false);
         toast.success("OTP Sent");
@@ -101,7 +124,6 @@ function Verify({ onclick, phone }) {
     const HandleVerifyOTP = async (e) => {
         e.preventDefault();
         setShowtimer(true);
-        setResend(false);
     
         const interval = setInterval(() => {
             setTimer((prev) => prev - 1);
@@ -110,45 +132,67 @@ function Verify({ onclick, phone }) {
     
         setTimeout(() => {
             clearInterval(interval);
-            setResend(true);
-            setTimer(5);
-        },5000);
+            setTimer(30);
+        },30000);
 
 
         if (isNaN(otp)) {
             toast.error("Invalid OTP");
             return;
         } else {
-            const res = await verifyOTP({ channel: "PHONE", otp: otp, phone: phone });
-            if (res) {
-                console.log('Response:', res);
-                if (res.response && res.response.verification === "FAILED") {
-                    toast.error(res.response.errorMessage.split(":")[1]);
-                    setResend(true);
-                    setTimer(5);
+            const verifyresponse = await verifyOTP({ channel: "PHONE", otp: otp, phone: phone, countryCode: countryCode });
+            // clear the otp field
+            setOTP("");
+            if (verifyresponse) {
+                console.log('Response:', verifyresponse);
+                if (verifyresponse.response.verification === "FAILED") {
+                    toast.error(verifyresponse.response.errorMessage.split(":")[1]);
+                    setTimer(30);
                     return;
                 }else{
                     try{
-                        let response = await fetch (`http://localhost:3300/api/users/fetchuserbyphone/${phone}`,
-                        {   method: "GET",
+                        let loginres = await fetch(`http://localhost:3300/api/users/login/${countryCode+phone}`, {
+                            method: "GET",
                             headers: {
                                 "Content-Type": "application/json",
                             },
                         });
-                        if(response.status===404){
+                        if (loginres.status === 500) {
+                            toast.error("Something went wrong");
+                            console.log("Something went wrong");
+                            return;
+                        }
+                        let loginresjson = await loginres.json();
+                        if (loginresjson.success === false) { // user not found
                             setAskforname(true);
                             return;
                         }
-                        else{
-                            let data = await response.json();
-                            // console.log(data);
-                            localStorage.setItem("user",JSON.stringify(data));
-                            navigate("/dash/concierge");
-                        }  
+                        if(loginresjson.success === true){
+                            let token = loginresjson.token;
+                            // console.log("Token = " + token);
+                            let decoded = jwtDecode(token);
+                            console.log(decoded);
+                            localStorage.setItem("token", token);
+                            setTimeout(() => {
+                                localStorage.removeItem("token");
+                            }, 3600000); // 1 hour in milliseconds
+                            toast.success("Login Successfull");
+
+                            setTimeout(() => {
+                                navigate("/concierge");
+                            }
+                                , 2000);
+                            return;
+                        }
+                        console.log("Login Response: ", loginres);
+                        // let decoded = jwtDecode(token);
+                        // console.log(decoded);
+                        
                     }catch(err){
-                        console.log(err);
+                        toast.error("Something went wrong");
+                        console.log("Error: "+err); 
+                        navigate("/");
                     }
-                    // navigate("/dash/concierge");
                 }
             } else {
                 toast.error("Verification Failed");
@@ -159,7 +203,7 @@ function Verify({ onclick, phone }) {
 
     return (
         <>
-           { askforname ? <AskName phone={phone} /> :
+           { askforname ? <AskName phone={phone} countryCode={countryCode} /> :
            ( <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
                     {/* Left Side - Form */}
@@ -195,18 +239,18 @@ function Verify({ onclick, phone }) {
                             />
                         </div>
 
-                        {resend ? <div className="w-72 max-lg:m-auto mt-2">
+                        {!showtimer ? <div className="w-72 max-lg:m-auto mt-2">
                             <p className="text-gray-500 text-center">
                                 Didn't receive the code?{" "}
                                 <span className="cursor-pointer text-green-500"  onClick={HandleResendOTP} >
                                     Resend
                                 </span>
                             </p>
-                        </div> : showtimer ? <div className="w-72 max-lg:m-auto mt-2">   
+                        </div> :  <div className="w-72 max-lg:m-auto mt-2">   
                             <p className="text-gray-500 text-center">
                                 Resend OTP in {timer} seconds
                             </p>
-                        </div> : null
+                        </div> 
                         }
 
                     </div>
@@ -227,6 +271,16 @@ function Verify({ onclick, phone }) {
 
 
 export default function Login() {
+    const navigate = useNavigate();
+
+    // useEffect(()=>{
+    //     const token = localStorage.getItem("token");
+    //     if (token) {
+    //         navigate("/concierge");
+    //     }
+    // },[]);
+
+
     const [selectedCountry, setSelectedCountry] = useState('+91');
     const [phone, setPhone] = useState('');
     const [passwordlogin, setpasswordlogin] = useState(true);
@@ -240,7 +294,7 @@ export default function Login() {
     };
     
 
-    const HandleOTPLogin=(e)=>{
+    const HandleOTPLogin= async (e)=>{
         e.preventDefault();
         // phone should be numberic
         if(isNaN(phone)){
@@ -252,10 +306,65 @@ export default function Login() {
             return;
         }
         else{
-            Authenticate({ channel: "PHONE", phone: phone });
+            await Authenticate({ channel: "PHONE", phone: phone, countryCode: selectedCountry });
             toast.success("OTP Sent");
             setVerify(true);setpasswordlogin(false) ;
         }
+    }
+
+    const HandlePasswordLogin=(e)=>{
+        e.preventDefault();
+        if(isNaN(phone)){
+            toast.error("Invalid Phone number");
+            return;
+        }
+        if(phone.length!==10){
+            toast.error("Inavlid Phone number");
+            return;
+        }
+        if(password===""){
+            toast.error("Password is required");
+            return;
+        }
+        try{
+            let loginres = fetch(`http://localhost:3300/api/users/login/${selectedCountry+phone}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (loginres.status === 500) {
+                toast.error("Something went wrong");
+                console.log("Something went wrong");
+                return;
+            }
+            let loginresjson = loginres.json();
+            if (loginresjson.success === false) {
+                toast.error("Invalid Credentials");
+                return;
+            }
+            let token = loginresjson.token;
+            // console.log("Token = " + token);
+            let decoded = jwtDecode(token);
+            console.log(decoded);
+            localStorage.setItem("token", token);
+            setTimeout(() => {
+                localStorage.removeItem("token");
+            }, 3600000); // 1 hour in milliseconds
+            toast.success("Login Successfull");
+
+            setTimeout(() => {
+                navigate("/concierge");
+            }
+                , 2000);
+            return;
+            
+        }catch(err){
+            toast.error("Something went wrong");
+            console.log("Error: "+err); 
+            navigate("/");
+        }
+
     }
     return (
         <>
@@ -315,7 +424,7 @@ export default function Login() {
                             />
                         </div>
                     </div>
-                </div>) : verify ? <Verify onclick={() =>{ setVerify(false);setpasswordlogin(true)}} phone={phone} /> :
+                </div>) : verify ? <Verify onclick={() =>{ setVerify(false);setpasswordlogin(true)}} phone={phone} countryCode={selectedCountry} /> :
                 <div className="min-h-screen flex items-center justify-center ">
                     <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center" >
                         {/* Left Side - Form */}
@@ -360,7 +469,7 @@ export default function Login() {
                                 <Goldbutton
                                     btnname={"Submit"}
                                     bgcolor={"bg-gold ml-2"}
-                                // onclick={HandleLogin}
+                                    onclick={HandlePasswordLogin}
                                 />
                             </div> 
                         

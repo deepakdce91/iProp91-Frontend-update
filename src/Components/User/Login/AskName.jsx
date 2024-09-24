@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-import Goldbutton from '../CompoCards/GoldButton/Goldbutton';
-import Input from '../CompoCards/InputTag/simpleinput';
+import Goldbutton from '../../CompoCards/GoldButton/Goldbutton';
+import Input from '../../CompoCards/InputTag/simpleinput';
 
 function AskName() {
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ function AskName() {
                                 bgcolor={"bg-gold ml-2"}
                                 onclick={() => {
                                     toast.success("User Created Successfully");
-                                    navigate("/dash/concierge");
+                                    navigate("/concierge");
                                 }}
                             />
                         </div>

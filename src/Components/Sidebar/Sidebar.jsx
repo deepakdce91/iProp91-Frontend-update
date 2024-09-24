@@ -5,31 +5,31 @@ import { Link, useLocation } from "react-router-dom";
 const Linklist = {
   Concierge: {
     icon: "/svgs/concierge.3b98be7e.svg",
-    link: "/dash/concierge",
+    link: "/concierge",
   },
   "iProp91 Safe": {
     icon: "/svgs/safe.4c0ab81e.svg",
-    link: "/dash/safe",
+    link: "/safe",
   },
   "Owners' Club": {
     icon: "/svgs/family.0aba885d.svg",
-    link: "/dash/family",
+    link: "/family",
   },
   "Real Insights": {
     icon: "/svgs/insight.f81afa5c.svg",
-    link: "/dash/realinsight",
+    link: "/realinsight",
   },
   "Buy/Sell": {
     icon: "/svgs/buyselllease.708aab01.svg",
-    link: "/dash/buysell",
+    link: "/buysell",
   },
   Lend: {
     icon: "/svgs/lend.610c2e62.svg",
-    link: "/dash/lend",
+    link: "/lend",
   },
   Advice: {
     icon: "/svgs/advice.ad7002e7.svg",
-    link: "/dash/advise",
+    link: "/advise",
   },
 };
 

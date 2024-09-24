@@ -1,6 +1,18 @@
-import { Link } from "react-router-dom"
-import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
+import { Link, useNavigate } from "react-router-dom"
+import Goldbutton from "../../CompoCards/GoldButton/Goldbutton"
+import { useEffect } from "react"
+
 export default function AskForLogin() {
+    const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     const token = localStorage.getItem("token");
+    //     if (token) {
+    //         navigate("/concierge");
+    //     }
+    // }, [navigate]);
+
+
     return (
         <div>
             <div className="min-h-screen flex flex-col items-center justify-center">

@@ -42,7 +42,7 @@ export default function NameHeader() {
           <p className="text-secondary text-xs">
           Upload all your real estate documents, applicable at different stages of ownership in an encrypted safe, accessible at all times
           </p>
-          <Link to="/dash/addproperty">
+          <Link to="/addproperty">
             <button className="text-black border-secondary hover:border-simple shadow-2xl flex border-[1.5px] px-5 text-xs py-3 rounded-md mt-4 gap-2">
               Add property
               <img
@@ -65,7 +65,7 @@ export default function NameHeader() {
         <p className="text-xl font-semibold mb-2">
           iProp91 <span className="text-primary">Safe</span>
         </p>
-        <Link to="/dash/addproperty">
+        <Link to="/addproperty">
           <button className="mt-auto mb-auto inactive text-black hover:text-white border-black flex ml-auto border-2 sm:px-20 px-4 py-4 rounded-xl gap-2">
             <img
               alt="plus"

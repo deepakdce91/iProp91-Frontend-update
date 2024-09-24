@@ -42,7 +42,7 @@ export default function RealHeader (){
             <p className="text-secondary text-xs">
               No biased reviews & ratings, that's it!
             </p>
-            <Link to="/dash/addproperty">
+            <Link to="/addproperty">
               <button className="text-black border-secondary hover:border-simple shadow-2xl flex border-[1.5px] px-5 text-xs py-3 rounded-md mt-4 gap-2">
                 Add property
                 <img
@@ -68,7 +68,7 @@ export default function RealHeader (){
             </p>
             <hr className="bg-primary w-12 h-1 rounded-sm" />
           </div>
-          <Link to="/dash/addproperty">
+          <Link to="/addproperty">
             <button className="mt-auto mb-auto inactive text-black hover:text-white border-black flex ml-auto border-2 sm:px-20 px-4 py-4 rounded-xl gap-2">
               <img
                 alt="plus"

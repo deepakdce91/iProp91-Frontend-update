@@ -12,8 +12,8 @@
 // not needed file for now
 // not needed file for now
 
-import Input from "../CompoCards/InputTag/simpleinput"
-import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
+import Input from "../../CompoCards/InputTag/simpleinput"
+import Goldbutton from "../../CompoCards/GoldButton/Goldbutton"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import { ToastContainer, toast } from "react-toastify"
