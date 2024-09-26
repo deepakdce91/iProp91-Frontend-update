@@ -7,6 +7,7 @@ import { Routes, Route } from "react-router-dom"
 import Conci from '../Concierge/ConciPage.jsx'
 import Safe from '../Safe/Safe.jsx'
 import Real from '../RealInsight/real.jsx'
+import UpdateUser from '../User/Update/UpdateUser.jsx'
 export default function AllPage() {
     return (
         <>
@@ -22,6 +23,7 @@ export default function AllPage() {
                         <Route path="/buysell/*" element={<BuySell/>}/>
                         {/* <Route path="/safe/*" element={<Safe/>}/> */}
                         <Route path="/addproperty" element={<AddProperty/>}/>
+                        <Route path="/update" element={<UpdateUser />} />
                     </Routes>
                   
                 </div>

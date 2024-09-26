@@ -4,10 +4,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import { jwtDecode } from 'jwt-decode';
 import { client } from '../../../config/s3client'
+import { select } from '@material-tailwind/react';
 
 const uploadFileToCloud = async (myFile) => {
+  // remove spaces from file name
+  myFile = myFile.name.replace(/\s/g, '');
+
   const userNumber = "5566556656";
   const myPath = `propertyDocs/${userNumber}/${myFile.name}`;
   try {
@@ -47,7 +51,8 @@ const getSignedUrlForPrivateFile = async (path) => {
 };
 
 
-
+// form required fields
+// state,city,builder,project,houserNumber,floorNumber,tower,unit,size,nature,status,name,documents,applicationStatus,addedBy,isDeleted
 function Addpropform() {
 
   // change name of the Page
@@ -79,13 +84,13 @@ function Addpropform() {
     selectedCity: "",
     selectBuilder: "",
     selectProject: "",
+    selectHouseNumber: "",
+    selectFloorNumber: "",
     selectedTower: "",
     selectedUnit: "",
     selectedSize: "",
-    selectedSizeUnit: "",
     selectedNature: "",
     selectedStatus: "",
-    selectedName: "",
     selectDoclist: {
       selectedDocType: selectedDocType,
       selectedDoc: selectedDoc,
@@ -219,6 +224,9 @@ function Addpropform() {
 
   const handleFileUpload = (e) => {
     e.preventDefault();
+    if (uploadFiles.length === 0) {
+      return toast.error("Please select a file to upload.");
+    }
     try {
       toast("Uploading files!");
       uploadFiles.length > 0 &&
@@ -251,6 +259,14 @@ function Addpropform() {
 
     if (!termsncond) {
       return toast.error("Please agree to the terms and conditions.");
+    }
+    // check from validity
+    if ( !formdata.selectedState || !formdata.selectedCity || !formdata.selectBuilder || !formdata.selectProject || !formdata.selectHouseNumber || !formdata.selectFloorNumber || !formdata.selectedTower || !formdata.selectedUnit || !formdata.selectedSize || !formdata.selectedNature || !formdata.selectedStatus || !formdata.selectedName || !formdata.selectDoclist.selectedDocType || !formdata.selectDoclist.selectedDoc) {
+      return toast.error("Please fill all the fields.");
+    }
+    // check if filed are numeric
+    if(isNaN(formdata.selectHouseNumber) || isNaN(formdata.selectFloorNumber) || isNaN(formdata.selectedSize)){
+      return toast.error("Please enter numeric values in house number, floor number and size.");
     }
     try{
       // if selected state is not in the list of states
@@ -298,27 +314,31 @@ function Addpropform() {
       if(uploadStatus === false){
         return toast.error("Please upload the documents.");
       }
-      
+      let token = localStorage.getItem("token");
+      let tokenid = jwtDecode(token);
       const response = await fetch("http://localhost:3300/api/property/addproperty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          customerId: tokenid.userId,
           state: formdata.selectedState,
           city: formdata.selectedCity,
           builder: formdata.selectBuilder,
           project: formdata.selectProject,
+          houseNumber: formdata.selectHouseNumber,
+          floorNumber: formdata.selectFloorNumber,
           tower: formdata.selectedTower,
           unit: formdata.selectedUnit,
           size: formdata.selectedSize,
           nature: formdata.selectedNature,
           status: formdata.selectedStatus,
-          name: formdata.selectedName,
           documents: {
             type: formdata.selectDoclist.selectedDocType,
             files: formdata.selectDoclist.selectedDoc,
           },
           enable: formdata.enable,
-          addedBy: formdata.addedBy
+          addedBy: formdata.addedBy,
+          applicationStatus: "under-review",
         }),
       });
 
@@ -334,10 +354,11 @@ function Addpropform() {
           selectedCity: "",
           selectBuilder: "",
           selectProject: "",
+          selectHouseNumber: "",
+          selectFloorNumber: "",
           selectedTower: "",
           selectedUnit: "",
           selectedSize: "",
-          selectedSizeUnit: "",
           selectedNature: "",
           selectedStatus: "",
           selectedName: "",
@@ -458,6 +479,36 @@ function Addpropform() {
               <div className="flex flex-col xl:flex-row w-full">
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
+                    House Number
+                  </label>
+                  <input
+                    type="number"
+                    id="housenumber"
+                    name="selectHouseNumber"
+                    value={formdata.selectHouseNumber}
+                    onChange={handleChange}
+                    placeholder="Enter House Number"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                  />
+                </div>
+
+                <div className="w-full my-2 xl:m-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Floor Number
+                  </label>
+                  <input
+                    type="number"
+                    id="floornumber"
+                    name="selectFloorNumber"
+                    value={formdata.selectFloorNumber}
+                    onChange={handleChange}
+                    placeholder="Enter Floor Number"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                  />
+                </div>
+                  
+                <div className="w-full my-2 xl:m-2">
+                  <label className="block text-sm font-medium text-gray-700">
                     Enter Tower
                   </label>
                   <input
@@ -503,20 +554,7 @@ function Addpropform() {
                 </div>
 
                 {/* Size Unit */}
-                <div className="w-full my-2 xl:m-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Select Size Unit
-                  </label>
-                  <input
-                    type="number"
-                    id="sizeunit"
-                    name="selectedSizeUnit"
-                    value={formdata.selectedSizeUnit}
-                    onChange={handleChange}
-                    placeholder="Enter Size Unit"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                  />
-                </div>
+                
               </div>
 
               {/* Nature of Property */}

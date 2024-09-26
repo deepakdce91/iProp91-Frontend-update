@@ -1,23 +1,156 @@
-import Input from "../../CompoCards/InputTag/simpleinput"
+import SimpleInput from "../../CompoCards/InputTag/simpleinput"
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton"
+import LableInput from "../../CompoCards/InputTag/labelinput"
 import { useState, useEffect } from "react"
 import { ToastContainer, toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
 import PhoneInput from "../../CompoCards/PhoneInput"
 import { Authenticate, initOTPless, verifyOTP } from '../../../config/initOTPless'
 import { jwtDecode } from "jwt-decode";
+import React from "react"
+import {
+  Dialog,
+  Typography,
+  DialogBody,
+  DialogHeader,
+  DialogFooter,
+} from "@material-tailwind/react";
+import { Spinner } from "@material-tailwind/react";
 
 
-function AskName({phone,countryCode}) {
+
+function Verify({ onclick, phone, countryCode }) {
+    const [otp, setOTP] = useState("");
+    const [timer, setTimer] = useState(30);
+    const [showtimer, setShowtimer] = useState(false);
+    const [askforname, setAskforname] = useState(false);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+   
+    const HandleResendOTP = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        await Authenticate({ channel: "PHONE", phone: phone, countryCode: countryCode });
+        setTimer(5);
+        setLoading(false);
+        setShowtimer(false);
+        toast.success("OTP Sent");
+    }
+
+    const HandleVerifyOTP = async (e) => {
+        e.preventDefault();
+        setShowtimer(true);
+        setLoading(true);
+    
+        const interval = setInterval(() => {
+            setTimer((prev) => prev - 1);
+        }, 1000);
+
+    
+        setTimeout(() => {
+            clearInterval(interval);
+            setTimer(30);
+        },30000);
+
+
+        if (isNaN(otp)) {
+            toast.error("Invalid OTP");
+            setLoading(false);
+            return;
+        } else {
+            const verifyresponse = await verifyOTP({ channel: "PHONE", otp: otp, phone: phone, countryCode: countryCode });
+            // clear the otp field
+            setOTP("");
+            if (verifyresponse) {
+                console.log('Response:', verifyresponse);
+                if (verifyresponse.response.verification === "FAILED") {
+                    toast.error(verifyresponse.response.errorMessage.split(":")[1]);
+                    setTimer(30);
+                    setLoading(false);
+                    return;
+                }else{
+                    try{
+
+                        let userexits = await fetch(`http://localhost:3300/api/users/fetchuserbyphone/${phone}`, 
+                        {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        });
+                        let userexitsjson = await userexits.json();
+                        if (userexitsjson.success === true) { // user exists
+                            try {
+                                let loginres = await fetch(`http://localhost:3300/api/users/login/${phone}`, {
+                                    method: "GET",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                });
+                                if (loginres.status === 500) {
+                                    toast.error("Something went wrong");
+                                    console.log("Something went wrong");
+                                    return;
+                                }
+                                let loginresjson = await loginres.json();
+                                if (loginresjson.success === false) {
+                                    toast.error("Invalid Credentials");
+                                    return;
+                                }
+                                let token = loginresjson.token;
+                                // console.log("Token = " + token);
+                                let decoded = jwtDecode(token);
+                                console.log(decoded);
+                                localStorage.setItem("token", token);
+                                setTimeout(() => {
+                                    localStorage.removeItem("token");
+                                }, 3600000); // 1 hour in milliseconds
+                                toast.success("Login Successfull");
+
+                                setTimeout(() => {
+                                    navigate("/concierge");
+                                }, 2000);
+                                setLoading(false);
+                                return;
+                            }
+                            catch (err) {
+                                toast.error("Something went wrong");
+                                setLoading(false);
+                                console.log("Error: " + err);
+                                setTimeout(() => {
+                                    navigate("/");
+                                }
+                                , 2000);
+                            }
+                        }
+                        setAskforname(true); // user doesnot exist
+                        setLoading(false);
+                        
+                    }catch(err){
+                        toast.error("Something went wrong");
+                        console.log("Error: "+err); 
+                        setTimeout(() => {
+                            navigate("/");
+                        }
+                        , 2000);
+                        setLoading(false);
+                    }
+                }
+            } else {
+                toast.error("Verification Failed");
+                setLoading(false);
+                return;
+            }
+        }
+    }
+
+    // for askname
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const handleSignup = async (e) => {
-        e.preventDefault();
-        if (name === "") {
-            toast.error("Name is required");
-            return;
-        }
+    const [password, setPassword] = useState("");
+
+    const handleSignup = async () => {
+        setLoading(true);
         try {
             let response = await fetch("http://localhost:3300/api/users/signup", {
                 method: "POST",
@@ -25,16 +158,20 @@ function AskName({phone,countryCode}) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    name: name,
-                    phone: countryCode+phone,
+                    name: name || "iProp91 User",
+                    phone: phone,
+                    password: password,
+                    email: email
                 }),
             });
             if (response.status === 500) {
                 toast.error("Something went wrong");
+                setLoading(false);
                 return;
             }
             if (response.success === false) {
                 toast.error("Something went wrong");
+                setLoading(false);
                 return;
             }
             let data = await response.json();
@@ -50,161 +187,83 @@ function AskName({phone,countryCode}) {
             setTimeout(() => {
                 navigate("/concierge");
             }, 2000);
+            setLoading(false);
         } catch (err) {
             toast.error("Something went wrong");
-            navigate("/");
-        }
-    }
-
-    return (
-        <>
-            <div className="min-h-screen flex items-center justify-center ">
-                <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
-                    {/* Left Side - Form */}
-                    <div className=" p-8">
-                        <h2 className="text-3xl font-semibold mb-4"> Enter Your Name</h2>
-                        <p className="text-gray-500 mb-8">
-                            Welcome to Iprop 91,
-                            Please enter your name to continue..
-                        </p>
-                        <div className="w-72 max-lg:m-auto">
-                            <Input
-                                type={"text"}
-                                placeholder={"Enter Name"}
-                                value={name}
-                                setValue={setName}
-                            />
-                        </div>
-                        <div className="w-72 max-lg:m-auto">
-                            <Input
-                                type={"email"}
-                                placeholder={"Enter Email"}
-                                value={email}
-                                setValue={setEmail}
-                            />
-                        </div>
-                        <div className="w-72 max-lg:m-auto">
-                            <Goldbutton
-                                btnname={"Sign Up"}
-                                bgcolor={"bg-gold ml-2"}
-                                onclick={handleSignup}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Right Side - Image */}
-                    <div className="w-3/6 hidden lg:block">
-                        <img
-                            src="images/image.jpg" // Replace this with the actual image URL
-                            alt="Building"
-                            className="w-full h-full object-cover rounded-xl"
-                        />
-                    </div>
-                </div>
-            </div>
-        </>
-    )
-}
-
-function Verify({ onclick, phone, countryCode }) {
-    const [otp, setOTP] = useState("");
-    const [timer, setTimer] = useState(30);
-    const [showtimer, setShowtimer] = useState(false);
-    const [askforname, setAskforname] = useState(false);
-    const navigate = useNavigate();
-
-    const HandleResendOTP = async (e) => {
-        e.preventDefault();
-        await Authenticate({ channel: "PHONE", phone: phone, countryCode: countryCode });
-        setTimer(5);
-        setShowtimer(false);
-        toast.success("OTP Sent");
-    }
-
-    const HandleVerifyOTP = async (e) => {
-        e.preventDefault();
-        setShowtimer(true);
-    
-        const interval = setInterval(() => {
-            setTimer((prev) => prev - 1);
-        }, 1000);
-
-    
-        setTimeout(() => {
-            clearInterval(interval);
-            setTimer(30);
-        },30000);
-
-
-        if (isNaN(otp)) {
-            toast.error("Invalid OTP");
-            return;
-        } else {
-            const verifyresponse = await verifyOTP({ channel: "PHONE", otp: otp, phone: phone, countryCode: countryCode });
-            // clear the otp field
-            setOTP("");
-            if (verifyresponse) {
-                console.log('Response:', verifyresponse);
-                if (verifyresponse.response.verification === "FAILED") {
-                    toast.error(verifyresponse.response.errorMessage.split(":")[1]);
-                    setTimer(30);
-                    return;
-                }else{
-                    try{
-                        let loginres = await fetch(`http://localhost:3300/api/users/login/${countryCode+phone}`, {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                        });
-                        if (loginres.status === 500) {
-                            toast.error("Something went wrong");
-                            console.log("Something went wrong");
-                            return;
-                        }
-                        let loginresjson = await loginres.json();
-                        if (loginresjson.success === false) { // user not found
-                            setAskforname(true);
-                            return;
-                        }
-                        if(loginresjson.success === true){
-                            let token = loginresjson.token;
-                            // console.log("Token = " + token);
-                            let decoded = jwtDecode(token);
-                            console.log(decoded);
-                            localStorage.setItem("token", token);
-                            setTimeout(() => {
-                                localStorage.removeItem("token");
-                            }, 3600000); // 1 hour in milliseconds
-                            toast.success("Login Successfull");
-
-                            setTimeout(() => {
-                                navigate("/concierge");
-                            }
-                                , 2000);
-                            return;
-                        }
-                        console.log("Login Response: ", loginres);
-                        // let decoded = jwtDecode(token);
-                        // console.log(decoded);
-                        
-                    }catch(err){
-                        toast.error("Something went wrong");
-                        console.log("Error: "+err); 
-                        navigate("/");
-                    }
-                }
-            } else {
-                toast.error("Verification Failed");
-                return;
+            setTimeout(() => {
+                navigate("/");
             }
+            , 2000);
+            setLoading(false);
         }
     }
 
+    const handleOpen = () => {
+        setAskforname(!askforname);
+        handleSignup();
+    }
+    
+ 
     return (
         <>
-           { askforname ? <AskName phone={phone} countryCode={countryCode} /> :
-           ( <div className="min-h-screen flex items-center justify-center ">
+            {loading ? <div className="h-screen w-full backdrop-blur-sm absolute flex justify-center items-center">
+                <Spinner color="amber" className="h-16 w-16" />
+            </div> : null}
+            <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
+                <DialogHeader className="relative m-0 block">
+                    <Typography variant="h4" color="blue-gray">
+                        Enter Your Details
+                    </Typography>
+                    <Typography className="mt-1 font-normal text-gray-600">
+                        Please enter your details to continue...
+                    </Typography>
+                    
+                </DialogHeader>
+                <DialogBody className="space-y-4 pb-6">
+                    <div>
+                       <div className="w-full">
+                        <LableInput
+                            label={"Name"}
+                            placeholder={"iProp91-User"}
+                            type={"text"}
+                            setValue={setName}
+                            value={name}
+                        />
+                       </div>
+                    </div>
+                    <div>
+                        <div className="w-full">
+                            <LableInput
+                                label={"Email"}
+                                placeholder={"xyz@gmail.com"}
+                                type={"text"}
+                            setValue={setEmail}
+                            value={email}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                    <div className="w-full">
+                            <LableInput
+                                label={"Password"}
+                                placeholder={"Set Password"}
+                                type={"text"}
+                                setValue={setPassword}
+                                value={password}
+                            />
+                        </div>
+                    </div>
+                   
+                </DialogBody>
+                <DialogFooter>
+                    <Goldbutton
+                        btnname={"Sign Up"}
+                        bgcolor={"bg-gold"}
+                        onclick={handleOpen}
+                    />
+                </DialogFooter>
+            </Dialog>
+            <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
                     {/* Left Side - Form */}
                     <div className=" p-8">
@@ -224,7 +283,7 @@ function Verify({ onclick, phone, countryCode }) {
                             An authentication code has been sent to your Phone Number
                         </p>
                         <div className="w-72 max-lg:m-auto">
-                            <Input
+                            <SimpleInput
                                 type={"text"}
                                 placeholder={"Enter OTP"}
                                 value={otp}
@@ -242,29 +301,29 @@ function Verify({ onclick, phone, countryCode }) {
                         {!showtimer ? <div className="w-72 max-lg:m-auto mt-2">
                             <p className="text-gray-500 text-center">
                                 Didn't receive the code?{" "}
-                                <span className="cursor-pointer text-green-500"  onClick={HandleResendOTP} >
+                                <span className="cursor-pointer text-green-500" onClick={HandleResendOTP} >
                                     Resend
                                 </span>
                             </p>
-                        </div> :  <div className="w-72 max-lg:m-auto mt-2">   
+                        </div> : <div className="w-72 max-lg:m-auto mt-2">
                             <p className="text-gray-500 text-center">
                                 Resend OTP in {timer} seconds
                             </p>
-                        </div> 
+                        </div>
                         }
 
                     </div>
 
                     <div className="w-3/6 hidden lg:block">
                         <img
-                            src="images/image.jpg" 
+                            src="images/image.jpg"
                             alt="Building"
                             className="w-full h-full object-cover rounded-xl"
                         />
                     </div>
                 </div>
-            </div>)
-           }
+            </div>
+
         </>
     );
 }
@@ -279,8 +338,8 @@ export default function Login() {
     //         navigate("/concierge");
     //     }
     // },[]);
-
-
+    
+    const [loading, setLoading] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState('+91');
     const [phone, setPhone] = useState('');
     const [passwordlogin, setpasswordlogin] = useState(true);
@@ -297,37 +356,47 @@ export default function Login() {
     const HandleOTPLogin= async (e)=>{
         e.preventDefault();
         // phone should be numberic
+        setLoading(true);
         if(isNaN(phone)){
             toast.error("Invalid Phone number");
+            setLoading(false);
             return;
         }
         if(phone.length!==10){
             toast.error("Inavlid Phone number");
+            setLoading(false);
             return;
         }
         else{
             await Authenticate({ channel: "PHONE", phone: phone, countryCode: selectedCountry });
+            setLoading(false);
             toast.success("OTP Sent");
+            console.log("OTP Sent");
             setVerify(true);setpasswordlogin(false) ;
         }
+        setLoading(false);
     }
 
-    const HandlePasswordLogin=(e)=>{
-        e.preventDefault();
+    const HandlePasswordLogin=async (e)=>{
+        e.preventDefault(); 
+        setLoading(true);
         if(isNaN(phone)){
             toast.error("Invalid Phone number");
+            setLoading(false);
             return;
         }
         if(phone.length!==10){
             toast.error("Inavlid Phone number");
+            setLoading(false);
             return;
         }
         if(password===""){
             toast.error("Password is required");
+            setLoading(false);
             return;
         }
         try{
-            let loginres = fetch(`http://localhost:3300/api/users/login/${selectedCountry+phone}`, {
+            let loginres = await fetch(`http://localhost:3300/api/users/loginwithpassword?phone=${phone}&password=${password}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -336,11 +405,13 @@ export default function Login() {
             if (loginres.status === 500) {
                 toast.error("Something went wrong");
                 console.log("Something went wrong");
+                setLoading(false);
                 return;
             }
-            let loginresjson = loginres.json();
+            let loginresjson = await loginres.json();
             if (loginresjson.success === false) {
                 toast.error("Invalid Credentials");
+                setLoading(false);
                 return;
             }
             let token = loginresjson.token;
@@ -357,17 +428,26 @@ export default function Login() {
                 navigate("/concierge");
             }
                 , 2000);
+            setLoading(false);
             return;
             
         }catch(err){
             toast.error("Something went wrong");
             console.log("Error: "+err); 
-            navigate("/");
+            setTimeout(() => {
+                navigate("/");
+            }
+            , 2000);
+            setLoading(false);
         }
+        setLoading(false);
 
     }
     return (
         <>
+            {loading ? <div className="h-screen w-full backdrop-blur-sm absolute flex justify-center items-center">
+                <Spinner color="amber" className="h-16 w-16" />
+            </div>:null}
             {passwordlogin ? (
                 <div className="min-h-screen flex items-center justify-center ">
                     <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center" >
@@ -458,7 +538,7 @@ export default function Login() {
 
                                 </div>
                             <div className="w-72 max-lg:m-auto">
-                                <Input
+                                <SimpleInput
                                     type={"password"}
                                     placeholder={"Password"}
                                     value={password}
