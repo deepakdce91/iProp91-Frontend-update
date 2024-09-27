@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
 import GoldButton from "../../CompoCards/GoldButton/Goldbutton";
+import { useNavigate } from 'react-router-dom';
 
 function NameHeader (){
     return (
@@ -38,6 +39,7 @@ function NameHeader (){
 
 
 function EditUser() {
+  const navigate = useNavigate();
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +51,10 @@ function EditUser() {
     const fetchUser = async () => {
       // Fetch user data from the server
       let token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/");
+        return;
+      }
       let tokenid = jwtDecode(token);
       // console.log(tokenid);
       // console.log(token);
@@ -225,7 +231,7 @@ function EditUser() {
             <div className="w-full lg:w-72">
               <GoldButton 
                 btnname={"Update Profile"}
-                bgcolor={"bg-gold"}
+                bgcolor={""}
                 onclick={HandleUpdateProfile}
                />
             </div>
@@ -252,7 +258,7 @@ function EditUser() {
             <div className="w-full lg:w-72 flex my-2">
               <GoldButton 
                 btnname={"Update Password"}
-                bgcolor={"bg-gold"}
+                bgcolor={""}
                 onclick={HandleUpdatePassword}
                />
             </div>

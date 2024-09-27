@@ -23,7 +23,7 @@ export default function AllPage() {
                         <Route path="/buysell/*" element={<BuySell/>}/>
                         {/* <Route path="/safe/*" element={<Safe/>}/> */}
                         <Route path="/addproperty" element={<AddProperty/>}/>
-                        <Route path="/update" element={<UpdateUser />} />
+                        <Route path="/profile" element={<UpdateUser />} />
                     </Routes>
                   
                 </div>

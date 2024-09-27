@@ -258,7 +258,7 @@ function Verify({ onclick, phone, countryCode }) {
                 <DialogFooter>
                     <Goldbutton
                         btnname={"Sign Up"}
-                        bgcolor={"bg-gold"}
+                        bgcolor={""}
                         onclick={handleOpen}
                     />
                 </DialogFooter>
@@ -293,7 +293,7 @@ function Verify({ onclick, phone, countryCode }) {
                         <div className="w-72 max-lg:m-auto" >
                             <Goldbutton
                                 btnname={"Verify OTP"}
-                                bgcolor={"bg-gold ml-2"}
+                                bgcolor={" ml-2"}
                                 onclick={HandleVerifyOTP}
                             />
                         </div>
@@ -332,12 +332,12 @@ function Verify({ onclick, phone, countryCode }) {
 export default function Login() {
     const navigate = useNavigate();
 
-    // useEffect(()=>{
-    //     const token = localStorage.getItem("token");
-    //     if (token) {
-    //         navigate("/concierge");
-    //     }
-    // },[]);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            navigate("/concierge");
+        }
+    }, [navigate]);
     
     const [loading, setLoading] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState('+91');
@@ -480,7 +480,7 @@ export default function Login() {
                             <div className="w-72 max-lg:m-auto">
                                 <Goldbutton
                                     btnname={"Send OTP"}
-                                    bgcolor={"bg-gold ml-2"}
+                                    bgcolor={" ml-2"}
                                     onclick={HandleOTPLogin}
                                 />
                             </div> 
@@ -548,7 +548,7 @@ export default function Login() {
                             <div className="w-72 max-lg:m-auto">
                                 <Goldbutton
                                     btnname={"Submit"}
-                                    bgcolor={"bg-gold ml-2"}
+                                    bgcolor={" ml-2"}
                                     onclick={HandlePasswordLogin}
                                 />
                             </div> 

@@ -5,12 +5,12 @@ import { useEffect } from "react"
 export default function AskForLogin() {
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     const token = localStorage.getItem("token");
-    //     if (token) {
-    //         navigate("/concierge");
-    //     }
-    // }, [navigate]);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            navigate("/concierge");
+        }
+    }, [navigate]);
 
 
     return (
@@ -24,7 +24,7 @@ export default function AskForLogin() {
                     <Link to="/authenticate">
                         <Goldbutton
                             btnname={"Authenticate to Continue.."}
-                            bgcolor={"bg-gold"}
+                            bgcolor={""}
                         />
                     </Link>
                 </div>

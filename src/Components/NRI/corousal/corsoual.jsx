@@ -77,8 +77,8 @@ const ExpertContact = () => {
               {scrolled ? 'Call?' : 'Expert'}
             </p>
             <div className="flex m-2 w-full flex-col lg:flex-row min-w-64">
-              <Button btnname={"Drop Your Number"} bgcolor={"bg-gold"} />
-              <Button btnname={"Request a Call"} bgcolor={"bg-gold"} />
+              <Button btnname={"Drop Your Number"} bgcolor={""} />
+              <Button btnname={"Request a Call"} bgcolor={""} />
             </div>
           </div>
           <img

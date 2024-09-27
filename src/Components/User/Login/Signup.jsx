@@ -45,7 +45,7 @@ function EnterName({ phone }) {
                         <div className="w-72">
                             <Goldbutton
                                 btnname={"Submit"}
-                                bgcolor={"bg-gold ml-2"}
+                                bgcolor={" ml-2"}
                                 onclick={() => {
                                     toast.success("User Created Successfully");
                                     navigate("/concierge");
@@ -117,7 +117,7 @@ function Verify({ onclick, phone }) {
                         <div className="w-72">
                             <Goldbutton
                                 btnname={"Verify OTP"}
-                                bgcolor={"bg-gold ml-2"}
+                                bgcolor={" ml-2"}
                                 onclick={HandleVerifyOTP}
                             />
                         </div>
@@ -190,7 +190,7 @@ export default function Signup() {
                             <div className="w-72">
                                 <Goldbutton
                                     btnname={"Send OTP"}
-                                    bgcolor={"bg-gold ml-2"}
+                                    bgcolor={" ml-2"}
                                     onclick={HandleSignup}
                                 />
                             </div>
@@ -205,7 +205,7 @@ export default function Signup() {
                                 <div className="w-72">
                                     <Goldbutton
                                         btnname={"Log in"}
-                                        bgcolor={"bg-gold ml-2"}
+                                        bgcolor={" ml-2"}
                                        
                                     />
                                 </div>

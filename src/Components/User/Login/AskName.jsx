@@ -29,7 +29,7 @@ function AskName() {
                         <div className="w-72">
                             <Goldbutton
                                 btnname={"Submit"}
-                                bgcolor={"bg-gold ml-2"}
+                                bgcolor={" ml-2"}
                                 onclick={() => {
                                     toast.success("User Created Successfully");
                                     navigate("/concierge");

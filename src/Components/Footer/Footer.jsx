@@ -112,7 +112,7 @@ const Footer = () => {
               </div>
               <div className=" md:w-64 mx-2">
                 <Goldbutton
-                  bgcolor={"bg-gold"}
+                  bgcolor={""}
                   btnname={"Subscribe"}
                   onclick={""}
                 ></Goldbutton>

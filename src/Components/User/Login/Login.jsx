@@ -65,7 +65,7 @@ function Verify({ onclick, phone }) {
                         <div className="w-72">
                             <Goldbutton
                                 btnname={"Verify OTP"}
-                                bgcolor={"bg-gold ml-2"}
+                                bgcolor={" ml-2"}
                                 onclick={HandleVerifyOTP}
                             />
                         </div>
@@ -141,7 +141,7 @@ export default function Login() {
                             <div className="w-72">
                                 <Goldbutton
                                     btnname={"Send OTP"}
-                                    bgcolor={"bg-gold ml-2"}
+                                    bgcolor={" ml-2"}
                                     onclick={HandleOTPLogin}
                                 />
                             </div> 
@@ -163,7 +163,7 @@ export default function Login() {
                                 <div className="w-72">
                                     <Goldbutton
                                         btnname={"Sign Up"}
-                                        bgcolor={"bg-gold ml-2"}
+                                        bgcolor={" ml-2"}
                                        
                                     />
                                 </div>
@@ -224,7 +224,7 @@ export default function Login() {
                             <div className="w-72">
                                 <Goldbutton
                                     btnname={"Submit"}
-                                    bgcolor={"bg-gold ml-2"}
+                                    bgcolor={" ml-2"}
                                 // onclick={HandleLogin}
                                 />
                             </div> 
@@ -245,7 +245,7 @@ export default function Login() {
                                 <div className="w-72">
                                     <Goldbutton
                                         btnname={"Sign Up"}
-                                        bgcolor={"bg-gold ml-2"}
+                                        bgcolor={" ml-2"}
                                        
                                     />
                                 </div>

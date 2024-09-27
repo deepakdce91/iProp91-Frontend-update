@@ -6,14 +6,14 @@ import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { jwtDecode } from 'jwt-decode';
 import { client } from '../../../config/s3client'
-import { select } from '@material-tailwind/react';
+import Goldbutton from '../../CompoCards/GoldButton/Goldbutton'
 
 const uploadFileToCloud = async (myFile) => {
   // remove spaces from file name
-  myFile = myFile.name.replace(/\s/g, '');
+  let filename = myFile.name.replace(/\s/g, '');
 
   const userNumber = "5566556656";
-  const myPath = `propertyDocs/${userNumber}/${myFile.name}`;
+  const myPath = `propertyDocs/${userNumber}/${filename}`;
   try {
     const uploadParams = {
       Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
@@ -35,7 +35,7 @@ const uploadFileToCloud = async (myFile) => {
 const getSignedUrlForPrivateFile = async (path) => {
   try {
     const getParams = {
-      Bucket: process.env.REACT_APP_PROPERTY_BUCKET ,
+      Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
       Key: path,
     };
 
@@ -78,7 +78,7 @@ function Addpropform() {
   const handleTermsnCond = (e) => {
     setTermsnCond(e.target.checked);
   };
-  
+
   const [formdata, setFormData] = useState({
     selectedState: "",
     selectedCity: "",
@@ -89,8 +89,8 @@ function Addpropform() {
     selectedTower: "",
     selectedUnit: "",
     selectedSize: "",
-    selectedNature: "",
-    selectedStatus: "",
+    selectedNature: "Residential",
+    selectedStatus: "Under Construction",
     selectDoclist: {
       selectedDocType: selectedDocType,
       selectedDoc: selectedDoc,
@@ -102,7 +102,7 @@ function Addpropform() {
   const handleChange = (e) => {
     setFormData({ ...formdata, [e.target.name]: e.target.value });
     console.log(formdata);
-    };
+  };
 
   // Fetch all states
   const fetchStates = async () => {
@@ -176,11 +176,11 @@ function Addpropform() {
   }, []);
 
   // Fetch cities when the selectedState changes
-    useEffect(() => {
-        if (formdata.selectedState) {
-        fetchCities(formdata.selectedState);
-        }
-    }, [formdata.selectedState]);
+  useEffect(() => {
+    if (formdata.selectedState) {
+      fetchCities(formdata.selectedState);
+    }
+  }, [formdata.selectedState]);
 
   // Fetch builders when the selectedCity changes
   useEffect(() => {
@@ -211,16 +211,15 @@ function Addpropform() {
     // console.log(selectedDocType);
   };
 
- // handles file upload
+  // handles file upload
   const handleFileAdding = (e) => {
-      const files = e.target.files;
-
-      if (files) {
-        // Convert the FileList object into an array and update the state
-        setUploadFiles((prevFiles) => [...prevFiles, ...Array.from(files)]);
-      }
-      // console.log(uploadFiles);
-    };
+    // append files to the state
+    if (e.target.files.length > 0) {
+      setUploadFiles([...uploadFiles, ...e.target.files]);
+    } else {
+      toast.error("Please select a file to upload.");
+    }
+  };
 
   const handleFileUpload = (e) => {
     e.preventDefault();
@@ -249,6 +248,8 @@ function Addpropform() {
       toast.error("Some error occured while uploading.");
       console.log(error.message);
     }
+    setUploadFiles([]);
+    document.getElementById("file").value = "";
   };
 
   // handle submit
@@ -261,16 +262,16 @@ function Addpropform() {
       return toast.error("Please agree to the terms and conditions.");
     }
     // check from validity
-    if ( !formdata.selectedState || !formdata.selectedCity || !formdata.selectBuilder || !formdata.selectProject || !formdata.selectHouseNumber || !formdata.selectFloorNumber || !formdata.selectedTower || !formdata.selectedUnit || !formdata.selectedSize || !formdata.selectedNature || !formdata.selectedStatus || !formdata.selectedName || !formdata.selectDoclist.selectedDocType || !formdata.selectDoclist.selectedDoc) {
+    if (!formdata.selectedState || !formdata.selectedCity || !formdata.selectBuilder || !formdata.selectProject || !formdata.selectHouseNumber || !formdata.selectFloorNumber || !formdata.selectedTower || !formdata.selectedUnit || !formdata.selectedSize || !formdata.selectedNature || !formdata.selectedStatus || !formdata.selectDoclist.selectedDocType || !formdata.selectDoclist.selectedDoc) {
       return toast.error("Please fill all the fields.");
     }
     // check if filed are numeric
-    if(isNaN(formdata.selectHouseNumber) || isNaN(formdata.selectFloorNumber) || isNaN(formdata.selectedSize)){
+    if (isNaN(formdata.selectHouseNumber) || isNaN(formdata.selectFloorNumber) || isNaN(formdata.selectedSize)) {
       return toast.error("Please enter numeric values in house number, floor number and size.");
     }
-    try{
+    try {
       // if selected state is not in the list of states
-      if(!states.find(state => state.name === formdata.selectedState)){
+      if (!states.find(state => state.name === formdata.selectedState)) {
         const response = await fetch("http://localhost:3300/api/state/addstate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -278,7 +279,7 @@ function Addpropform() {
         });
       }
       // if selected city is not in the list of cities
-      if(!cities.find(city => city.name === formdata.selectedCity)){
+      if (!cities.find(city => city.name === formdata.selectedCity)) {
         const response = await fetch("http://localhost:3300/api/city/addcity", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -287,7 +288,7 @@ function Addpropform() {
       }
 
       // if selected builder is not in the list of builders
-      if(!builders.find(builder => builder.name === formdata.selectBuilder)){
+      if (!builders.find(builder => builder.name === formdata.selectBuilder)) {
         const response = await fetch("http://localhost:3300/api/builders/addbuilder", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -296,7 +297,7 @@ function Addpropform() {
       }
 
       // if selected project is not in the list of projects
-      if(!projects.find(project => project.name === formdata.selectProject)){
+      if (!projects.find(project => project.name === formdata.selectProject)) {
         const response = await fetch("http://localhost:3300/api/projects/addproject", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -305,13 +306,13 @@ function Addpropform() {
       }
 
 
-    }catch(error){
+    } catch (error) {
       console.error(error.message);
       toast.error("Some ERROR occurred.");
     }
     try {
 
-      if(uploadStatus === false){
+      if (uploadStatus === false) {
         return toast.error("Please upload the documents.");
       }
       let token = localStorage.getItem("token");
@@ -342,7 +343,7 @@ function Addpropform() {
         }),
       });
 
-      if(response.status !== 200) {
+      if (response.status !== 200) {
         return toast.error("Please fill all the fields.");
       }
       const data = await response.json();
@@ -361,7 +362,6 @@ function Addpropform() {
           selectedSize: "",
           selectedNature: "",
           selectedStatus: "",
-          selectedName: "",
           selectDoclist: {
             selectedDocType: "",
             selectedDoc: [],
@@ -428,7 +428,8 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
-
+              </div>
+              <div className="flex flex-col xl:flex-row w-full">
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Select Builder
@@ -506,7 +507,9 @@ function Addpropform() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
-                  
+              </div>
+              <div className="flex flex-col xl:flex-row w-full">
+
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Enter Tower
@@ -554,7 +557,7 @@ function Addpropform() {
                 </div>
 
                 {/* Size Unit */}
-                
+
               </div>
 
               {/* Nature of Property */}
@@ -578,23 +581,24 @@ function Addpropform() {
                   </select> */}
                   {/* radiobutton */}
                   <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex flex-row border rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border  items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="residential"
                         name="selectedNature"
                         value="Residential"
                         type="radio"
                         onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        className="h-4 w-4 text-yellow-600  focus:ring-yellow-500 border-gray-300"
+                        checked
                       />
                       <label
                         htmlFor="residential"
-                        className="ml-1 block text-sm font-medium text-gray-700"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
                       >
                         Residential
                       </label>
                     </div>
-                    <div className="flex flex-row border rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="commercial"
                         name="selectedNature"
@@ -605,7 +609,7 @@ function Addpropform() {
                       />
                       <label
                         htmlFor="commercial"
-                        className="ml-1 block text-sm font-medium text-gray-700"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
                       >
                         Commercial
                       </label>
@@ -618,22 +622,10 @@ function Addpropform() {
                   <label className="block text-sm font-medium text-gray-700">
                     Select Status
                   </label>
-                  {/* <select 
-                    id="status"
-                    name="selectedStatus"
-                    value={formdata.selectedStatus}
-                    onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white">
-                    <option>Select Status</option>
-                    <option value="Under Construction">
-                      Under Construction
-                    </option>
-                    <option value="Completed">Completed</option>
-                    {/* Add options here 
-                  </select> */}
+                 
                   {/* radiobutton */}
                   <div className="flex items-center w-full mt-1  gap-2">
-                    <div className="flex flex-row border rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="underconstruction"
                         name="selectedStatus"
@@ -641,15 +633,16 @@ function Addpropform() {
                         type="radio"
                         onChange={handleChange}
                         className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        checked
                       />
                       <label
                         htmlFor="underconstruction"
-                        className="ml-1 block text-sm font-medium text-gray-700 text-nowrap"
+                        className="ml-1 w-full block text-sm font-medium text-gray-700 text-nowrap"
                       >
                         Under Construction
                       </label>
                     </div>
-                    <div className="flex flex-row border rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="completed"
                         name="selectedStatus"
@@ -660,7 +653,7 @@ function Addpropform() {
                       />
                       <label
                         htmlFor="completed"
-                        className="ml-1 block text-sm font-medium text-gray-700"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
                       >
                         Completed
                       </label>
@@ -668,21 +661,11 @@ function Addpropform() {
                   </div>
                 </div>
 
-                {/* Property Name */}
-                <div className="my-2 xl:m-2 w-full">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Enter Property Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="selectedName"
-                    value={formdata.selectedName}
-                    onChange={handleChange}
-                    placeholder="Name"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                  />
-                </div>
+
+
+              </div>
+
+              <div className="flex flex-col lg:flex-row w-full items-end">
 
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
@@ -703,9 +686,7 @@ function Addpropform() {
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="flex flex-col lg:flex-row w-full items-end">
                 {/* File Upload */}
                 <div className="w-full  my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
@@ -722,14 +703,11 @@ function Addpropform() {
                 </div>
 
                 {/* Upload Button */}
-                <div className="w-48  my-2 xl:m-2 ">
-                  <button
-                    type="submit"
-                    onClick={handleFileUpload}
-                    className="w-48 flex justify-center py-2 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-gold hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                  >
-                    Upload
-                  </button>
+                <div className="w-96  my-2 xl:m-2 ">
+                  <Goldbutton
+                    btnname={"Upload"}
+                    onclick={handleFileUpload}
+                  ></Goldbutton>
                 </div>
               </div>
 
@@ -754,14 +732,11 @@ function Addpropform() {
               </div>
 
               {/* Submit Button */}
-              <div className="my-2 xl:m-2">
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  className="w-48 flex justify-center py-2 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-gold hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                >
-                  Submit
-                </button>
+              <div className="my-2 w-48 xl:m-2">
+                <Goldbutton
+                  btnname={"Submit"}
+                  onclick={handleSubmit}
+                ></Goldbutton>
               </div>
             </div>
           </form>
