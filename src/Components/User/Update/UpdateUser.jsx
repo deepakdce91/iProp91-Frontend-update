@@ -5,6 +5,31 @@ import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
 import GoldButton from "../../CompoCards/GoldButton/Goldbutton";
 import { useNavigate } from 'react-router-dom';
+import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { client } from '../../../config/s3client'
+
+const uploadFileToCloud = async (myFile) => {
+  // remove spaces from file name
+  myFile = myFile.replace(/\s+/g, "");
+  const myPath = `profile/${myFile}`;
+  try {
+    const uploadParams = {
+      Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+      Key: myPath,
+      Body: myFile, // The file content
+      ContentType: myFile.type, // The MIME type of the file
+    };
+    // console.log("Uploading file:", myFile.name);
+    const command = new PutObjectCommand(uploadParams);
+    await client.send(command);
+    return myPath; //  return the file path
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
+
 
 function NameHeader (){
     return (
@@ -71,6 +96,7 @@ function EditUser() {
         setName(data.data.name);
         setPhone(data.data.phone);
         setEmail(data.data.email);
+        setImage(data.data.profilePicture);
       }
       catch (error) {
         console.log(error);
@@ -98,6 +124,15 @@ function EditUser() {
       toast.error("Please fill all the fields");
       return;
     }
+    try {
+      if(image){
+        let imagePath = await uploadFileToCloud(image);
+        setImage(imagePath);
+      }
+    } catch (error) {
+      toast.error("Some error occured while uploading.");
+      console.log(error.message);
+    }
     try{
       let token = localStorage.getItem("token");
       let tokenid = jwtDecode(token);
@@ -111,7 +146,7 @@ function EditUser() {
           name: name,
           email: email,
           phone: phone,
-          profilePicture : "image",
+          profilePicture : image,
         }),
       });
       if(!response.ok){
@@ -176,19 +211,48 @@ function EditUser() {
           <div className="flex flex-row my-1 px-2 lg:gap-4 w-full">
              {/* image Input  */}
             <div className="w-full ">
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden">
-                <img
-                    src={image ? image : "https://www.pngkey.com/png/full/114-1149878_setting-user-avatar-in-specific-size-without-breaking.png"}
+              <div className="flex w-full flex-col lg:flex-row justify-center items-center">
+                <div className="w-full lg:w-1/5 my-1 rounded-full overflow-hidden flex items-center justify-center">
+                  <img
+                    src={image ? image : "/avtar/polo.jpg"}
                     alt="profile"
-                    className="w-full h-full object-cover"
+                    className="relative inline-block h-[110px] w-[110px] !rounded-full  object-cover object-center border-2 border-yellow-600 p-1"
                   />
                 </div>
-                <label className="text-gray-900 font-[400] my-2 text-lg dark:text-white"
-                >Profile Photo</label>
-                <input type="file" placeholder="choose profile photo" className="mt-1 block w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
-                  onChange={handleImageChange}
-                 />
+
+                <div className="w-full lg:w-2/5 my-1">
+                  <label className="text-gray-900 font-[500] my-2  dark:text-white" htmlFor="profilePhoto"  >Choose from avatars</label>
+                  <div className="w-full flex flex-row">
+                   <img src="/avtar/polo.jpg" alt="" 
+                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
+                   onClick={() => setImage("/avtar/polo.jpg")}
+                   />
+                   <img src="/avtar/ferrari.jpg" alt="" 
+                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
+                    onClick={() => setImage("/avtar/ferrari.jpg")}
+                   />
+                   <img src="/avtar/golf.jpg" alt="" 
+                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
+                    onClick={() => setImage("/avtar/golf.jpg")}
+                   />
+                   <img src="/avtar/pocker.jpg" alt="" 
+                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
+                    onClick={() => setImage("/avtar/pocker.jpg")}
+                   />
+                   <img src="/avtar/yatch.jpg" alt="" 
+                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
+                    onClick={() => setImage("/avtar/yatch.jpg")}
+                   />
+                  </div>
+                </div>
+                <div className="w-full lg:w-2/5 my-1">
+                  <label className="text-gray-900 font-[500] my-2  dark:text-white" htmlFor="profilePhoto"  >Choose from device</label>
+                  <input type="file" placeholder="choose profile photo" className="mt-1 block cursor-pointer w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+                    onChange={handleImageChange}
+                  />
+
+                </div>
+
               </div>
             </div>
 
@@ -196,7 +260,7 @@ function EditUser() {
           <div className="flex flex-col lg:flex-row lg:gap-4 my-1 px-2 w-full">
             <div className="w-full ">
               <LabelInput
-                label={"First Name"}
+                label={"Name"}
                 type={"text"}
                 placeholder={"Enter full name"}
                 value={name}
@@ -240,7 +304,7 @@ function EditUser() {
             <div className="w-full ">
               <LabelInput
                 label={"New Password"}
-                type={"text"}
+                type={"password"}
                 placeholder={"Enter new password"}
                 value={newPassword}
                 setValue={setNewPassword}
@@ -249,7 +313,7 @@ function EditUser() {
             <div className="w-full">
               <LabelInput
                 label={"Confirm Password"}
-                type={"text"}
+                type={"password"}
                 placeholder={"Enter password again"}
                 value={confirmPassword}
                 setValue={setConfirmPassword}

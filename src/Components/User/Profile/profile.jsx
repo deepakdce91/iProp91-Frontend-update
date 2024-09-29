@@ -1,12 +1,45 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import {jwtDecode} from 'jwt-decode';
 export default function Profile() {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null); // Create a reference for the dropdown
+    const [user, setUser] = useState({});
+    const [dataloaded, setDataloaded] = useState(false);
+    useEffect(() => {
 
-    
+        const fetchUser = async () => {
+          // Fetch user data from the server
+          let token = localStorage.getItem("token");
+          if (!token) {
+            navigate("/");
+            return;
+          }
+          let tokenid = jwtDecode(token);
+        //   console.log(tokenid);
+        //   console.log(token);
+          try {
+            const response = await fetch(`http://localhost:3300/api/users/getuserdetails?userId=${tokenid.userId}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+            });
+            const data = await response.json();
+            console.log(data);
+            setUser(data);
+            setDataloaded(true);
+          }
+          catch (error) {
+            console.log(error);
+          }
+        }
+        fetchUser();
+      }, []);
+
+      
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
@@ -40,14 +73,16 @@ export default function Profile() {
                     onClick={toggleDropdown}
                     className="px-1 py-1 flex mt-auto mb-auto"
                 >
-                    <span className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full mt-auto mb-auto mr-1">
+                    <span className="relative flex h-10 w-10 shrink-0 border-2 border-gold overflow-hidden rounded-full mt-auto mb-auto mr-1">
                         <img
-                            className="aspect-square h-full w-full"
+                            className="aspect-square h-full w-full "
                             alt="profilePic"
-                            src="https://images.unsplash.com/photo-1523560220134-8f26a720703c?q=80&amp;w=1854&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            src={dataloaded && user.data.profilePicture}
                         />
                     </span>
-                    <p className="mt-auto mb-auto text-sm mx-1">Jatin</p>
+                    <p className="mt-auto mb-auto text-sm mx-1">
+                        {dataloaded && user.data.name.split(' ')[0]}
+                    </p>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"

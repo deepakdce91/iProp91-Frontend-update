@@ -5,6 +5,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.650.0",
     "@aws-sdk/s3-request-presigner": "^3.650.0",
+    "@chakra-ui/avatar": "^2.3.0",
     "@heroicons/react": "^2.1.5",
     "@material-tailwind/react": "^2.0.8",
     "@testing-library/jest-dom": "^5.17.0",
