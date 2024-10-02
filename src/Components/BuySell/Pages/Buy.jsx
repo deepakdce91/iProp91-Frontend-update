@@ -1,8 +1,13 @@
-import PropCard from "../Cards/PropCard";
-import PropCard2 from "../Cards/PropCard2";
+import PropCard from "../../CompoCards/Cards/PropCard";
+import PropCard2 from "../../CompoCards/Cards/PropCard";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import "../css/embla.css";
+import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 
@@ -89,8 +94,6 @@ const numberWithinRange = (number, min, max) =>
   Math.min(Math.max(number, min), max);
 
 const OPTIONS = { loop: true };
-// SLIDES should be PropCard2 list
-const SLIDES = [<PropCard2 />, <PropCard2 />, <PropCard2 />];
 
 const EmblaCarousel = (props) => {
   const { slides, options } = props;
@@ -191,25 +194,52 @@ const EmblaCarousel = (props) => {
 };
 
 export default function MyProperties() {
+  const [prop, setProp] = useState([]);
+  const [SLIDES, setSlides] = useState([]);
+  useEffect(() => {
+    // fetch properties from the server
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+
+    const fetchProperties = async () => {
+      const response = await fetch(`http://localhost:3300/api/property/fetchallproperties?userId=${decoded.userId}`,{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        }
+      });
+      if(response.ok){
+        const properties = await response.json();
+        setProp(properties);
+        properties.map((property) => {
+          // conver to object and then push
+        
+          setSlides((prev) => [...prev,
+            <Link to={"/safe/Dealing/"+property._id}>
+              <PropCard2 key={property._id} props={property}/>
+            </Link>
+          ]);
+        });
+        console.log("SLIDES=", SLIDES);
+        console.log(properties);
+        return;
+      }
+      toast.error("Error fetching properties");
+    }
+    fetchProperties();
+  }, []);
+
+
     return (
       <>
         <div className=" flex  flex-col">
-          <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 justify-center" >
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
-            <PropCard />
+          <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 " >
+            {prop.map((property) => (
+          <Link to={"/safe/Dealing/"+property._id}>
+            <PropCard key={property._id} props={property}/>
+          </Link>
+         ))}
           </div>
   
           <div className="lg:!hidden  pb-5 mt-10">

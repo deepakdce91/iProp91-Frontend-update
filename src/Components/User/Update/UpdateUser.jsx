@@ -107,6 +107,7 @@ function EditUser() {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    console.log(file)
     if(!file.type.includes("image")){
       toast.error("Please select an image file");
       setImage(null);

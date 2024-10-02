@@ -60,6 +60,8 @@ function Addpropform() {
     document.title = "iProp91 | Add My Property";
   }, []);
 
+  // Get user from backend
+  const [user, setUser] = useState({});
   // get from backend
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -96,7 +98,6 @@ function Addpropform() {
       selectedDoc: selectedDoc,
     },
     enable: "no",
-    addedBy: "Unknown",
   });
 
   const handleChange = (e) => {
@@ -104,11 +105,46 @@ function Addpropform() {
     console.log(formdata);
   };
 
+
+  // Fetch User Details
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
+    const fetchUser = async () => { 
+      try {
+        const response = await fetch(`http://localhost:3300/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          }
+        });
+        if (response.ok) {
+          const user = await response.json();
+          setUser(user);
+          console.log("User:", user);
+          return;
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    fetchUser();
+  }, []);
+
   // Fetch all states
   const fetchStates = async () => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        "http://localhost:3300/api/state/fetchallstates"
+        `http://localhost:3300/api/state/fetchallstates?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":token,
+          },
+        }
       );
       const states = await response.json();
       setStates(states);
@@ -119,9 +155,17 @@ function Addpropform() {
 
   // Fetch cities based on selected state
   const fetchCities = async (state) => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/city/fetchcitiesbystate/${state}`
+        `http://localhost:3300/api/city/fetchcitiesbystate/${state}?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":token,
+          },
+        }
       );
       const cities = await response.json();
       setCities(cities);
@@ -132,9 +176,17 @@ function Addpropform() {
 
   // Fetch builders based on selected city
   const fetchBuilders = async (city) => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/builders/fetchbuildersbycity/${city}`
+        `http://localhost:3300/api/builders/fetchbuildersbycity/${city}?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":token,
+          }, 
+        }
       );
       const builders = await response.json();
       setBuilders(builders);
@@ -145,9 +197,17 @@ function Addpropform() {
 
   // Fetch projects based on selected builder
   const fetchProjects = async (builder) => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/projects/fetchprojectbybuilder/${builder}`
+        `http://localhost:3300/api/projects/fetchprojectbybuilder/${builder}?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":token,
+          },
+        }
       );
       const projects = await response.json();
       setProjects(projects);
@@ -159,9 +219,16 @@ function Addpropform() {
 
   // Fetch document types
   const fetchDocTypes = async () => {
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        "http://localhost:3300/api/documentType/fetchallDocumentTypes"
+        `http://localhost:3300/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token":token,
+          },}
       );
       const doctypes = await response.json();
       setDocTypes(doctypes);
@@ -272,35 +339,51 @@ function Addpropform() {
     try {
       // if selected state is not in the list of states
       if (!states.find(state => state.name === formdata.selectedState)) {
-        const response = await fetch("http://localhost:3300/api/state/addstate", {
+        const token = localStorage.getItem("token");
+        const tokenid = jwtDecode(token);
+        const response = await fetch(`http://localhost:3300/api/state/addstate?userId=${tokenid.userId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+          "auth-token":token,
+           },
           body: JSON.stringify({ name: formdata.selectedState }),
         });
       }
       // if selected city is not in the list of cities
       if (!cities.find(city => city.name === formdata.selectedCity)) {
-        const response = await fetch("http://localhost:3300/api/city/addcity", {
+        const token = localStorage.getItem("token");
+        const tokenid = jwtDecode(token);
+        const response = await fetch(`http://localhost:3300/api/city/addcity?userId=${tokenid.userId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+          "auth-token":token,
+           },
           body: JSON.stringify({ name: formdata.selectedCity, state: formdata.selectedState }),
         });
       }
 
       // if selected builder is not in the list of builders
       if (!builders.find(builder => builder.name === formdata.selectBuilder)) {
-        const response = await fetch("http://localhost:3300/api/builders/addbuilder", {
+        const token = localStorage.getItem("token");
+        const tokenid = jwtDecode(token);
+        const response = await fetch(`http://localhost:3300/api/builders/addbuilder?userId=${tokenid.userId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+          "auth-token":token,
+           },
           body: JSON.stringify({ name: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState }),
         });
       }
 
       // if selected project is not in the list of projects
       if (!projects.find(project => project.name === formdata.selectProject)) {
-        const response = await fetch("http://localhost:3300/api/projects/addproject", {
+        const token = localStorage.getItem("token");
+        const tokenid = jwtDecode(token);
+        const response = await fetch(`http://localhost:3300/api/projects/addproject?userId=${tokenid.userId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+          "auth-token":token,
+           },
           body: JSON.stringify({ name: formdata.selectProject, builder: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState }),
         });
       }
@@ -317,11 +400,14 @@ function Addpropform() {
       }
       let token = localStorage.getItem("token");
       let tokenid = jwtDecode(token);
-      const response = await fetch("http://localhost:3300/api/property/addproperty", {
+      const response = await fetch(`http://localhost:3300/api/property/addproperty?userId=${tokenid.userId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+        "auth-token":token,
+         },
         body: JSON.stringify({
-          customerId: tokenid.userId,
+          customerName: user.name,
+          customerNumber: user.phone,
           state: formdata.selectedState,
           city: formdata.selectedCity,
           builder: formdata.selectBuilder,
@@ -338,7 +424,7 @@ function Addpropform() {
             files: formdata.selectDoclist.selectedDoc,
           },
           enable: formdata.enable,
-          addedBy: formdata.addedBy,
+          addedBy:  tokenid.userId,
           applicationStatus: "under-review",
         }),
       });
@@ -367,7 +453,6 @@ function Addpropform() {
             selectedDoc: [],
           },
           enable: "no",
-          addedBy: "Unknown",
         });
       }
     } catch (error) {
@@ -566,19 +651,6 @@ function Addpropform() {
                   <label className="block text-sm font-medium text-gray-700">
                     Select Nature of Property
                   </label>
-                  {/* <select
-                    id="nature"
-                    name="selectedNature"
-                    value={formdata.selectedNature}
-                    onChange={handleChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                  >
-                    <option>Select Nature of Property</option>
-                    <option value="Residential">Residential</option>
-                    <option value="Commerical Office">Commercial Office</option>
-                    <option vlaue="Commerical Shop">Commercial Shop</option>
-
-                  </select> */}
                   {/* radiobutton */}
                   <div className="flex items-center w-full mt-1 gap-2">
                     <div className="flex w-full flex-row border  items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">

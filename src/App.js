@@ -4,7 +4,7 @@ import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import AskForLogin from "./Components/User/Login/askforlogin.jsx";
 import Auth from "./Components/User/Login/Auth.jsx";
 import AskName from "./Components/User/Login/AskName.jsx";
-
+import Landing from "./Components/Landing/landing.jsx"
 function App() {
   return (
     <>
@@ -12,6 +12,7 @@ function App() {
         <div className="Poppins">
           {/* <Footer /> */}
           <Routes>
+            {/* <Route path="/" element={<Landing />} /> */}
             <Route path="/" element={<AskForLogin />} />
             <Route path="/authenticate" element={<Auth />} />
             <Route path="/name" element={<AskName />} />

@@ -3,19 +3,21 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const ConciergeLink = [
-  { name: "Property Details", link: "/safe/Dealing" },
-  { name: "Documents", link: "/safe/Dealing/Documents" },
-  { name: "Handbook", link: "/safe/Dealing/Handbook" },
-  { name: "Loans", link: "/safe/Dealing/Loans" },
-  { name: "Rental", link: "/safe/Dealing/Rental" },
-  { name: "Recent Updates", link: "/safe/Dealing/RecentUpdates" },
+  { name: "Property Details", link: "/" },
+  { name: "Documents", link: "/Documents" },
+  { name: "Handbook", link: "/Handbook" },
+  { name: "Loans", link: "/Loans" },
+  { name: "Rental", link: "/Rental" },
+  { name: "Recent Updates", link: "/RecentUpdates" },
 ];
 
 export default function Links() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const location = useLocation();
-
+  // take property id from the url
+  const propid = location.pathname.split("/")[3];
+  console.log("propid=", propid);
   // Toggle the dropdown visibility
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -35,9 +37,7 @@ export default function Links() {
     };
   }, []);
 
-  const currentLink =
-    ConciergeLink.find((link) => link.link === location.pathname) ||
-    ConciergeLink[0];
+  const currentLink = ConciergeLink.find((link) => link.link === "/"+window.location.pathname.split('/')[4] ) || ConciergeLink[0];  
 
   return (
     <>
@@ -71,7 +71,7 @@ export default function Links() {
                 {ConciergeLink.map((link, index) => (
                   <Link
                     key={index}
-                    to={link.link}
+                    to={"/safe/Dealing/"+propid+link.link}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setIsOpen(false)}
                   >
@@ -105,7 +105,7 @@ export default function Links() {
       >
         {ConciergeLink.map((item, index) => (
           <Link
-            to={item.link}
+            to={"/safe/Dealing/"+propid+item.link}
             className={`justify-center whitespace-nowrap rounded-lg px-4 border-2 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               // if location.pathname include  item.link then add border-simple else add border-transparent
               location.pathname === item.link

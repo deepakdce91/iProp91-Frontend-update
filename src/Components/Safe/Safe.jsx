@@ -7,7 +7,7 @@ export default function Safe() {
       <div className="h-screen overflow-y-scroll no-scrollbar bg-[#F9F9F9]">
         <Routes>
           <Route path="*" element={<FirstSafe />} />
-          <Route path="/Dealing/*" element={<Dealing />} />
+          <Route path="/Dealing/:propid/*" element={<Dealing />} />
         </Routes>
       </div>
     </>
