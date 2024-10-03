@@ -4,11 +4,6 @@ import { useState } from 'react';
 import {jwtDecode} from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-const LoanAgreement = [
-    { id: 1, name: 'Whatsapp.img123123', size: '345kb', date: '22/03/2024' },
-    { id: 2, name: 'Whatsapp.img123123', size: '324mb', date: '24/03/2024' },
-    { id: 3, name: 'Whatsapp.img123123', size: '324mb', date: '24/03/2024' },
-];
 
 
 export default function RecentUpdate({data,safeid}) {

@@ -35,5 +35,24 @@ const uploadFileToCloud = async (myFile,userphone) => {
   }
 };
 
-export { client, uploadFileToCloud };
+const getSignedUrlForPrivateFile = async(path) => {
+  try {
+    const getParams = {
+      Bucket: process.env.REACT_APP_PROPERTY_BUCKET, 
+      Key: path, 
+    };
+
+    const command = new GetObjectCommand(getParams);
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 }); // URL valid for 1 hour
+
+    console.log('Signed URL:', signedUrl);
+    return signedUrl;
+  } catch (error) {
+    console.error('Error getting signed URL:', error);
+    throw error;
+  }
+};
+
+
+export { client, uploadFileToCloud, getSignedUrlForPrivateFile };
 

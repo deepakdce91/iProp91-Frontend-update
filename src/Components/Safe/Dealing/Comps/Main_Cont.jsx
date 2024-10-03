@@ -12,6 +12,8 @@ import { useState } from 'react';
 import {jwtDecode} from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Spinner } from "@material-tailwind/react";
+
 
 export default function Conci() {
   const [SafeData, setSafeData] = useState([]);
@@ -49,7 +51,7 @@ export default function Conci() {
   return (
     <>
       <div className="flex flex-col  z-50 ">
-          <div className="w-full z-40 ">
+          <div className="w-full  ">
             <Links />
           </div>
           <div className="w-full mt-10">
@@ -57,7 +59,15 @@ export default function Conci() {
                 <Route path="/*" element={<PropDetails />} />
                 <Route path="/Documents/*" element={<Documents />} />
                 <Route path="/Handbook" element={<Handbook />} />
-                <Route path="/Loans" element={<Loans />} />
+                <Route path="/Loans" element={
+                  SafeData.data ? (
+                    <Loans data={SafeData} safeid={safeid} />
+                  ) : (
+                    <div className="relative top-10 w-full backdrop-blur-sm  flex justify-center items-center" >
+                    <Spinner color="amber" className="h-16 w-16" />
+                </div>
+                  )
+                } />
                 <Route path="/Rental" element={<Rental />} />
             <Route
               path="/RecentUpdates"
@@ -65,7 +75,9 @@ export default function Conci() {
                 SafeData.data && SafeData.data.recentUpdates ? (
                   <RecentUpdates data={SafeData}  safeid={safeid}  />
                 ) : (
-                  <div>Loading...</div>
+                  <div className="relative top-10 w-full backdrop-blur-sm  flex justify-center items-center" >
+                  <Spinner color="amber" className="h-16 w-16" />
+              </div> 
                 )
               }/>
             </Routes>

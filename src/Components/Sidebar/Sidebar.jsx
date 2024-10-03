@@ -36,7 +36,7 @@ const Linklist = {
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <div className="fixed top-0 inset-0 z-50 lg:hidden bg-gray-800 bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0" style={{zIndex: '10001'}}>
+    <div className="fixed top-0 inset-0 z-50 lg:hidden bg-gray-800 bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
       <div className="w-full bg-primary h-full flex flex-col">
         <div className="flex justify-end px-3 py-2">
           <button onClick={onClose} className="p-2">
@@ -82,7 +82,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="sticky top-0  bottom-0" style={{zIndex:'10001'}}>
+      <div className="sticky top-0  bottom-0">
         <div className="hidden lg:!flex h-screen flex-col z-50 w-44 justify-start shadow-xl gap-4 overflow-y-scroll p-2 no-scrollbar">
           <img
             alt=""
