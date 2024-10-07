@@ -17,7 +17,7 @@ export default function Links() {
   const location = useLocation();
   // take property id from the url
   const propid = location.pathname.split("/")[3];
-  console.log("propid=", propid);
+  // console.log("propid=", propid);
   // Toggle the dropdown visibility
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -108,7 +108,7 @@ export default function Links() {
             to={"/safe/Dealing/"+propid+item.link}
             className={`justify-center whitespace-nowrap rounded-lg px-4 border-2 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               // if location.pathname include  item.link then add border-simple else add border-transparent
-              location.pathname === item.link
+              location.pathname === "/safe/Dealing/"+propid+item.link
                 ? "border-simple"
                 : "border-transparent"
             }`}

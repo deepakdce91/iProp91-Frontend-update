@@ -3,431 +3,102 @@ import { Link } from "react-router-dom";
 import { useRef,useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Routes ,Route} from "react-router-dom";
-import Table from "../Comps/Tables/Table";
-
+import Table from "../../../CompoCards/Tables/Table"
 
 const Data = {
   "Pre-RERA Approval": {
     title: "Pre-RERA Approval",
-    data :{
-      "Layout Plan": [
+    data :[
         {
           name: "Layout Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Layout Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Layout Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Layout Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Layout Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Demarcation cum  zoning plan": [
-        {
-          name: "Demarcation cum zoning plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "layoutPlan",
         },
         {
           name: "Demarcation cum zoning plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Demarcation cum zoning plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Demarcation cum zoning plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Demarcation cum zoning plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Site Plan": [
-        {
-          name: "Site Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "demarcationCumZoningPlan",
         },
         {
           name: "Site Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Site Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Site Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Site Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Building Plan": [
-        {
-          name: "Building Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "sitePlan",
         },
         {
           name: "Building Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Building Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Building Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Building Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Floor Plan": [
-        {
-          name: "Floor Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "buildingPlan",
         },
         {
           name: "Floor Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Floor Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Floor Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Floor Plan",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-    }
+          category: "floorPlan",
+        },  
+    ]
   },
   "RERA Application": {
     title:"RERA Application",
-    data:{
-      "RERA Application": [
+    data:[
         {
           name: "RERA Application",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Application",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Application",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Application",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Application",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-    }
+          category: "reraApplication",
+        }     
+      ]
     },
   "RERA Approval": {
     title:"RERA Approval",
-    data:{
-      "RERA Approval": [
+    data:[
         {
           name: "RERA Approval",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Approval",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Approval",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Approval",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "RERA Approval",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "reraApproval",
         }
-      ],
-    }
+    ]
   },
   "Post RERA Approval": {
     title: "Post RERA Approval",
-    data:{
-      "Project Brochure": [
+    data:[
         {
           name: "Project Brochure",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Project Brochure",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Project Brochure",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Project Brochure",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Project Brochure",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Advertisement or Marketting Material": [
-        {
-          name: "Advertisement or Marketting Material",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "projectBrochure",
         },
         {
           name: "Advertisement or Marketting Material",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Advertisement or Marketting Material",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Advertisement or Marketting Material",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Advertisement or Marketting Material",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Allotment Letter": [
-        {
-          name: "Allotment Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "advertisementMaterialByBulder",
         },
         {
           name: "Allotment Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "allotmentLetter",
         },
-        {
-          name: "Allotment Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Allotment Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Allotment Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Agreement for Sale": [
-        {
+        { 
           name: "Agreement for Sale",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Agreement for Sale",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Agreement for Sale",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Agreement for Sale",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Agreement for Sale",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Builder Buyer Agreement": [
-        {
-          name: "Builder Buyer Agreement",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "agreementToSale",
+
         },
         {
           name: "Builder Buyer Agreement",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Builder Buyer Agreement",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Builder Buyer Agreement",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Demand Letter": [
-        {
-          name: "Demand Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "builderBuyerAgreement",
         },
         {
           name: "Demand Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          category: "demandLetter",
         },
         {
-          name: "Demand Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          name: "Payment Reciept",
+          category: "paymentPlan",
         },
         {
-          name: "Demand Letter",
-          size: "2.5 MB",
-          date: "12/12/2021",
+          name: "Specifications, Amenities and Facilities",
+          category: "specificationsAmenitiesAndFacilities",
         }
-      ],
-      "Payment Reciept": [
-        {
-          name: "Payment Reciept",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Payment Reciept",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Payment Reciept",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Payment Reciept",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ],
-      "Specifications, Amenities and Facilities": [
-        {
-          name: "Specifications, Amenities and Facilities",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Specifications, Amenities and Facilities",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Specifications, Amenities and Facilities",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Specifications, Amenities and Facilities",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        },
-        {
-          name: "Specifications, Amenities and Facilities",
-          size: "2.5 MB",
-          date: "12/12/2021",
-        }
-      ]
-    }
+    ]
+ 
   }
 }
 
-const NameHeader = () => {
+const NameHeader = ({Header}) => {
   return (
     <>
-      <div className="text-2xl px-10   my-2">Mahira Homes 63A</div>
+      <div className="text-2xl px-10   my-2">{Header}</div>
     </>
   );
 };
 
-const Links = () => {
+const Links = ({PropId}) => {
   // Reference to the navigation container
   const navRef = useRef(null);
   const location = useLocation();
@@ -455,39 +126,39 @@ const Links = () => {
   const links = [
     {
       title: "Pre-RERA Approval",
-      to: "/safe/Dealing/Documents",
+      to: "/",
     },
     {
       title: "Occupation Certificate",
-      to: "/safe/Dealing/Documents/occupation-certificate",
+      to: "/occupation-certificate",
     },
     {
       title: "Sale Deed",
-      to: "/safe/Dealing/Documents/sale-deed",
+      to: "/sale-deed",
     },
     {
       title: "Maintenance Agreement",
-      to: "/safe/Dealing/Documents/maintenance-agreement",
+      to: "/maintenance-agreement",
     },
     {
       title: "Electrical Appliances",
-      to: "/safe/Dealing/Documents/electrical-appliances",
+      to: "/electrical-appliances",
     },
     {
       title: "Electricity/Maintenance Bills",
-      to: "/safe/Dealing/Documents/electricity-maintenance-bills",
+      to: "/electricity-maintenance-bills",
     },
     {
       title: "Society Club",
-      to: "/safe/Dealing/Documents/society-club",
+      to: "/society-club",
     },
     {
       title: "RWA Rules & Regulations",
-      to: "/safe/Dealing/Documents/rwa-rules-regulations",
+      to: "/rwa-rules-regulations",
     },
     {
       title: "Others",
-      to: "/safe/Dealing/Documents/others",
+      to: "/others",
     },
   ];
 
@@ -519,8 +190,8 @@ const Links = () => {
         {links.map((link, index) => (
           <Link
             key={index}
-            to={link.to}
-            className={`text-gray-400 hover:text-black ${location.pathname === link.to ? 'text-primary ' : ''}`}
+            to={`/safe/Dealing/${PropId}/Documents`+link.to}
+            className={`text-gray-400 hover:text-black ${location.pathname === `/safe/Dealing/${PropId}/Documents`+link.to ? 'text-primary ' : ''}`}
           >
             {link.title}
           </Link>
@@ -545,17 +216,17 @@ const Links = () => {
   );
 };
 
-const DocumentCard = ({ title, subtitle, uploadDate, onClick }) => {
+const DocumentCard = ({PropName, title, uploadDate, onClick }) => {
   return (
     <div className="bg-white shadow rounded-xl p-4 cursor-pointer max-lg:w-full" onClick={onClick}>
       <div className="flex flex-row justify-between gap-8">
         <div className="">
           <h2 className="text-xl font-[400] lg:text-nowrap">{title}</h2>
-          <p className="text-sm">{subtitle}</p>
+          <p className="text-sm">{PropName}</p>
         </div>
         <div className="">
           <p className="text-xs">Uploaded: </p>
-          <p className="text-xs">{uploadDate}</p>
+          <p className="text-xs">{ new Date().toLocaleDateString()}</p>
         </div>
       </div>
       <button className="mt-4 w-full bg-gray-100 text-black font-[400] py-2 px-4 rounded-xl tex-sm">View Document</button>
@@ -565,9 +236,8 @@ const DocumentCard = ({ title, subtitle, uploadDate, onClick }) => {
 
 
 const Sidebar = ({ setActiveSection, activeSection }) => {
-
   return (
-    <aside className="min-w-72 h-fit p-0 lg:p-4 bg-gray-100 rounded-xl flex flex-row lg:flex-col overflow-x-scroll">
+    <aside className="min-w-56 h-fit p-0 lg:p-4 bg-gray-100 rounded-xl flex flex-row lg:flex-col overflow-x-scroll lg:no-scrollbar">
       {/* render first level of data */}
       {Object.keys(Data).map((section) => (
         <button
@@ -585,26 +255,25 @@ const Sidebar = ({ setActiveSection, activeSection }) => {
   );
 };
 
-const Content = ({ activeSection, activeDocument, setActiveDocument }) => {
+const Content = ({ PropName, activeSection, activeDocument, setActiveDocument }) => {
   const sectionData = Data[activeSection]?.data || [];
-
   return (
     <main className="p-4 w-full">
       {/* If a document is selected, show its table */}
       {activeDocument ? (
         <div className="w-full">
-          <Table tableData={activeDocument.data} tablename={activeDocument.title} tableopen={true} />
+          <Table category={activeDocument.data} tablename={activeDocument.title} tableopen={true} />
         </div>
       ) : (
         <div className="flex flex-wrap gap-4">
           {/* Otherwise, show the document cards */}
-          {Object.entries(sectionData).map(([sectionTitle, sectionData]) => (
+          {sectionData.map((document, index) => (
             <DocumentCard
-              key={sectionTitle}
-              title={sectionTitle}
-              subtitle={"Mahira Home 68"}
-              uploadDate={"23 March 2023"}
-              onClick={() => setActiveDocument({ title: sectionTitle, data: sectionData })} // Set document data on click
+              key={index}
+              title={document.name}
+              PropName={PropName}
+              uploadDate={document.date}
+              onClick={() => setActiveDocument({ title: document.name, data: document.category })}
             />
           ))}
         </div>
@@ -613,7 +282,7 @@ const Content = ({ activeSection, activeDocument, setActiveDocument }) => {
   );
 };
 
-const PreReRa = () => {
+const PreReRa = ({PropName}) => {
   const [activeSection, setActiveSection] = useState("Pre-RERA Approval");
   const [activeDocument, setActiveDocument] = useState(null); // Track selected document
 
@@ -631,6 +300,7 @@ const PreReRa = () => {
           activeSection={activeSection}
           activeDocument={activeDocument}
           setActiveDocument={setActiveDocument}
+          PropName={PropName}
         />
       </div>
     </div>
@@ -638,353 +308,54 @@ const PreReRa = () => {
 };
 
 const OccupationCertificate = ()=>{
-  const tableData = [
-    {
-      id: 1,
-      name: "Occupation Certificate",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Occupation Certificate",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Occupation Certificate",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Occupation Certificate",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Occupation Certificate",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ];
   return (
     <>
     <div className="w-full">
-      <Table tablename="Occupation Certificate" tableData={tableData} tableopen={true} />
+      <Table tablename="Occupation Certificate" category={"occupationCertificate"} tableopen={true} />
     </div>
     </>
   )
 }
 
 const SaleDeed = ()=>{
-  const tableData = [
-    {
-      id: 1,
-      name: "Sale Deed",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Sale Deed",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Sale Deed",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Sale Deed",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Sale Deed",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ];
   return (
     <>
     <div className="w-full">
-      <Table tablename="Sale Deed" tableData={tableData} tableopen={true} />
+      <Table tablename="Sale Deed" category={"saleDeed"} tableopen={true} />
     </div>
     </>
   )
 }
 
 const MaintenanceAgreement = ()=>{
-  const Agreements = [
-    {
-      id: 1,
-      name: "Maintenance Agreement",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Maintenance Agreement",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Maintenance Agreement",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Maintenance Agreement",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Maintenance Agreement",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ];
-
-  const PaymentReciepts = [
-    {
-      id: 1,
-      name: "Payment Reciept",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Payment Reciept",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Payment Reciept",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Payment Reciept",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Payment Reciept",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ];
-
-  const Invoices = [
-    {
-      id: 1,
-      name: "Invoice",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Invoice",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Invoice",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Invoice",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Invoice",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ];
-
   return (
     <>
     <div className="w-full">
-    
-        
-          <Table tablename="Maintenance Agreement" tableData={Agreements}  />
-
-          <Table tablename="Payment Reciepts" tableData={PaymentReciepts} />
-    
-          <Table tablename="Invoices" tableData={Invoices} />
-      
-    
+          <Table tablename="Maintenance Agreement" category={"maintenenceAgreement"}  />
+          <Table tablename="Payment Reciepts" category={"maintenencePaymentReceipts"} />
+          <Table tablename="Invoices" category={"maintenenceInvoice"} />
     </div>
     </>
   )
 }
 
 const ElectricalAppliances = ()=>{
-  const bills = [
-    {
-      id: 1,
-      name: "Electrical Appliances",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Electrical Appliances",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Electrical Appliances",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Electrical Appliances",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Electrical Appliances",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
-
-  const warranty = [
-    {
-      id: 1,
-      name: "Warranty",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Warranty",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Warranty",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Warranty",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Warranty",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
-
-  const AMCs = [
-    {
-      id: 1,
-      name: "AMC",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "AMC",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "AMC",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "AMC",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "AMC",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
   return (
     <>
     <div className="w-full">
-        <Table tablename="Bills" tableData={bills} />
-        <Table tablename="Warranty" tableData={warranty} />
-        <Table tablename="AMCs" tableData={AMCs} />                   
+        <Table tablename="Bills" category={"bill"} />
+        <Table tablename="Warranty" category={"warrantyDocuments"} />
+        <Table tablename="AMCs" category={"amcs"} />                   
     </div>
     </>
   )
 }
 
 const ElectricityMaintenanceBills = ()=>{
-  const electricityBills = [
-    {
-      id: 1,
-      name: "Electricity Bills",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Electricity Bills",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Electricity Bills",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Electricity Bills",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Electricity Bills",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
   return (
     <>
     <div className="w-full">
-      <Table tablename="Electricity Bills" tableData={electricityBills} tableopen={true} />
+      <Table tablename="Electricity Bills" category={"electricityOrMaintenenceBills"} tableopen={true} />
     </div>
     </>
   )
@@ -1066,95 +437,31 @@ const SocietyClub = ()=>{
 }
 
 const RwaRulesRegulations = ()=>{
-  const rules = [
-    {
-      id: 1,
-      name: "RWA Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "RWA Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "RWA Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "RWA Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "RWA Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
   return (
     <>
     <div className="w-full">
-      <Table tablename="RWA Rules" tableData={rules} tableopen={true} />
+      <Table tablename="RWA Rules" category={"rwaRulesAndRegulations"} tableopen={true} />
     </div>
     </>
   )
 }
 
 const Others = ()=>{
-  const others = [
-    {
-      id: 1,
-      name: "Others",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Others",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Others",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Others",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Others",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
   return (
     <>
     <div className="w-full">
-      <Table tablename="Others" tableData={others} tableopen={true} />
+      <Table tablename="Others" category={"other"} tableopen={true} />
     </div>
     </>
   )
 }
 
-const DocumentSection = () => {
+const DocumentSection = ({PropName}) => {
   return (
     <>
       <div className="flex w-full justify-between px-10 py-10">
         <Routes>
-            <Route path="/" element={<PreReRa/>} />
+            <Route path="/" element={<PreReRa PropName={PropName} />} />
             <Route path="/occupation-certificate" element={<OccupationCertificate/>} />
             <Route path="/sale-deed" element={<SaleDeed/>} />
             <Route path="/maintenance-agreement" element={<MaintenanceAgreement/>} />
@@ -1169,13 +476,13 @@ const DocumentSection = () => {
   );
 };
 
-export default function Documents() {
+export default function Documents({PropId,PropName}) {
   return (
     <>
       <div className="w-full">
-        <NameHeader />
-        <Links />
-        <DocumentSection />
+        <NameHeader Header={PropName} />
+        <Links PropId={PropId} />
+        <DocumentSection PropName={PropName} />
       </div>
     </>
   );

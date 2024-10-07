@@ -1,53 +1,15 @@
-import { useEffect } from 'react';
-import Table from '../Comps/Tables/Table'
-import { useState } from 'react';
-import {jwtDecode} from 'jwt-decode';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+import Table from '../../../CompoCards/Tables/Table';
 
 
-export default function RecentUpdate({data,safeid}) {
-    const [recentdata, setRecentData] = useState([]);
-
-    const UpdateSafe = async () => {
-        const token = localStorage.getItem('token');
-        const user = jwtDecode(token);
-        try {
-            const response = await fetch(`http://localhost:3300/api/documents/updatedocumentsafe/${safeid}?userId=${user.userId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'auth-token': token
-                },
-                body: JSON.stringify({ recentUpdates: recentdata })
-            });
-            if (response.ok) {
-                const resdata = await response.json();
-                console.log("isUpdated",resdata);
-            }
-        }
-        catch (err) {
-            toast.error("Error fetching data");
-            console.log(err);
-        }
-    }
-    
-
-    useEffect(() => {
-        setRecentData(data.data.recentUpdates);
-        console.log("RecentUpdate",recentdata);
-    }, []);
-
-    useEffect(() => {
-        UpdateSafe();
-    }, [recentdata]);
+export default function RecentUpdate() {
    
     return (
         <>
             <div className="flex flex-col mt-6 mx-4" >
-                <Table tablename={"Recent Updates"} tableData={recentdata} setdata={setRecentData} />
+                <Table key={"recentUpdates"} tablename={"Recent Updates"} category={"recentUpdates"}  />
             </div>
-            <ToastContainer position="top-right" autoClose={2000} />
+
         </>
     )
 }
