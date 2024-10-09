@@ -19,7 +19,9 @@ module.exports = withMT({
         gold: "#f9bc2e"
       },
       maxWidth: ['responsive'],
+      
     },
+    
   },
   plugins: [
   ],

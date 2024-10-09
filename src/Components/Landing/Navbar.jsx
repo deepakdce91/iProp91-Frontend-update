@@ -1,47 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [scrollPos, setScrollPos] = useState(0);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollPos = window.scrollY;
+
+            if (currentScrollPos < scrollPos) {
+                setIsVisible(true);
+            } else {
+                setIsVisible(false);
+            }
+
+            setScrollPos(currentScrollPos);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [scrollPos]);
+
     return (
-        <nav className="flex items-center justify-between px-10 py-8 bg-black text-white">
+        <nav
+            className={`flex items-center justify-between px-10 py-8  text-white backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 ${
+                isVisible ? "transform translate-y-10" : "transform -translate-y-[6rem]"
+            }`}
+        >
             {/* Left side - Logo */}
-            <div className="text-xl font-bold">DEZERV</div>
+            <div className="text-2xl font-bold">iProp91</div>
 
             {/* Desktop Links */}
             <div className="hidden md:flex space-x-8">
-                <a href="#products" className="text-gray-400 hover:text-white">
+                <a href="#products" className="text-gray-400 hover:text-black">
                     Products
                 </a>
-                <a href="#team" className="text-gray-400 hover:text-white">
+                <a href="#team" className="text-gray-400 hover:text-black">
                     Our Team
                 </a>
-                <a href="#login" className="text-gray-400 hover:text-white">
+                <a href="#login" className="text-gray-400 hover:text-black">
                     Member login
                 </a>
             </div>
 
             {/* Mobile Menu Icon */}
             <div className="md:hidden flex items-center">
-                <button onClick={toggleMobileMenu} className="text-white text-2xl">
+                <button onClick={toggleMobileMenu} className="text-black text-2xl">
                     {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
                 </button>
             </div>
 
             {/* Mobile Menu Modal */}
             {isMobileMenuOpen && (
-                <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start ">
-                    <div className="bg-white rounded-lg w-11/12 mt-6 p-6 shadow-lg pb-10">
+                <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start">
+                    <div className="bg-white rounded-lg w-full p-6 shadow-lg pb-10">
                         {/* Close Button */}
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xl font-bold text-primary">iProp91</span>
-                            <button onClick={toggleMobileMenu} className="text-xl  text-gray-600 hover:bg-gray-100 rounded p-1">
-                                <FaTimes />
+                            <span className="text-2xl font-bold text-primary">iProp91</span>
+                            <button onClick={toggleMobileMenu} className="text-xl text-gray-600 hover:bg-gray-100 font-[500] rounded-lg p-1 px-2">
+                            &#10005;
                             </button>
                         </div>
                         {/* Menu Links */}
@@ -57,7 +80,7 @@ const Navbar = () => {
                                         decoding="async"
                                         src="https://framerusercontent.com/images/CEcnOZ0GAMxkderVtnnXkheUQ.svg"
                                         alt="Arrow Icon"
-                                        className="w-6 h-6 ml-2" // Adjust the width and height as needed
+                                        className="w-6 h-6 ml-2"
                                     />
                                 </span>
                             </a>
@@ -73,7 +96,7 @@ const Navbar = () => {
                                         decoding="async"
                                         src="https://framerusercontent.com/images/CEcnOZ0GAMxkderVtnnXkheUQ.svg"
                                         alt="Arrow Icon"
-                                        className="w-6 h-6 ml-2" // Adjust the width and height as needed
+                                        className="w-6 h-6 ml-2"
                                     />
                                 </span>
                             </a>
@@ -89,12 +112,11 @@ const Navbar = () => {
                                         decoding="async"
                                         src="https://framerusercontent.com/images/CEcnOZ0GAMxkderVtnnXkheUQ.svg"
                                         alt="Arrow Icon"
-                                        className="w-6 h-6 ml-2" // Adjust the width and height as needed
+                                        className="w-6 h-6 ml-2"
                                     />
                                 </span>
                             </a>
                         </div>
-
                     </div>
                 </div>
             )}

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
+import AboutSection from "./aboutsection";
 
 function Landing() {
   return (
     <>
       <Navbar />
       <HeroSection />
+      <AboutSection />
     </>
   );
 }

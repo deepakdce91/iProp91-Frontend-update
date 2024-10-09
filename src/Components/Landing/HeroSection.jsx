@@ -2,11 +2,12 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <div className="bg-black text-white h-96 flex items-center">
-      <div className="ml-16">
-        <div className="text-[90px] font-semibold mb-8"><p>Your Trusted</p> <p>Real State Manager</p>  </div>
-        <p className="mb-4 text-gray-400 text-lg">Let's manage all your real state differently</p>
-        <button className="bg-white text-black font-semibold py-3 px-8 rounded-full hover:bg-gray-200 transition">
+    <div className="bg-black text-white h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-7xl font-bold mb-4">Your Trusted <br /> Real State Manager</h1>
+
+        <p className="text-gray-400 text-xl">Let's manage your all real state differently</p> <br />
+        <button className="bg-white text-black font-semibold py-4 px-8 rounded-full mt-4 hover:bg-gray-200 transition">
           Start your journey →
         </button>
       </div>

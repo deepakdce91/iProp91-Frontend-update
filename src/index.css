@@ -58,3 +58,11 @@
     animation-delay: calc(var(--char-index) * 0.1s); /* Delay for each letter */
   }
   
+
+  
+  .text-highlight {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, white 50%, transparent 50%);
+  }
