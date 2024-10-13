@@ -2,13 +2,19 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import AboutSection from "./aboutsection";
-
+import HowcanWe from './/howcanwe'
+import { AnimatePresence } from 'framer-motion';
 function Landing() {
   return (
     <>
       <Navbar />
       <HeroSection />
-      <AboutSection />
+      <div className="relative">
+        <AboutSection />
+        <AnimatePresence>
+          <HowcanWe />
+        </AnimatePresence>
+      </div>
     </>
   );
 }

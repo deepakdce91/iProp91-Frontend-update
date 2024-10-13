@@ -28,6 +28,7 @@ const GsapTextColorChange = () => {
 
   // Custom splitText function
   const splitText = (text) => {
+
     return text.split('').map((char, index) => (
       <span key={index} className="inline-block">{char === ' ' ? '\u00A0' : char}</span>
     ));
@@ -62,8 +63,8 @@ const GsapTextColorChange = () => {
 
   return (
     <>
-    <div className=" bg-black flex flex-col items-center ">
-      <h1 ref={textRef} className="text-7xl font-[500] w-6/12">
+    <div className=" bg-black flex flex-col items-center h-[1100px] ">
+      <h1 ref={textRef} className="lg:text-7xl font-[500] w-6/12 text-4xl">
         {splitText(text)}
       </h1>
       <br /><br />

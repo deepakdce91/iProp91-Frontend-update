@@ -1,35 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [scrollPos, setScrollPos] = useState(0);
+    const modalRef = useRef(null);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
+    const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+            setIsMobileMenuOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollPos = window.scrollY;
-
-            if (currentScrollPos < scrollPos) {
-                setIsVisible(true);
-            } else {
-                setIsVisible(false);
-            }
-
+            setIsVisible(currentScrollPos < scrollPos);
             setScrollPos(currentScrollPos);
         };
-
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [scrollPos]);
 
     return (
         <nav
-            className={`flex items-center justify-between px-10 py-8  text-white backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 ${
+            className={`flex items-center justify-between px-10 py-8 text-white backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 ${
                 isVisible ? "transform translate-y-10" : "transform -translate-y-[6rem]"
             }`}
         >
@@ -38,20 +43,20 @@ const Navbar = () => {
 
             {/* Desktop Links */}
             <div className="hidden md:flex space-x-8">
-                <a href="#products" className="text-gray-400 hover:text-black">
+                <a href="#products" className="text-gray-400 hover:text-white">
                     Products
                 </a>
-                <a href="#team" className="text-gray-400 hover:text-black">
+                <a href="#team" className="text-gray-400 hover:text-white">
                     Our Team
                 </a>
-                <a href="#login" className="text-gray-400 hover:text-black">
+                <a href="#login" className="text-gray-400 hover:text-white">
                     Member login
                 </a>
             </div>
 
             {/* Mobile Menu Icon */}
             <div className="md:hidden flex items-center">
-                <button onClick={toggleMobileMenu} className="text-black text-2xl">
+                <button onClick={toggleMobileMenu} className="text-white text-2xl">
                     {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
                 </button>
             </div>
@@ -59,7 +64,7 @@ const Navbar = () => {
             {/* Mobile Menu Modal */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start">
-                    <div className="bg-white rounded-lg w-full p-6 shadow-lg pb-10">
+                    <div ref={modalRef} className="bg-white rounded-lg w-full p-6 shadow-lg pb-10">
                         {/* Close Button */}
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-2xl font-bold text-primary">iProp91</span>
