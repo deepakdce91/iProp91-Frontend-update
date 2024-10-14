@@ -4,6 +4,10 @@ import HeroSection from "./HeroSection";
 import AboutSection from "./aboutsection";
 import HowcanWe from './/howcanwe'
 import { AnimatePresence } from 'framer-motion';
+import ImageSection from './ImageSection';
+import Knowledge from './knowledge';
+import Testimonials from './Testimonials';
+import Insight from './Insight';
 function Landing() {
   return (
     <>
@@ -15,6 +19,10 @@ function Landing() {
           <HowcanWe />
         </AnimatePresence>
       </div>
+      <ImageSection />
+      <Knowledge />
+      <Insight />
+      <Testimonials />
     </>
   );
 }
