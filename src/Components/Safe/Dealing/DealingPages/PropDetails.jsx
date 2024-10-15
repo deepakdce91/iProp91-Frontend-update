@@ -26,7 +26,7 @@ function PropertyForm() {
     // take propertyid from the url
     const propertyId = window.location.pathname.split("/")[3];
     const fetchProperty = async () => {
-      const response = await fetch(`http://localhost:3300/api/property/fetchproperty/${propertyId}?userId=${decoded.userId}`,{
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}?userId=${decoded.userId}`,{
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ function PropertyForm() {
     const propertyId = window.location.pathname.split("/")[3];
 
     try{
-      const response = await fetch(`http://localhost:3300/api/property/updateproperty/${propertyId}?userId=${decoded.userId}`,{
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${propertyId}?userId=${decoded.userId}`,{
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

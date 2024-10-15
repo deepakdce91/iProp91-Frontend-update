@@ -5,8 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
 import GoldButton from "../../CompoCards/GoldButton/Goldbutton";
 import { useNavigate } from 'react-router-dom';
-import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from '../../../config/s3client'
 
 const uploadFileToCloud = async (myFile) => {
@@ -84,7 +83,7 @@ function EditUser() {
       // console.log(tokenid);
       // console.log(token);
       try {
-        const response = await fetch(`http://localhost:3300/api/users/getuserdetails?userId=${tokenid.userId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -103,7 +102,7 @@ function EditUser() {
       }
     }
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -137,7 +136,7 @@ function EditUser() {
     try{
       let token = localStorage.getItem("token");
       let tokenid = jwtDecode(token);
-      let response = await fetch(`http://localhost:3300/api/users/updateuserdetails?userId=${tokenid.userId}`, {
+      let response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetails?userId=${tokenid.userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +178,7 @@ function EditUser() {
     try{
       let token = localStorage.getItem("token");
       let tokenid = jwtDecode(token);
-      let response = await fetch(`http://localhost:3300/api/users/changepassword?userId=${tokenid.userId}`, {
+      let response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/changepassword?userId=${tokenid.userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

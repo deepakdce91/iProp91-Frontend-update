@@ -43,7 +43,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
     const user = jwtDecode(token);
 
     try {
-      const response = await fetch(`http://localhost:3300/api/safe/fetchCategoryDocuments/${propertyId}/${category}?userId=${user.userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/safe/fetchCategoryDocuments/${propertyId}/${category}?userId=${user.userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
     const token = localStorage.getItem('token');
     const user = jwtDecode(token);
     try {
-      const response = await fetch(`http://localhost:3300/api/safe/addDocument/${propertyId}/${category}?userId=${user.userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/safe/addDocument/${propertyId}/${category}?userId=${user.userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
     const user = jwtDecode(token);
     const propertyId = window.location.pathname.split('/')[3];
     try{
-      const response = await fetch(`http://localhost:3300/api/safe/deleteDocument/${propertyId}/${category}/${file._id}?userId=${user.userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/safe/deleteDocument/${propertyId}/${category}/${file._id}?userId=${user.userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

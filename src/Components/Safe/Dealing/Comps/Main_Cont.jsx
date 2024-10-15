@@ -20,10 +20,10 @@ export default function Conci() {
       const propertyId = window.location.pathname.split("/")[3];
       const token = localStorage.getItem("token");
       const user = jwtDecode(token);
-      // http://localhost:3300/api/property/fetchproperty/IPP00002?userId=IPU0008
+      // ${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/IPP00002?userId=IPU0008
       try {
         const response = await fetch(
-          `http://localhost:3300/api/property/fetchproperty/${propertyId}?userId=${user.userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}?userId=${user.userId}`,
           {
             method: "GET",
             headers: {

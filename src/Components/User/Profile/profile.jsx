@@ -20,7 +20,7 @@ export default function Profile() {
         //   console.log(tokenid);
         //   console.log(token);
           try {
-            const response = await fetch(`http://localhost:3300/api/users/getuserdetails?userId=${tokenid.userId}`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`, {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
@@ -37,7 +37,7 @@ export default function Profile() {
           }
         }
         fetchUser();
-      }, []);
+      }, [navigate]);
 
       
     const toggleDropdown = () => {

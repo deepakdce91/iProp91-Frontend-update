@@ -71,7 +71,7 @@ function Verify({ onclick, phone, countryCode }) {
                 }else{
                     try{
 
-                        let userexits = await fetch(`http://localhost:3300/api/users/fetchuserbyphone/${phone}`, 
+                        let userexits = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuserbyphone/${phone}`, 
                         {
                             method: "GET",
                             headers: {
@@ -81,7 +81,7 @@ function Verify({ onclick, phone, countryCode }) {
                         let userexitsjson = await userexits.json();
                         if (userexitsjson.success === true) { // user exists
                             try {
-                                let loginres = await fetch(`http://localhost:3300/api/users/login/${phone}`, {
+                                let loginres = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/login/${phone}`, {
                                     method: "GET",
                                     headers: {
                                         "Content-Type": "application/json",
@@ -128,7 +128,7 @@ function Verify({ onclick, phone, countryCode }) {
                         
                     }catch(err){
                         toast.error("Something went wrong");
-                        console.log("Error: "+err); 
+                        console.log(process.env.REACT_APP_BACKEND_URL);
                         setTimeout(() => {
                             navigate("/");
                         }
@@ -152,7 +152,7 @@ function Verify({ onclick, phone, countryCode }) {
     const handleSignup = async () => {
         setLoading(true);
         try {
-            let response = await fetch("http://localhost:3300/api/users/signup", {
+            let response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -396,7 +396,7 @@ export default function Login() {
             return;
         }
         try{
-            let loginres = await fetch(`http://localhost:3300/api/users/loginwithpassword?phone=${phone}&password=${password}`, {
+            let loginres = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/loginwithpassword?phone=${phone}&password=${password}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -433,7 +433,7 @@ export default function Login() {
             
         }catch(err){
             toast.error("Something went wrong");
-            console.log("Error: "+err); 
+            
             setTimeout(() => {
                 navigate("/");
             }

@@ -202,7 +202,7 @@ export default function MyProperties() {
     const decoded = jwtDecode(token);
 
     const fetchProperties = async () => {
-      const response = await fetch(`http://localhost:3300/api/property/fetchallproperties?userId=${decoded.userId}`,{
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallproperties?userId=${decoded.userId}`,{
         method: "GET",
         headers: {
           "Content-Type": "application/json",

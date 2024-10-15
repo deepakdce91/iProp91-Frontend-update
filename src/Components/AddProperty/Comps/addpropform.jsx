@@ -112,7 +112,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     const fetchUser = async () => { 
       try {
-        const response = await fetch(`http://localhost:3300/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,{
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -138,7 +138,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/state/fetchallstates?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/state/fetchallstates?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -159,7 +159,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/city/fetchcitiesbystate/${state}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/city/fetchcitiesbystate/${state}?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -180,7 +180,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/builders/fetchbuildersbycity/${city}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/builders/fetchbuildersbycity/${city}?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -201,7 +201,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/projects/fetchprojectbybuilder/${builder}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/projects/fetchprojectbybuilder/${builder}?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -223,7 +223,7 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `http://localhost:3300/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -341,7 +341,7 @@ function Addpropform() {
       if (!states.find(state => state.name === formdata.selectedState)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`http://localhost:3300/api/state/addstate?userId=${tokenid.userId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/state/addstate?userId=${tokenid.userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json",
           "auth-token":token,
@@ -353,7 +353,7 @@ function Addpropform() {
       if (!cities.find(city => city.name === formdata.selectedCity)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`http://localhost:3300/api/city/addcity?userId=${tokenid.userId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/city/addcity?userId=${tokenid.userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json",
           "auth-token":token,
@@ -366,7 +366,7 @@ function Addpropform() {
       if (!builders.find(builder => builder.name === formdata.selectBuilder)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`http://localhost:3300/api/builders/addbuilder?userId=${tokenid.userId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/builders/addbuilder?userId=${tokenid.userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json",
           "auth-token":token,
@@ -379,7 +379,7 @@ function Addpropform() {
       if (!projects.find(project => project.name === formdata.selectProject)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`http://localhost:3300/api/projects/addproject?userId=${tokenid.userId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/projects/addproject?userId=${tokenid.userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json",
           "auth-token":token,
@@ -400,7 +400,7 @@ function Addpropform() {
       }
       let token = localStorage.getItem("token");
       let tokenid = jwtDecode(token);
-      const response = await fetch(`http://localhost:3300/api/property/addproperty?userId=${tokenid.userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${tokenid.userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
         "auth-token":token,
