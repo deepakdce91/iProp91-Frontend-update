@@ -12,8 +12,8 @@ function App() {
         <div className="Poppins">
           {/* <Footer /> */}
           <Routes>
-            {/* <Route path="/" element={<Landing />} /> */}
-            <Route path="/" element={<AskForLogin />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<AskForLogin />} />
             <Route path="/authenticate" element={<Auth />} />
             <Route path="/name" element={<AskName />} />
        

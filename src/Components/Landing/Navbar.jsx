@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-
+import {Link } from "react-router-dom";
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
@@ -43,15 +43,15 @@ const Navbar = () => {
 
             {/* Desktop Links */}
             <div className="hidden md:flex space-x-8">
-                <a href="#products" className="text-gray-400 hover:text-white">
+                <Link to="/auth" className="text-gray-400 hover:text-white">
                     Products
-                </a>
-                <a href="#team" className="text-gray-400 hover:text-white">
+                </Link>
+                <Link to="/auth" className="text-gray-400 hover:text-white">
                     Our Team
-                </a>
-                <a href="#login" className="text-gray-400 hover:text-white">
+                </Link>
+                <Link to="/auth" className="text-gray-400 hover:text-white">
                     Member login
-                </a>
+                </Link>
             </div>
 
             {/* Mobile Menu Icon */}
