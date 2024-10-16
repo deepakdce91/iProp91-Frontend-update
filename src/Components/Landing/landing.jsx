@@ -19,7 +19,7 @@ function Landing() {
           <HowcanWe />
         </AnimatePresence>
       </div>
-      <ImageSection />
+      {/* <ImageSection /> */}
       <Knowledge />
       <Insight />
       <Testimonials />

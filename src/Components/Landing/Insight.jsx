@@ -1,70 +1,83 @@
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
-
+import React from 'react';
+// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
 import 'swiper/css';
-import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
+import '../../css/styles.css';
 
-const Insight  = [
-    {
-        image: 'images/image.jpg',
-        title: 'Law',
-    },
-    
-    {
-        image: 'images/image.jpg',
-        title: 'Law',
-    },
-    {
-        image: 'images/image.jpg',
-        title: 'Law',
-    },
-    {
-        image: 'images/image.jpg',
-        title: 'Law',
-    },
+// Import required modules
+import { Autoplay, Pagination } from 'swiper/modules';
 
-]
-
-export default () => {
-  return (
-      <div className=" bg-black min-h-screen w-full">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-10 text-center">
-              Insights for our clients
-          </h1>
-          <div className="w-2/3 m-auto">
-
-          <Swiper
-              // install Swiper modules
-              modules={[Navigation, Pagination, Scrollbar, A11y]}
-              spaceBetween={50}
-              slidesPerView={3}
-              navigation
-              pagination={{ clickable: true }}
-              scrollbar={{ draggable: true }}
-              onSwiper={(swiper) => console.log(swiper)}
-              onSlideChange={() => console.log('slide change')}
-              >
-              {Insight.map((insight) => (
-                  <SwiperSlide key={insight.title}>
-                      <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg">
-                          <img
-                              src={insight.image}
-                              alt="Library"
-                              className="object-cover w-full h-96 opacity-70"
-                          />
-                          <div className="z-50 flex items-center text-center justify-center">
-                              <p className="text-white text-xl  font-semibold">{insight.title}</p>
-                          </div>
-                      </div>
-                  </SwiperSlide>
-              ))}
-
-          </Swiper>
-              </div>
-      </div>
-  );
+const SaleCard = () => {
+    return (
+        <div className="relative max-w-sm mx-auto bg-beige rounded-xl overflow-hidden border-2  shadow-lg">
+            <div className=" flex justify-center items-center">
+                <img
+                    src="images/2.jpg" // Replace with your image URL
+                    alt="E-commerce sales"
+                    className="w-full object-cover"
+                />
+            </div>
+            <button className="absolute bottom-4 right-4 bg-white text-black rounded-full p-2 shadow-md hover:bg-gray-200 focus:outline-none">
+                <span>
+                    <img
+                        decoding="async"
+                        src="https://framerusercontent.com/images/CEcnOZ0GAMxkderVtnnXkheUQ.svg"
+                        alt="Arrow Icon"
+                        className="w-6 h-6"
+                    />
+                </span>
+            </button>
+        </div>
+    );
 };
+
+export default function Test() {
+  return (
+    <>
+      <div className="mt-24 w-4/5 mx-auto">
+        <div className="my-10">
+          <h1 className="text-3xl lg:text-6xl font-semibold text-primary text-center">Expert Videos</h1>
+        </div>
+        <Swiper
+          spaceBetween={30}
+          centeredSlides={true}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Autoplay, Pagination]}
+          className="mySwiper"
+          breakpoints={{
+            // Define responsive breakpoints
+            640: {
+              slidesPerView: 1, // For small screens
+              spaceBetween: 20,
+            },
+            768: {
+              slidesPerView: 2, // For medium screens
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 3, // For large screens
+              spaceBetween: 30,
+            },
+          }}
+        >
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+          <SwiperSlide><SaleCard /></SwiperSlide>
+        </Swiper>
+      </div>
+    </>
+  );
+}

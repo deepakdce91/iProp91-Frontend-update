@@ -2,7 +2,7 @@ import PropCard from "../../CompoCards/Cards/PropCard";
 import PropCard2 from "../../CompoCards/Cards/PropCard2";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import "../css/embla.css";
+import "../../../css/embla.css";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { ToastContainer, toast } from 'react-toastify';

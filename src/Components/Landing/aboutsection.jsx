@@ -4,11 +4,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-
-
 function ProfileCard() {
     return (
-      <div className="flex  p-4 bg-black text-white rounded-lg space-x-4 max-w-xs">
+      <div className="flex p-4 bg-black text-white rounded-lg space-x-4 max-w-xs">
         <img
           className="w-12 h-12 rounded-full"
           src="/images/1.png" // Replace with the actual image URL
@@ -20,29 +18,27 @@ function ProfileCard() {
         </div>
       </div>
     );
-  }
-
+}
 
 const GsapTextColorChange = () => {
   const textRef = useRef(null);
 
-  // Custom splitText function
+  // Custom splitText function that splits by words instead of characters
   const splitText = (text) => {
-
-    return text.split('').map((char, index) => (
-      <span key={index} className="inline-block">{char === ' ' ? '\u00A0' : char}</span>
+    return text.split(' ').map((word, index) => (
+      <span key={index} className="inline-block">{word}&nbsp;</span> // Add space after each word
     ));
   };
 
   useEffect(() => {
-    const chars = textRef.current.children; // Use children directly from the textRef
+    const words = textRef.current.children; // Use children directly from the textRef
 
-    // Animate each character on scroll
+    // Animate each word on scroll
     gsap.fromTo(
-      chars,
-      { color: '#333333', opacity: 1 }, // Start with gray and fully visible
+      words,
+      { color: 'gray', opacity: 1 }, // Start with gray and fully visible
       {
-        color: '#ffffff', // Change to white
+        color: 'black', // Change to black
         opacity: 1, // Keep fully visible
         scrollTrigger: {
           trigger: textRef.current,
@@ -50,7 +46,7 @@ const GsapTextColorChange = () => {
           end: 'bottom 70%', // End when text leaves viewport
           scrub: true, // Smooth color transition
         },
-        stagger: 0.05, // Stagger the animation for each character
+        stagger: 0.1, // Stagger the animation for each word
       }
     );
 
@@ -59,17 +55,25 @@ const GsapTextColorChange = () => {
     };
   }, []);
 
-  const text = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Error aliquam architecto quod reprehenderit, veritatis atque voluptatibus inventore saepe iste itaque earum ut culpa.";
+  const text = "Traditional wealth management is broken & you need a better way to manage your money. Using unbiased data driven decisions, we ensure your investment journey is successful so you can focus on what matters most to you.";
 
   return (
     <>
-    <div className=" bg-black flex flex-col items-center h-[1200px] ">
-      <h1 ref={textRef} className="lg:text-7xl font-[500] w-6/12 text-4xl">
+    <div className="flex flex-col items-center lg:h-[1000px] h-screen ">
+      <h1 ref={textRef} className="lg:text-5xl font-[500] w-10/12 lg:w-6/12 text-2xl text-justify">
         {splitText(text)}
       </h1>
       <br /><br />
-    <ProfileCard />
+      <ProfileCard />
+      
     </div>
+    <div className="flex flex-col lg:hidden w-full">
+
+        <h2 className=" text-primary text-3xl font-semibold flex flex-col items-center justify-center">
+         How iProp91 does <br /> things differently
+        </h2>
+
+      </div>
     </>
   );
 };
