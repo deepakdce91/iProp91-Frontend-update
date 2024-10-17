@@ -4,11 +4,14 @@ import HeroSection from "./HeroSection";
 import AboutSection from "./aboutsection";
 import HowcanWe from './/howcanwe'
 import { AnimatePresence } from 'framer-motion';
-import ImageSection from './ImageSection';
+// import ImageSection from './ImageSection';
 import Knowledge from './knowledge';
 import Testimonials from './Testimonials';
 import Insight from './Insight';
-import Comparision from './Comparision'
+import Comparision from './Comparision';
+import Number from './Number';
+import Footer from './Footer'
+
 function Landing() {
   return (
     <>
@@ -22,9 +25,11 @@ function Landing() {
       </div>
       {/* <ImageSection /> */}
       <Comparision />
+      <Number/>
       <Knowledge />
       <Insight />
       <Testimonials />
+      <Footer/>
     </>
   );
 }
