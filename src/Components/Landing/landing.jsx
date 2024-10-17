@@ -8,6 +8,7 @@ import ImageSection from './ImageSection';
 import Knowledge from './knowledge';
 import Testimonials from './Testimonials';
 import Insight from './Insight';
+import Comparision from './Comparision'
 function Landing() {
   return (
     <>
@@ -20,6 +21,7 @@ function Landing() {
         </AnimatePresence>
       </div>
       {/* <ImageSection /> */}
+      <Comparision />
       <Knowledge />
       <Insight />
       <Testimonials />
