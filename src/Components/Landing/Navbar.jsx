@@ -34,7 +34,7 @@ const Navbar = () => {
 
     return (
         <nav
-            className={`flex items-center justify-between px-10 py-4 text-black backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-gray-100 ${
+            className={`flex items-center justify-between px-10 py-4 text-black backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-gold  ${
                 isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
             }`}
         >
@@ -63,8 +63,8 @@ const Navbar = () => {
 
             {/* Mobile Menu Modal */}
             {isMobileMenuOpen && (
-                <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start">
-                    <div ref={modalRef} className="bg-white rounded-lg w-full p-6 shadow-lg pb-10">
+                <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start rounded-xl ">
+                    <div ref={modalRef} className="bg-white rounded-lg w-full border border-gold p-6 shadow-lg pb-10">
                         {/* Close Button */}
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-2xl font-bold text-primary">iProp91</span>

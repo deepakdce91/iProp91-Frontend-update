@@ -61,7 +61,7 @@ const TypingLandingPage = () => {
   return (
     <>
       {showNavbar && <Landing />}
-      <div className="flex justify-center items-center h-screen">
+      {!showNavbar &&  <div className="flex justify-center items-center h-screen">
         {showMessage && (
           <div className="flex flex-col items-center">
             {/* <img src="./images/logo.svg" alt="" /> */}
@@ -70,7 +70,7 @@ const TypingLandingPage = () => {
             </h1>
           </div>
         )}
-      </div>
+      </div>}
     </>
   );
 };

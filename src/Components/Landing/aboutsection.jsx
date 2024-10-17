@@ -59,7 +59,7 @@ const GsapTextColorChange = () => {
 
   return (
     <>
-    <div className="flex flex-col items-center lg:h-[1000px] h-screen ">
+    <div className="flex flex-col items-center lg:h-[900px] h-screen ">
       <h1 ref={textRef} className="lg:text-5xl font-[500] w-10/12 lg:w-6/12 text-2xl text-justify">
         {splitText(text)}
       </h1>

@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 const CircleComponent = () => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -210 }} // Start above the viewport
-      whileInView={{ opacity: 1, y: -900 }} // Move up to cover the top component
+      initial={{ opacity: 0, y: 100 }} // Start above the viewport
+      whileInView={{ opacity: 1, y: -800 }} // Move up to cover the top component
       exit={{ opacity: 0, y: -400 }} // Move back down and fade out on exit
-      transition={{ duration: 0.9 }}
+      transition={{ duration: 1 }}
       className="absolute w-full hidden lg:flex items-center justify-center bg-white rounded-t-[50%] "
       style={{
         zIndex: 10, // To cover the component above
