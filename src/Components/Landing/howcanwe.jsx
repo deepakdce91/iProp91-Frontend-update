@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const CircleComponent = () => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 100 }} // Start above the viewport
+      initial={{ opacity: 0, y: -100 }} // Start above the viewport
       whileInView={{ opacity: 1, y: -800 }} // Move up to cover the top component
       exit={{ opacity: 0, y: -400 }} // Move back down and fade out on exit
       transition={{ duration: 1 }}

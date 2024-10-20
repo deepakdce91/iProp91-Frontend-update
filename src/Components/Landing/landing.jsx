@@ -11,28 +11,34 @@ import Insight from './Insight';
 import Comparision from './Comparision';
 import Number from './Number';
 import Footer from './Footer'
+import CaseLaws from "../CaseLaws/caselaws";
+import {Route, Routes} from 'react-router-dom';
 
-function Landing() {
+function LandingPage() {
   return (
     <>
-      <Navbar />
       <HeroSection />
-      <div className="relative">
-        <AboutSection />
-        <AnimatePresence>
-          <HowcanWe />
-        </AnimatePresence>
-      </div>
-      {/* <ImageSection /> */}
-      <Comparision />
-      <Number/>
+      <AboutSection />
+      <HowcanWe />
       <Knowledge />
-      <Insight />
       <Testimonials />
-      <Footer/>
+      <Insight />
+      <Comparision />
+      <Number />
     </>
   );
 }
+
+function CaseLawsPage() {
+  return (
+    <>
+     
+      <CaseLaws />
+  
+    </>
+  );
+}
+
 
 const TypingLandingPage = () => {
   const [showMessage, setShowMessage] = useState(true);
@@ -60,7 +66,7 @@ const TypingLandingPage = () => {
 
   return (
     <>
-      {showNavbar && <Landing />}
+      {showNavbar && <LandingPage />}
       {!showNavbar &&  <div className="flex justify-center items-center h-screen">
         {showMessage && (
           <div className="flex flex-col items-center">
@@ -71,8 +77,22 @@ const TypingLandingPage = () => {
           </div>
         )}
       </div>}
+
     </>
   );
 };
 
-export default TypingLandingPage;
+function Landing() {
+  return (
+    <>  
+   <Navbar />
+      <Routes>
+        <Route path="/" element={<TypingLandingPage />} />
+        <Route path="/case-laws" element={<CaseLawsPage />} />
+      </Routes>
+      <Footer/>
+    </>
+  );
+}
+
+export default Landing;
