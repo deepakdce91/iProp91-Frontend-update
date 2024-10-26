@@ -19,7 +19,8 @@ function LandingPage() {
     <>
       <HeroSection />
       <AboutSection />
-      <HowcanWe />
+      {/* currently this component is not in use */}
+      {/* <HowcanWe /> */}
       <Knowledge />
       <Testimonials />
       <Insight />

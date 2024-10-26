@@ -7,9 +7,10 @@ const HeroSection = () => {
         <h1 className="text-4xl lg:text-7xl font-bold py-4 text-primary">Your Trusted <br /> Real State Manager</h1>
 
         <p className="text-gray-400 text-md lg:text-xl">Let's manage your all real state differently</p> <br />
-        <button className="bg-gold text-white text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full  hover:bg-gray-200 transition">
+        <button className="bg-gold text-white text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full   transition-all hover:scale-105 animate-shimmer bg-[linear-gradient(110deg,#f9bc2e,45%,#ffffff,55%,#f9bc2e)] bg-[length:200%_100%]">
           Start your journey
         </button>
+        
       </div>
     </div>
   );

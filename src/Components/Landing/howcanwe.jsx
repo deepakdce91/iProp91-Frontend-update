@@ -1,32 +1,55 @@
-// CircleComponent.js
-import React from 'react';
-import { motion } from 'framer-motion';
+//due to many defintion of this component in different files currently the responsiveness and use of this component is paused
 
-const CircleComponent = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -100 }} // Start above the viewport
-      whileInView={{ opacity: 1, y: -800 }} // Move up to cover the top component
-      exit={{ opacity: 0, y: -400 }} // Move back down and fade out on exit
-      transition={{ duration: 1 }}
-      className="absolute w-full hidden lg:flex items-center justify-center bg-white rounded-t-[50%] "
-      style={{
-        zIndex: 10, // To cover the component above
-    
-          boxShadow: '0 -100px 100px -100px gold', // Apply shadow to the upper corners only
-          borderTopLeftRadius: '50%',
-          borderTopRightRadius: '50%',
-      }}
-    >
-      <div className="flex flex-col w-full">
 
-        <h2 className=" text-primary text-7xl font-semibold flex flex-col items-center justify-center h-[700px]">
-          <p className='py-2'> How iProp91 does </p><p className='py-2'>  things differently</p>
-        </h2>
+// import React, { useEffect, useRef } from 'react';
 
-      </div>
-    </motion.div>
-  );
-};
+// const CircleComponent = () => {
+//   const circleRef = useRef(null);
 
-export default CircleComponent;
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       const scrollTop = window.scrollY;
+//       const viewportHeight = window.innerHeight;
+
+//       // Adjust this multiplier to fine-tune the speed of the parallax effect
+//       const parallaxSpeed = 0.6;
+
+//       // Parallax formula: Positive value for upward movement as user scrolls down
+//       const parallaxOffset = -(scrollTop * parallaxSpeed);
+
+//       if (circleRef.current) {
+//         // Applying upward translation as you scroll down
+//         circleRef.current.style.transform = `translateY(${parallaxOffset}px)`;
+//       }
+//     };
+
+//     window.addEventListener('scroll', handleScroll);
+
+//     // Cleanup scroll listener on component unmount
+//     return () => {
+//       window.removeEventListener('scroll', handleScroll);
+//     };
+//   }, []);
+
+//   return (
+//     <div
+//       ref={circleRef}
+//       className="absolute w-full flex items-center justify-center bg-white rounded-t-[50%] lg:mt-20"
+//       style={{
+//         zIndex: 10,
+//         boxShadow: '0 -100px 100px -100px gold',
+//         borderTopLeftRadius: '50%',
+//         borderTopRightRadius: '50%',
+//       }}
+//     >
+//       <div className="flex flex-col w-full ">
+//         <h2 className="text-primary text-4xl md:text-6xl lg:text-7xl font-semibold flex flex-col items-center justify-center h-screen">
+//           <p className="py-2">How iProp91 does</p>
+//           <p className="py-2">things differently</p>
+//         </h2>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default CircleComponent;

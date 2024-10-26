@@ -17,20 +17,20 @@ const Navbar = () => {
         }
     };
 
-    useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    // useEffect(() => {
+    //     document.addEventListener("mousedown", handleClickOutside);
+    //     return () => document.removeEventListener("mousedown", handleClickOutside);
+    // }, []);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollPos = window.scrollY;
-            setIsVisible(currentScrollPos < scrollPos);
-            setScrollPos(currentScrollPos);
-        };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [scrollPos]);
+    // useEffect(() => {
+    //     const handleScroll = () => {
+    //         const currentScrollPos = window.scrollY;
+    //         setIsVisible(currentScrollPos < scrollPos);
+    //         setScrollPos(currentScrollPos);
+    //     };
+    //     window.addEventListener("scroll", handleScroll);
+    //     return () => window.removeEventListener("scroll", handleScroll);
+    // }, [scrollPos]);
 
     return (
         <nav
