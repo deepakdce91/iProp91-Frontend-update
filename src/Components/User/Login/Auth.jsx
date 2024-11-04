@@ -22,7 +22,7 @@ import {
 import { Spinner } from "@material-tailwind/react";
 import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 
-function Verify({ onclick, phone, countryCode }) {
+function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
   const [otp, setOTP] = useState("");
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
@@ -117,10 +117,14 @@ function Verify({ onclick, phone, countryCode }) {
                 let decoded = jwtDecode(token);
                 console.log(decoded);
                 localStorage.setItem("token", token);
+                
                 setTimeout(() => {
                   localStorage.removeItem("token");
                 }, 3600000); // 1 hour in milliseconds
                 toast.success("Login Successfull");
+
+                // set is login === true
+                setIsLoggedIn(true);
 
                 setTimeout(() => {
                   navigate("/concierge");
@@ -343,7 +347,7 @@ function Verify({ onclick, phone, countryCode }) {
   );
 }
 
-export default function Login() {
+export default function Login({setIsLoggedIn}) {
   const navigate = useNavigate();
 
   // useEffect(() => {
@@ -439,6 +443,7 @@ export default function Login() {
       let decoded = jwtDecode(token);
       console.log(decoded);
       localStorage.setItem("token", token);
+
       setTimeout(() => {
         localStorage.removeItem("token");
       }, 3600000); // 1 hour in milliseconds
@@ -478,6 +483,7 @@ export default function Login() {
                 }}
                 phone={phone}
                 countryCode={selectedCountry}
+                setIsLoggedIn = {setIsLoggedIn}
               />
             ) : passwordlogin ? (
               <>
