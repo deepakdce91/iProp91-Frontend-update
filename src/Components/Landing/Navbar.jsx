@@ -49,7 +49,7 @@ const Navbar = () => {
                 <Link to="/auth" className="text-gray-400 hover:text-black">
                     Our Team
                 </Link>
-                <Link to="/auth" className="text-gray-400 hover:text-black">
+                <Link to="/authenticate" className="text-gray-400 hover:text-black">
                     Member login
                 </Link>
             </div>
