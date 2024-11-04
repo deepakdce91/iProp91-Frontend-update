@@ -34,7 +34,7 @@ const Navbar = () => {
 
     return (
         <nav
-            className={`flex items-center justify-between px-10 py-4 text-black backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-gold  ${
+            className={`flex items-center justify-between px-10 py-4 bg-white bg-opacity-20 text-black backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-gold  ${
                 isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
             }`}
         >

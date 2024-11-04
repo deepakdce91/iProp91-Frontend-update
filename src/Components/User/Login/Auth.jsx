@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import { Spinner } from "@material-tailwind/react";
+import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 
 function Verify({ onclick, phone, countryCode }) {
   const [otp, setOTP] = useState("");
@@ -223,6 +224,7 @@ function Verify({ onclick, phone, countryCode }) {
         </div>
       ) : null}
       <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
+        <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
         <DialogHeader className="relative m-0 block">
           <Typography variant="h4" color="blue-gray">
             Enter Your Details
@@ -259,7 +261,7 @@ function Verify({ onclick, phone, countryCode }) {
               <LableInput
                 label={"Password"}
                 placeholder={"Set Password"}
-                type={"text"}
+                type={"password"}
                 setValue={setPassword}
                 value={password}
               />
@@ -289,7 +291,8 @@ function Verify({ onclick, phone, countryCode }) {
             <p className="text-gray-500 mb-8">
               An authentication code has been sent to your Phone Number
             </p>
-            <div className="w-72 max-lg:m-auto">
+
+            <div className="w-72 mb-4 max-lg:m-auto">
               <SimpleInput
                 type={"text"}
                 placeholder={"Enter OTP"}
@@ -297,6 +300,7 @@ function Verify({ onclick, phone, countryCode }) {
                 setValue={setOTP}
               />
             </div>
+
             <div className="w-72 max-lg:m-auto">
               <Goldbutton
                 btnname={"Verify OTP"}
@@ -326,13 +330,13 @@ function Verify({ onclick, phone, countryCode }) {
             )}
           </div>
 
-          <div className="w-3/6 hidden lg:block">
+          {/* <div className="w-3/6 hidden lg:block">
             <img
-              src="images/image.jpg"
+              src="images/login.png"
               alt="Building"
               className="w-full h-full object-cover rounded-xl"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </>
@@ -462,127 +466,126 @@ export default function Login() {
           <Spinner color="amber" className="h-16 w-16" />
         </div>
       ) : null}
-      {passwordlogin ? (
-        <div className="h-screen flex items-center justify-center bg-gray-100">
-          <div className="flex  rounded-lg  max-w-7xl overflow-hidden justify-center">
-            {/* Left Side - Form */}
-            <div className="md:py-16 md:px-8 p-8 lg:p-8 flex flex-col justify-center shadow-md rounded-xl bg-white">
-              <div className="flex items-center mb-4 cursor-pointer">
-                <span className="ml-2 text-gray-600">Sign in / Sign up</span>
-              </div>
-
-              <h2 className="text-3xl font-semibold mb-4">
-                Enter Phone Number
-              </h2>
-              <p className="text-gray-500 mb-8" onClick={onclick}>
-                Enter your mobile number to get an OTP to your number
-              </p>
-
-              <div className="w-72 max-lg:m-auto">
-                <PhoneInput
-                  selectedCountry={selectedCountry}
-                  setSelectedCountry={setSelectedCountry}
-                  phone={phone}
-                  setPhone={setPhone}
-                />
-              </div>
-              <div className="w-72 max-lg:m-auto">
-                <Goldbutton
-                  btnname={"Send OTP"}
-                  bgcolor={" ml-2"}
-                  onclick={HandleOTPLogin}
-                />
-              </div>
-              <div
-                className="flex items-center mt-2 cursor-pointer "
-                onClick={() => {
-                  setpasswordlogin(false);
+      <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="flex rounded-lg max-w-7xl overflow-hidden justify-center">
+          {/* Left Side - Form */}
+          <div className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white lg:w-[600px] w-full md:w-[550px] h-[550px]">
+            {verify ? (
+              <Verify
+                onclick={() => {
                   setVerify(false);
+                  setpasswordlogin(true);
                 }}
-              >
-                <p className="mt-4">
-                  Login with{" "}
-                  <span className="text-green-500 underline ">Password</span>{" "}
+                phone={phone}
+                countryCode={selectedCountry}
+              />
+            ) : passwordlogin ? (
+              <>
+                <div className="flex items-center mb-4 cursor-pointer">
+                  <span className="ml-2 text-gray-600">Sign in / Sign up</span>
+                </div>
+                <h2 className="text-3xl font-semibold mb-4">
+                  Enter Phone Number
+                </h2>
+                <p className="text-gray-500 mb-8" onClick={onclick}>
+                  Enter your mobile number to get an OTP to your number
                 </p>
-              </div>
-            </div>
+                <div className="w-72">
+                  <PhoneInput
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={setSelectedCountry}
+                    phone={phone}
+                    setPhone={setPhone}
+                  />
+                </div>
+                <div className="w-72  mt-1">
+                  <Goldbutton
+                    btnname={"Send OTP"}
+                    bgcolor={" ml-2"}
+                    onclick={HandleOTPLogin}
+                  />
+                </div>
+                <div
+                  className="flex items-center mt-4 cursor-pointer"
+                  onClick={() => {
+                    setpasswordlogin(false);
+                    setVerify(false);
+                  }}
+                >
+                  <p>
+                    Login with{" "}
+                    <span className="text-green-500 underline">Password</span>
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div
+                  className="flex items-center mb-4 cursor-pointer"
+                  onClick={() => setpasswordlogin(true)}
+                >
+                  <i
+                    className="bx bxs-chevron-left"
+                    style={{ fontSize: "20px" }}
+                  ></i>
+                  <span className="ml-2 text-gray-600">Back</span>
+                </div>
+                <h2 className="text-3xl font-semibold mb-4">
+                  Enter Credentials
+                </h2>
+                <p className="text-gray-500 mb-8" onClick={onclick}>
+                  Enter your mobile number and password to continue with login
+                  and password.
+                </p>
+                <div className="w-72 ">
+                  <PhoneInput
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={setSelectedCountry}
+                    phone={phone}
+                    setPhone={setPhone}
+                  />
+                </div>
+                <div className="w-72  mt-1">
+                  <SimpleInputPass
+                    type={"password"}
+                    placeholder={"Password"}
+                    value={password}
+                    setValue={setPassword}
+                  />
+                </div>
+                <div className="w-72 mt-1">
+                  <Goldbutton
+                    btnname={"Submit"}
+                    bgcolor={" ml-2"}
+                    onclick={HandlePasswordLogin}
+                  />
+                </div>
+                <div
+                  className="flex items-center mt-4 cursor-pointer"
+                  onClick={() => {
+                    setpasswordlogin(true);
+                    setVerify(false);
+                  }}
+                >
+                  <p>
+                    Login with{" "}
+                    <span className="text-green-500 underline">OTP</span>
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
 
-            {/* Right Side - Image */}
-            <div className="w-4/6 hidden lg:block">
-              <img
-                src="images/login.png" // Replace this with the actual image URL
-                alt="Building"
-                className="w-full h-full  rounded-xl"
-              />
-            </div>
+          {/* Right Side - Image */}
+          <div className="w-4/6 hidden lg:block">
+            <img
+              src="images/login.png" // Replace this with the actual image URL
+              alt="Building"
+              className="w-full h-full rounded-xl object-cover"
+            />
           </div>
         </div>
-      ) : verify ? (
-        <Verify
-          onclick={() => {
-            setVerify(false);
-            setpasswordlogin(true);
-          }}
-          phone={phone}
-          countryCode={selectedCountry}
-        />
-      ) : (
-        <div className="min-h-screen flex items-center justify-center ">
-          <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
-            {/* Left Side - Form */}
-            <div className=" p-8">
-              <div
-                className="flex items-center mb-4 cursor-pointer"
-                onClick={() => setpasswordlogin(true)}
-              >
-                <i
-                  className="bx bxs-chevron-left "
-                  style={{ fontSize: "20px" }}
-                ></i>
-
-                <span className="ml-2 text-gray-600">back</span>
-              </div>
-
-              <h2 className="text-3xl font-semibold mb-4">Enter Credentials</h2>
-              <p className="text-gray-500 mb-8" onClick={onclick}>
-                Enter your mobile number and password to continue with login ...
-              </p>
-              <div className="w-72 max-lg:m-auto">
-                <PhoneInput
-                  selectedCountry={selectedCountry}
-                  setSelectedCountry={setSelectedCountry}
-                  phone={phone}
-                  setPhone={setPhone}
-                />
-              </div>
-              <div className="w-72 max-lg:m-auto">
-                <SimpleInput
-                  type={"password"}
-                  placeholder={"Password"}
-                  value={password}
-                  setValue={setPassword}
-                />
-              </div>
-              <div className="w-72 max-lg:m-auto">
-                <Goldbutton
-                  btnname={"Submit"}
-                  bgcolor={" ml-2"}
-                  onclick={HandlePasswordLogin}
-                />
-              </div>
-            </div>
-
-            {/* Right Side - Image */}
-            <div className="w-3/6 hidden lg:block">
-              <img
-                src="images/image.jpg" // Replace this with the actual image URL
-                alt="Building"
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
 
       <ToastContainer position="top-right" autoClose={2000} />
     </>

@@ -1,25 +1,51 @@
-import React from "react";
 
-const SimpleInput = ({ placeholder, type, setValue, value  }) => {
 
-    const handleChange = (e) => {
-        setValue(e.target.value); 
+import React, { useState } from "react";
+
+const OtpInput = ({ placeholder, type,setValue, value }) => {
+    // State to hold individual OTP box values
+    const [otp, setOtp] = useState(new Array(6).fill(""));
+
+    // Handle change in OTP input
+    const handleChange = (e, index) => {
+        const val = e.target.value;
+        if (isNaN(val)) return; // Allow only numbers
+
+        // Update OTP array
+        const newOtp = [...otp];
+        newOtp[index] = val;
+        setOtp(newOtp);
+        setValue(newOtp.join("")); // Update the overall OTP value
+
+        // Move to the next input box
+        if (val && index < 5) {
+            e.target.nextSibling?.focus();
+        }
+    };
+
+    // Handle backspace functionality
+    const handleKeyDown = (e, index) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            e.target.previousSibling?.focus();
+        }
     };
 
     return (
-        <>
-            <div className={`w-full m-2 font-sm`}>
+        <div className="flex space-x-2">
+            {otp.map((data, index) => (
                 <input
-                    type={type}
-                    className="bg-white border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-yellow-500 dark:focus:border-blue-500 rounded-full font-sm"
-                    placeholder={placeholder}
-                    value={value} // Set the input value from the state
-                    onChange={handleChange} // Call handleChange when the input changes
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    className="bg-white border border-yellow-600 text-gray-900 text-center text-sm focus:ring-blue-500 focus:border-yellow-500 w-10 h-10 rounded-md"
+                    value={data}
+                    onChange={(e) => handleChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
                     required
                 />
-            </div>
-        </>
+            ))}
+        </div>
     );
 };
 
-export default SimpleInput;
+export default OtpInput;

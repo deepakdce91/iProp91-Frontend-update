@@ -16,7 +16,7 @@ export default function AllPage() {
                 <div className="w-full">
                     <Routes>
                         {/* <Route path="*" element={"Hello"}/> */}
-                        <Route path="/concierge/*" element={<Conci/>}/>
+                        <Route path="/concierge" element={<Conci/>}/>
                         <Route path="/safe/*" element={<Safe/>}/>
                         <Route path="/family" element={<OwnerClub/>}/>
                         <Route path="/realinsight" element={<Real/>}/>

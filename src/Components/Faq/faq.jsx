@@ -47,7 +47,7 @@ export default function Faq() {
         const userId = decodedToken.userId; // Assuming userId is stored within the token
 
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/caseLaws/fetchAllActiveCaseLaws?userId=${userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllFAQs?userId=${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -75,14 +75,21 @@ export default function Faq() {
 
   return (
     <div  className="flex flex-col gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10 h-screen    ">
-      {/* <p>Case-Laws</p> */}
-      <div className="w-full md:pl-8  md:mt-0">
+      <div className="md:w-1/3 flex flex-col gap-3">
+        <h1  className="text-6xl tracking-wide font-bold ">
+          FAQ
+        </h1>
+        <p  className="text-lg">
+          Can&apos;t find the answer you&apos;re looking for? Ask your question and get an answer within 24 hours
+        </p>
+      </div>
+      <div className="md:w-2/3 md:pl-8  md:mt-0">
         {faqs.map((faq, index) => (
           <div
             key={index}
             className={`mb-4 transition-all duration-300 ease-in-out ${
               openIndex === index ? 'bg-gold' : 'border-[1px] border-gold'
-            } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl`}
+            } p-4 rounded-3xl hover:scale-105 transition-all`}
           >
             <div
               className="flex justify-between items-center cursor-pointer"

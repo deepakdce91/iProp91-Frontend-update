@@ -5,29 +5,38 @@ import AskForLogin from "./Components/User/Login/askforlogin.jsx";
 import Auth from "./Components/User/Login/Auth.jsx";
 import AskName from "./Components/User/Login/AskName.jsx";
 import Landing from "./Components/Landing/landing.jsx"
+
 function App() {
-  return (
-    <>
-      <Router>
-        <div className="Poppins">
-          {/* <Footer /> */}
-          <Routes>
-            <Route path="/*" element={<Landing />} />
-            <Route path="/auth" element={<AskForLogin />} />
-            <Route path="/authenticate" element={<Auth />} />
-            <Route path="/name" element={<AskName />} />
-       
-            {/* <User/> */}
-            {/* <Sidebar /> */}
-            {/* <NRI/> */}
-            {/* <Advice/> */}
-            <Route path="/*" element={<AllPage />} />
-            {/* <Footer/> */}
-          </Routes>
-        </div>
-      </Router>
-    </>
-  );
+    return ( <
+        >
+        <
+        Router >
+        <
+        div className = "Poppins" > { /* <Footer /> */ } <
+        Routes >
+        <
+        Route path = "/*"
+        element = { < Landing / > }
+        /> <
+        Route path = "/auth"
+        element = { < AskForLogin / > }
+        /> <
+        Route path = "/authenticate"
+        element = { < Auth / > }
+        /> <
+        Route path = "/name"
+        element = { < AskName / > }
+        />
+
+        { /* <User/> */ } { /* <Sidebar /> */ } { /* <NRI/> */ } { /* <Advice/> */ } <
+        Route path = "/*"
+        element = { < AllPage / > }
+        /> { /* <Footer/> */ } <
+        /Routes> <
+        /div> <
+        /Router> <
+        />
+    );
 }
 
 export default App;

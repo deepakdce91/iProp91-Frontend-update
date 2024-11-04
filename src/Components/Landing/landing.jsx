@@ -13,11 +13,17 @@ import Number from './Number';
 import Footer from './Footer'
 import CaseLaws from "../CaseLaws/caselaws";
 import {Route, Routes} from 'react-router-dom';
+import Library from "../Library/library";
+import BrandMarquee from "./BrandMarquee";
+import Faq from "../Faq/faq";
+import Laws from "../Laws/laws";
+import Chat from "../Ownerclub/ChatArea/Chat";
 
 function LandingPage() {
   return (
     <>
       <HeroSection />
+      <BrandMarquee/>
       <AboutSection />
       {/* currently this component is not in use */}
       {/* <HowcanWe /> */}
@@ -26,6 +32,7 @@ function LandingPage() {
       <Insight />
       <Comparision />
       <Number />
+      {/* <Chat/> */}
     </>
   );
 }
@@ -90,6 +97,10 @@ function Landing() {
       <Routes>
         <Route path="/" element={<TypingLandingPage />} />
         <Route path="/case-laws" element={<CaseLawsPage />} />
+        <Route path="/library" element={<Library/>} />
+        <Route path="/faqs" element={<Faq/>} />
+        <Route path="/laws" element={<Laws/>} />
+
       </Routes>
       <Footer/>
     </>

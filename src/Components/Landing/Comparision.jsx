@@ -1,22 +1,27 @@
 import React from "react";
+import { Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import '../../css/styles.css';
 
 const CompComponent = () => {
   return (
-    <div className="rounded-3xl  border-2 border-gold max-w-3xl mx-auto overflow-hidden relative m-4">
+    <div className="rounded-3xl border-2 border-gold max-w-3xl mx-auto overflow-hidden relative m-4">
       <div className="flex flex-col md:flex-row bg-gray-100 text-black">
         {/* Left Side */}
         <div className="flex-1 flex flex-col justify-center p-4">
-          <h2 className="text-2xl font-semibold">We track the market’s impact on your portfolio daily</h2>
+          <h2 className="text-2xl font-semibold">We track the market&apos;s impact on your portfolio daily</h2>
         </div>
 
         {/* Right Side */}
         <div className="flex-1 mt-6 md:mt-0 md:ml-4">
           <div className="bg-white p-4 shadow-md">
-            <div className="flex items-center space-x-2 mb-4">
+            <div className="flex md:flex-row flex-col items-center space-x-2 space-y-2 mb-4">
               <img
                 src="images/1.png" // Placeholder image for the profile picture
                 alt="profile"
-                className="w-8 h-8 rounded-full"
+                className="lg:w-8 lg:h-8 w-1 rounded-full"
               />
               <span className="text-sm font-medium">Driven by extreme bullishness</span>
             </div>
@@ -73,14 +78,31 @@ const CompComponent = () => {
 export default function Comparision() {
   return (
     <section className="py-12">
-      <div className="w-11/12 lg:w-3/5 mx-auto">
-        <CompComponent />
-        <CompComponent />
-        <CompComponent />
-        <CompComponent />
-        <CompComponent />
-        <CompComponent />
-        <CompComponent />
+      <div className="w-11/12 flex items-center justify-center lg:w-full mx-auto">
+        <Swiper
+          spaceBetween={30}
+          centeredSlides={true}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false, // Allow autoplay to continue after interaction
+          }}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Autoplay, Pagination]}
+          className="mySwiper"
+          breakpoints={{
+            640: { slidesPerView: 1, spaceBetween: 20 },
+            768: { slidesPerView: 2, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 30 },
+          }}
+        >
+          {[...Array(7)].map((_, index) => (
+            <SwiperSlide key={index} className="swiper-slide-custom">
+              <CompComponent />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );

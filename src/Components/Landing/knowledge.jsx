@@ -86,7 +86,7 @@ const links = [
 
 const Knowledge = () => {
   return (
-    <div className="flex flex-col items-center justify-center p-6">
+    <div className="flex flex-col items-center justify-center md:p-12 p-6 lg:px-28 lg:py-6">
       <h1 className="text-3xl text-center md:text-6xl font-semibold text-black py-6 text-primary">
         We encourage you to empower <br /> your choice with knowledge
       </h1>

@@ -48,7 +48,7 @@ function Verify({ onclick, phone }) {
                                 style={{ fontSize: "20px" }}
                             ></i>
 
-                            <span className="ml-2 text-gray-600">back</span>
+                            <span className="ml-2 text-gray-600">Back</span>
                         </div>
                         <h2 className="text-3xl font-semibold mb-4">Verify Code</h2>
                         <p className="text-gray-500 mb-8">
