@@ -38,7 +38,7 @@ const Navbar = () => {
                 isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
             }`}
         >
-            {/* Left side - Logo */}
+            {/* Left side - Logo  */}
             <div className="text-2xl font-bold text-primary">iProp91</div>
 
             {/* Desktop Links */}

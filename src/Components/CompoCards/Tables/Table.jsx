@@ -129,15 +129,19 @@ const Table = ({ tablename, category, tableopen = false}) => {
       toast.error('Please select a file');
       return;
     }
+
+    const userPhone = localStorage.getItem("userPhone");
+
     for (let i = 0; i < files.length; i++) {
       let item = files[i];
-      let cloudFilePath = await uploadFileToCloud(item, user.userId);
+      let cloudFilePath = await uploadFileToCloud(item, userPhone || "exception");
       newData.push({
         name: item.name,
         path: cloudFilePath,
         addedBy: user.userId,
       });
     }
+
     for (let i = 0; i < newData.length; i++) {
       addSafeDocument(newData[i]);
     }

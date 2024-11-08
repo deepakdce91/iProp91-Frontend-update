@@ -5,19 +5,19 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 // Creating the S3 client instance using Supabase's storage endpoint
 const client = new S3Client({
   forcePathStyle: true, // Required for Supabase S3 compatibility
-  region: 'us-east-1', 
-  endpoint: process.env.REACT_APP_SUPABASE_ENDPOINT,
+  region: 'ap-south-1', 
+  endpoint: process.env.REACT_APP_SUPABASE_ENDPOINT, 
   credentials: {
-    accessKeyId: process.env.REACT_APP_S3_ACCESS_KEY_ID,
-    secretAccessKey: process.env.REACT_APP_S3_SECRET_ACCESS_KEY, }
+    accessKeyId: process.env.REACT_APP_S3_ACCESS_KEY_ID, 
+    secretAccessKey: process.env.REACT_APP_S3_SECRET_ACCESS_KEY, 
+  },
 });
 
 const uploadFileToCloud = async (myFile,userphone) => {
   // remove spaces from file name
   let filename = myFile.name.replace(/\s/g, '');
 
-  const userNumber = userphone;
-  const myPath = `propertyDocs/${userNumber}/${filename}`;
+  const myPath = `propertyDocs/${userphone}/${filename}`;
   try {
     const uploadParams = {
       Bucket: process.env.REACT_APP_PROPERTY_BUCKET,

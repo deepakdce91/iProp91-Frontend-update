@@ -8,11 +8,12 @@ import { jwtDecode } from 'jwt-decode';
 import { client } from '../../../config/s3client'
 import Goldbutton from '../../CompoCards/GoldButton/Goldbutton'
 
-const uploadFileToCloud = async (myFile) => {
+import { useNavigate } from "react-router-dom";
+
+const uploadFileToCloud = async (myFile, userNumber) => {
   // remove spaces from file name
   let filename = myFile.name.replace(/\s/g, '');
 
-  const userNumber = "5566556656";
   const myPath = `propertyDocs/${userNumber}/${filename}`;
   try {
     const uploadParams = {
@@ -23,42 +24,31 @@ const uploadFileToCloud = async (myFile) => {
     };
     // console.log("Uploading file:", myFile.name);
     const command = new PutObjectCommand(uploadParams);
-    await client.send(command);
-    return myPath; //  return the file path
+    const sent = await client.send(command);
+    if(sent){
+      return myPath; //  return the file path
+    }else{
+      console.error("Error uploading file");
+    }
+    
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
   }
 };
 
-//get signed url---will be used sooon
-const getSignedUrlForPrivateFile = async (path) => {
-  try {
-    const getParams = {
-      Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
-      Key: path,
-    };
 
-    const command = new GetObjectCommand(getParams);
-    const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 }); // URL valid for 1 hour
-
-    console.log("Signed URL:", signedUrl);
-    return signedUrl;
-  } catch (error) {
-    console.error("Error getting signed URL:", error);
-    throw error;
-  }
-};
-
-
-// form required fields
 // state,city,builder,project,houserNumber,floorNumber,tower,unit,size,nature,status,name,documents,applicationStatus,addedBy,isDeleted
 function Addpropform() {
+
+  const navigate = useNavigate();
 
   // change name of the Page
   useEffect(() => {
     document.title = "iProp91 | Add My Property";
   }, []);
+
+  const [isUploading, setIsUploading] = useState(false);
 
   // Get user from backend
   const [user, setUser] = useState({});
@@ -69,9 +59,7 @@ function Addpropform() {
   const [projects, setProjects] = useState([]);
   const [doctypes, setDocTypes] = useState([]);
 
-  // Get from form
-  const [selectedDoc, setSelectedDoc] = useState([]);
-  const [selectedDocType, setSelectedDocType] = useState("");
+
   const [termsncond, setTermsnCond] = useState(false);
 
   const [uploadStatus, setUploadStatus] = useState(false);
@@ -91,18 +79,20 @@ function Addpropform() {
     selectedTower: "",
     selectedUnit: "",
     selectedSize: "",
-    selectedNature: "Residential",
-    selectedStatus: "Under Construction",
+    selectedNature: "residential",
+    selectedStatus: "under-construction",
     selectDoclist: {
-      selectedDocType: selectedDocType,
-      selectedDoc: selectedDoc,
+      selectedDocType: "",
+      selectedDoc: [],
     },
     enable: "no",
   });
-
   const handleChange = (e) => {
-    setFormData({ ...formdata, [e.target.name]: e.target.value });
-    console.log(formdata);
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value, // update the respective radio button value
+    }));
   };
 
 
@@ -272,10 +262,19 @@ function Addpropform() {
 
 
   // handle doctype
-  const handleDocType = (e) => {
-    setSelectedDocType(e.target.value);
-    setFormData({ ...formdata, selectDoclist: { selectedDocType: e.target.value, selectedDoc: selectedDoc } });
-    // console.log(selectedDocType);
+  const handleDocTypeChange = (e) => {
+    e.preventDefault();
+
+    const newDocType = e.target.value;
+
+    // Update the selectedDocType within selectDoclist
+    setFormData((prevFormData) => ({
+      ...prevFormData, // keep other properties
+      selectDoclist: {
+        ...prevFormData.selectDoclist, // keep previous selectDoclist values
+        selectedDocType: newDocType,   // update selectedDocType
+      },
+    }));
   };
 
   // handles file upload
@@ -290,18 +289,20 @@ function Addpropform() {
 
   const handleFileUpload = (e) => {
     e.preventDefault();
+
     if (uploadFiles.length === 0) {
       return toast.error("Please select a file to upload.");
     }
+
     try {
       toast("Uploading files!");
       uploadFiles.length > 0 &&
-        uploadFiles.map(async (item) => {
-          let cloudFilePath = await uploadFileToCloud(item);
+        uploadFiles.map( async(item) => {
+          let cloudFilePath =  await uploadFileToCloud(item,user.phone);
           setFormData({
             ...formdata,
             selectDoclist: {
-              selectedDocType: selectedDocType,
+              ...formdata.selectDoclist,
               selectedDoc: [...formdata.selectDoclist.selectedDoc, cloudFilePath],
             },
           });
@@ -316,13 +317,37 @@ function Addpropform() {
       console.log(error.message);
     }
     setUploadFiles([]);
-    document.getElementById("file").value = "";
+    
   };
 
   // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formdata);
+
+    let token = localStorage.getItem("token");
+    let tokenid = jwtDecode(token);
+
+    const reqBody = {
+      customerName: user.name,
+      customerNumber: user.phone,
+      state: formdata.selectedState,
+      city: formdata.selectedCity,
+      builder: formdata.selectBuilder,
+      project: formdata.selectProject,
+      houseNumber: formdata.selectHouseNumber,
+      floorNumber: formdata.selectFloorNumber,
+      tower: formdata.selectedTower,
+      unit: formdata.selectedUnit,
+      size: formdata.selectedSize,
+      nature: formdata.selectedNature,
+      status: formdata.selectedStatus,
+      documents: {
+        type: formdata.selectDoclist.selectedDocType,
+        files: formdata.selectDoclist.selectedDoc,
+      },
+      addedBy:  tokenid.userId,
+      applicationStatus: "under-review",
+    }
 
 
     if (!termsncond) {
@@ -332,10 +357,7 @@ function Addpropform() {
     if (!formdata.selectedState || !formdata.selectedCity || !formdata.selectBuilder || !formdata.selectProject || !formdata.selectHouseNumber || !formdata.selectFloorNumber || !formdata.selectedTower || !formdata.selectedUnit || !formdata.selectedSize || !formdata.selectedNature || !formdata.selectedStatus || !formdata.selectDoclist.selectedDocType || !formdata.selectDoclist.selectedDoc) {
       return toast.error("Please fill all the fields.");
     }
-    // check if filed are numeric
-    if (isNaN(formdata.selectHouseNumber) || isNaN(formdata.selectFloorNumber) || isNaN(formdata.selectedSize)) {
-      return toast.error("Please enter numeric values in house number, floor number and size.");
-    }
+    
     try {
       // if selected state is not in the list of states
       if (!states.find(state => state.name === formdata.selectedState)) {
@@ -398,64 +420,32 @@ function Addpropform() {
       if (uploadStatus === false) {
         return toast.error("Please upload the documents.");
       }
-      let token = localStorage.getItem("token");
-      let tokenid = jwtDecode(token);
+
+      setIsUploading(true);
+      
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${tokenid.userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
         "auth-token":token,
          },
-        body: JSON.stringify({
-          customerName: user.name,
-          customerNumber: user.phone,
-          state: formdata.selectedState,
-          city: formdata.selectedCity,
-          builder: formdata.selectBuilder,
-          project: formdata.selectProject,
-          houseNumber: formdata.selectHouseNumber,
-          floorNumber: formdata.selectFloorNumber,
-          tower: formdata.selectedTower,
-          unit: formdata.selectedUnit,
-          size: formdata.selectedSize,
-          nature: formdata.selectedNature,
-          status: formdata.selectedStatus,
-          documents: {
-            type: formdata.selectDoclist.selectedDocType,
-            files: formdata.selectDoclist.selectedDoc,
-          },
-          enable: formdata.enable,
-          addedBy:  tokenid.userId,
-          applicationStatus: "under-review",
-        }),
+        body: JSON.stringify(reqBody),
       });
 
       if (response.status !== 200) {
+        setIsUploading(false);
         return toast.error("Please fill all the fields.");
       }
       const data = await response.json();
-      console.log(data);
       if (data._id) {
+        setIsUploading(false);
         toast.success("Property added successfully!");
-        setFormData({
-          selectedState: "",
-          selectedCity: "",
-          selectBuilder: "",
-          selectProject: "",
-          selectHouseNumber: "",
-          selectFloorNumber: "",
-          selectedTower: "",
-          selectedUnit: "",
-          selectedSize: "",
-          selectedNature: "",
-          selectedStatus: "",
-          selectDoclist: {
-            selectedDocType: "",
-            selectedDoc: [],
-          },
-          enable: "no",
-        });
+
+        setTimeout(() => {
+        navigate("/concierge");
+      }, 2000);
       }
     } catch (error) {
+      setIsUploading(false);
       console.error(error.message);
       toast.error("Some ERROR occurred.");
     }
@@ -568,7 +558,7 @@ function Addpropform() {
                     House Number
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     id="housenumber"
                     name="selectHouseNumber"
                     value={formdata.selectHouseNumber}
@@ -646,96 +636,78 @@ function Addpropform() {
               </div>
 
               {/* Nature of Property */}
-              <div className="flex flex-col xl:flex-row w-full">
-                <div className="w-full my-2 xl:m-2 ">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Select Nature of Property
-                  </label>
-                  {/* radiobutton */}
-                  <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex w-full flex-row border  items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-                      <input
-                        id="residential"
-                        name="selectedNature"
-                        value="Residential"
-                        type="radio"
-                        onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600  focus:ring-yellow-500 border-gray-300"
-                        checked
-                      />
-                      <label
-                        htmlFor="residential"
-                        className="ml-1 block w-full text-sm font-medium text-gray-700"
-                      >
-                        Residential
-                      </label>
-                    </div>
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-                      <input
-                        id="commercial"
-                        name="selectedNature"
-                        value="Commercial"
-                        type="radio"
-                        onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                      />
-                      <label
-                        htmlFor="commercial"
-                        className="ml-1 block w-full text-sm font-medium text-gray-700"
-                      >
-                        Commercial
-                      </label>
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full my-2 xl:m-2 ">
+        <label className="block text-sm font-medium text-gray-700">
+          Select Nature of Property
+        </label>
+        <div className="flex items-center w-full mt-1 gap-2">
+          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+            <input
+              id="residential"
+              name="selectedNature"
+              value="residential"
+              type="radio"
+              onChange={handleChange}
+              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+              checked={formdata.selectedNature === "residential"}
+            />
+            <label htmlFor="residential" className="ml-1 block w-full text-sm font-medium text-gray-700">
+              Residential
+            </label>
+          </div>
+          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+            <input
+              id="commercial"
+              name="selectedNature"
+              value="commercial"
+              type="radio"
+              onChange={handleChange}
+              checked={formdata.selectedNature === "commercial"}
+              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+            />
+            <label htmlFor="commercial" className="ml-1 block w-full text-sm font-medium text-gray-700">
+              Commercial
+            </label>
+          </div>
+        </div>
+      </div>
 
-                {/* Status */}
-                <div className="w-full my-2 xl:m-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Select Status
-                  </label>
-                 
-                  {/* radiobutton */}
-                  <div className="flex items-center w-full mt-1  gap-2">
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-                      <input
-                        id="underconstruction"
-                        name="selectedStatus"
-                        value="Under Construction"
-                        type="radio"
-                        onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                        checked
-                      />
-                      <label
-                        htmlFor="underconstruction"
-                        className="ml-1 w-full block text-sm font-medium text-gray-700 text-nowrap"
-                      >
-                        Under Construction
-                      </label>
-                    </div>
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-                      <input
-                        id="completed"
-                        name="selectedStatus"
-                        value="Completed"
-                        type="radio"
-                        onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                      />
-                      <label
-                        htmlFor="completed"
-                        className="ml-1 block w-full text-sm font-medium text-gray-700"
-                      >
-                        Completed
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-
-
-              </div>
+      {/* Select Status */}
+      <div className="w-full my-2 xl:m-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Select Status
+        </label>
+        <div className="flex items-center w-full mt-1 gap-2">
+          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+            <input
+              id="under-construction"
+              name="selectedStatus"
+              value="under-construction"
+              type="radio"
+              onChange={handleChange}
+              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+              checked={formdata.selectedStatus === "under-construction"}
+            />
+            <label htmlFor="under-construction" className="ml-1 w-full block text-sm font-medium text-gray-700 text-nowrap">
+              Under Construction
+            </label>
+          </div>
+          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+            <input
+              id="completed"
+              name="selectedStatus"
+              value="completed"
+              type="radio"
+              checked={formdata.selectedStatus === "completed"}
+              onChange={handleChange}
+              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+            />
+            <label htmlFor="completed" className="ml-1 block w-full text-sm font-medium text-gray-700">
+              Completed
+            </label>
+          </div>
+        </div>
+      </div>
 
               <div className="flex flex-col lg:flex-row w-full items-end">
 
@@ -746,12 +718,12 @@ function Addpropform() {
                   <select
                     id="doctype"
                     name="selectedDocType"
-                    value={selectedDocType}
-                    onChange={handleDocType}
+                    value={formdata.selectDoclist.selectedDocType}
+                    onChange={handleDocTypeChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   >
                     <option value="">Select Document Type</option>
-                    {doctypes.map((doctype) => (
+                    {doctypes?.map((doctype) => (
                       <option key={doctype._id} value={doctype.name}>
                         {doctype.name}
                       </option>
@@ -806,6 +778,7 @@ function Addpropform() {
               {/* Submit Button */}
               <div className="my-2 w-48 xl:m-2">
                 <Goldbutton
+                isDisabled = {isUploading}
                   btnname={"Submit"}
                   onclick={handleSubmit}
                 ></Goldbutton>

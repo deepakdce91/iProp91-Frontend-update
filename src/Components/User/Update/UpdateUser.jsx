@@ -8,6 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from '../../../config/s3client'
 
+export function validateEmail(email) {
+  // Regular expression for basic email validation
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  // Test the email against the regex
+  return emailRegex.test(email);
+}
+
 const uploadFileToCloud = async (myFile) => {
   // remove spaces from file name
   myFile = myFile.replace(/\s+/g, "");
@@ -64,8 +72,9 @@ function NameHeader (){
 
 function EditUser() {
   const navigate = useNavigate();
+
   const [image, setImage] = useState(null);
-  const [name, setName] = useState("");
+  const [name, setName] = useState("iProp91 User");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -120,8 +129,12 @@ function EditUser() {
   const HandleUpdateProfile = async (e) => {
     e.preventDefault();
     // to update name and email
-    if(name === "" || email === ""){
-      toast.error("Please fill all the fields");
+    if(name === ""){
+      toast.error("Name field can't be empty.");
+      return;
+    }
+    if(email.length > 0 && !validateEmail(email)){
+      toast.error("Please provide valid email.");
       return;
     }
     try {

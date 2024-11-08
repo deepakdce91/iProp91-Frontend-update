@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
+import {toast} from 'react-toastify';
+
 export default function Profile() {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +62,10 @@ export default function Profile() {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        navigate('/');
+        toast("Logging Out.")
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     }
 
     return (

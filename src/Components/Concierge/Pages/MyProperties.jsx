@@ -234,8 +234,8 @@ export default function MyProperties() {
       <>
         <div className=" flex  flex-col">
           <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 " >
-          {prop.map((property) => (
-          <Link to={"/safe/Dealing/"+property._id}>
+          {prop.map((property, index) => (
+          <Link key={index} to={"/safe/Dealing/"+property._id}>
             <PropCard key={property._id} props={property}/>
           </Link>
          ))}
