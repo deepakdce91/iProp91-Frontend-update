@@ -205,6 +205,8 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
       setTimeout(() => {
         navigate("/concierge");
       }, 2000);
+      // set is login === true
+      setIsLoggedIn(true);
       setLoading(false);
     } catch (err) {
       toast.error("Something went wrong");
@@ -350,13 +352,6 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
 export default function Login({setIsLoggedIn}) {
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //     const token = localStorage.getItem("token");
-  //     if (token) {
-  //         navigate("/concierge");
-  //     }
-  // }, [navigate]);
-
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("+91");
   const [phone, setPhone] = useState("");
@@ -448,11 +443,13 @@ export default function Login({setIsLoggedIn}) {
         localStorage.removeItem("token");
       }, 3600000); // 1 hour in milliseconds
       toast.success("Login Successfull");
-
+      setLoading(false);
+      // set is login === true
+      setIsLoggedIn(true);
       setTimeout(() => {
         navigate("/concierge");
       }, 2000);
-      setLoading(false);
+      
       return;
     } catch (err) {
       toast.error("Something went wrong");

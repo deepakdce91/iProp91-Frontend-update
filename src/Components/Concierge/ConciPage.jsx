@@ -17,11 +17,11 @@ export default function Conci() {
           <div className="w-full mt-10">
             {/* Nested Routes */}
             <Routes>
-              <Route path="/" element={<MyProperties />} />
-              <Route path="/relations" element={<RelationshipManager />} />
-              <Route path="/property" element={<PropertyMangement />} />
-              <Route path="/legal" element={<Legalsupport />} />
-              <Route path="/finance" element={<FinanceAssitance />} />
+              <Route path="/concierge" element={<MyProperties />} />
+              <Route path="/concierge/relations" element={<RelationshipManager />} />
+              <Route path="/concierge/property" element={<PropertyMangement />} />
+              <Route path="/concierge/legal" element={<Legalsupport />} />
+              <Route path="/concierge/finance" element={<FinanceAssitance />} />
             </Routes>
           </div>
         </div>
