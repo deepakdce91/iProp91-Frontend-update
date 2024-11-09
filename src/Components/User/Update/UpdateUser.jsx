@@ -207,8 +207,10 @@ function EditUser() {
         return;
       }
       let data = await response.json();
-      console.log(data);
       toast.success("Password updated successfully");
+      setNewPassword("");
+      setConfirmPassword("");
+
     }
     catch(error){
       toast.error("Failed to update password");

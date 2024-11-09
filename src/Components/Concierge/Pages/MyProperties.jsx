@@ -202,15 +202,17 @@ export default function MyProperties() {
     const decoded = jwtDecode(token);
 
     const fetchProperties = async () => {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallproperties?userId=${decoded.userId}`,{
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,{
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "auth-token": token,
         }
       });
-      if(response.ok){
+      if(response){
+        console.log("fetchedddd")
         const properties = await response.json();
+        console.log(properties)
         setProp(properties);
         properties.map((property) => {
           // conver to object and then push
@@ -221,8 +223,6 @@ export default function MyProperties() {
             </Link>
           ]);
         });
-        console.log("SLIDES=", SLIDES);
-        console.log(properties);
         return;
       }
       toast.error("Error fetching properties");

@@ -19,8 +19,7 @@ export default function Profile() {
             return;
           }
           let tokenid = jwtDecode(token);
-        //   console.log(tokenid);
-        //   console.log(token);
+   
           try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`, {
               method: "GET",
@@ -30,7 +29,6 @@ export default function Profile() {
               },
             });
             const data = await response.json();
-            console.log(data);
             setUser(data);
             setDataloaded(true);
           }
@@ -82,7 +80,7 @@ export default function Profile() {
                         <img
                             className="aspect-square h-full w-full "
                             alt="profilePic"
-                            src={dataloaded && user.data.profilePicture}
+                            src={dataloaded  ? (user.data.profilePicture === "" ? "/dummyPFP.jpg" : user.data.profilePicture) : "/dummyPFP.jpg"}
                         />
                     </span>
                     <p className="mt-auto mb-auto text-sm mx-1">
