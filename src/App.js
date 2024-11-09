@@ -54,7 +54,6 @@ function App() {
   // Custom hook to manage JWT token
   useAuthToken(navigate);
 
-
   return (
     <div className="app">
       <div className="Poppins">
@@ -69,16 +68,15 @@ function App() {
           />{" "}
           
           <Route path="/name" element={<AskName />} />
-
+    
+          {isLoggedIn === true && (
             <Route
               path="/*"
               element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
             />
 
             
-
-            
-          {" "}
+          )}{" "}
           {/* <Footer/> */}{" "}
         </Routes>{" "}
       </div>{" "}
