@@ -77,7 +77,10 @@ const Navbar = () => {
       }`}
     >
       {/* Left side - Logo */}
-      <div className="text-2xl font-bold text-primary">iProp91</div>
+      <div className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
+        <img className="w-12 h-12 scale-125" src="/images/logo1.png" alt="logo" />
+        <p>iProp91</p>
+      </div>
 
       {/* Desktop Links */}
       <div className="hidden md:flex space-x-8">

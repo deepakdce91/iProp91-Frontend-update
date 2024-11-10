@@ -44,9 +44,9 @@ const CompComponent = () => {
       <div className="absolute left-12 transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2">
         VS
       </div>
-      <div className="bg-gold text-white p-4">
+      <div className="bg-gray-200 border-t-[2px] border-t-gold text-black p-4">
         <h3 className="font-semibold">Traditional wealth firms</h3>
-        <p className="text-gray-400 text-sm mt-2">
+        <p className="text-black text-sm mt-2">
           Your RM is busy searching for new clients & rarely tracks your portfolio
         </p>
       </div>
