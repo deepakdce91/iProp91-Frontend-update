@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { FcLock } from "react-icons/fc";
+import { toast } from "react-toastify";
 
 // Link list for sidebar items
 const Linklist = {
@@ -72,6 +76,8 @@ const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
+  const [isLocked, setIsLocked] = useState(true);
+
   const addActive = (link) => {
     setActiveLink(link);
   };
@@ -79,6 +85,31 @@ const Sidebar = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  useEffect(() => {
+    let token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      axios
+        .get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${decoded.userId}`,
+          {
+            headers: {
+              "auth-token": token,
+            },
+          }
+        )
+        .then((response) => {
+
+          if (response.data.data.length > 0) {
+            setIsLocked(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  }, []);
 
   return (
     <>
@@ -94,25 +125,63 @@ const Sidebar = () => {
           />
           {Object.keys(Linklist).map((key, index) => (
             <div key={index} className="w-full">
-              <Link
-                to={Linklist[key].link}
-                className={`active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                  location.pathname.includes(Linklist[key].link) 
-                    ? "border-simple "
-                    : ""
-                } hover:!border-simple`}
-                onClick={() => addActive(Linklist[key].link)}
-              >
-                <img
-                  alt={key}
-                  loading="lazy"
-                  width="12"
-                  height="13"
-                  className="mt-auto mb-auto ml-auto"
-                  src={Linklist[key].icon}
-                />
-                <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-              </Link>
+              {Linklist[key].link === "/safe" ||
+              Linklist[key].link === "/family" ? (
+                isLocked === true ? (
+                  <button
+                    
+                    className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                      location.pathname.includes(Linklist[key].link)
+                        ? "border-simple "
+                        : ""
+                    } hover:!border-simple`}
+                    onClick={() => toast("Add a property to unlock this feature.")}
+                  >
+                    <FcLock/>
+                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
+                  </button>
+                ) : (
+                  <Link
+                    to={Linklist[key].link}
+                    className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                      location.pathname.includes(Linklist[key].link)
+                        ? "border-simple "
+                        : ""
+                    } hover:!border-simple`}
+                    onClick={() => addActive(Linklist[key].link)}
+                  >
+                    <img
+                      alt={key}
+                      loading="lazy"
+                      width="12"
+                      height="13"
+                      className="mt-auto mb-auto ml-auto"
+                      src={Linklist[key].icon}
+                    />
+                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
+                  </Link>
+                )
+              ) : (
+                <Link
+                  to={Linklist[key].link}
+                  className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                    location.pathname.includes(Linklist[key].link)
+                      ? "border-simple "
+                      : ""
+                  } hover:!border-simple`}
+                  onClick={() => addActive(Linklist[key].link)}
+                >
+                  <img
+                    alt={key}
+                    loading="lazy"
+                    width="12"
+                    height="13"
+                    className="mt-auto mb-auto ml-auto"
+                    src={Linklist[key].icon}
+                  />
+                  <p className="text-sm text-left mb-auto mt-auto">{key}</p>
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -145,7 +214,9 @@ const Sidebar = () => {
         </div>
 
         {/* Small sidebar */}
-        {sidebarOpen && <SmallSidebar onClose={toggleSidebar} />}
+        {sidebarOpen && (
+          <SmallSidebar isLocked={isLocked} onClose={toggleSidebar} />
+        )}
       </div>
     </>
   );

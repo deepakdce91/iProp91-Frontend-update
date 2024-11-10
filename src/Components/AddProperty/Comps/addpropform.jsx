@@ -368,7 +368,7 @@ function Addpropform() {
           headers: { "Content-Type": "application/json",
           "auth-token":token,
            },
-          body: JSON.stringify({ name: formdata.selectedState }),
+          body: JSON.stringify({ name: formdata.selectedState, addedBy : tokenid.userId }),
         });
       }
       // if selected city is not in the list of cities
@@ -380,7 +380,7 @@ function Addpropform() {
           headers: { "Content-Type": "application/json",
           "auth-token":token,
            },
-          body: JSON.stringify({ name: formdata.selectedCity, state: formdata.selectedState }),
+          body: JSON.stringify({ name: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId }),
         });
       }
 
@@ -393,7 +393,7 @@ function Addpropform() {
           headers: { "Content-Type": "application/json",
           "auth-token":token,
            },
-          body: JSON.stringify({ name: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState }),
+          body: JSON.stringify({ name: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId}),
         });
       }
 
@@ -406,7 +406,7 @@ function Addpropform() {
           headers: { "Content-Type": "application/json",
           "auth-token":token,
            },
-          body: JSON.stringify({ name: formdata.selectProject, builder: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState }),
+          body: JSON.stringify({ name: formdata.selectProject, builder: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId }),
         });
       }
 

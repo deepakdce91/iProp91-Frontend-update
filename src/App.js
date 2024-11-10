@@ -6,71 +6,81 @@ import Auth from "./Components/User/Login/Auth";
 import AskName from "./Components/User/Login/AskName.jsx";
 import Landing from "./Components/Landing/landing.jsx";
 import { useEffect, useState } from "react";
-import { jwtDecode } from 'jwt-decode';
-import {  useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuthToken from "./hooks/useAuthToken.js";
 
 import { ToastContainer } from "react-toastify";
 
+// import { FcLock } from "react-icons/fc";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+      const tokenid = jwtDecode(token);
+      const fetchUser = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+            }
+          );
+          if (response.ok) {
+            const user = await response.json();
+            localStorage.setItem("userPhone", user.phone);
+            localStorage.setItem("userId", user._id);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if(token){
-            setIsLoggedIn(true);
-            const tokenid = jwtDecode(token);
-            const fetchUser = async () => { 
-              try {
-                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,{
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "auth-token": token,
-                  }
-                });
-                if (response.ok) {
-                  const user = await response.json();
-                  localStorage.setItem("userPhone", user.phone);
-                  localStorage.setItem("userId", user._id);
-
-                  return;
-                }
-              } catch (error) {
-                console.error(error.message);
-              }
-            };
-            fetchUser();
+            return;
+          }
+        } catch (error) {
+          console.error(error.message);
         }
-      
-    }, [isLoggedIn])
+      };
+      fetchUser();
+    }
+  }, [isLoggedIn]);
 
-      // Custom hook to manage JWT token
-   useAuthToken(navigate);
-    
-    
+  // Custom hook to manage JWT token
+  useAuthToken(navigate);
+
   return (
     <div className="app">
-        <div className="Poppins">
-          {" "}
-          {/* <Footer /> */}{" "}
-          <Routes>
-            {isLoggedIn === false && <Route path="/*" element={<Landing />} /> }{" "}
-            {/* <Route path="/auth" element={<AskForLogin />} />{" "} */}
-            <Route path="/authenticate" element={<Auth setIsLoggedIn = {setIsLoggedIn} />} />{" "}
-            <Route path="/name" element={<AskName />} />
-            {/* <User/> */} {/* <Sidebar /> */} {/* <NRI/> */} {/* <Advice/> */}{" "}
-            {isLoggedIn === true && <Route path="/*" element={<AllPage setIsLoggedIn = {setIsLoggedIn}/>} />} {/* <Footer/> */}{" "}
-          </Routes>{" "}
-        </div>{" "}
+      <div className="Poppins">
+        {" "}
+        {/* <Footer /> */}{" "}
+        <Routes>
+          {isLoggedIn === false && <Route path="/*" element={<Landing />} />}{" "}
 
+          <Route
+            path="/authenticate"
+            element={<Auth setIsLoggedIn={setIsLoggedIn} />}
+          />{" "}
+          
+          <Route path="/name" element={<AskName />} />
+    
+          {isLoggedIn === true && (
+            <Route
+              path="/*"
+              element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
+            />
 
-        <ToastContainer
+            
+          )}{" "}
+          {/* <Footer/> */}{" "}
+        </Routes>{" "}
+      </div>{" "}
+      <ToastContainer
         position="top-center"
         autoClose={2000} // Ensure toasts auto-close
         hideProgressBar={false} // Show the progress bar
@@ -80,7 +90,6 @@ function App() {
         draggable
       />
     </div>
-      
   );
 }
 
