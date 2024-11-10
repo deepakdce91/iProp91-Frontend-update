@@ -39,7 +39,7 @@ export default function Test() {
     <>
       <div className="mt-24 w-4/5 mx-auto">
         <div className="my-10">
-          <h1 className="text-3xl lg:text-6xl font-semibold text-primary text-center">Expert Videos</h1>
+          <h1 className="text-3xl lg:text-6xl font-semibold text-primary text-center">Expert Views</h1>
         </div>
         <Swiper
           spaceBetween={30}

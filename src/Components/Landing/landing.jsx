@@ -2,69 +2,58 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import AboutSection from "./aboutsection";
-import HowcanWe from './/howcanwe'
-import { AnimatePresence } from 'framer-motion';
-// import ImageSection from './ImageSection';
-import Knowledge from './knowledge';
-import Testimonials from './Testimonials';
-import Insight from './Insight';
-import Comparision from './Comparision';
-import Number from './Number';
-import Footer from './Footer'
-import CaseLaws from "../CaseLaws/caselaws";
-import {Route, Routes} from 'react-router-dom';
+import Knowledge from "./knowledge";
+import Testimonials from "./Testimonials";
+import Insight from "./Insight";
+import Comparision from "./Comparision";
+import Number from "./Number";
+import Footer from "./Footer";
+import { Route, Routes } from "react-router-dom";
 import Library from "../Library/library";
-import BrandMarquee from "./BrandMarquee";
 import Faq from "../Faq/faq";
 import Laws from "../Laws/laws";
-import Chat from "../Ownerclub/ChatArea/Chat";
+import ChatScreen from "../Ownerclub/ChatArea/ChatScreen";
+import { jwtDecode } from "jwt-decode";
+import CaseLaws from "../CaseLaws/caselaws";
 
 function LandingPage() {
   return (
     <>
       <HeroSection />
-      <BrandMarquee/>
       <AboutSection />
-      {/* currently this component is not in use */}
-      {/* <HowcanWe /> */}
       <Knowledge />
       <Testimonials />
       <Insight />
       <Comparision />
       <Number />
-      {/* <Chat/> */}
     </>
   );
 }
-
-function CaseLawsPage() {
-  return (
-    <>
-     
-      <CaseLaws />
-  
-    </>
-  );
-}
-
 
 const TypingLandingPage = () => {
   const [showMessage, setShowMessage] = useState(true);
   const [showNavbar, setShowNavbar] = useState(false);
 
   useEffect(() => {
-    // Hide the message after 3000ms and show the navbar
-    const messageTimeout = setTimeout(() => setShowMessage(false), 3000);
-    const navbarTimeout = setTimeout(() => setShowNavbar(true), 3000);
+    const hasVisited = localStorage.getItem("hasVisited");
 
-    // Clear timeouts if component unmounts before they complete
-    return () => {
-      clearTimeout(messageTimeout);
-      clearTimeout(navbarTimeout);
-    };
+    if (hasVisited) {
+      // Skip animation if user has already visited
+      setShowMessage(false);
+      setShowNavbar(true);
+    } else {
+      // First visit: Show animation and set 'hasVisited' in localStorage
+      localStorage.setItem("hasVisited", "true");
+      const messageTimeout = setTimeout(() => setShowMessage(false), 3000);
+      const navbarTimeout = setTimeout(() => setShowNavbar(true), 3000);
+
+      return () => {
+        clearTimeout(messageTimeout);
+        clearTimeout(navbarTimeout);
+      };
+    }
   }, []);
 
-  // Split the welcome message into individual letters and wrap each in a <span>
   const welcomeMessage = "Welcome to iProp91";
   const animatedText = welcomeMessage.split("").map((char, index) => (
     <span key={index} style={{ "--char-index": index }}>
@@ -75,34 +64,50 @@ const TypingLandingPage = () => {
   return (
     <>
       {showNavbar && <LandingPage />}
-      {!showNavbar &&  <div className="flex justify-center items-center h-screen">
-        {showMessage && (
-          <div className="flex flex-col items-center">
-            {/* <img src="./images/logo.svg" alt="" /> */}
-            <h1 className="text-4xl font-bold text-gold fade-in-text">
-              {animatedText}
-            </h1>
-          </div>
-        )}
-      </div>}
-
+      {!showNavbar && (
+        <div className="flex justify-center items-center h-screen">
+          {showMessage && (
+            <div className="flex flex-col items-center">
+              <h1 className="text-4xl font-bold text-gold fade-in-text">
+                {animatedText}
+              </h1>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };
 
 function Landing() {
-  return (
-    <>  
-   <Navbar />
-      <Routes>
-        <Route path="/" element={<TypingLandingPage />} />
-        <Route path="/case-laws" element={<CaseLawsPage />} />
-        <Route path="/library" element={<Library/>} />
-        <Route path="/faqs" element={<Faq/>} />
-        <Route path="/laws" element={<Laws/>} />
+  const [userId, setUserId] = useState();
+  const [userToken, setUserToken] = useState();
 
+  useEffect(() => {
+    try {
+      let token = localStorage.getItem("token");
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUserId(decoded.userId);
+        setUserToken(token);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/*" element={<TypingLandingPage />} />
+        <Route path="/library" element={<Library />} />
+        <Route path="/faqs" element={<Faq />} />
+        <Route path="/case-laws" element={<CaseLaws />} />
+        <Route path="/laws" element={<Laws />} />
+        {/* <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} /> */}
       </Routes>
-      <Footer/>
+      <Footer />
     </>
   );
 }

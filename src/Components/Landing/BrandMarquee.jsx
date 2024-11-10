@@ -46,7 +46,7 @@ const BrandMarquee = () => {
         <div className="flex gap-5 animate-marquee [--duration:30s] hover:[animation-play-state:paused]">
           {[...data, ...data].map((item, index) => (
             <div key={index} className="h-full px-2.5">
-              <div className="w-[12rem]">
+              <div className="w-[10rem]">
                 <img src={item.url} alt="img" className="w-40 h-40" />
               </div>
             </div>
@@ -59,7 +59,7 @@ const BrandMarquee = () => {
         <div className="flex gap-5 animate-marquee-reverse [--duration:30s] hover:[animation-play-state:paused]">
           {[...data, ...data].map((item, index) => (
             <div key={index} className="h-full px-2.5">
-              <div className="w-[12rem]">
+              <div className="w-[10rem]">
                 <img src={item.url} alt="img" className="w-40 h-40" />
               </div>
             </div>

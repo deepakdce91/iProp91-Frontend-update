@@ -94,7 +94,7 @@ const Knowledge = () => {
         {links.map((link, index) => (
           <Link to={link.to} key={index} className="group">
             <div className="relative cursor-pointer overflow-hidden bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl rounded-lg">
-              <span className="absolute top-10 z-0 h-20 w-20 rounded-full bg-gold transition-all duration-300 group-hover:scale-[10]"></span>
+              <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-gold transition-all duration-300 group-hover:scale-[10]"></span>
               <div className="relative z-10 mx-auto max-w-md ">
                 <span className="grid h-20 w-20 place-items-center rounded-full bg-gold transition-all duration-300 group-hover:bg-sky-400">
                   {link.svg}
