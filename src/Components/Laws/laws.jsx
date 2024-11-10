@@ -11,21 +11,12 @@ const Law = () => {
   // Function to fetch data for central laws
   const fetchCentralLaws = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found in local storage.");
-        return;
-      }
-
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.userId; // Assuming userId is stored within the token
 
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchAllActiveCentralLaws?userId=${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchAllActiveCentralLaws`,
         {
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token,
           },
         }
       );
@@ -44,21 +35,11 @@ const Law = () => {
   // Function to fetch data for State laws
   const fetchStateLaws = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found in local storage.");
-        return;
-      }
-
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.userId;
-
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveStates?userId=${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveStates`,
         {
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token,
           },
         }
       );
@@ -94,7 +75,7 @@ const Law = () => {
               src="/images/statelaw.png"
               alt="statelaw"
             />
-            <button onClick={fetchStateLaws} className="relative cursor-pointer flex py-2 w-48 items-center justify-center overflow-hidden rounded-full bg-black border-[2px] border-black text-white shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-gold before:duration-500 before:ease-out hover:shadow-white hover:text-black hover:before:h-56 hover:before:w-56">
+            <button onClick={fetchStateLaws} className="text-xl text-black font-serif px-5 py-2 border-b-[5px] border-b-gold hover:shadow-md hover:shadow-gold hover:scale-105 transition-all bg-gray-200 rounded-xl w-[50%] border ">
               <span className="relative z-10 capitalize">State Laws</span>
             </button>
           </div>
@@ -109,7 +90,7 @@ const Law = () => {
               src="/images/centrallaw.png"
               alt="statelaw"
             />
-            <button onClick={fetchCentralLaws} className="relative cursor-pointer flex py-2 w-48 items-center justify-center overflow-hidden rounded-full bg-black border-[2px] border-black text-white shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-gold before:duration-500 before:ease-out hover:shadow-white hover:text-black hover:before:h-56 hover:before:w-56">
+            <button onClick={fetchCentralLaws} className="text-xl text-black font-serif px-5 py-2 border-b-[5px] border-b-gold hover:shadow-md hover:shadow-gold hover:scale-105 transition-all bg-gray-200 rounded-xl md:w-[60%] w-[80%] border ">
               <span className="relative z-10 capitalize">Central Laws</span>
             </button>
           </div>

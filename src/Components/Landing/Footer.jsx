@@ -32,7 +32,7 @@ const Footer = () => {
         {/* Left Section */}
         <div className='w-full lg:w-2/5 my-2 lg:px-4'>
           <h2 className="text-3xl font-semibold mb-4">
-            You are building India’s future, we would like to build yours.
+            You are building India&apos;s future, we would like to build yours.
           </h2>
           <p className="text-gray-600 text-sm mb-4">
             Our weekly expert newsletter on stories that matter to your money.
@@ -51,40 +51,34 @@ const Footer = () => {
 
         {/* Middle Section */}
         <div className='w-full lg:w-1/5 my-2'>
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">Knowledge Repository</h3>
+          <h3 className="font-semibold mb-2 text-gray-600 text-sm">Quick Links</h3>
           <ul className="text-xs">
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Bonds</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">IPA</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Mutual Funds</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Portfolio Management Services</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Wealth Monitor</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">About Us</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Contact Us</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Privacy Policy</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Terms & Conditions</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Site FAQs</Link></li>
           </ul>
         </div>
         <div className='w-full lg:w-1/5 my-2'>
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">About</h3>
+          <h3 className="font-semibold mb-2 text-gray-600 text-sm">Our Services</h3>
           <ul className="text-xs">
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Team</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Careers</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">FAQs</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Blog</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Investment Philosophy</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">iProp91 Safe</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">iProp91 Owner&apos;s Club</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">iProp91 Real Insight </Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">iProp91 Lend</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">iProp91 Advice</Link></li>
           </ul>
         </div>
 
         {/* Right Section */}
         <div className='w-full lg:w-1/5 my-2'>
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">Legal</h3>
+          <h3 className="font-semibold mb-2 text-gray-600 text-sm">Knowledge Center </h3>
           <ul className="text-xs">
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Contact</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Disclaimer</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">ODR Portal</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Privacy</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Returns & Cancellation</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Security</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Terms & Disclosure</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">KYC Check</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Scheme documents</Link></li>
-            <li className="my-2"><Link href="/" className=" hover:text-primary ">Fraud Notice</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">FAQs </Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Case-Laws</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Library</Link></li>
+            <li className="my-2"><Link href="/" className=" hover:text-primary ">Laws</Link></li>
           </ul>
         </div>
       </div>

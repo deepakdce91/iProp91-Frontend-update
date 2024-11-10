@@ -14,11 +14,11 @@ import { Autoplay, Pagination } from 'swiper/modules';
 function Testimonials() {
   return (
     <div className="flex flex-col md:flex-row w-11/12 md:w-4/5 lg:w-3/5 mx-auto px-6 md:px-10 lg:px-14 py-10 md:py-14 lg:py-16 bg-white rounded-2xl md:rounded-[40px] border border-gray-200">
-      <div className=" w-full md:flex-shrink-0 md:w-32 lg:w-40 mx-auto md:mx-0">
+      <div className=" w-40 h-40  md:flex-shrink-0 md:mt-16 overflow-hidden mx-auto md:mx-0">
         <img 
           src="images/2.jpg" // Replace with the actual image URL
           alt="Kabir Mehra" 
-          className="w-20 h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-[20px]  md:rounded-full object-cover bg-gray-50"
+          className="w-20 h-20 rounded-full object-cover bg-gray-50"
         />
       </div>
       <div className="mt-4 md:mt-0 md:ml-6 lg:ml-8 text-center md:text-left">
