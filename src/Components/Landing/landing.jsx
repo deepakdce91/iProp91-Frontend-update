@@ -105,7 +105,7 @@ function Landing() {
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
         <Route path="/laws" element={<Laws />} />
-        {/* <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} /> */}
+        <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} />
       </Routes>
       <Footer />
     </>

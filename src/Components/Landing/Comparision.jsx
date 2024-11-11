@@ -68,7 +68,7 @@ export default function Comparison() {
         stretch: 0,
         depth: 300,
         modifier: 2.5,
-        slideShadows: false,
+        slideShadows: true,
       }}
       modules={[EffectCoverflow]}
       className="relative"
