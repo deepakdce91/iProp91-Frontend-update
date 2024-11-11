@@ -54,24 +54,24 @@ const Library = () => {
 
   if (activeBlog) {
     return (
-      <section className="mt-24 px-3 md:px-10 lg:px-20">
-        <a href={"/"}
-          className="mb-4 text-gold hover:font-semibold hover:underline"
+      <section className="mt-28 px-4 md:px-10 lg:px-20">
+        <button onClick={()=> setActiveBlog(null)} 
+                  className="mb-6  text-gold hover:font-semibold hover:underline"
         >
           Back to all blogs
-        </a>
-        <div className="flex flex-col lg:flex-row justify-center items-center gap-5">
+        </button>
+        <div className="flex flex-col lg:flex-row justify-center items-center md:items-start gap-5">
           <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-4">{activeBlog.title}</h1>
-            <p className="text-sm text-gray-500 mb-2">
+            <h1 className="md:text-4xl text-2xl font-bold mb-4">{activeBlog.title}</h1>
+            <p className="text-xs text-gray-500 mb-2">
               Published on {formatDate(activeBlog.createdAt)}
             </p>
 
-            <p className="text-lg text-gray-700">
+            <p className="md:text-lg text-sm text-gray-700">
               {stripHtml(activeBlog.content)}
             </p>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 ">
             <img
               src={activeBlog.thumbnail || "images/2.jpg"}
               alt={activeBlog.title}
@@ -109,18 +109,10 @@ const Library = () => {
                 {stripHtml(item.content).split(" ").slice(0, 16).join(" ")}...
               </div>
               <button
-                onClick={handleReadMore}
+                onClick={() => handleReadMore(item)}
                 className="relative flex gap-2 w-[60%] bg-gold rounded-full p-2 items-center justify-center shadow-lg font-semibold text-lg group"
               >
-                {/* <span className="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-gray-800 transition-colors duration-300 ease-out border-2 border-gray-900 rounded-lg group-hover:text-white">
-            <span className="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-gray-50"></span>
-            <span className="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-gold group-hover:-rotate-180 ease"></span>
-            <span className="relative text-sm">Read more</span>
-          </span>
-          <span
-            className="absolute bottom-0 right-0 w-full h-12 -mb-1 -mr-1 transition-all duration-200 ease-linear bg-gray-900 rounded-lg group-hover:mb-0 group-hover:mr-0"
-            data-rounded="rounded-lg"
-          ></span> */}
+               
                 <p className="capitalize text-white">Read more</p>
                 <span className="rounded-full p-2 bg-white">
                   <svg className="fill-black w-4 font-semibold"
