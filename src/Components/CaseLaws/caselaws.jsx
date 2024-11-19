@@ -52,7 +52,7 @@ export default function CaseLaws() {
   };
 
   return (
-    <div className="flex flex-col gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
+    <div className="flex flex-col gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10 bg-black min-h-screen text-white">
       <a
          href={"/"}
         className="absolute flex gap-2 justify-center items-center group top-24 lg:left-40 left-[5%] text-gold hover:underline"
@@ -69,7 +69,7 @@ export default function CaseLaws() {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out ${
-                openIndex === index ? 'border-[1px] border-gold bg-gray-200' : 'border-[1px] border-gold'
+                openIndex === index ? 'border-[1px] border-white/20 bg-[#191919]' : 'border-[1px] border-white/20'
               } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl`}
             >
               <div
@@ -86,13 +86,13 @@ export default function CaseLaws() {
                   openIndex === index ? 'max-h-screen mt-4' : 'max-h-0'
                 }`}
               >
-                <hr className="border-t-[2px] border-gold mb-4" />
+                <hr className="border-t-[2px] border-white/80 mb-4" />
                 {pdfLink ? (
                   <a
                     href={pdfLink.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-black rounded-md  transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md  transition-colors"
                   >
                     <FiFileText className="text-xl" />
                     <p>Download PDF to read</p>

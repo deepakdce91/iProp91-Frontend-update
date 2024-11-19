@@ -17,7 +17,7 @@ export default function Faq() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllActiveFAQs`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllActiveKnowledgeCenterFAQs`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -26,6 +26,7 @@ export default function Faq() {
         );
 
         setData(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -96,6 +97,7 @@ export default function Faq() {
             );
           })}
       </div>
+      
     </div>
   );
 }

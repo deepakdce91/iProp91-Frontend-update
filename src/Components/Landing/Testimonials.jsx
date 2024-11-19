@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -10,10 +10,11 @@ import '../../css/styles.css';
 
 // Import required modules
 import { Autoplay, Pagination } from 'swiper/modules';
+import TestimonialForm from './TestomonialForm';
 
 function Testimonials() {
   return (
-    <div className="flex flex-col md:flex-row w-11/12 md:w-4/5 lg:w-3/5 mx-auto px-6 md:px-10 lg:px-14 py-10 md:py-14 lg:py-16 bg-white rounded-2xl md:rounded-[40px] border border-gray-200">
+    <div className="flex flex-col md:flex-row w-11/12 md:w-4/5 lg:w-3/5 mx-auto px-6 md:px-10 lg:px-14 py-10 md:py-14 lg:py-16 bg-white rounded-2xl md:rounded-[40px] border border-gray-200 hover:bg-white/90">
       <div className=" w-40 h-40  md:flex-shrink-0 md:mt-16 overflow-hidden mx-auto md:mx-0">
         <img 
           src="images/2.jpg" // Replace with the actual image URL
@@ -45,11 +46,22 @@ function Testimonials() {
 
 
 export default function Test() {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
-      <div className="mt-24">
+      <div className="py-16 relative min-h-screen border-y-[1px] border-y-white/40 bg-black">
         <div className="my-10">
-        <h1 className="text-3xl lg:text-6xl font-semibold text-primary text-center">Testimonials</h1>
+        <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">Testimonials</h1>
         </div>
         <Swiper
           spaceBetween={30}
@@ -62,7 +74,7 @@ export default function Test() {
             clickable: true,
           }}
           modules={[Autoplay, Pagination]}
-          className="mySwiper"
+          className=""
         >
           <SwiperSlide><Testimonials /></SwiperSlide>
           <SwiperSlide><Testimonials /></SwiperSlide>
@@ -72,6 +84,16 @@ export default function Test() {
           <SwiperSlide><Testimonials /></SwiperSlide>
           <SwiperSlide><Testimonials /></SwiperSlide>
         </Swiper>
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={openModal}
+            className="px-6 py-3 bg-white text-black hover:text-white hover:bg-black hover:border hover:border-white border-black border font-semibold rounded-lg hover:scale-105 transition-transform"
+          >
+            Share Your Reviews
+          </button>
+        </div>
+
+        {isModalOpen && (<TestimonialForm close={closeModal}/>)}
       </div>
     </>
   );

@@ -139,6 +139,8 @@ function IncomingMessage({
   isGroupAdmin,
 }) {
   const theme = useTheme();
+  // console.log(userProfilePicture);
+  
 
   return (
     <div className="flex flex-col my-5 cursor-pointer group">
@@ -149,7 +151,7 @@ function IncomingMessage({
             src={
               userProfilePicture && userProfilePicture !== ""
                 ? userProfilePicture
-                : "/default-profile-pic.jpg"
+                : "/images/default.png"
             }
             alt="User Avatar"
             className="w-8 h-8 rounded-full"
@@ -221,44 +223,6 @@ function IncomingMessage({
             )}
 
             <div className={`absolute -right-[68px] flex`}>
-              {/* {flag === "false" ? (
-                <button
-                  onClick={() => {
-                    const message = text
-                    ? text
-                    : `Media file with with link - ${
-                        file ? file.url : ""
-                      }`;
-                    const messageBy = senderId;
-                    const messageId = _id;
-
-                    flagMessage(messageId, message, messageBy);
-                  }}
-                >
-                  <GrFlag
-                    className={`rounded-full py-2  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                      theme.palette.mode === "dark"
-                        ? " text-gray-300 hover:bg-gray-600"
-                        : "text-gray-700 hover:bg-gray-200"
-                    }`}
-                  />
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    unflagMessage(_id);
-                  }}
-                >
-                  <GrFlagFill
-                    className={`rounded-full py-2  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                      theme.palette.mode === "dark"
-                        ? " text-gray-300 hover:bg-gray-600"
-                        : "text-gray-700 hover:bg-gray-200"
-                    }`}
-                  />
-                </button>
-              )} */}
-
               <button
                 onClick={() => {
                   removeMessage(_id, userId);
@@ -312,43 +276,7 @@ function OutgoingMessage({
         <div className="flex flex-col items-end">
           <div className="flex relative items-center max-w-96 bg-gold text-black rounded-lg p-3 gap-3">
             <div className="absolute -left-[68px] flex flex-row-reverse">
-              {/* {flag === "false" ? (
-                <button
-                  onClick={() => {
-                    const message = text
-                      ? text
-                      : `Media file with with link - ${
-                          file ? file.url : ""
-                        }`;
-                    const messageBy = senderId;
-                    const messageId = _id;
-
-                    flagMessage(messageId, message, messageBy);
-                  }}
-                >
-                  <GrFlag
-                    className={`rounded-full py-2  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                      theme.palette.mode === "dark"
-                        ? " text-gray-300 hover:bg-gray-600"
-                        : "text-gray-700 hover:bg-gray-200"
-                    }`}
-                  />
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    unflagMessage(_id);
-                  }}
-                >
-                  <GrFlagFill
-                    className={`rounded-full py-2  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                      theme.palette.mode === "dark"
-                        ? " text-gray-300 hover:bg-gray-600"
-                        : "text-gray-700 hover:bg-gray-200"
-                    }`}
-                  />
-                </button>
-              )} */}
+             
 
               <button
                 onClick={() => {
@@ -486,9 +414,13 @@ function Chats({
       setFilteredMessages((prevData) => ({
         ...prevData,
         messages: myFilteredMessages,
+        
+        
       }));
     } else {
       setFilteredMessages(messages);
+      console.log(messages);
+      
     }
   }, [searchTerm, messages]);
 

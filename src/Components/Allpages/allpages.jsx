@@ -8,6 +8,9 @@ import Conci from '../Concierge/ConciPage.jsx';
 import Safe from '../Safe/Safe.jsx';
 import Real from '../RealInsight/real.jsx';
 import UpdateUser from '../User/Update/UpdateUser.jsx';
+import NRI from "../NRI/nri.jsx";
+import Adivce from "../advice/advice.jsx";
+import Lend from "../Lend/Lend.jsx";
 
 export default function AllPage() {
     return (
@@ -21,6 +24,9 @@ export default function AllPage() {
                         <Route path="/family" element={<OwnerClub />} />
                         <Route path="/realinsight" element={<Real />} />
                         <Route path="/buysell/*" element={<BuySell />} />
+                        <Route path="/nri" element={<NRI/>} />
+                        <Route path="/advice" element={<Adivce/>} />
+                        <Route path="/lend" element={<Lend/>} />
                         <Route path="/addproperty" element={<AddProperty />} />
                         <Route path="/profile" element={<UpdateUser />} />
                     </Routes>

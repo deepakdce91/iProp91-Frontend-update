@@ -4,7 +4,7 @@ const FAQItem = ({ question, answer, index }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-gray-300 py-4">
+    <div className="border-b border-gold py-4">
       <div
         className="flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
@@ -12,7 +12,7 @@ const FAQItem = ({ question, answer, index }) => {
         <h3 className="text-lg font-medium">
           0{index + 1} &nbsp; &nbsp; &nbsp;{question}
         </h3>
-        <span className="text-4xl border-b  rounded-full   flex justify-center items-center px-3">
+        <span className="text-4xl border-b-[4px] shadow-sm shadow-gold border-b-gold rounded-full   flex justify-center items-center px-3">
           {isOpen ? " - " : " + "}
         </span>
       </div>
@@ -55,7 +55,7 @@ const FAQ = () => {
   return (
     <>
         {/* <div className="h-[200vh] bg-center bg-cover bg-no-repeat" style={{ backgroundImage: "url('/images/image.jpg')"}}></div> */}
-      <div className="min-h-screen bg-white p-8">
+      <div className="min-h-screen bg-black border-y-[1px] border-y-white/20 text-white p-8 flex flex-col items-center justify-center">
         <h2 className="text-4xl md:text-6xl text-center mb-8">
           You Might Have Questions!
         </h2>

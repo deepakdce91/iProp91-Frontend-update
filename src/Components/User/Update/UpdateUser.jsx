@@ -7,6 +7,7 @@ import GoldButton from "../../CompoCards/GoldButton/Goldbutton";
 import { useNavigate } from 'react-router-dom';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from '../../../config/s3client'
+import { Upload } from 'lucide-react';
 
 export function validateEmail(email) {
   // Regular expression for basic email validation
@@ -79,6 +80,14 @@ function EditUser() {
   const [phone, setPhone] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const defaultAvatars = [
+    "/avtar/polo.jpg",
+    "/avtar/ferrari.jpg",
+    "/avtar/golf.jpg",
+    "/avtar/pocker.jpg",
+    "/avtar/yatch.jpg"
+  ]
   useEffect(() => {
 
     const fetchUser = async () => {
@@ -225,41 +234,34 @@ function EditUser() {
         <div className="bg-gray-50 rounded-3xl p-4 md:p-10 w-full justify-center ">
           <div className="flex flex-row my-1 px-2 lg:gap-4 w-full">
              {/* image Input  */}
-            <div className="w-full ">
-              <div className="flex w-full flex-col lg:flex-row justify-center items-center">
-                <div className="w-full lg:w-1/5 my-1 rounded-full overflow-hidden flex items-center justify-center">
+            <div className="w-full flex justify-center items-center">
+              <div className="flex w-full flex-col  justify-center items-center">
+                <div className="w-full   rounded-full overflow-hidden flex items-center justify-center">
                   <img
                     src={image ? image : "/avtar/polo.jpg"}
                     alt="profile"
-                    className="relative inline-block h-[110px] w-[110px] !rounded-full  object-cover object-center border-2 border-yellow-600 p-1"
+                    className="relative inline-block h-[130px] w-[130px] !rounded-full  object-cover object-center border-2 border-yellow-600 p-1"
                   />
                 </div>
-
-                <div className="w-full lg:w-2/5 my-1">
+                <div className="w-full  flex flex-col items-center justify-center">
                   <label className="text-gray-900 font-[500] my-2  dark:text-white" htmlFor="profilePhoto"  >Choose from avatars</label>
-                  <div className="w-full flex flex-row">
-                   <img src="/avtar/polo.jpg" alt="" 
-                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
-                   onClick={() => setImage("/avtar/polo.jpg")}
-                   />
-                   <img src="/avtar/ferrari.jpg" alt="" 
-                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
-                    onClick={() => setImage("/avtar/ferrari.jpg")}
-                   />
-                   <img src="/avtar/golf.jpg" alt="" 
-                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
-                    onClick={() => setImage("/avtar/golf.jpg")}
-                   />
-                   <img src="/avtar/pocker.jpg" alt="" 
-                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
-                    onClick={() => setImage("/avtar/pocker.jpg")}
-                   />
-                   <img src="/avtar/yatch.jpg" alt="" 
-                   className="relative inline-block h-[55px] w-[55px] cursor-pointer sm:h-[74px] sm:w-[74px] !rounded-full object-cover object-center border-2 border-gold m-1"
-                    onClick={() => setImage("/avtar/yatch.jpg")}
-                   />
+                  <div className="w-full flex flex-row gap-1 justify-center items-center">
+                  {defaultAvatars.map((avatar, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setImage(avatar)}
+                        className="w-14 h-14 rounded-full border-2 border-yellow-600 overflow-hidden hover:border-4 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2"
+                      >
+                        <img
+                          src={avatar}
+                          alt={`Avatar ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
                   </div>
                 </div>
+
                 <div className="w-full lg:w-2/5 my-1">
                   <label className="text-gray-900 font-[500] my-2  dark:text-white" htmlFor="profilePhoto"  >Choose from device</label>
                   <input type="file" placeholder="choose profile photo" className="mt-1 block cursor-pointer w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
@@ -267,12 +269,19 @@ function EditUser() {
                   />
 
                 </div>
+                {/* <label htmlFor="avatar-upload" className="cursor-pointer mt-5">
+                <button className="z-10 flex justify-center items-center gap-2 border border-gold py-2 px-5 rounded-xl font-semibold">
+                  <input type="file" onChange={handleImageChange} className='' accept='image/*' />
+                  <Upload className="w-4 h-4 " />
+                  Upload Avatar
+                </button>
+              </label> */}
 
               </div>
             </div>
 
           </div>
-          <div className="flex flex-col lg:flex-row lg:gap-4 my-1 px-2 w-full">
+          <div className="flex flex-col md:flex-row  gap-4  px-2 w-full">
             <div className="w-full ">
               <LabelInput
                 label={"Name"}
@@ -290,7 +299,7 @@ function EditUser() {
                   type="text"
                   name="Phone"
                   placeholder={phone}
-                  className="bg-gray-100 border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-yellow-500 dark:focus:border-blue-500 rounded-full font-sm"
+                  className="bg-gray-100 border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-yellow-500 dark:focus:border-blue-500 rounded-xl font-sm"
                   disabled={true}
                   
                 />
@@ -310,12 +319,13 @@ function EditUser() {
             <div className="w-full lg:w-72">
               <GoldButton 
                 btnname={"Update Profile"}
-                bgcolor={""}
+                bgcolor={"bg-white/20"}
                 onclick={HandleUpdateProfile}
                />
             </div>
           </div>
-          <div className="flex flex-col lg:flex-row my-1 px-2 justify-center lg:gap-4 w-full items-end">
+          <div className="flex flex-col  my-1 px-2 justify-center  w-full items-end">
+            <div className='flex flex-row justify-center items-center w-full gap-3'>
             <div className="w-full ">
               <LabelInput
                 label={"New Password"}
@@ -332,12 +342,13 @@ function EditUser() {
                 placeholder={"Enter password again"}
                 value={confirmPassword}
                 setValue={setConfirmPassword}
-              />
+                />
             </div>
+                </div>
             <div className="w-full lg:w-72 flex my-2">
               <GoldButton 
                 btnname={"Update Password"}
-                bgcolor={""}
+                bgcolor={"bg-white/20"}
                 onclick={HandleUpdatePassword}
                />
             </div>
