@@ -1,12 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { EffectCoverflow } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import './Comparison.css';
+import axios from "axios";
+import Carousel from './Carousel';
+import MobileScreen from "./MobileScreen";
 
 const CompComponent = () => {
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/comparisons/fetchAllEnabledComparisons`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setData(response.data);
+        console.log(response.data);
+        
+      } catch (error) {
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
   return (
-    <div className="rounded-3xl border-2 border-gold max-w-3xl mx-auto overflow-hidden relative m-4">
+        
+    <div className="rounded-3xl border-2 border-gold max-w-3xl mx-auto overflow-hidden relative ">
       <div className="flex flex-col bg-gray-100 text-black">
         <div className="flex-1 flex flex-col justify-center p-4">
           <h2 className="text-2xl font-semibold">We track the market&apos;s impact on your portfolio daily</h2>
@@ -56,7 +91,9 @@ const CompComponent = () => {
 
 export default function Comparison() {
   return (
-    <div className="slider-container relative my-28">
+    <div className="slider-container relative bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+      
+      <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10"> The minimum you deserve and we're coming up with more</p>
     <Swiper
       effect="coverflow"
       grabCursor={true}
@@ -71,24 +108,19 @@ export default function Comparison() {
         slideShadows: true,
       }}
       modules={[EffectCoverflow]}
-      className="relative"
+      className="relative "
     >
       {[...Array(7).keys()].map((i) => (
         <SwiperSlide key={i}>
-          <div className="swiper-slide-wrapper">
+          <div className="swiper-slide-wrapper bg-black">
             <CompComponent />
           </div>
         </SwiperSlide>
       ))}
-
-      {/* Custom Navigation Buttons */}
-      {/* <div className="swiper-button-prev custom-button">
-        <ArrowLeft size={24} />
-      </div>
-      <div className="swiper-button-next custom-button">
-        <ArrowRight size={24} />
-      </div> */}
     </Swiper>
+
+    {/* <MobileScreen/> */}
+    
   </div>
   );
 }

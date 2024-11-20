@@ -21,6 +21,8 @@ import {
 } from "@material-tailwind/react";
 import { Spinner } from "@material-tailwind/react";
 import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
+import { Cross, CrossIcon } from "lucide-react";
+import { GrClose } from "react-icons/gr";
 
 function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
   const [otp, setOTP] = useState("");
@@ -310,7 +312,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
             <div className="w-72 max-lg:m-auto">
               <Goldbutton
                 btnname={"Verify OTP"}
-                bgcolor={" ml-2"}
+                bgcolor={"bg-white/20 ml-2"}
                 onclick={HandleVerifyOTP}
               />
             </div>
@@ -349,7 +351,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
   );
 }
 
-export default function Login({setIsLoggedIn}) {
+export default function Login({setIsLoggedIn, onClose, properties }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -462,16 +464,20 @@ export default function Login({setIsLoggedIn}) {
     setLoading(false);
   };
   return (
-    <>
-      {loading ? (
-        <div className="h-screen w-full backdrop-blur-sm absolute flex justify-center items-center">
+    <section className="absolute h-screen w-screen">
+      <div className="relative w-full h-full">
+      {/* {loading ? (
+          <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
         </div>
-      ) : null}
-      <div className="h-screen flex items-center justify-center bg-gray-100">
+      ) : null} */}
+      <div className={`shadow-md absolute  rounded-xl flex items-center justify-center bg-gray-100 ${properties}`}>
+        <button onClick={onClose}  className="absolute right-4 top-5 ">
+        <GrClose  />
+        </button>
         <div className="flex rounded-lg max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
-          <div className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white lg:w-[600px] w-full md:w-[550px] h-[550px]">
+          <div className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px] h-[500px] lg:h-[600px]">
             {verify ? (
               <Verify
                 onclick={() => {
@@ -504,7 +510,7 @@ export default function Login({setIsLoggedIn}) {
                 <div className="w-72  mt-1">
                   <Goldbutton
                     btnname={"Send OTP"}
-                    bgcolor={" ml-2"}
+                    bgcolor={" bg-white/20 ml-2"}
                     onclick={HandleOTPLogin}
                   />
                 </div>
@@ -580,17 +586,18 @@ export default function Login({setIsLoggedIn}) {
           </div>
 
           {/* Right Side - Image */}
-          <div className="w-4/6 hidden lg:block">
+          {/* <div className="w-4/6 hidden ">
             <img
               src="images/login.png" // Replace this with the actual image URL
               alt="Building"
-              className="w-full h-full rounded-xl object-cover"
+              className="w-full h-[90%] rounded-xl object-cover"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
       <ToastContainer position="top-right" autoClose={2000} />
-    </>
+      </div>
+    </section>
   );
 }

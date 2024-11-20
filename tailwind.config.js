@@ -23,7 +23,7 @@ module.exports = withMT({
             animation: {
                 shimmer: "shimmer 2s linear infinite",
                 marquee: "marquee var(--duration, 30s) linear infinite",
-                "marquee-reverse": "marquee-reverse var(--duration, 30s) linear infinite",
+                marqueerev: "marqueerev var(--duration, 30s) linear infinite",
             },
             keyframes: {
                 shimmer: {
@@ -33,9 +33,9 @@ module.exports = withMT({
                 marquee: {
                     to: { transform: "translateX(-50%)" },
                 },
-                "marquee-reverse": {
+                marqueerev: {
                     to: { transform: "translateX(50%)" },
-                },
+                }
             },
         },
     },

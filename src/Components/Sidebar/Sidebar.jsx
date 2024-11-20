@@ -27,13 +27,17 @@ const Linklist = {
     icon: "/svgs/buyselllease.708aab01.svg",
     link: "/buysell",
   },
+  "NRI": {
+    icon: "/svgs/buyselllease.708aab01.svg",
+    link: "/nri",
+  },
   Lend: {
     icon: "/svgs/lend.610c2e62.svg",
     link: "/lend",
   },
   Advice: {
     icon: "/svgs/advice.ad7002e7.svg",
-    link: "/advise",
+    link: "/advice",
   },
 };
 

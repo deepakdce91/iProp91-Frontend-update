@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function Component() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -41,19 +41,35 @@ export default function Component() {
     const angle = (index - currentIndex + totalSlides) % totalSlides
     const adjustedAngle = (angle <= totalSlides / 2 ? angle : angle - totalSlides) * angleStep
 
-    const radius = 380
-    const x = Math.sin((adjustedAngle * Math.PI) / 180) * radius
-    const y = -Math.cos((adjustedAngle * Math.PI) / 180) * radius * 0.3 + radius * 0.3
+    // Responsive radius
+    const radius = {
+      sm: 150,
+      md: 250,
+      lg: 380
+    }
+
+    // Use window.innerWidth to determine the current screen size
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024
+    let currentRadius = radius.lg
+
+    if (screenWidth < 640) {
+      currentRadius = radius.sm
+    } else if (screenWidth < 1024) {
+      currentRadius = radius.md
+    }
+
+    const x = Math.sin((adjustedAngle * Math.PI) / 180) * currentRadius
+    const y = -Math.cos((adjustedAngle * Math.PI) / 180) * currentRadius * 0.3 + currentRadius * 0.3
 
     let scale = 1 - Math.abs(adjustedAngle) / 180 * 0.2
     let zIndex = 100 - Math.abs(adjustedAngle)
 
     if (index === currentIndex) {
-      scale = 1.3 // Make the center image larger
-      zIndex = 1000 // Ensure the center image is on top
+      scale = 1.3
+      zIndex = 1000
     } else if (Math.abs(index - currentIndex) === 1 || Math.abs(index - currentIndex) === slides.length - 1) {
-      scale = 1.1 // Make adjacent images slightly larger
-      zIndex = 500 // Put adjacent images between center and others
+      scale = 1.1
+      zIndex = 500
     }
 
     return {
@@ -62,19 +78,19 @@ export default function Component() {
       top: "50%",
       transform: `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`,
       zIndex,
-      opacity: 1, // Keep all images fully opaque
+      opacity: 1,
       transition: "all 0.5s ease-out",
     }
   }
 
   return (
-    <div className="relative min-h-[100vh] w-full overflow-hidden ">
-      <div className="absolute top-0 left-0 right-0 h-[500px]"> {/* Increased height to accommodate larger images */}
+    <div className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
         <div className="relative h-full w-full mt-5">
           {slides.map((slide, index) => (
             <motion.div
               key={index}
-              className="absolute w-[200px] h-[400px] rounded-[20px] overflow-hidden shadow-2xl" // Increased image size
+              className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px] overflow-hidden shadow-2xl"
               style={getSlideStyles(index)}
               animate={controls}
             >
@@ -89,18 +105,18 @@ export default function Component() {
       </div>
       
       {/* Navigation Controls */}
-      <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-40 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
-          className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all  p-2  duration-200"
+          className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handlePrevious}
         >
-          <ChevronLeft className="h-10 w-10 text-black" />
+          <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-black" />
         </button>
         <button
-          className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all  p-2  duration-200"
+          className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handleNext}
         >
-          <ChevronRight className="h-10 w-10 text-black" />
+          <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-black" />
         </button>
       </div>
     </div>

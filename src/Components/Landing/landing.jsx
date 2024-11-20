@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom"; // Added useLocation
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import AboutSection from "./aboutsection";
@@ -8,24 +9,34 @@ import Insight from "./Insight";
 import Comparision from "./Comparision";
 import Number from "./Number";
 import Footer from "./Footer";
-import { Route, Routes } from "react-router-dom";
 import Library from "../Library/library";
 import Faq from "../Faq/faq";
 import Laws from "../Laws/laws";
 import ChatScreen from "../Ownerclub/ChatArea/ChatScreen";
 import { jwtDecode } from "jwt-decode";
 import CaseLaws from "../CaseLaws/caselaws";
+import ContactUs from "../CompoCards/contactus/ContactUs";
+import BrandMarquee from "./BrandMarquee";
+import NRI from "../NRI/nri";
+import Advice from "../advice/advice";
+import Lend from "../Lend/Lend";
+import WeDoMore from "./WeDoMore";
+import MobileScreen from "./MobileScreen";
 
 function LandingPage() {
   return (
     <>
       <HeroSection />
       <AboutSection />
-      <Knowledge />
-      <Testimonials />
-      <Insight />
-      <Comparision />
       <Number />
+      <Comparision />
+      <MobileScreen />
+      <BrandMarquee />
+      <Knowledge />
+      <WeDoMore />
+      <Insight />
+      <Testimonials />
+      <ContactUs />
     </>
   );
 }
@@ -82,6 +93,7 @@ const TypingLandingPage = () => {
 function Landing() {
   const [userId, setUserId] = useState();
   const [userToken, setUserToken] = useState();
+  const location = useLocation(); // Hook to get current route
 
   useEffect(() => {
     try {
@@ -105,9 +117,12 @@ function Landing() {
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
         <Route path="/laws" element={<Laws />} />
+        <Route path="/nri" element={<NRI />} />
+        <Route path="/advice" element={<Advice />} />
+        <Route path="/lend" element={<Lend />} />
         <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} />
       </Routes>
-      <Footer />
+      {location.pathname !== "/advice" && <Footer />}
     </>
   );
 }

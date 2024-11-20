@@ -62,7 +62,7 @@ const Law = () => {
   };
 
   return (
-    <div className="w-full min-h-screen justify-center items-center flex bg-gray-50 p-4">
+    <div className="w-full min-h-screen justify-center items-center flex bg-black p-4">
       {view === "main" && (
         <div className="flex  h-full flex-col lg:flex-row gap-6 items-center justify-center ">
           <div
@@ -75,7 +75,7 @@ const Law = () => {
               src="/images/statelaw.png"
               alt="statelaw"
             />
-            <button onClick={fetchStateLaws} className="text-xl text-black font-serif px-5 py-2 border-b-[5px] border-b-gold hover:shadow-md hover:shadow-gold hover:scale-105 transition-all bg-gray-200 rounded-xl w-[50%] border ">
+            <button onClick={fetchStateLaws} className="relative flex py-2 w-2/4 items-center justify-center overflow-hidden rounded-full bg-white border-[2px] border-white text-black shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-black before:duration-500 before:ease-out hover:shadow-black hover:text-white hover:before:h-56 hover:before:w-56 ">
               <span className="relative z-10 capitalize">State Laws</span>
             </button>
           </div>
@@ -90,7 +90,7 @@ const Law = () => {
               src="/images/centrallaw.png"
               alt="statelaw"
             />
-            <button onClick={fetchCentralLaws} className="text-xl text-black font-serif px-5 py-2 border-b-[5px] border-b-gold hover:shadow-md hover:shadow-gold hover:scale-105 transition-all bg-gray-200 rounded-xl md:w-[60%] w-[80%] border ">
+            <button onClick={fetchCentralLaws} className="relative flex py-2 w-2/4 items-center justify-center overflow-hidden rounded-full bg-white border-[2px] border-white text-black shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-black before:duration-500 before:ease-out hover:shadow-black hover:text-white hover:before:h-56 hover:before:w-56 ">
               <span className="relative z-10 capitalize">Central Laws</span>
             </button>
           </div>

@@ -12,10 +12,10 @@ import { Autoplay, Pagination } from 'swiper/modules';
 
 const SaleCard = () => {
     return (
-        <div className="relative max-w-sm mx-auto bg-beige rounded-xl overflow-hidden border-2  shadow-lg">
+        <div className="relative max-w-md min-h-96 mx-auto bg-beige rounded-xl overflow-hidden border-2  shadow-lg">
             <div className=" flex justify-center items-center">
                 <img
-                    src="images/2.jpg" // Replace with your image URL
+                    src="images/image2.jpg" // Replace with your image URL
                     alt="E-commerce sales"
                     className="w-full object-cover"
                 />
@@ -26,7 +26,7 @@ const SaleCard = () => {
                         decoding="async"
                         src="https://framerusercontent.com/images/CEcnOZ0GAMxkderVtnnXkheUQ.svg"
                         alt="Arrow Icon"
-                        className="w-6 h-6"
+                        className="w-6 h-full"
                     />
                 </span>
             </button>
@@ -36,10 +36,10 @@ const SaleCard = () => {
 
 export default function Test() {
   return (
-    <>
-      <div className="mt-24 w-4/5 mx-auto">
+    <section className='bg-black py-24'>
+      <div className=" w-4/5 mx-auto">
         <div className="my-10">
-          <h1 className="text-3xl lg:text-6xl font-semibold text-primary text-center">Expert Views</h1>
+          <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">Expert Views</h1>
         </div>
         <Swiper
           spaceBetween={30}
@@ -78,6 +78,6 @@ export default function Test() {
           <SwiperSlide><SaleCard /></SwiperSlide>
         </Swiper>
       </div>
-    </>
+    </section>
   );
 }

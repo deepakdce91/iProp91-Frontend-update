@@ -305,28 +305,8 @@ function ChatScreen() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{customer.name}</p>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleAdmin(
-                            currentGroupData._id,
-                            customer._id,
-                            userId,
-                            token
-                          );
-                        }}
-                        className={`${
-                          theme.palette.mode === "dark"
-                            ? "text-gray-200 hover:bg-gray-200 hover:bg-opacity-20 "
-                            : " text-gray-500 hover:bg-gray-200"
-                        } rounded-lg p-2 inline-flex items-center `}
-                      >
-                        {customer.admin === "false" ? (
-                          <IoStarOutline className="w-5 h-5" />
-                        ) : (
-                          <IoStar className="w-5 h-5 text-red-500" />
-                        )}
-                      </button>
+                      {customer.admin == false ? (<IoStar/>) : ""}
+                      {/* <button onClick={()=>{console.log(customer.admin)}}>hyeeee</button> */}
                     </div>
                   </li>
                 );
