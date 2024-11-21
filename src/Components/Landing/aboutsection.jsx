@@ -52,15 +52,15 @@ export default function GsapTextColorChange() {
     "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free.";
 
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative min-h-screen bg-black px-3">
       <section
-        className="  flex h-[110vh] lg:pb-20 items-center justify-center"
+        className="  flex  h-[110vh] lg:pb-20 items-center justify-center"
       >
         <div className="flex flex-col gap-8 items-center h-s">
           {/* Heading */}
           <h1
             ref={headingRef}
-            className="lg:text-6xl font-[500] w-12/12 lg:w-8/12 text-2xl  text-white"
+            className="lg:text-6xl font-[500] w-12/12 lg:w-8/12 text-4xl  text-white"
           >
             {splitText(headingText)}
           </h1>
@@ -68,7 +68,7 @@ export default function GsapTextColorChange() {
           {/* Subheading */}
           <p
             ref={subheadingRef}
-            className="lg:text-5xl font-[300] w-12/12 lg:w-8/12 text-xl  text-white "
+            className="lg:text-5xl font-[300] w-12/12 lg:w-8/12 text-2xl  text-white "
           >
             {splitText(subheadingText)}
           </p>

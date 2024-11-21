@@ -99,7 +99,7 @@ export default function Links() {
       </div>
 
       <div
-        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex"
+        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex border-b-[1px] border-b-white/20 pb-5"
         style={{ outline: "none" }}
       >
         {ConciergeLink.map((item, index) => (
@@ -108,7 +108,7 @@ export default function Links() {
             className={`justify-center whitespace-nowrap rounded-lg px-4 border-2 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               item.link === location.pathname
                 ? "border-simple"
-                : "border-transparent"
+                : "border-white/20 hover:border-gold"
             }`}
             key={index}
           >

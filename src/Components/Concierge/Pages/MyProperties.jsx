@@ -171,7 +171,7 @@ const EmblaCarousel = (props) => {
   }, [emblaApi, tweenScale]);
 
   return (
-    <div className="embla">
+    <div className="embla ">
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
           {slides.map((card, index) => (
@@ -232,7 +232,7 @@ export default function MyProperties() {
 
     return (
       <>
-        <div className=" flex  flex-col">
+        <div className=" flex  flex-col ">
           <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 " >
           {prop.map((property, index) => (
           <Link key={index} to={"/safe/Dealing/"+property._id}>

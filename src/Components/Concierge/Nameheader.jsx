@@ -3,7 +3,7 @@ import Profile from "../User/Profile/profile";
 export default function NameHeader (){
     return (
       <>
-        <div className="hidden lg:!block">
+        <div className="hidden lg:!block border-b-[1px] border-b-white/20 pb-5">
           <div className="lg:pt-5 mb-3 px-7 pt-3">
             <div className="flex justify-between">
               <div className="mb-auto">
@@ -21,7 +21,7 @@ export default function NameHeader (){
               stages of ownership in an encrypted safe, accessible at all times
             </p>
             <Link to="/addproperty">
-              <button className="text-black border-secondary hover:border-simple shadow-2xl flex border-[1.5px] px-5 text-xs py-3 rounded-md mt-4 gap-2">
+              <button className="text-black bg-white border-secondary hover:border-simple shadow-2xl flex border-[1.5px] px-5 text-xs py-3 rounded-md mt-4 gap-2">
                 Add property
                 <img
                   alt="plus"

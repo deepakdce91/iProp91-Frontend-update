@@ -749,6 +749,7 @@ function Addpropform() {
                 {/* Upload Button */}
                 <div className="w-96  my-2 xl:m-2 ">
                   <Goldbutton
+                  bgcolor={"bg-white/90"}
                     btnname={"Upload"}
                     onclick={handleFileUpload}
                   ></Goldbutton>
@@ -778,6 +779,7 @@ function Addpropform() {
               {/* Submit Button */}
               <div className="my-2 w-48 xl:m-2">
                 <Goldbutton
+                bgcolor={"bg-white/90"}
                 isDisabled = {isUploading}
                   btnname={"Submit"}
                   onclick={handleSubmit}

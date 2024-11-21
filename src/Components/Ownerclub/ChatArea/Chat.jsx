@@ -38,6 +38,7 @@ import { GrDocumentExcel } from "react-icons/gr";
 import { FaRegFilePowerpoint } from "react-icons/fa";
 import { supabase } from "../../../config/supabase.js";
 import { client } from "../../../config/s3client.js";
+import { Search } from "lucide-react";
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transportOptions: ["websocket"],
@@ -144,7 +145,7 @@ function IncomingMessage({
 
   return (
     <div className="flex flex-col my-5 cursor-pointer group">
-      <p className="ml-12 mb-1">{userName}</p>
+      <p className="ml-12 mb-1 text-white">{userName}</p>
       <div className="flex">
         <div className="w-9 h-9 relative rounded-full flex items-center justify-center mr-2">
           <img
@@ -168,8 +169,8 @@ function IncomingMessage({
           <div
             className={`relative flex max-w-96 items-center ${
               theme.palette.mode === "dark"
-                ? "bg-gray-100 text-gray-700"
-                : "bg-gray-200 text-gray-700"
+                ? "bg-[#383838] text-white"
+                : "bg-[#383838] text-white"
             } rounded-lg p-3 gap-3`}
           >
             {file ? (
@@ -219,7 +220,7 @@ function IncomingMessage({
                 </a>
               )
             ) : (
-              <p className="text-gray-700 text-[16px]">{text}</p>
+              <p className="text-white  text-[16px]">{text}</p>
             )}
 
             <div className={`absolute -right-[68px] flex`}>
@@ -269,12 +270,12 @@ function OutgoingMessage({
 
   return (
     <div className="flex flex-col   mb-5 cursor-pointer group items-end">
-      <p className="mr-12 mb-1">
+      <p className="mr-12 mb-1 text-white">
         {userId.includes("IPA") === true ? "Admin" : "You"}
       </p>
       <div className="flex justify-end ">
         <div className="flex flex-col items-end">
-          <div className="flex relative items-center max-w-96 bg-gold text-black rounded-lg p-3 gap-3">
+          <div className="flex relative items-center max-w-96 bg-gold text-white rounded-lg p-3 gap-3">
             <div className="absolute -left-[68px] flex flex-row-reverse">
              
 
@@ -340,7 +341,7 @@ function OutgoingMessage({
                 </a>
               )
             ) : (
-              <p className="text-gray-100 text-[16px]">{text}</p>
+              <p className="text-white text-[16px]">{text}</p>
             )}
           </div>
           <p
@@ -384,6 +385,9 @@ function Chats({
   currentGroupDetails,
 }) {
   // users/fetchuser/:id
+
+  const inputRef = useRef(null)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   let lastMessageDate = null;
 
@@ -673,6 +677,12 @@ function Chats({
       addMessage();
     }
   };
+  const handleToggle = () => {
+    setIsExpanded(!isExpanded)
+    if (!isExpanded) {
+      setTimeout(() => inputRef.current?.focus(), 300)
+    }
+  }
 
   const isAdmin = (id, myObj) => {
     const customers = myObj.customers;
@@ -682,23 +692,28 @@ function Chats({
 
   return (
     <>
-      <div className=" flex px-4 py-3  rounded-md border-[1px] border-gray-200 overflow-hidden max-w-md mx-auto font-[sans-serif]">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 192.904 192.904"
-          width="16px"
-          className="fill-white mr-3 rotate-90"
+      <div
+        className={`flex absolute top-5 right-[20%] md:right-[10%] lg:right-[31%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+          isExpanded ? 'w-48 border-b-[1px] border-b-white/20 pb-1 ' : 'w-6'
+        }`}
+      >
+        <button
+          onClick={handleToggle}
+          className="mr-3 focus:outline-none"
+          aria-label={isExpanded ? "Collapse search" : "Expand search"}
         >
-          <path d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z"></path>
-        </svg>
+          <Search className="w-6 h-6 text-white" />
+        </button>
         <input
+          ref={inputRef}
           type="text"
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search"
-          className="w-full outline-none bg-transparent text-gray-100 text-sm"
+          className={`w-full outline-none bg-transparent text-white text-sm transition-all duration-300 ${
+            isExpanded ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ pointerEvents: isExpanded ? 'auto' : 'none' }}
         />
       </div>
       <ScrollToBottom className="h-screen overflow-y-auto px-4 ">
@@ -719,7 +734,7 @@ function Chats({
 
                 {isNewDay && (
                   // date wise seperator
-                  <div className="text-center my-2">
+                  <div className="text-center text-white my-2">
                     {format(new Date(msg.createdAt), "yyyy-MM-dd") ===
                     format(new Date(), "yyyy-MM-dd")
                       ? "Today"
@@ -792,7 +807,7 @@ function Chats({
           })}
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
-      <footer className=" border-t-[1px] bg-gray-100 border-gray-300 p-4 w-full">
+      <footer className=" border-t-[1px] bg-[#383838] border-t-white/20 p-4 w-full">
         {!fileToUpload && (
           <div className="flex items-center">
             <input
@@ -801,7 +816,7 @@ function Chats({
               placeholder="Type a message..."
               value={textMessage}
               onChange={handleTextMessageChange}
-              className={`w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-gold text-gray-600`}
+              className={`w-full p-2 rounded-md border bg-white/90 focus:outline-none focus:border-gold text-black placeholder:text-black`}
             />
 
             {/* // button to send files  */}
@@ -815,8 +830,8 @@ function Chats({
               <TbPaperclip
                 className={
                   theme.palette.mode === "dark"
-                    ? "h-6 w-6 text-gray-300 hover:scale-110 hover:text-white"
-                    : "h-6 w-6 text-gray-700 hover:scale-110 hover:ext-gray-900"
+                    ? "h-6 w-6 text-white hover:scale-110 hover:text-white"
+                    : "h-6 w-6 text-white hover:scale-110 hover:ext-gray-900"
                 }
               />
             </button>
@@ -829,8 +844,8 @@ function Chats({
               <FaSmile
                 className={
                   theme.palette.mode === "dark"
-                    ? "text-gray-300 hover:scale-110 hover:text-white"
-                    : "text-gray-700 hover:scale-110 hover:ext-gray-900"
+                    ? "text-white hover:scale-110 hover:text-white"
+                    : "text-white hover:scale-110 hover:ext-gray-900"
                 }
                 style={{
                   fontSize: "24px",

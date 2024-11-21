@@ -13,16 +13,13 @@ import NameHeader from "../../CompoCards/Header/NameHeader";
 const defaultCommunityUrl = "/community-pfp.jpg";
 
 function ChatScreen() {
-    
   const theme = useTheme();
-  
 
   const [groupNames, setGroupNames] = useState([]);
   const [filteredGroupNames, setFilteredGroupNames] = useState([]);
   const [currentGroupData, setCurrentGroupData] = useState();
   const [isUsersListOpen, setIsUsersListOpen] = useState(false);
   const [communitySearchQuery, setCommunitySearchQuery] = useState("");
-  
 
   // Fetch all communities
   const fetchAllCommunities = () => {
@@ -95,7 +92,6 @@ function ChatScreen() {
       });
   };
 
-
   // Filter the communities based on search query
   useEffect(() => {
     if (communitySearchQuery.trim() === "") {
@@ -115,45 +111,60 @@ function ChatScreen() {
   }, []);
 
   const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in local storage.");
-      return;
-    }
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.userId;
+  if (!token) {
+    console.error("No token found in local storage.");
+    return;
+  }
+  const decodedToken = jwtDecode(token);
+  const userId = decodedToken.userId;
 
   return (
     <div className="min-h-screen w-full   ">
       {/* <!-- component --> */}
-      <div className="flex gap-4 min-h-screen overflow-hidden relative  ">
+      <div className="flex w-full min-h-screen overflow-hidden relative  ">
         {/* <!-- Sidebar --> */}
         <div
-          className={` bg-transparent  w-full md:w-[60%] lg:w-[30%] ${
+          className={` bg-black text-white  w-full md:w-[30%] lg:w-[25%] border-r-[1px] border-r-white/20 ${
             currentGroupData ? "hidden md:block  " : "w-[30%]"
           }`}
         >
-            <div className="bg-white p-2 relative top-0 ">
-                    <div className="m-2">
-                        <NameHeader firstname="iProp91" secondname="Family" />
-                    </div>
-                    <div className="my-2">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg className="w-4 h-4 text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </div>
-                            <input type="search" 
-                            value={communitySearchQuery}
-                            onChange={(e) => {
-                              setCommunitySearchQuery(e.target.value);
-                            }}
-                            id="default-search" className="block w-full p-4 ps-10 text-md text-black border border-gray-300 rounded-lg " placeholder="Search" required />
-                        </div>
-                    </div>
+          <div className=" p-2 relative top-0 ">
+            <div className="mx-2 my-5">
+              <NameHeader firstname="iProp91" secondname="Family" />
+            </div>
+            <div className="my-2  ">
+              <div className="relative">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-black"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
                 </div>
-        
-         
+                <input
+                  type="search"
+                  value={communitySearchQuery}
+                  onChange={(e) => {
+                    setCommunitySearchQuery(e.target.value);
+                  }}
+                  id="default-search"
+                  className="block w-full p-4 ps-10 text-md text-black border outline-none rounded-lg "
+                  placeholder="Search"
+                  required
+                />
+              </div>
+            </div>
+          </div>
 
           {/* <!-- Contact List --> */}
           <div className="overflow-y-auto     p-3  ">
@@ -166,7 +177,9 @@ function ChatScreen() {
                   key={`community-${index}`}
                   className={`flex items-center mb-2 hover:bg-gold   cursor-pointer ${
                     currentGroupData &&
-                    (currentGroupData._id === item._id ? "bg-gray-100 border-2 border-gold" : null)
+                    (currentGroupData._id === item._id
+                      ? "bg-white/20 text-white border-2 border-gold"
+                      : null)
                   } hover:bg-gray-100  ${
                     theme.palette.mode === "dark"
                       ? "bg-opacity-20 hover:bg-opacity-20"
@@ -194,28 +207,31 @@ function ChatScreen() {
         </div>
 
         {/* <!-- Main Chat Area --> */}
-        <div className={`flex-1   ${currentGroupData ? "w-full  " : " hidden"}`}
-        style={{ backgroundImage: 'url("/images/chatbg.jpg")' }}
+        <div
+          className={`flex-1 w-full    ${
+            currentGroupData ? "w-[50%]" : " hidden"
+          }`}
+          style={{ backgroundImage: 'url("/images/wpdark.jpg")' }}
         >
           <div className="flex flex-col h-[100vh]">
             {/* <!-- Chat Header --> */}
             <header
               className={`${
                 theme.palette.mode === "dark"
-                  ? "bg-white text-black"
-                  : "text-black bg-white "
+                  ? "bg-[#383838] text-white"
+                  : "text-white bg-[#383838] "
               }  p-4  `}
             >
               {currentGroupData && (
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <button
-                      className="text-black/70 hover:scale-110 hover:text-black"
+                      className="text-white hover:scale-110 hover:text-white/90"
                       onClick={() => setCurrentGroupData()}
                     >
                       <IoChevronBackSharp className="w-6 h-6 mr-3  " />
                     </button>
-                    <h1 className="text-2xl font-semibold">
+                    <h1 className="text-2xl font-semibold capitalize">
                       {currentGroupData.name}
                     </h1>
                   </div>
@@ -224,7 +240,7 @@ function ChatScreen() {
                     onClick={() => {
                       setIsUsersListOpen(true);
                     }}
-                    className="font-bold text-black/70 hover:text-black hover:scale-110"
+                    className="font-bold text-white hover:text-white/90 hover:scale-110"
                   >
                     <BsInfoCircle className="w-6 h-6 mr-4 " />
                   </button>
@@ -232,7 +248,7 @@ function ChatScreen() {
               )}
 
               {!currentGroupData && (
-                <div className="flex absolute right-5 top-5 justify-between text-black items-center">
+                <div className="flex absolute right-5 top-5 justify-between text-white items-center">
                   <p className="text-2xl">See all conversations here</p>
                 </div>
               )}
@@ -246,7 +262,6 @@ function ChatScreen() {
                 communityId={currentGroupData._id}
                 userId={userId}
                 userToken={token}
-
               />
             )}
             {!currentGroupData && (
@@ -305,7 +320,7 @@ function ChatScreen() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{customer.name}</p>
                       </div>
-                      {customer.admin == false ? (<IoStar/>) : ""}
+                      {customer.admin == false ? <IoStar /> : ""}
                       {/* <button onClick={()=>{console.log(customer.admin)}}>hyeeee</button> */}
                     </div>
                   </li>
@@ -314,6 +329,51 @@ function ChatScreen() {
             </ul>
           </div>
         )}
+
+        <div
+          className={`"w-[25%] h-[100vh] overflow-y-scroll  bg-black border-[1px] border-white/20 hidden lg:flex lg:flex-col lg:justify-center lg:items-center px-4 gap-5 ${
+            currentGroupData ? "w-[25%]" : "w-[50%]"
+          } "`}
+        >
+          <p className="text-center text-2xl font-semibold text-white ">Articles Section</p>
+          <div class="relative flex flex-col  bg-white/20 shadow-sm border border-slate-200 rounded-lg ">
+            <div class="relative h-56 m-2.5 overflow-hidden text-white rounded-md">
+              <img
+                src="https://images.unsplash.com/photo-1499696010180-025ef6e1a8f9?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=1470&amp;q=80"
+                alt="card-image"
+              />
+            </div>
+            <div class="p-4">
+              <div class="flex items-center mb-2">
+                <h6 class="text-white text-lg font-semibold">
+                  Wooden House, Florida
+                </h6>
+
+                <div class="flex items-center gap-0 5 ml-auto">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="w-5 h-5 text-yellow-600"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                  <span class="text-white ml-1.5">5.0</span>
+                </div>
+              </div>
+
+              <p class="text-white text-sm leading-normal font-light">
+                Enter a freshly updated and thoughtfully furnished peaceful home
+                surrounded by ancient trees, stone walls, and open meadows.
+              </p>
+            </div>
+          </div>
+          
+        </div>
       </div>
     </div>
   );

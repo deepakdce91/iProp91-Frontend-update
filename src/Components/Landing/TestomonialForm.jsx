@@ -46,7 +46,7 @@ export default function TestimonialForm({ close }) {
           <div className="relative">
             <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-16 p-4 md:p-8">
               {/* Left side - Image upload */}
-              <div className="flex flex-col items-center justify-center space-y-12">
+              <div className="flex flex-col items-center justify-center space-y-2">
                 <div className="md:w-48 md:h-48 w-40 h-40 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                   {previewUrl ? (
                     <img

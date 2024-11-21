@@ -44,8 +44,8 @@ const Linklist = {
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <div className="fixed top-0 inset-0 z-50 lg:hidden bg-gray-800 bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
-      <div className="w-full bg-primary h-full flex flex-col">
+    <div className="fixed top-0 inset-0 z-[100] lg:hidden  text-white bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
+      <div className="w-full bg-primary h-full flex flex-col z-[100]">
         <div className="flex justify-end px-3 py-2">
           <button onClick={onClose} className="p-2">
             <img
@@ -117,7 +117,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="sticky top-0  bottom-0">
+      <div className="sticky top-0  bottom-0 bg-black border-r-[1px] border-r-white/20">
         <div className="hidden lg:!flex h-screen flex-col z-50 w-44 justify-start shadow-xl gap-4 overflow-y-scroll p-2 no-scrollbar">
           <img
             alt=""
@@ -134,7 +134,7 @@ const Sidebar = () => {
                 isLocked === true ? (
                   <button
                     
-                    className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
                       location.pathname.includes(Linklist[key].link)
                         ? "border-simple "
                         : ""
@@ -147,7 +147,7 @@ const Sidebar = () => {
                 ) : (
                   <Link
                     to={Linklist[key].link}
-                    className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
                       location.pathname.includes(Linklist[key].link)
                         ? "border-simple "
                         : ""
@@ -168,7 +168,7 @@ const Sidebar = () => {
               ) : (
                 <Link
                   to={Linklist[key].link}
-                  className={` w-full active text-black grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                  className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
                     location.pathname.includes(Linklist[key].link)
                       ? "border-simple "
                       : ""
@@ -191,7 +191,7 @@ const Sidebar = () => {
         </div>
 
         {/* Small screen sidebar toggle button */}
-        <div className="lg:!hidden h-[10svh] align-middle z-40 sticky top-0 bg-white justify-between !flex px-4 py-2">
+        <div className="lg:!hidden h-[10svh] align-middle  sticky top-0 bg-white justify-between !flex px-4 py-2 z-[100]">
           <div>
             <img
               alt="logo"

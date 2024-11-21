@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 export default function Safe() {
   return (
     <>
-      <div className="h-screen overflow-y-scroll no-scrollbar bg-[#F9F9F9]">
+      <div className="h-screen overflow-y-scroll no-scrollbar bg-black">
         <Routes>
           <Route path="*" element={<FirstSafe />} />
           <Route path="/Dealing/:propid/*" element={<Dealing />} />

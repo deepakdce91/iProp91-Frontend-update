@@ -3,11 +3,11 @@ import Main_Con from "./Comps/Main_Cont";
 export default function FirstSafe() {
   return (
     <>
-      <div className="w-full">
-        <div className="my-2">
+      <div className="w-full bg-black ">
+        <div className="py-2">
           <Header />
         </div>
-        <div className="my-2 z-50">
+        <div className=" z-0">
           <Main_Con />
         </div>
       </div>
