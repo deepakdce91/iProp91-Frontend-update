@@ -46,7 +46,7 @@ export default function Links() {
           <button
             type="button"
             onClick={toggleDropdown}
-            className="flex h-12 items-center justify-center gap-3 rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;>span]:line-clamp-1 w-[240px]  bg-[#f5f5f5]"
+            className="flex h-12 items-center justify-center gap-3 rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;>span]:line-clamp-1 w-[240px] text-black bg-[#f5f5f5]"
           >
             <span style={{ pointerEvents: "none" }}>{currentLink.name}</span>
             <svg
@@ -100,7 +100,7 @@ export default function Links() {
       </div>
 
       <div
-        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex"
+        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex border-b-[1px] border-b-white/20 pb-5"
         style={{ outline: "none" }}
       >
         {ConciergeLink.map((item, index) => (
@@ -110,7 +110,7 @@ export default function Links() {
               // if location.pathname include  item.link then add border-simple else add border-transparent
               location.pathname === "/safe/Dealing/"+propid+item.link
                 ? "border-simple"
-                : "border-transparent"
+                : "border-white/20 hover:border-gold"
             }`}
             key={index}
           >

@@ -523,7 +523,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 >
                   <p>
                     Login with{" "}
-                    <span className="text-green-500 underline">Password</span>
+                    <span className="text-gold underline">Password</span>
                   </p>
                 </div>
               </>
@@ -565,7 +565,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 <div className="w-72 mt-1">
                   <Goldbutton
                     btnname={"Submit"}
-                    bgcolor={" ml-2"}
+                    bgcolor={"bg-white/20 ml-2"}
                     onclick={HandlePasswordLogin}
                   />
                 </div>
@@ -578,7 +578,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 >
                   <p>
                     Login with{" "}
-                    <span className="text-green-500 underline">OTP</span>
+                    <span className="text-gold underline">OTP</span>
                   </p>
                 </div>
               </>

@@ -1,489 +1,193 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useRef,useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Routes ,Route} from "react-router-dom";
+'use client'
+
+import React, { useState, useEffect } from "react"
+import { ChevronRight, ChevronLeft, Menu } from "lucide-react"
 import Table from "../../../CompoCards/Tables/Table"
 
+// Mock data structure
 const Data = {
   "Pre-RERA Approval": {
-    title: "Pre-RERA Approval",
-    data :[
-        {
-          name: "Layout Plan",
-          category: "layoutPlan",
-        },
-        {
-          name: "Demarcation cum zoning plan",
-          category: "demarcationCumZoningPlan",
-        },
-        {
-          name: "Site Plan",
-          category: "sitePlan",
-        },
-        {
-          name: "Building Plan",
-          category: "buildingPlan",
-        },
-        {
-          name: "Floor Plan",
-          category: "floorPlan",
-        },  
-    ]
+    hasSecondLayer: true,
+    content: [
+      { name: "Layout Plan", category: "layoutPlan" },
+      { name: "Demarcation cum zoning plan", category: "demarcationCumZoningPlan" },
+      { name: "Site Plan", category: "sitePlan" },
+      { name: "Building Plan", category: "buildingPlan" },
+      { name: "Floor Plan", category: "floorPlan" },
+      { name: "RERA Application", category: "reraApplication" },
+      { name: "RERA Approval", category: "reraApproval" },
+      { name: "Quarterly/Annual Bilings", category: "quarterlyBilings" },
+      { name: "Occupation Certificate", category: "occupationCertificate" },
+    ],
   },
-  "RERA Application": {
-    title:"RERA Application",
-    data:[
-        {
-          name: "RERA Application",
-          category: "reraApplication",
-        }     
-      ]
-    },
-  "RERA Approval": {
-    title:"RERA Approval",
-    data:[
-        {
-          name: "RERA Approval",
-          category: "reraApproval",
-        }
-    ]
+  "Developer": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Project Brochure", category: "projectBrochure" },
+      { name: "Adjustment/Marketing Material", category: "adjustMaterial" },
+      { name: "Allotment Letter", category: "allotmentLetter" },
+      { name: "Agreement for Sale", category: "agreementForSale" },
+      { name: "Builder Buyer Agreement", category: "builderBuyerAgreement" },
+      { name: "Demand Letter", category: "demandletter" },
+      { name: "Payment Reciept", category: "paymentReciept" },
+      { name: "Specification, Amentities and facilities", category: "specificationFacilities" },
+      { name: "Sale Deed", category: "saleDeed" },
+    ],
   },
-  "Post RERA Approval": {
-    title: "Post RERA Approval",
-    data:[
-        {
-          name: "Project Brochure",
-          category: "projectBrochure",
-        },
-        {
-          name: "Advertisement or Marketting Material",
-          category: "advertisementMaterialByBulder",
-        },
-        {
-          name: "Allotment Letter",
-          category: "allotmentLetter",
-        },
-        { 
-          name: "Agreement for Sale",
-          category: "agreementToSale",
-
-        },
-        {
-          name: "Builder Buyer Agreement",
-          category: "builderBuyerAgreement",
-        },
-        {
-          name: "Demand Letter",
-          category: "demandLetter",
-        },
-        {
-          name: "Payment Reciept",
-          category: "paymentPlan",
-        },
-        {
-          name: "Specifications, Amenities and Facilities",
-          category: "specificationsAmenitiesAndFacilities",
-        }
-    ]
- 
-  }
+  "Loan": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Loan Agreement", category: "loadAgreement" },
+      { name: "Payment Plan", category: "paymentPlan" },
+    ],
+  },
+  "Rental": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Rental Agreement", category: "rental agreement" },
+      { name: "Amendment Agreement", category: "amendmentAgreement" },
+      { name: "Tenant KYC Documents", category: "tenantKycDocuments" },
+      { name: "Rent Reciepts", category: "rentReciepts" },
+    ],
+  },
+  "Handbook": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Sale Terms", category: "saleTerms" },
+      { name: "Loadn Terms", category: "loanTerms" },
+      { name: "Rent Terms", category: "loadnTerms" },
+    ],
+  },
+  "Maintenance": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Maintenance Agreement", category: "maintenanceAgreement" },
+      { name: "Payment Receipts", category: "paymentReceipts" },
+      { name: "Invoices", category: "invoices" },
+      { name: "Electricity Bills", category: "electricityBills" },
+    ],
+  },
+  "Appliances": {
+    hasSecondLayer: true,
+    content: [
+      { name: "Bills", category: "bills" },
+      { name: "Warranty cards", category: "warrantyCards" },
+      { name: "AMC's", category: "amcs" },
+    ],
+  },
+  Others: { hasSecondLayer: false, category: "other" },
 }
 
-const NameHeader = ({Header}) => {
-  return (
-    <>
-      <div className="text-2xl px-10   my-2">{Header}</div>
-    </>
-  );
-};
+export default function DocumentManager({ PropName = "Sample Property" }) {
+  const [activeSection, setActiveSection] = useState(null)
+  const [activeDocument, setActiveDocument] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [showFirstLayer, setShowFirstLayer] = useState(true)
 
-const Links = ({PropId}) => {
-  // Reference to the navigation container
-  const navRef = useRef(null);
-  const location = useLocation();
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
-  // Scroll left by a certain amount
-  const scrollLeft = () => {
-    if (navRef.current) {
-      navRef.current.scrollBy({
-        left: -150, // Adjust this value to control scroll distance
-        behavior: "smooth",
-      });
+  const handleSectionClick = (section) => {
+    setActiveSection(section)
+    setActiveDocument(null)
+    if (!Data[section].hasSecondLayer) {
+      setActiveDocument({ name: section, category: Data[section].category })
     }
-  };
+    if (isMobile) setShowFirstLayer(false)
+  }
 
-  // Scroll right by a certain amount
-  const scrollRight = () => {
-    if (navRef.current) {
-      navRef.current.scrollBy({
-        left: 150, // Adjust this value to control scroll distance
-        behavior: "smooth",
-      });
+  const handleDocumentClick = (document) => {
+    setActiveDocument(document)
+    if (isMobile) setShowFirstLayer(false)
+  }
+
+  const handleBack = () => {
+    if (activeDocument) {
+      setActiveDocument(null)
+    } else if (activeSection) {
+      setActiveSection(null)
     }
-  };
-
-  const links = [
-    {
-      title: "Pre-RERA Approval",
-      to: "/",
-    },
-    {
-      title: "Occupation Certificate",
-      to: "/occupation-certificate",
-    },
-    {
-      title: "Sale Deed",
-      to: "/sale-deed",
-    },
-    {
-      title: "Maintenance Agreement",
-      to: "/maintenance-agreement",
-    },
-    {
-      title: "Electrical Appliances",
-      to: "/electrical-appliances",
-    },
-    {
-      title: "Electricity/Maintenance Bills",
-      to: "/electricity-maintenance-bills",
-    },
-    {
-      title: "Society Club",
-      to: "/society-club",
-    },
-    {
-      title: "RWA Rules & Regulations",
-      to: "/rwa-rules-regulations",
-    },
-    {
-      title: "Others",
-      to: "/others",
-    },
-  ];
+    if (isMobile && !activeDocument && !activeSection) {
+      setShowFirstLayer(true)
+    }
+  }
 
   return (
-    <div className=" flex w-full items-center py-2 bg-gray-100 overflow-x-scroll justify-start px-10  no-scrollbar">
-      {/* Left Arrow */}
-      <button onClick={scrollLeft} className="text-gray-400 hover:text-black">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          stroke="currentColor"
-          className="w-6 h-6"
+    <div className="flex flex-col h-screen text-white">
+      <h1 className="text-2xl font-bold p-4   flex justify-between items-center">
+        {PropName}
+        {isMobile && (activeSection || activeDocument) && (
+          <button onClick={handleBack} className="text-white/20">
+            <ChevronLeft size={24} />
+          </button>
+        )}
+        {isMobile && !showFirstLayer && (
+          <button onClick={() => setShowFirstLayer(true)} className="text-white/20">
+            <Menu size={24} />
+          </button>
+        )}
+      </h1>
+
+      <div className="flex flex-grow overflow-hidden">
+        {/* First Layer */}
+        <div
+          className={`w-full md:w-1/3 lg:w-1/4 bg-white/20 border-r-[1px] border-r-black p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${
+            isMobile && !showFirstLayer ? '-translate-x-full z-0' : 'translate-x-0 z-0'
+          } 
+          ${isMobile ? 'absolute h-full z-0' : 'z-0 '}
+          `}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-
-      {/* Navigation Links */}
-      <div
-        ref={navRef}
-        className="flex flex-row gap-4 whitespace-nowrap w-[700px] xl:w-[900px] 2xl:w-[1000px] 3xl:[1400px] overflow-x-scroll no-scrollbar" 
-      >
-        {links.map((link, index) => (
-          <Link
-            key={index}
-            to={`/safe/Dealing/${PropId}/Documents`+link.to}
-            className={`text-gray-400 hover:text-black ${location.pathname === `/safe/Dealing/${PropId}/Documents`+link.to ? 'text-primary ' : ''}`}
-          >
-            {link.title}
-          </Link>
-        ))}
-      </div>
-
-      {/* Right Arrow */}
-      <button onClick={scrollRight} className="text-gray-400 hover:text-black">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2"
-          stroke="currentColor"
-          className="w-6 h-6"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    </div>
-   
-  );
-};
-
-const DocumentCard = ({PropName, title, uploadDate, onClick }) => {
-  return (
-    <div className="bg-white shadow rounded-xl p-4 cursor-pointer max-lg:w-full" onClick={onClick}>
-      <div className="flex flex-row justify-between gap-8">
-        <div className="">
-          <h2 className="text-xl font-[400] lg:text-nowrap">{title}</h2>
-          <p className="text-sm">{PropName}</p>
-        </div>
-        <div className="">
-          <p className="text-xs">Uploaded: </p>
-          <p className="text-xs">{ new Date().toLocaleDateString()}</p>
-        </div>
-      </div>
-      <button className="mt-4 w-full bg-gray-100 text-black font-[400] py-2 px-4 rounded-xl tex-sm">View Document</button>
-    </div>
-  );
-};
-
-
-const Sidebar = ({ setActiveSection, activeSection }) => {
-  return (
-    <aside className="min-w-56 h-fit p-0 lg:p-4 bg-gray-100 rounded-xl flex flex-row lg:flex-col overflow-x-scroll lg:no-scrollbar">
-      {/* render first level of data */}
-      {Object.keys(Data).map((section) => (
-        <button
-          key={section}
-          className={`block text-left text-lg font-[400] text-black hover:text-yellow-700 text-nowrap px-2  my-4 ${
-            activeSection === Data[section].title ? 'text-primary' : ''
-          }`}
-          onClick={() => setActiveSection(Data[section].title)}
-        >
-          {Data[section].title}
-        </button>
-      ))}
-
-    </aside>
-  );
-};
-
-const Content = ({ PropName, activeSection, activeDocument, setActiveDocument }) => {
-  const sectionData = Data[activeSection]?.data || [];
-  return (
-    <main className="p-4 w-full">
-      {/* If a document is selected, show its table */}
-      {activeDocument ? (
-        <div className="w-full">
-          <Table category={activeDocument.data} tablename={activeDocument.title} tableopen={true} />
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-4">
-          {/* Otherwise, show the document cards */}
-          {sectionData.map((document, index) => (
-            <DocumentCard
-              key={index}
-              title={document.name}
-              PropName={PropName}
-              uploadDate={document.date}
-              onClick={() => setActiveDocument({ title: document.name, data: document.category })}
-            />
+          <h2 className="font-bold mb-4">Documents</h2>
+          {Object.keys(Data).map((section) => (
+            <div
+              key={section}
+              className={`flex items-center py-2 px-4 mb-2 cursor-pointer rounded-xl ${
+                activeSection === section ? "bg-black text-white border-[1px] border-gold z-0 " : " hover:border-[2px] hover:border-gold z-0 transition-all"
+              }`}
+              onClick={() => handleSectionClick(section)}
+            >
+              {section}
+              <ChevronRight className="ml-auto" size={16} />
+            </div>
           ))}
         </div>
-      )}
-    </main>
-  );
-};
 
-const PreReRa = ({PropName}) => {
-  const [activeSection, setActiveSection] = useState("Pre-RERA Approval");
-  const [activeDocument, setActiveDocument] = useState(null); // Track selected document
+        {/* Second Layer */}
+        {(!isMobile || (isMobile && !showFirstLayer)) && activeSection && Data[activeSection].hasSecondLayer && (
+          <div className="w-full md:w-1/3 lg:w-1/4 bg-white/20 border-r-[1px] border-r-black p-4 overflow-y-auto">
+            <div className="mt-10">
+              {Data[activeSection].content.map((doc) => (
+                <div
+                  key={doc.name}
+                  className={`py-2 px-4 mb-2  cursor-pointer rounded-xl ${
+                    activeDocument?.name === doc.name
+                      ? "bg-black text-white border-[1px] border-gold "
+                      : "hover:border-[2px] hover:border-gold  transition-all"
+                  }`}
+                  onClick={() => handleDocumentClick(doc)}
+                >
+                  {doc.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-  // When a new section is clicked, reset the active document to null
-  const handleSectionClick = (section) => {
-    setActiveSection(section);
-    setActiveDocument(null); // Reset the active document
-  };
-
-  return (
-    <div className="w-full bg-gray-50">
-      <div className="flex flex-col lg:flex-row">
-        <Sidebar setActiveSection={handleSectionClick} activeSection={activeSection} />
-        <Content
-          activeSection={activeSection}
-          activeDocument={activeDocument}
-          setActiveDocument={setActiveDocument}
-          PropName={PropName}
-        />
+        {/* Third Layer */}
+        {(!isMobile || (isMobile && !showFirstLayer)) && activeDocument && (
+          <div className="flex-grow p-4 overflow-y-auto border-t-[1px] border-t-white/20">
+            <Table
+              category={activeDocument.category}
+              tablename={activeDocument.name}
+              tableopen={true}
+            />
+          </div>
+        )}
       </div>
     </div>
-  );
-};
-
-const OccupationCertificate = ()=>{
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="Occupation Certificate" category={"occupationCertificate"} tableopen={true} />
-    </div>
-    </>
   )
-}
-
-const SaleDeed = ()=>{
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="Sale Deed" category={"saleDeed"} tableopen={true} />
-    </div>
-    </>
-  )
-}
-
-const MaintenanceAgreement = ()=>{
-  return (
-    <>
-    <div className="w-full">
-          <Table tablename="Maintenance Agreement" category={"maintenenceAgreement"}  />
-          <Table tablename="Payment Reciepts" category={"maintenencePaymentReceipts"} />
-          <Table tablename="Invoices" category={"maintenenceInvoice"} />
-    </div>
-    </>
-  )
-}
-
-const ElectricalAppliances = ()=>{
-  return (
-    <>
-    <div className="w-full">
-        <Table tablename="Bills" category={"bill"} />
-        <Table tablename="Warranty" category={"warrantyDocuments"} />
-        <Table tablename="AMCs" category={"amcs"} />                   
-    </div>
-    </>
-  )
-}
-
-const ElectricityMaintenanceBills = ()=>{
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="Electricity Bills" category={"electricityOrMaintenenceBills"} tableopen={true} />
-    </div>
-    </>
-  )
-}
-
-const SocietyClub = ()=>{
-  const clubrules = [
-    {
-      id: 1,
-      name: "Club Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Club Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Club Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Club Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Club Rules",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
-  const reciepts= [
-    {
-      id: 1,
-      name: "Recipts",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 2,
-      name: "Recipts",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 3,
-      name: "Recipts",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 4,
-      name: "Recipts",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-    {
-      id: 5,
-      name: "Recipts",
-      size: "2.5 MB",
-      date: "12/12/2021",
-    },
-  ]
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="Club Rules" tableData={clubrules} />
-      <Table tablename="Reciepts" tableData={reciepts} />
-    </div>
-    </>
-  )
-}
-
-const RwaRulesRegulations = ()=>{
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="RWA Rules" category={"rwaRulesAndRegulations"} tableopen={true} />
-    </div>
-    </>
-  )
-}
-
-const Others = ()=>{
-  return (
-    <>
-    <div className="w-full">
-      <Table tablename="Others" category={"other"} tableopen={true} />
-    </div>
-    </>
-  )
-}
-
-const DocumentSection = ({PropName}) => {
-  return (
-    <>
-      <div className="flex w-full justify-between px-10 py-10">
-        <Routes>
-            <Route path="/" element={<PreReRa PropName={PropName} />} />
-            <Route path="/occupation-certificate" element={<OccupationCertificate/>} />
-            <Route path="/sale-deed" element={<SaleDeed/>} />
-            <Route path="/maintenance-agreement" element={<MaintenanceAgreement/>} />
-            <Route path="/electrical-appliances" element={<ElectricalAppliances/>} />
-            <Route path="/electricity-maintenance-bills" element={<ElectricityMaintenanceBills/>} />
-            <Route path="/society-club" element={<SocietyClub/>} />
-            <Route path="/rwa-rules-regulations" element={<RwaRulesRegulations/>} />
-            <Route path="/others" element={<Others/>} />
-        </Routes>
-      </div>
-    </>
-  );
-};
-
-export default function Documents({PropId,PropName}) {
-  return (
-    <>
-      <div className="w-full">
-        <NameHeader Header={PropName} />
-        <Links PropId={PropId} />
-        <DocumentSection PropName={PropName} />
-      </div>
-    </>
-  );
 }

@@ -191,7 +191,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
           className={`${!isExpanded ? '' : 'bg-gold'} p-4 rounded-t-lg flex justify-between items-center w-full cursor-pointer px-10 py-6`}
           onClick={toggleExpand}
         >
-          <h2 className={`${isExpanded ? 'text-white' : 'text-black'} text-sm md:text-xl`}>
+          <h2 className={`${isExpanded ? 'text-white' : 'text-white'} text-sm md:text-xl`}>
             {tablename}
           </h2>
           <button className={`text-black transition-all delay-150 duration-50 font-bold text-2xl ${!isExpanded ? 'transform rotate-180 text-gold' : 'text-white'}`}>

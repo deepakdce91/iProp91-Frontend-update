@@ -1,12 +1,90 @@
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import Auth from "../User/Login/Auth"
+import { jwtDecode } from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
+import { Navigate } from "react-router-dom";
+
+
 const GetStartedForm = ({ close, openAuth }) => {
-  const handleSubmit = () => {
-    close(); // Close the form modal
-    openAuth(); // Open the auth modal
+  
+
+  // Get user from backend
+  const [user, setUser] = useState({});
+  // get from backend
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [builders, setBuilders] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [doctypes, setDocTypes] = useState([]);
+
+
+
+  const [formdata, setFormData] = useState({
+    selectedState: "",
+    selectedCity: "",
+    selectBuilder: "",
+    selectProject: "",
+    selectHouseNumber: "",
+    selectFloorNumber: "",
+    selectedNature: "residential",
+    selectedStatus: "under-construction",
+   
+    enable: "no",
+  });
+
+  const handleChange = (e) => {
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value, // update the respective radio button value
+    }));
   };
 
+  const saveFormDataToLocal = (formData) => {
+    const dataWithTimestamp = {
+      data: formData,
+      expiry: Date.now() + 5 * 60 * 1000, // 5 minutes from now
+    };
+    localStorage.setItem('formData', JSON.stringify(dataWithTimestamp));
+  };
+
+  // Function to clear form data from local storage
+const clearFormDataFromLocal = () => {
+  localStorage.removeItem('formData');
+};
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const reqBody = {
+      customerName: user.name,
+      customerNumber: user.phone,
+      state: formdata.selectedState,
+      city: formdata.selectedCity,
+      builder: formdata.selectBuilder,
+      project: formdata.selectProject,
+      houseNumber: formdata.selectHouseNumber,
+      floorNumber: formdata.selectFloorNumber,
+      applicationStatus: "under-review",
+      status:"more-info-required"
+    }
+    
+    try {
+       saveFormDataToLocal(reqBody);
+      close()
+      openAuth();
+      console.log(reqBody);
+      toast.success("Form saved successfully. Please login!")
+
+    }
+    
+     catch (error) {
+      console.error(error.message);
+      toast.error("Some ERROR occurred.");
+    }
+  }
    
   return (
     <section className="z-[100] h-screen fixed flex items-center justify-center">
@@ -28,8 +106,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 list="states-list"
                 id="state"
                 name="selectedState"
-                // value={formdata.selectedState}
-                // onChange={handleChange}
+                value={formdata.selectedState}
+                onChange={handleChange}
                 placeholder="Select or type a state..."
                 className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm "
               />
@@ -51,8 +129,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 list="cities-list"
                 id="city"
                 name="selectedCity"
-                // value={formdata.selectedCity}
-                // onChange={handleChange}
+                value={formdata.selectedCity}
+                onChange={handleChange}
                 placeholder="Select or type a city..."
                 className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
               />
@@ -74,8 +152,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 list="builders-list"
                 id="builder"
                 name="selectBuilder"
-                // value={formdata.selectBuilder}
-                // onChange={handleChange}
+                value={formdata.selectBuilder}
+                onChange={handleChange}
                 placeholder="Select or type a builder..."
                 className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
               />
@@ -97,8 +175,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 list="projects-list"
                 id="project"
                 name="selectProject"
-                // value={formdata.selectProject}
-                // onChange={handleChange}
+                value={formdata.selectProject}
+                onChange={handleChange}
                 placeholder="Select or type a project..."
                 className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
               />
@@ -122,8 +200,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 type="text"
                 id="housenumber"
                 name="selectHouseNumber"
-                // value={formdata.selectHouseNumber}
-                // onChange={handleChange}
+                value={formdata.selectHouseNumber}
+                onChange={handleChange}
                 placeholder="Enter House Number"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 text-black rounded-xl  shadow-sm focus:outline-none focus:ring-gray-500 focus:gray-yellow-500 sm:text-sm bg-white"
               />
@@ -137,8 +215,8 @@ const GetStartedForm = ({ close, openAuth }) => {
                 type="number"
                 id="floornumber"
                 name="selectFloorNumber"
-                // value={formdata.selectFloorNumber}
-                // onChange={handleChange}
+                value={formdata.selectFloorNumber}
+                onChange={handleChange}
                 placeholder="Enter Floor Number"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-xl text-black shadow-sm focus:outline-none  focus:border-gray-500 sm:text-sm bg-white"
               />
@@ -149,7 +227,7 @@ const GetStartedForm = ({ close, openAuth }) => {
           </div>
         </div>
       </div>
-    
+      <ToastContainer position="top-right" autoClose={2000} />
     </section>
   );
 };

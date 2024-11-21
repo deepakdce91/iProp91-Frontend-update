@@ -91,7 +91,7 @@ const CompComponent = () => {
 
 export default function Comparison() {
   return (
-    <div className="slider-container relative bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+    <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
       
       <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10"> The minimum you deserve and we're coming up with more</p>
     <Swiper

@@ -10,7 +10,7 @@ import FinanceAssitance from "./Pages/FinanceAssistance";
 export default function Conci() {
   return (
     <>
-      <div className="flex flex-col lg:h-screen">
+      <div className="flex flex-col lg:min-h-screen bg-black text-white">
         <NameHeader />
         <div className="mt-5 w-full">
           <Links />

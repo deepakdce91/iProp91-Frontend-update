@@ -19,7 +19,7 @@ const PhoneInput = ({selectedCountry,setSelectedCountry,phone,setPhone}) => {
   };
 
   return (
-    <div className="w-full m-2 font-sm flex items-center border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-blue-400 overflow-hidden bg-white border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full font-sm" style={{borderRadius:'20px'}}>
+    <div className="w-full py-1 m-2 font-semibold flex items-center border border-black/20  focus-within:ring-2 focus-within:ring-gray-400 overflow-hidden bg-white rounded-xl text-gray-900 text-sm  focus:ring-gray-500  " >
       {/* Country Code Selector inside the input */}
       <select
         value={selectedCountry}
@@ -39,7 +39,7 @@ const PhoneInput = ({selectedCountry,setSelectedCountry,phone,setPhone}) => {
         value={phone}
         onChange={handlePhoneChange}
         placeholder="Enter phone number"
-        className="w-full p-2 bg-white focus:outline-none"
+        className="w-full p-2 bg-white focus:outline-none placeholder:text-gray-500"
       />
     </div>
   );

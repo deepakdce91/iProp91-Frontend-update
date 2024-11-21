@@ -105,7 +105,7 @@ export default function Component() {
       </div>
       
       {/* Navigation Controls */}
-      <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-40 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-28 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
           className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handlePrevious}

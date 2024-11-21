@@ -49,11 +49,11 @@ export default function Conci() {
 
   return (
     <>
-      <div className="flex flex-col  z-50 ">
-        <div className="w-full  ">
+      <div className="flex flex-col text-white z-50 ">
+        <div className="w-full  pt-2">
           <Links />
         </div>
-        <div className="w-full mt-10">
+        <div className="w-full text-black">
           <Routes>
             <Route path="/*" element={<PropDetails />} />
             <Route path="/Documents/*" element={<Documents PropId={PropId} PropName={properyname} />} />
