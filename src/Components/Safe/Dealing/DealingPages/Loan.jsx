@@ -10,7 +10,7 @@ export default function Loan() {
   
   return (
     <>
-      <div className="flex flex-col mt-6 mx-4">
+      <div className="flex flex-col mt-6 mx-4 text-white">
         {tables.map((table, index) => (
           <Table key={index} tablename={table.name} category={table.category} />
         ))}

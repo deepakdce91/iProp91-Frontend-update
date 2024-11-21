@@ -158,7 +158,7 @@ function PropertyForm() {
        
         </div>
         <div className="my-2 w-full">
-          <label className="block mb-2">Nature of Property</label>
+          <label className="block mb-2 text-white">Nature of Property</label>
           <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
             <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
               <div className="flex items-center ps-3">
@@ -202,7 +202,7 @@ function PropertyForm() {
         </div>
         <div className="my-2 w-full">
           <div className=" w-full">
-            <label className="block w-full  mb-2">Status</label>
+            <label className="block w-full  mb-2 text-white">Status</label>
             <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
             <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
               <div className="flex items-center ps-3">
