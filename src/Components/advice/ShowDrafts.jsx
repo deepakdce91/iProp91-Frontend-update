@@ -10,7 +10,7 @@ const draftAgreements = Array(8).fill({
 export default function ShowDrafts({  }) {
   return (
     <section
-      className="relative bg-[#eee7e7] py-20"
+      className="relative bg-white py-20"
     >
       
       <h2 className="text-4xl font-bold mb-8 text-center">Download Draft Agreements</h2>
@@ -24,7 +24,7 @@ export default function ShowDrafts({  }) {
               y: 0,
               transition: { delay: idx * 0.1 },
             }}
-            className="bg-white/10 backdrop-blur-lg rounded-lg p-4 flex flex-col items-center text-center hover:bg-black/20 transition-colors group border-[1px] border-black/20"
+            className="bg-white/10 backdrop-blur-lg rounded-lg p-4 flex flex-col items-center text-center hover:border-b-[2px] hover:border-b-gold hover:shadow-md hover:shadow-gold transition-colors group border-[1px] border-black/20"
           >
             <h3 className="text-sm font-semibold mb-2">{agreement.title}</h3>
             <p className="text-xs text-black mb-4">{agreement.subtitle}</p>

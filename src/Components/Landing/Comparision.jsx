@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { EffectCoverflow } from 'swiper/modules';
+import { EffectCoverflow, Navigation, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
-import './Comparison.css';
+import 'swiper/css/navigation';
+import 'swiper/css/effect-coverflow';
 import axios from "axios";
-import Carousel from './Carousel';
-import MobileScreen from "./MobileScreen";
 
 const CompComponent = () => {
 
@@ -91,36 +90,57 @@ const CompComponent = () => {
 
 export default function Comparison() {
   return (
-    <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
-      
-      <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10"> The minimum you deserve and we're coming up with more</p>
-    <Swiper
-      effect="coverflow"
-      grabCursor={true}
-      centeredSlides={true}
-      loop={true}
-      slidesPerView={3}
-      coverflowEffect={{
-        rotate: 0,
-        stretch: 0,
-        depth: 300,
-        modifier: 2.5,
-        slideShadows: true,
-      }}
-      modules={[EffectCoverflow]}
-      className="relative "
-    >
-      {[...Array(7).keys()].map((i) => (
-        <SwiperSlide key={i}>
-          <div className="swiper-slide-wrapper bg-black">
-            <CompComponent />
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-
-    {/* <MobileScreen/> */}
-    
-  </div>
+    <>
+      <style>
+        {`
+          .swiper-button-next,
+          .swiper-button-prev {
+            color: white !important;
+          }
+          
+          .swiper-button-next:after,
+          .swiper-button-prev:after {
+            font-size: 24px !important;
+          }
+        `}
+      </style>
+      <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+        <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
+          The minimum you deserve and we're coming up with more
+        </p>
+        <Swiper
+          effect={'coverflow'}
+          grabCursor={true}
+          centeredSlides={true}
+          loop={true}
+          slidesPerView={3}
+          navigation={{
+            enabled: true,
+          }}
+          autoplay={{
+            delay: 2000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }}
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 0,
+            depth: 300,
+            modifier: 2.5,
+            slideShadows: true,
+          }}
+          modules={[EffectCoverflow, Navigation, Autoplay]}
+          className="relative"
+        >
+          {[...Array(7).keys()].map((i) => (
+            <SwiperSlide key={i}>
+              <div className="swiper-slide-wrapper bg-black">
+                <CompComponent />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </>
   );
 }

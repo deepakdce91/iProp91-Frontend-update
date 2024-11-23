@@ -22,21 +22,24 @@ import Advice from "../advice/advice";
 import Lend from "../Lend/Lend";
 import WeDoMore from "./WeDoMore";
 import MobileScreen from "./MobileScreen";
+import JourneyPage from "../getstartedForm/getStartedForm";
+import Call from "../NRI/corousal/corsoual"
 
 function LandingPage() {
   return (
     <>
       <HeroSection />
       <AboutSection />
-      <Number />
       <Comparision />
       <MobileScreen />
+      <Number />
       <BrandMarquee />
       <Knowledge />
       <WeDoMore />
       <Insight />
       <Testimonials />
-      <ContactUs />
+      <Call/>
+      {/* <ContactUs /> */}
     </>
   );
 }
@@ -121,6 +124,8 @@ function Landing() {
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
         <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} />
+        <Route path="/journey" element={<JourneyPage />} />
+
       </Routes>
       {location.pathname !== "/advice" && <Footer />}
     </>

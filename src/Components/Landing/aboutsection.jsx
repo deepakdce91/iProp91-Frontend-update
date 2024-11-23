@@ -23,16 +23,21 @@ export default function GsapTextColorChange() {
 
       gsap.fromTo(
         words,
-        { opacity: 0.2, y: 10 }, // Start with low opacity and slight offset
+        { 
+          opacity: 0.2, 
+          y: 10 
+        },
         {
-          opacity: 1, // Fade to full opacity
-          y: 0, // Slide up to the original position
-          stagger: 0.1, // Stagger each word's animation
+          opacity: 1,
+          y: 0,
+          stagger: 0.2,      // Increased from 0.1 to 0.2
+          duration: 1.5,     // Added longer duration
+          ease: "power2.out", // Smoother easing
           scrollTrigger: {
             trigger: ref.current,
-            start: "top 80%", // Start animation when it enters the viewport
-            end: "bottom 60%", // End when it leaves the viewport
-            scrub: true, // Smooth scrolling animation
+            start: "top 90%",
+            end: "bottom 30%",
+            scrub: 1,        // Increased from true to 1 for smoother scrubbing
           },
         }
       );
@@ -52,9 +57,9 @@ export default function GsapTextColorChange() {
     "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free.";
 
   return (
-    <div className="relative min-h-screen bg-black px-3">
+    <div className="relative min-h-screen bg-black px-3 ">
       <section
-        className="  flex  h-[110vh] lg:pb-20 items-center justify-center"
+        className="  flex  min-h-[110vh] lg:pb-28  items-center justify-center"
       >
         <div className="flex flex-col gap-8 items-center h-s">
           {/* Heading */}

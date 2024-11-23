@@ -52,6 +52,15 @@ export default function AdviceCards() {
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [showAgreements, setShowAgreements] = React.useState(false)
 
+  // Add auto-animation effect
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length)
   }

@@ -11,6 +11,7 @@ import UpdateUser from '../User/Update/UpdateUser.jsx';
 import NRI from "../NRI/nri.jsx";
 import Adivce from "../advice/advice.jsx";
 import Lend from "../Lend/Lend.jsx";
+import JourneyPage from "../getstartedForm/getStartedForm.jsx";
 
 export default function AllPage() {
     return (
@@ -27,6 +28,7 @@ export default function AllPage() {
                         <Route path="/nri" element={<NRI/>} />
                         <Route path="/advice" element={<Adivce/>} />
                         <Route path="/lend" element={<Lend/>} />
+                        <Route path="/journey" element={<JourneyPage/>} />
                         <Route path="/addproperty" element={<AddProperty />} />
                         <Route path="/profile" element={<UpdateUser />} />
                     </Routes>

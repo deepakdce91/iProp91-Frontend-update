@@ -42,7 +42,7 @@ export default function Advice() {
   return (
     <section ref={containerRef} className="relative ">
       {/* Background Section */}
-      <motion.div
+      {/* <motion.div
         className={`fixed  inset-0 ${
           hasToken ? "lg:ml-[175px]" : ""
         } h-[100vh] z-0`}
@@ -60,13 +60,13 @@ export default function Advice() {
       </motion.div>
 
       {/* Content Section */}
-      <div className="relative z-10">
+      {/* <div className="relative z-10">
         <div className="h-screen flex justify-center ">
           <p className="text-4xl md:text-6xl font-semibold text-white mt-52  lg:mr-28 lg:max-w-xl text-center" >
             Get advice from our trusted brands
           </p>
         </div>
-      </div>
+      </div>  */}
         <div className={`backdrop-blur-md ${scrollY > 100 ? "" : ""}`}>
           <AdviceCards />
           <DraftAgreementsList/>

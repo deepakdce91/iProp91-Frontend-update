@@ -55,7 +55,7 @@ const FAQ = () => {
   return (
     <>
         {/* <div className="h-[200vh] bg-center bg-cover bg-no-repeat" style={{ backgroundImage: "url('/images/image.jpg')"}}></div> */}
-      <div className="min-h-screen bg-black border-y-[1px] border-y-white/20 text-white p-8 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white border-y-[1px] border-y-white/20 text-black p-8 flex flex-col items-center justify-center">
         <h2 className="text-4xl md:text-6xl text-center mb-8">
           You Might Have Questions!
         </h2>

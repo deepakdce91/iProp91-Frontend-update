@@ -42,3 +42,14 @@
     background-color: #f0f0f0;
   }
   
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: white !important; /* Change arrow color */
+  }
+  
+  /* Optional: Adjust arrow size */
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 24px !important;
+  }
+  

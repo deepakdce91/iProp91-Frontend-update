@@ -5,10 +5,10 @@ import { Link, useLocation } from "react-router-dom";
 const ConciergeLink = [
   { name: "Property Details", link: "/" },
   { name: "Documents", link: "/Documents" },
-  { name: "Handbook", link: "/Handbook" },
-  { name: "Loans", link: "/Loans" },
-  { name: "Rental", link: "/Rental" },
-  { name: "Recent Updates", link: "/RecentUpdates" },
+  // { name: "Handbook", link: "/Handbook" },
+  // { name: "Loans", link: "/Loans" },
+  // { name: "Rental", link: "/Rental" },
+  // { name: "Recent Updates", link: "/RecentUpdates" },
 ];
 
 export default function Links() {
