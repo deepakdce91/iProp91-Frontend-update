@@ -81,7 +81,7 @@ const HeroSection = () => {
         <br />
         <button
           onClick={() => navigate('/journey')}
-          className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm   bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
+          className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
         >
           Start your journey
         </button>
@@ -91,7 +91,7 @@ const HeroSection = () => {
       {/* {form && <GetStartedForm close={closeFormModal} openAuth={openAuthModal} />}
 
       {/* Auth Modal */}
-      {/* {auth && <Auth onClose={closeAuthModal} setIsLoggedIn={handleSuccessfulLogin} properties={" top-[15%] z-20 right-10 w-[400px] md:right-24 lg:right-16 "} />} */} */}
+      {/* {auth && <Auth onClose={closeAuthModal} setIsLoggedIn={handleSuccessfulLogin} properties={" top-[15%] z-20 right-10 w-[400px] md:right-24 lg:right-16 "} />} */} 
     </div>
   );
 };
