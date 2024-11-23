@@ -4,10 +4,10 @@ import { Link, useLocation } from "react-router-dom";
 
 const ConciergeLink = [
   { name: "My Properties", link: "/concierge" },
-  { name: "Relationship Manager", link: "/concierge/relations" },
-  { name: "Property Management", link: "/concierge/property" },
-  { name: "Legal Support", link: "/concierge/legal" },
-  { name: "Finance Assistance", link: "/concierge/finance" },
+  // { name: "Relationship Manager", link: "/concierge/relations" },
+  // { name: "Property Management", link: "/concierge/property" },
+  // { name: "Legal Support", link: "/concierge/legal" },
+  // { name: "Finance Assistance", link: "/concierge/finance" },
 ];
 
 export default function Links() {
@@ -65,7 +65,7 @@ export default function Links() {
           </button>
 
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white border border-black/80 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="py-1">
                 {ConciergeLink.map((link, index) => (
                   <Link

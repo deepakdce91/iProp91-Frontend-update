@@ -3,7 +3,7 @@ import Profile from "../User/Profile/profile";
 export default function NameHeader (){
     return (
       <>
-        <div className="hidden lg:!block border-b-[1px] border-b-white/20 pb-5">
+        <div className="hidden lg:!block border-b-[1px] border-b-black/20 pb-5">
           <div className="lg:pt-5 mb-3 px-7 pt-3">
             <div className="flex justify-between">
               <div className="mb-auto">

@@ -71,8 +71,8 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
         phone: phone,
         countryCode: countryCode,
       });
-      // clear the otp field
       setOTP("");
+      
       if (verifyresponse) {
         console.log("Response:", verifyresponse);
         if (verifyresponse.response.verification === "FAILED") {
@@ -106,40 +106,70 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
                 );
                 if (loginres.status === 500) {
                   toast.error("Something went wrong");
-                  console.log("Something went wrong");
+                  setLoading(false);
                   return;
                 }
                 let loginresjson = await loginres.json();
-                if (loginresjson.success === false) {
-                  toast.error("Invalid Credentials");
+                if (loginresjson.success === true) {
+                  localStorage.setItem("token", loginresjson.token);
+                  
+                  // Get user details after login
+                  const decoded = jwtDecode(loginresjson.token);
+                  const userId = decoded.userId; // This should be the correct user ID
+
+                  // Handle property submission
+                  const tempPropertyData = localStorage.getItem('tempPropertyData');
+                  if (tempPropertyData) {
+                    const { data, expiry } = JSON.parse(tempPropertyData);
+                    
+                    if (Date.now() < expiry) {
+                      try {
+                        const propertyResponse = await fetch(
+                          `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              "auth-token": loginresjson.token,
+                            },
+                            body: JSON.stringify({
+                              state: data.selectedState,
+                              city: data.selectedCity,
+                              builder: data.selectBuilder,
+                              project: data.selectProject,
+                              houseNumber: data.selectHouseNumber,
+                              floorNumber: data.selectFloorNumber
+                            })
+                          }
+                        );
+
+                        if (propertyResponse.ok) {
+                          toast.success("Property details saved successfully!");
+                        } else {
+                          const errorData = await propertyResponse.json();
+                          console.error("Property submission error:", errorData);
+                          toast.error("Failed to save property details");
+                        }
+                      } catch (error) {
+                        console.error("Error saving property:", error);
+                        toast.error("Failed to save property details");
+                      }
+                    }
+                    localStorage.removeItem('tempPropertyData');
+                  }
+
+                  setIsLoggedIn(true);
+                  toast.success("Login Successful");
+                  setTimeout(() => {
+                    navigate("/concierge");
+                  }, 2000);
                   return;
                 }
-                let token = loginresjson.token;
-                // console.log("Token = " + token);
-                let decoded = jwtDecode(token);
-                console.log(decoded);
-                localStorage.setItem("token", token);
-                
-                setTimeout(() => {
-                  localStorage.removeItem("token");
-                }, 3600000); // 1 hour in milliseconds
-                toast.success("Login Successfull");
-
-                // set is login === true
-                setIsLoggedIn(true);
-
-                setTimeout(() => {
-                  navigate("/concierge");
-                }, 2000);
-                setLoading(false);
-                return;
-              } catch (err) {
+              } catch (error) {
+                console.error(error.message);
                 toast.error("Something went wrong");
                 setLoading(false);
-                console.log("Error: " + err);
-                setTimeout(() => {
-                  navigate("/");
-                }, 2000);
+                return;
               }
             }
             setAskforname(true); // user doesnot exist
@@ -397,72 +427,173 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
 
   const HandlePasswordLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    if (isNaN(phone)) {
-      toast.error("Invalid Phone number");
-      setLoading(false);
-      return;
-    }
-    if (phone.length !== 10) {
-      toast.error("Inavlid Phone number");
-      setLoading(false);
-      return;
-    }
-    if (password === "") {
-      toast.error("Password is required");
-      setLoading(false);
-      return;
-    }
     try {
-      let loginres = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/loginwithpassword?phone=${phone}&password=${password}`,
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/loginwithpassword`,
         {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            phone: phone,
+            password: password,
+          }),
         }
       );
-      if (loginres.status === 500) {
-        toast.error("Something went wrong");
-        console.log("Something went wrong");
-        setLoading(false);
-        return;
-      }
-      let loginresjson = await loginres.json();
-      if (loginresjson.success === false) {
-        toast.error("Invalid Credentials");
-        setLoading(false);
-        return;
-      }
-      let token = loginresjson.token;
-      // console.log("Token = " + token);
-      let decoded = jwtDecode(token);
-      console.log(decoded);
-      localStorage.setItem("token", token);
+      const loginresjson = await response.json();
+      if (loginresjson.success === true) {
+        // First store the token
+        localStorage.setItem("token", loginresjson.token);
+        const decoded = jwtDecode(loginresjson.token);
+        
+        // Set login state first
+        setIsLoggedIn(true);
+        toast.success("Login Successful");
 
-      setTimeout(() => {
-        localStorage.removeItem("token");
-      }, 3600000); // 1 hour in milliseconds
-      toast.success("Login Successfull");
-      setLoading(false);
-      // set is login === true
-      setIsLoggedIn(true);
-      setTimeout(() => {
-        navigate("/concierge");
-      }, 2000);
-      
-      return;
-    } catch (err) {
+        // Then handle property submission
+        const tempPropertyData = localStorage.getItem('tempPropertyData');
+        if (tempPropertyData) {
+          const { data, expiry } = JSON.parse(tempPropertyData);
+          
+          if (Date.now() < expiry) {
+            // Wait a bit to ensure token is properly set
+            setTimeout(async () => {
+              try {
+                const propertyResponse = await fetch(
+                  `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${decoded.userId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "auth-token": loginresjson.token,
+                    },
+                    body: JSON.stringify(data)
+                  }
+                );
+
+                if (propertyResponse.ok) {
+                  toast.success("Property details saved successfully!");
+                } else {
+                  toast.error("Failed to save property details");
+                }
+              } catch (error) {
+                console.error("Error saving property:", error);
+                toast.error("Failed to save property details");
+              }
+              
+              // Clear the temporary data
+              localStorage.removeItem('tempPropertyData');
+              
+              // Navigate after property submission attempt
+              navigate("/concierge");
+            }, 1000); // Add a 1-second delay
+          } else {
+            // If data expired, just navigate
+            navigate("/concierge");
+          }
+        } else {
+          // If no property data, just navigate
+          navigate("/concierge");
+        }
+        return;
+      } else {
+        toast.error(loginresjson.error);
+        return;
+      }
+    } catch (error) {
+      console.error(error.message);
       toast.error("Something went wrong");
-
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-      setLoading(false);
+      return;
     }
-    setLoading(false);
   };
+
+  const saveFormDataToBackend = async (userId) => {
+    const savedFormData = localStorage.getItem('formData');
+    if (savedFormData) {
+      const { data, expiry } = JSON.parse(savedFormData);
+      
+      // Check if data hasn't expired
+      if (Date.now() < expiry) {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${userId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": localStorage.getItem("token"),
+              },
+              body: JSON.stringify({
+                ...data,
+                addedBy: userId
+              }),
+            }
+          );
+
+          if (response.ok) {
+            toast.success("Property details saved successfully!");
+          }
+        } catch (error) {
+          console.error("Error saving property:", error);
+          toast.error("Failed to save property details");
+        }
+      }
+      
+      // Clear the saved form data
+      localStorage.removeItem('formData');
+    }
+  };
+
+  // Add this to your successful login handlers
+  const handleSuccessfulLogin = async (loginResponse) => {
+    const token = loginResponse.token;
+    const decoded = jwtDecode(token);
+    const userId = decoded.userId;
+    
+    // Check for saved property data
+    const tempPropertyData = localStorage.getItem('tempPropertyData');
+    if (tempPropertyData) {
+      const { data, expiry } = JSON.parse(tempPropertyData);
+      
+      // Check if data hasn't expired
+      if (Date.now() < expiry) {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "auth-token": token,
+              },
+              body: JSON.stringify(data)
+            }
+          );
+
+          if (response.ok) {
+            toast.success("Property details saved successfully!");
+          } else {
+            toast.error("Failed to save property details");
+          }
+        } catch (error) {
+          console.error("Error saving property:", error);
+          toast.error("Failed to save property details");
+        }
+      }
+      
+      // Clear the temporary data
+      localStorage.removeItem('tempPropertyData');
+    }
+
+    setIsLoggedIn(true);
+    setTimeout(() => {
+      navigate("/concierge");
+    }, 2000);
+  };
+
+  
+
   return (
     <section className="absolute h-screen w-screen">
       <div className="relative w-full h-full">

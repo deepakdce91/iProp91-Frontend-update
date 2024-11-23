@@ -94,7 +94,7 @@ const Knowledge = () => {
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
         {links.map((link, index) => (
           <Link to={link.to} key={index} className="group">
-            <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1   rounded-lg border-b-[5px] border-r-gray-700 border-r-[5px] border-b-gray-700 ">
+            <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1   rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold ">
               <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-black/80 transition-all duration-300 group-hover:scale-[10]"></span>
               <div className="relative z-10 mx-auto max-w-md ">
                 <span className="grid h-20 w-20 place-items-center rounded-full bg-black transition-all duration-300 ">

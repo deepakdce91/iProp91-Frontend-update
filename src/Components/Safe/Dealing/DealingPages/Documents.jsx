@@ -6,7 +6,7 @@ import Table from "../../../CompoCards/Tables/Table"
 
 // Mock data structure
 const Data = {
-  "Pre-RERA Approval": {
+  "RERA ": {
     hasSecondLayer: true,
     content: [
       { name: "Layout Plan", category: "layoutPlan" },

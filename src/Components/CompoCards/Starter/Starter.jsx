@@ -56,7 +56,7 @@ const BackgroundTextOverlay = () => {
         <div
           className="fixed inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url("./images/nribg.png")`,
+            // backgroundImage: `url("./images/nribg.png")`,
             zIndex: -1,
             left: isLargeScreen && hasToken ? "175px" : "0",
             width: isLargeScreen && hasToken ? "calc(100% - 175px)" : "100%",

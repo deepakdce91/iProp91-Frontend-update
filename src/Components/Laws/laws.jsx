@@ -3,10 +3,33 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import StateLaw from "./components/StateLaw";
 import CentralLaw from "./components/CentralLaw";
+import Breadcrumb from "../Landing/Breadcrumb";
 
 const Law = () => {
   const [view, setView] = useState("main");
   const [lawData, setLawData] = useState([]);
+
+  const handleBack = () => {
+    setView("main");
+    setLawData([]);
+  };
+
+  const breadcrumbItems = view === "main" 
+    ? [
+        { label: "Knowledge Center", link: "/" },
+        { label: "Laws" }
+      ]
+    : view === "state"
+    ? [
+        { label: "Knowledge Center", link: "/" },
+        { label: "Laws", link: "#", onClick: handleBack },
+        { label: "State Laws" }
+      ]
+    : [
+        { label: "Knowledge Center", link: "/" },
+        { label: "Laws", link: "#", onClick: handleBack },
+        { label: "Central Laws" }
+      ];
 
   // Function to fetch data for central laws
   const fetchCentralLaws = async () => {
@@ -55,51 +78,47 @@ const Law = () => {
     }
   };
 
-  //fucntion for back btn
-  const handleBack = () => {
-    setView("main");
-    setLawData([]);
-  };
-
   return (
-    <div className="w-full min-h-screen justify-center items-center flex bg-black p-4">
-      {view === "main" && (
-        <div className="flex  h-full flex-col lg:flex-row gap-6 items-center justify-center ">
-          <div
-            className="flex flex-col gap-3 items-center justify-center    transition-all py-5  rounded-full"
-            
-          >
-            <img
-            onClick={fetchStateLaws}
-              className="w-[40%] cursor-pointer "
-              src="/images/statelaw.png"
-              alt="statelaw"
-            />
-            <button onClick={fetchStateLaws} className="relative flex py-2 w-2/4 items-center justify-center overflow-hidden rounded-full bg-white border-[2px] border-white text-black shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-black before:duration-500 before:ease-out hover:shadow-black hover:text-white hover:before:h-56 hover:before:w-56 ">
-              <span className="relative z-10 capitalize">State Laws</span>
-            </button>
-          </div>
+    <div className="w-full min-h-screen bg-white p-4">
+      <div className="container mx-auto">
+        <Breadcrumb items={breadcrumbItems} properties={" "} />
+        
+        <main className="mt-10 ">
+          {view === "main" && (
+            <div className="flex h-screen flex-col lg:flex-row gap-6 items-center justify-center">
+              <div className="flex flex-col gap-3 items-center justify-center transition-all py-5 rounded-full">
+                <img
+                  onClick={fetchStateLaws}
+                  className="w-[40%] cursor-pointer hover:opacity-90 transition-opacity"
+                  src="/images/statelaw.png"
+                  alt="State Laws"
+                />
+                <button 
+                  onClick={fetchStateLaws} 
+                  className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-black text-white py-2"
+                >
+                  <span className="relative z-10 capitalize">State Laws</span>
+                </button>
+              </div>
 
-          <div
-            className="flex flex-col gap-3 items-center justify-center    transition-all py-5  rounded-full"
-            
-          >
-            <img
-            onClick={fetchCentralLaws}
-              className="lg:w-[40%] w-[30%] cursor-pointer "
-              src="/images/centrallaw.png"
-              alt="statelaw"
-            />
-            <button onClick={fetchCentralLaws} className="relative flex py-2 w-2/4 items-center justify-center overflow-hidden rounded-full bg-white border-[2px] border-white text-black shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-black before:duration-500 before:ease-out hover:shadow-black hover:text-white hover:before:h-56 hover:before:w-56 ">
-              <span className="relative z-10 capitalize">Central Laws</span>
-            </button>
-          </div>
-        </div>
-      )}
+              <div className="flex flex-col gap-3 items-center justify-center transition-all py-5 rounded-full">
+                <img
+                  onClick={fetchCentralLaws}
+                  className="lg:w-[40%] w-[30%] cursor-pointer hover:opacity-90 transition-opacity"
+                  src="/images/centrallaw.png"
+                  alt="Central Laws"
+                />
+                <button onClick={fetchCentralLaws} className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-black text-white py-2 ">
+                  <span className="relative z-10 capitalize">Central Laws</span>
+                </button>
+              </div>
+            </div>
+          )}
 
-      {view === "state" && <StateLaw onBack={handleBack} data={lawData} />}
-
-      {view === "central" && <CentralLaw onBack={handleBack} data={lawData} />}
+          {view === "state" && <StateLaw onBack={handleBack} data={lawData} />}
+          {view === "central" && <CentralLaw onBack={handleBack} data={lawData} />}
+        </main>
+      </div>
     </div>
   );
 };

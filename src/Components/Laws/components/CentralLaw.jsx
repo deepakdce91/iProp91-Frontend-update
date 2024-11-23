@@ -21,14 +21,8 @@ const CentralLaw = ({ onBack, data }) => {
   };
 
   return (
-    <div className="flex flex-col text-white relative gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
-      <div
-        className="flex absolute md:top-14 top-16 md:left-28 left-8 gap-1 cursor-pointer group"
-        onClick={onBack}
-      >
-        <ArrowLeftIcon className="w-4 group-hover:-translate-x-1 transition-all" />
-        <p className="text-sm">Back</p>
-      </div>
+    <div className="flex flex-col text-black relative gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
+      
       <div className="w-full">
         {data.map((item, index) => {
           const { text, href } = parseContent(item.content); // Parse content
@@ -40,7 +34,7 @@ const CentralLaw = ({ onBack, data }) => {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out ${
-                openIndex === index ? "bg-white/20" : "border-[1px] border-white/20"
+                openIndex === index ? "bg-white/20 border-[1px] border-black" : "border-[1px] border-black"
               } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl md:max-w-screen-lg max-w-xs lg:min-w-[800px]`}
             >
               <div
@@ -55,7 +49,7 @@ const CentralLaw = ({ onBack, data }) => {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white underline"
+                      className="text-black underline"
                     >
                       {item.title}
                     </a>
@@ -64,7 +58,7 @@ const CentralLaw = ({ onBack, data }) => {
                   )}
                 </h3>
                 {!isSameAsTitle && (
-                  <div className="text-xl">
+                  <div className="text-xl text-black">
                     {openIndex === index ? <FiMinus /> : <FiPlus />}
                   </div>
                 )}

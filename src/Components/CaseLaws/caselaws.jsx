@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { FiFileText } from 'react-icons/fi';
+import Breadcrumb from '../Landing/Breadcrumb';
 
 export default function CaseLaws() {
   const [openIndex, setOpenIndex] = useState(null);
@@ -51,16 +52,14 @@ export default function CaseLaws() {
     return null;
   };
 
+  const breadcrumbItems = [
+    { label: "Knowledge Center", link: "/" },
+    { label: "Case Laws" }
+  ];
+
   return (
     <div className="flex flex-col gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10 bg-black min-h-screen text-white">
-      <a
-         href={"/"}
-        className="absolute flex gap-2 justify-center items-center group top-24 lg:left-40 left-[5%] text-gold hover:underline"
-      >
-        <ArrowLeftIcon className="text-gold w-4 group-hover:-translate-x-1 transition-all" />
-        <p>Back</p>
-      </a>
-
+      <Breadcrumb items={breadcrumbItems} />
       <div className="w-full md:pl-8 md:mt-0">
         {data && data.map((faq, index) => {
           const pdfLink = extractPdfLink(faq.content);

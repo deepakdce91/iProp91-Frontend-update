@@ -30,10 +30,10 @@ const BrandMarquee = () => {
   }, []);
 
   return (
-    <div className="relative bg-black border-y-[1px] border-y-white/20  flex flex-col w-full items-center justify-center h-[60vh] px-5 md:px-16 pb-24 overflow-hidden">
+    <div className="relative bg-white border-y-[1px] border-y-white/20  flex flex-col w-full items-center justify-center h-[60vh] px-5 md:px-16  overflow-hidden">
       <p className="text-center text-xl lg:text-3xl lg:max-w-5xl font-semibold text-gold "> Trusted by
       </p>
-      <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10 "> Verified owners from
+      <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-black mb-10 "> Verified owners from
       </p>
       {/* First Row - Left to Right */}
       <div className="relative flex max-w-[100vw] overflow-hidden py-5 ">

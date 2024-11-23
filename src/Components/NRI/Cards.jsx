@@ -50,6 +50,15 @@ const carouselData = [
 export default function Cards() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
+  // Add auto-animation effect
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
   };
@@ -74,13 +83,13 @@ export default function Cards() {
         <div className="flex flex-col md:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}
           <div className="w-full md:w-1/3 mb-8 md:mb-0 lg:ml-20 space-y-2 md:space-y-4 mt-28 text-center md:text-start md:mt-0">
-            <p className="text-4xl md:text-6xl text-white font-semibold ">
+            <p className="text-4xl md:text-6xl text-black font-semibold ">
               NRI
             </p>
-            <p className="text-2xl md:text-3xl text-white font-semibold">
+            <p className="text-2xl md:text-3xl text-black font-semibold">
               We connect to the world NRI
             </p>
-            <p className=" md:text-2xl text-white">
+            <p className=" md:text-2xl text-black">
               iProp91 endeavors to provide customized services to NRIs in the
               following categories, to ensure hassle-free ownership
             </p>

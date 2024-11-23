@@ -45,14 +45,8 @@ const StateLaw = ({ onBack ,data }) => {
   };
 
   return (
-    <div className="flex flex-col w-full px-2 md:px-10 mt-28 lg:px-24 min-h-screen ">
-      <button 
-        className=" mb-4 flex items-center text-white  transition-colors"
-        onClick={onBack}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
-      </button>
+    <div className="flex flex-col w-full px-2 md:px-10 mt-36 lg:px-24 min-h-screen ">
+      
 
       <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg rounded-2xl py-3 md:px-10 px-3  ">
         {mockData.map((law) => (
@@ -81,7 +75,7 @@ const StateLaw = ({ onBack ,data }) => {
       <div
         key={index}
         className={`mb-4 transition-all duration-300 ease-in-out  ${
-          openIndex === index ? ' bg-gray-200 text-black' : 'border-[1px] bg-white/20 text-white border-black'
+          openIndex === index ? ' bg-black text-white' : 'border-[1px] bg-white text-black border-black'
         } p-4 rounded-3xl hover:scale-105 transition-all`}
       >
         <div
@@ -98,7 +92,7 @@ const StateLaw = ({ onBack ,data }) => {
             openIndex === index ? 'max-h-screen mt-4' : 'max-h-0'
           }`}
         >
-          <hr className="border-t-[2px] border-black mb-4" />
+          <hr className="border-t-[2px] border-white mb-4" />
           <p className='mt-7'>{faqData.answer}</p>
         </div>
       </div>
