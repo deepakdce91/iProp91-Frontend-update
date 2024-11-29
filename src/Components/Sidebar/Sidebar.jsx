@@ -117,7 +117,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="sticky top-0  bottom-0 bg-black border-r-[1px] border-r-white/20">
+      <div className="sticky top-0  bottom-0  border-r-[1px] border-r-white/20">
         <div className="hidden lg:!flex h-screen flex-col z-50 w-44 justify-start shadow-xl gap-4 overflow-y-scroll p-2 no-scrollbar">
           <img
             alt=""
@@ -172,7 +172,7 @@ const Sidebar = () => {
                     location.pathname.includes(Linklist[key].link)
                       ? "border-simple "
                       : ""
-                  } hover:!border-simple`}
+                  } hover:!border-simple bg-black`}
                   onClick={() => addActive(Linklist[key].link)}
                 >
                   <img

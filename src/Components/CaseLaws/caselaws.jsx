@@ -58,9 +58,9 @@ export default function CaseLaws() {
   ];
 
   return (
-    <div className="flex flex-col gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10 bg-black min-h-screen text-white">
+    <div className="flex flex-col gap-10 md:flex-row items-center  justify-center px-6 lg:px-32  bg-white min-h-screen text-black">
       <Breadcrumb items={breadcrumbItems} />
-      <div className="w-full md:pl-8 md:mt-0">
+      <div className="w-full mt-40 md:mt-10">
         {data && data.map((faq, index) => {
           const pdfLink = extractPdfLink(faq.content);
 
@@ -68,7 +68,7 @@ export default function CaseLaws() {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out ${
-                openIndex === index ? 'border-[1px] border-white/20 bg-[#191919]' : 'border-[1px] border-white/20'
+                openIndex === index ? 'border-[1px] border-black/20 bg-gray-200' : 'border-[1px] border-black/20'
               } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl`}
             >
               <div
@@ -85,7 +85,7 @@ export default function CaseLaws() {
                   openIndex === index ? 'max-h-screen mt-4' : 'max-h-0'
                 }`}
               >
-                <hr className="border-t-[2px] border-white/80 mb-4" />
+                <hr className="border-t-[2px] border-black/40 mb-4" />
                 {pdfLink ? (
                   <a
                     href={pdfLink.url}

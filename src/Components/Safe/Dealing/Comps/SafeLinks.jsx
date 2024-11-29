@@ -66,7 +66,7 @@ export default function Links() {
           </button>
 
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 " >
+            <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white border text-black border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 " >
               <div className="py-1">
                 {ConciergeLink.map((link, index) => (
                   <Link
@@ -106,11 +106,11 @@ export default function Links() {
         {ConciergeLink.map((item, index) => (
           <Link
             to={"/safe/Dealing/"+propid+item.link}
-            className={`justify-center whitespace-nowrap rounded-lg px-4 border-2 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+            className={`justify-center whitespace-nowrap rounded-lg px-4 border-2 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-black  ${
               // if location.pathname include  item.link then add border-simple else add border-transparent
               location.pathname === "/safe/Dealing/"+propid+item.link
-                ? "border-simple"
-                : "border-white/20 hover:border-gold"
+                ? "border-simple shadow-md shadow-gold"
+                : "border-black/20 hover:border-gold hover:shadow-sm shadow-gold"
             }`}
             key={index}
           >

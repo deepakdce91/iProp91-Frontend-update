@@ -454,7 +454,7 @@ function Addpropform() {
   return (
     <>
       <div className="flex justify-center my-6 max-w-[1400px] m-auto p-4">
-        <div className="bg-gray-50 rounded-3xl p-4 md:p-10 w-full ">
+        <div className="bg-gray-100 shadow-lg rounded-3xl p-4 md:p-10 w-full ">
           <form>
             {/* State */}
             <div className="flex flex-col w-full">
@@ -749,7 +749,7 @@ function Addpropform() {
                 {/* Upload Button */}
                 <div className="w-96  my-2 xl:m-2 ">
                   <Goldbutton
-                  bgcolor={"bg-white/90"}
+                  properties={"bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"}
                     btnname={"Upload"}
                     onclick={handleFileUpload}
                   ></Goldbutton>
@@ -779,7 +779,7 @@ function Addpropform() {
               {/* Submit Button */}
               <div className="my-2 w-48 xl:m-2">
                 <Goldbutton
-                bgcolor={"bg-white/90"}
+                properties={"bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"}
                 isDisabled = {isUploading}
                   btnname={"Submit"}
                   onclick={handleSubmit}

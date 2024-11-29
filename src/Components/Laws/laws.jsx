@@ -95,7 +95,7 @@ const Law = () => {
                 />
                 <button 
                   onClick={fetchStateLaws} 
-                  className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-black text-white py-2"
+                  className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-gray-100 text-black hover:scale-105 transition-all py-2"
                 >
                   <span className="relative z-10 capitalize">State Laws</span>
                 </button>
@@ -108,7 +108,7 @@ const Law = () => {
                   src="/images/centrallaw.png"
                   alt="Central Laws"
                 />
-                <button onClick={fetchCentralLaws} className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-black text-white py-2 ">
+                <button onClick={fetchCentralLaws} className="w-[60%] rounded-full border-b-[4px] border-b-gold hover:shadow-lg hover:shadow-gold bg-gray-100 text-black hover:scale-105 transition-all py-2 ">
                   <span className="relative z-10 capitalize">Central Laws</span>
                 </button>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Button from '../../CompoCards/GoldButton/Goldbutton';
+import GoldButton from '../../CompoCards/GoldButton/Goldbutton';
 
 const ExpertContact = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -77,8 +77,8 @@ const ExpertContact = () => {
               {scrolled ? 'Expert' : 'Expert'}
             </p>
             <div className="flex my-4 gap-4 w-full flex-col lg:flex-row min-w-64">
-              <Button btnname={"Drop Your Number"} bgcolor={"bg-black rounded-full  hover:shadow-gold"} />
-              <Button btnname={"Call with an expert"} bgcolor={"bg-black rounded-full  hover:shadow-gold"} />
+              <GoldButton btnname={"Drop Your Number"} properties={"bg-black rounded-full  hover:shadow-gold"} />
+              <GoldButton btnname={"Call with an expert"} properties={"bg-black rounded-full  hover:shadow-gold"} />
             </div>
           </div>
           {/* <img

@@ -258,10 +258,11 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
     <>
       {loading ? (
         <div className="h-screen w-full backdrop-blur-sm absolute flex justify-center items-center">
-          <Spinner color="amber" className="h-16 w-16" />
+          <Spinner color="amber" className="h-12 w-16" />
         </div>
       ) : null}
       <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
+      
         <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
         <DialogHeader className="relative m-0 block">
           <Typography variant="h4" color="blue-gray">
@@ -307,7 +308,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
           </div>
         </DialogBody>
         <DialogFooter>
-          <Goldbutton btnname={"Sign Up"} bgcolor={""} onclick={handleOpen} />
+          <Goldbutton btnname={"Sign Up"} properties={""} onclick={handleOpen} />
         </DialogFooter>
       </Dialog>
       <div className="min-h-screen flex items-center justify-center ">
@@ -342,7 +343,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
             <div className="w-72 max-lg:m-auto">
               <Goldbutton
                 btnname={"Verify OTP"}
-                bgcolor={"bg-white/20 ml-2"}
+                properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
                 onclick={HandleVerifyOTP}
               />
             </div>
@@ -641,7 +642,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 <div className="w-72  mt-1">
                   <Goldbutton
                     btnname={"Send OTP"}
-                    bgcolor={" bg-white/20 ml-2"}
+                    properties={" bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"}
                     onclick={HandleOTPLogin}
                   />
                 </div>
@@ -696,7 +697,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 <div className="w-72 mt-1">
                   <Goldbutton
                     btnname={"Submit"}
-                    bgcolor={"bg-white/20 ml-2"}
+                    properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
                     onclick={HandlePasswordLogin}
                   />
                 </div>

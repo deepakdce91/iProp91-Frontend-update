@@ -72,7 +72,7 @@ export default function Advice() {
           <DraftAgreementsList/>
           {/* <Que /> */}
           <Call />
-          <ContactUs />
+          {/* <ContactUs /> */}
           <Footer/>
         </div>
     </section>

@@ -3,7 +3,7 @@ import Header from "./Comps/NameHeader"
 export default function AddProperty() {
     return (
         <>
-            <div className="w-full bg-black">
+            <div className="w-full bg-white/90">
                 <Header/>
                 <Addpropform />
             </div>
