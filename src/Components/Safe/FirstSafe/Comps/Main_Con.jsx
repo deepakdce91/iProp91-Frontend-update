@@ -194,12 +194,11 @@ export default function MyProperties() {
   const [prop, setProp] = useState([]);
   const [SLIDES, setSlides] = useState([]);
   useEffect(() => {
-    // fetch properties from the server
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
 
     const fetchProperties = async () => {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallproperties?userId=${decoded.userId}`,{
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,{
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -208,18 +207,17 @@ export default function MyProperties() {
       });
       if(response.ok){
         const properties = await response.json();
-        setProp(properties);
-        properties.map((property) => {
-          // conver to object and then push
+        const approvedProperties = properties.filter(property => property.applicationStatus === "approved");
+        setProp(approvedProperties);
         
+        setSlides([]);
+        approvedProperties.forEach((property) => {
           setSlides((prev) => [...prev,
             <Link to={"/safe/Dealing/"+property._id}>
               <PropCard2 key={property._id} props={property}/>
             </Link>
           ]);
         });
-        console.log("SLIDES=", SLIDES);
-        console.log(properties);
         return;
       }
       toast.error("Error fetching properties");

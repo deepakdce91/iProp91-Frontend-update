@@ -3,11 +3,11 @@ import Profile from "../../../User/Profile/profile";
 export default function NameHeader() {
   return (
     <>
-      <div className="hidden lg:!block border-b-[1px] pb-3 border-b-white/20">
+      <div className="hidden lg:!block ">
         <div className="lg:pt-5 mb-3 px-7 pt-3">
           <div className="flex justify-between">
             <div className="mb-auto">
-              <p className="text-xl font-semibold mb-2 text-white">
+              <p className="text-xl font-semibold mb-2 text-black">
                 iProp <span className="text-primary">Safe</span>
               </p>
               <hr className="bg-primary w-12 h-1 rounded-sm" />

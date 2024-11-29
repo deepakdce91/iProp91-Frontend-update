@@ -79,10 +79,10 @@ const Data = {
 }
 
 export default function DocumentManager({ PropName = "Sample Property" }) {
-  const [activeSection, setActiveSection] = useState(null)
-  const [activeDocument, setActiveDocument] = useState(null)
+  const [activeSection, setActiveSection] = useState(Object.keys(Data)[0])
+  const [activeDocument, setActiveDocument] = useState(Data[Object.keys(Data)[0]].content[0])
   const [isMobile, setIsMobile] = useState(false)
-  const [showFirstLayer, setShowFirstLayer] = useState(true)
+  const [showFirstLayer, setShowFirstLayer] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -117,56 +117,57 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
   }
 
   return (
-    <div className="flex flex-col h-screen text-white">
+    <div className="flex flex-col  text-black ">
       <h1 className="text-2xl font-bold p-4   flex justify-between items-center">
         {PropName}
         {isMobile && (activeSection || activeDocument) && (
-          <button onClick={handleBack} className="text-white/20">
+          <button onClick={handleBack} className="text-black/20">
             <ChevronLeft size={24} />
           </button>
         )}
         {isMobile && !showFirstLayer && (
-          <button onClick={() => setShowFirstLayer(true)} className="text-white/20">
+          <button onClick={() => setShowFirstLayer(true)} className="text-black/20">
             <Menu size={24} />
           </button>
         )}
       </h1>
 
-      <div className="flex flex-grow overflow-hidden">
+      <div className="flex flex-grow overflow-hidden  ">
         {/* First Layer */}
         <div
-          className={`w-full md:w-1/3 lg:w-1/4 bg-white/20 border-r-[1px] border-r-black p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${
+          className={`w-full md:w-1/3 lg:w-[15%] bg-[#fdfbfb] border-r-[1px] border-r-black px-1 overflow-y-auto transition-transform duration-300 ease-in-out ${
             isMobile && !showFirstLayer ? '-translate-x-full z-0' : 'translate-x-0 z-0'
           } 
           ${isMobile ? 'absolute h-full z-0' : 'z-0 '}
           `}
         >
-          <h2 className="font-bold mb-4">Documents</h2>
           {Object.keys(Data).map((section) => (
             <div
               key={section}
-              className={`flex items-center py-2 px-4 mb-2 cursor-pointer rounded-xl ${
-                activeSection === section ? "bg-black text-white border-[1px] border-gold z-0 " : " hover:border-[2px] hover:border-gold z-0 transition-all"
+              className={`flex items-center justify-between p-4 font-semibold rounded-xl  cursor-pointer  ${
+                activeSection === section ? "border-b-[4px] bg-[#f3f3f3] border-b-gold shadow-md shadow-gold text-xl text-black z-0 " : " hover:bg-gray-100 transition-all text-lg"
               }`}
               onClick={() => handleSectionClick(section)}
             >
               {section}
-              <ChevronRight className="ml-auto" size={16} />
+              <div className="p-1 rounded-full bg-gold ">
+              <ChevronRight className="ml-auto text-white font-extrabold scale-110" size={16} />
+              </div>
             </div>
           ))}
         </div>
 
         {/* Second Layer */}
         {(!isMobile || (isMobile && !showFirstLayer)) && activeSection && Data[activeSection].hasSecondLayer && (
-          <div className="w-full md:w-1/3 lg:w-1/4 bg-white/20 border-r-[1px] border-r-black p-4 overflow-y-auto">
-            <div className="mt-10">
+          <div className="w-full md:w-1/3 lg:w-1/5 bg-[#fdfbfb]   overflow-y-auto">
+            <div className="">
               {Data[activeSection].content.map((doc) => (
                 <div
                   key={doc.name}
-                  className={`py-2 px-4 mb-2  cursor-pointer rounded-xl ${
+                  className={`p-4  cursor-pointer  ${
                     activeDocument?.name === doc.name
-                      ? "bg-black text-white border-[1px] border-gold "
-                      : "hover:border-[2px] hover:border-gold  transition-all"
+                      ? "border-b-[4px] border-b-gold bg-[#f3f3f3]  shadow-gold  text-black z-0 "
+                      : "hover:bg-gray-100 transition-all"
                   }`}
                   onClick={() => handleDocumentClick(doc)}
                 >
@@ -179,7 +180,7 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
 
         {/* Third Layer */}
         {(!isMobile || (isMobile && !showFirstLayer)) && activeDocument && (
-          <div className="flex-grow p-4 overflow-y-auto border-t-[1px] border-t-white/20">
+          <div className="flex-grow px-3 overflow-y-auto lg:w-[60%]">
             <Table
               category={activeDocument.category}
               tablename={activeDocument.name}

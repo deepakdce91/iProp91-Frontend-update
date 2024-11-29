@@ -8,6 +8,7 @@ import GoldButton from "../../../CompoCards/GoldButton/Goldbutton";
 
 
 function PropertyForm() {
+  const [isEditing, setIsEditing] = useState(false);
   const [property, setProperty] = useState({});
   const [form, setForm] = useState({
     builder: "",
@@ -85,174 +86,222 @@ function PropertyForm() {
     }
   }
 
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
+  };
 
   return (
     <>
     <div className="px-10 w-full 2xl:w-2/3">
-      <div className="flex flex-col w-full">
-        <div className="flex flex-col xl:flex-row justify-between gap-6 my-2">
-          
-            <div className="bg-gray-100 p-2 rounded-lg !w-full ">
-              <label className="block">{"Developer"}</label>
-              <input
-                type="text"
-                name="builder"
-                className="w-full  bg-gray-100 text-lg  focus:outline-none "
-                value={form.builder}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div className="bg-gray-100 p-2 rounded-lg !w-full ">
-              <label className="block">{"Project Name"}</label>
-              <input
-                type="text"
-                name="project"
-                className="w-full  bg-gray-100 text-lg  focus:outline-none "
-                value={form.project}
-                onChange={handleChange}
+      <div className="flex justify-end mb-4">
+        <button 
+          onClick={toggleEdit}
+          className="px-4 py-2 rounded-md bg-white text-black border-[1px] border-black/50 hover:shadow-md hover:shadow-gold"
+        >
+          {isEditing ? 'Cancel Edit' : 'Edit Details'}
+        </button>
+      </div>
 
-              />
-            </div>
-            
-         
-        </div>
-        <div className="flex flex-col xl:flex-row justify-between gap-6 my-2 ">
-            <div className="bg-gray-100 p-2 rounded-lg !w-full ">
-              <label className="block">{"Tower"}</label>
-              <input
-                type="text"
-                name="tower"
-                className="w-full  bg-gray-100 text-lg  focus:outline-none "
-                value={form.tower}
-                onChange={handleChange}
-
-              />
-            </div>
-
-            <div className="bg-gray-100 p-2 rounded-lg !w-full ">
-              <label className="block">{"Unit"}</label>
-              <input
-                type="text"
-                name="unit"
-                className="w-full  bg-gray-100 text-lg  focus:outline-none "
-                value={form.unit}
-                onChange={handleChange}
-
-              />
-            </div>
-  
-        </div>
-        <div className="my-2">
-        <div className="bg-gray-100 p-2 rounded-lg !w-full ">
-              <label className="block">{"Area"}</label>
-              <input
-                type="text"
-                name="size"
-                className="w-full  bg-gray-100 text-lg  focus:outline-none "
-                value={form.size}
-                onChange={handleChange}
-
-              />
-            </div>
-       
-        </div>
-        <div className="my-2 w-full">
-          <label className="block mb-2 text-white">Nature of Property</label>
-          <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div className="flex items-center ps-3">
-                <input
-                  id="nature-residential"
-                  type="radio"
-                  value="Residential"
-                  name="nature"
-                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
-                  checked={form.nature === "Residential"}
-                  onChange={handleChange}
+      <div className="overflow-x-auto">
+        <table table className="w-full text-left ">
+          <tbody className="">
+            {/* Developer Row */}
+            <tr>
+              <td className="font-medium">Developer:</td>
+              <td>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="builder"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.builder}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input
+                  type="text"
+                  name="builder"
+                  className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                  value={form.builder}
+                  disabled={true}
                 />
-                <label
-                   htmlFor="nature-residential"
-                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
-                >
-                  Residential{" "}
-                </label>
-              </div>
-            </li>
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div className="flex items-center ps-3">
-                <input
-                  id="nature-commercial"
-                  type="radio"
-                  value="Commercial"
-                  name="nature"
-                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300     focus:ring-2  "
-                  checked={form.nature === "Commercial"}
-                  onChange={handleChange}
-                />
-                <label
-                   htmlFor="nature-commercial"
-                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
-                >
-                  Commercial
-                </label>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div className="my-2 w-full">
-          <div className=" w-full">
-            <label className="block w-full  mb-2 text-white">Status</label>
-            <ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex   ">
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div className="flex items-center ps-3">
-                <input
-                  id="status-completed"
-                  type="radio"
-                  value="Completed"
-                  name="status"
-                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 "
-                  checked={form.status === "Completed"}
-                  onChange={handleChange}
-                />
-                <label
-                   htmlFor="status-completed"
-                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
-                >
-                  Completed{" "}
-                </label>
-              </div>
-            </li>
-            <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r ">
-              <div className="flex items-center ps-3">
-                <input
-                  id="status-under-construction"
-                  type="radio"
-                  value="Under Construction"
-                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300  "
-                  name="status"
-                  checked={form.status === "Under Construction"}
-                  onChange={handleChange}
-                />
-                <label
-                   htmlFor="status-under-construction"
-                  className="w-full py-3 ms-2 text-sm font-medium text-gray-900 "
-                >
-                  Under Construction
-                </label>
-              </div>
-            </li>
-          </ul>
+                )}
+              </td>
+            </tr>
+
+            {/* Project Name Row */}
+            <tr>
+              <td className="font-medium">Project Name:</td>
+              <td>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="project"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.project}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name="project"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.project}
+                    disabled={true}
+                  />
+                )}
+              </td>
+            </tr>
+
+            {/* Tower Row */}
+            <tr>
+              <td className="font-medium">Tower:</td>
+              <td>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="tower"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.tower}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name="tower"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.tower}
+                    disabled={true}
+                  />
+                )}
+              </td>
+            </tr>
+
+            {/* Unit Row */}
+            <tr>
+              <td className="font-medium">Unit:</td>
+              <td>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="unit"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.unit}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name="unit"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.unit}
+                    disabled={true}
+                  />
+                )}
+              </td>
+            </tr>
+
+            {/* Area Row */}
+            <tr>
+              <td className="font-medium">Area:</td>
+              <td>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="size"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.size}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    name="size"
+                    className="w-full bg-gray-100 p-2 rounded-lg focus:outline-none"
+                    value={form.size}
+                    disabled={true}
+                  />
+                )}
+              </td>
+            </tr>
+
+            {/* Nature Row */}
+            <tr className="">
+              <td className="font-medium">Nature:</td>
+              <td>
+                <div className="flex gap-4 my-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="nature"
+                      value="Residential"
+                      checked={form.nature === "Residential"}
+                      onChange={isEditing ? handleChange : null}
+                      disabled={!isEditing}
+                      className="mr-2"
+                    />
+                    Residential
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="nature"
+                      value="Commercial"
+                      checked={form.nature === "Commercial"}
+                      onChange={isEditing ? handleChange : null}
+                      disabled={!isEditing}
+                      className="mr-2"
+                    />
+                    Commercial
+                  </label>
+                </div>
+              </td>
+            </tr>
+
+            {/* Status Row */}
+            <tr>
+              <td className="font-medium">Status:</td>
+              <td>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="Completed"
+                      checked={form.status === "Completed"}
+                      onChange={isEditing ? handleChange : null}
+                      disabled={!isEditing}
+                      className="mr-2"
+                    />
+                    Completed
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="Under Construction"
+                      checked={form.status === "Under Construction"}
+                      onChange={isEditing ? handleChange : null}
+                      disabled={!isEditing}
+                      className="mr-2"
+                    />
+                    Under Construction
+                  </label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {isEditing && (
+          <div className="flex justify-end mt-6 lg:w-[30%]">
+            <GoldButton
+              btnname="Save Changes"
+              onclick={handleSubmit}
+              properties="rounded-full bg-gray-100 text-black hover:shadow-md hover:shadow-gold"
+            />
           </div>
-        </div>
-
-        <div className="my-4 w-40">
-          <GoldButton
-            btnname="Submit"
-            onclick={handleSubmit}
-            bgcolor="bg-gold"
-          />
-        </div>
+        )}
       </div>
     </div>
     <ToastContainer position="top-right" autoClose={2000} />

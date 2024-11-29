@@ -57,7 +57,7 @@ const Library = () => {
   if (activeBlog) {
     return (
       <section className="pt-28 px-4 md:px-10 lg:px-20 text-white bg-black min-h-screen">
-        <Breadcrumb items={breadcrumbItems} />
+        {/* <Breadcrumb items={breadcrumbItems} /> */}
         <button
           onClick={() => setActiveBlog(null)}
           className="mb-6 text-gold hover:font-semibold hover:underline"
@@ -110,7 +110,7 @@ const Library = () => {
   }
 
   return (
-    <section className="pt-28 lg:pt-32 px-3 md:px-10 lg:px-20 bg-black min-h-screen">
+    <section className="pt-28 lg:pt-32 px-3 md:px-10 lg:px-20 bg-white text-white min-h-screen">
       <Breadcrumb items={breadcrumbItems} />
       <div className="grid gap-8 place-items-center lg:place-items-stretch sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-4 md:mt-6">
         {data.map((item) => (
@@ -137,9 +137,9 @@ const Library = () => {
               </div>
               <button
                 onClick={() => handleReadMore(item)}
-                className="relative flex gap-2 w-[60%] bg-black/80 border-b-gold border-b-[4px] hover:shadow-lg hover:shadow-gold hover:bg-black rounded-full p-2 items-center justify-center shadow-lg font-semibold text-lg group"
+                className="relative flex gap-2 w-[60%] bg-gray-200 border-b-gold border-b-[4px] hover:shadow-lg hover:shadow-gold hover:bg-black rounded-full p-2 items-center justify-center shadow-lg font-semibold text-lg group"
               >
-                <p className="capitalize text-white">Read more</p>
+                <p className="capitalize text-black">Read more</p>
               </button>
             </div>
           </div>

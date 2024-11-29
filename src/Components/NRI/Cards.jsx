@@ -50,15 +50,6 @@ const carouselData = [
 export default function Cards() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
-  // Add auto-animation effect
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
   };

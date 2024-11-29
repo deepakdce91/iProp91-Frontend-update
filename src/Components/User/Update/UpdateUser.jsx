@@ -319,7 +319,7 @@ function EditUser() {
             <div className="w-full lg:w-72">
               <GoldButton 
                 btnname={"Update Profile"}
-                bgcolor={"bg-white/20"}
+                properties={"bg-white/80 text-black rounded-full hover:shadow-gold"}
                 onclick={HandleUpdateProfile}
                />
             </div>
@@ -348,7 +348,7 @@ function EditUser() {
             <div className="w-full lg:w-72 flex my-2">
               <GoldButton 
                 btnname={"Update Password"}
-                bgcolor={"bg-white/20"}
+                properties={"bg-white/80 text-black rounded-full hover:shadow-gold"}
                 onclick={HandleUpdatePassword}
                />
             </div>

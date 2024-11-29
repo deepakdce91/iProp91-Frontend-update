@@ -10,7 +10,7 @@ export default function NRI(){
          <Cards/>
         <Que/>
         <Call/>
-        <ContactUs/>
+        {/* <ContactUs/> */}
         </>
     );
 };
