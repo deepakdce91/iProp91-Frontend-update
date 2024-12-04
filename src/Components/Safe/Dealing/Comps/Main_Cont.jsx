@@ -1,5 +1,5 @@
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Links from "./SafeLinks";
 import Documents from "../DealingPages/Documents"
 import Handbook from "../DealingPages/Handbook"
@@ -50,10 +50,27 @@ export default function Conci() {
   return (
     <>
       <div className="flex flex-col text-white z-50 ">
-        <div className="w-full  pt-2">
+        <div className="w-full flex justify-between items-center border-b-[1px] py-3 pr-5  border-b-black/20">
           <Links />
+          
+          <Link to="/addproperty">
+            <button className="text-black bg-white/90 border-secondary hover:border-simple shadow-2xl flex border-[1.5px] border-white/20 px-5 text-xs py-3 rounded-md gap-2">
+              Add property
+              <img
+                alt="plus"
+                loading="lazy"
+                width="12"
+                height="12"
+                decoding="async"
+                data-nimg="1"
+                className="mt-auto mb-auto"
+                style={{ color: "transparent" }}
+                src="/svgs/plus.aef96496.svg"
+              />
+            </button>
+          </Link>
         </div>
-        <div className="w-full text-black">
+        <div className="w-full text-black pt-3">
           <Routes>
             <Route path="/*" element={<PropDetails />} />
             <Route path="/Documents/*" element={<Documents PropId={PropId} PropName={properyname} />} />

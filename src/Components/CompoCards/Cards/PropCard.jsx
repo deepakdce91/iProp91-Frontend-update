@@ -17,7 +17,8 @@ export default function PropCard ({props}) {
           </div>
           <div className="flex flex-row justify-between mt-4 gap-2">
             <button className=" w-full text-[14px] hover:shadow-lg hover:shadow-gold border-b-[4px] border-b-gold  bg-[#edeaea] text-black font-semibold py-2 px-4 rounded-full">
-              {props.applicationStatus}
+              {/* {props.applicationStatus} */}
+              View Details
             </button>
           </div>
         </div>

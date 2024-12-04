@@ -4,7 +4,7 @@ export default function NameHeader() {
   return (
     <>
       <div className="hidden lg:!block  ">
-        <div className="lg:pt-5 mb-3 px-7 pt-3">
+        <div className="lg:pt-5 px-7 pt-3">
           <div className="flex justify-between">
             <div className="mb-auto">
               <p className="text-xl font-semibold mb-2 text-black">
