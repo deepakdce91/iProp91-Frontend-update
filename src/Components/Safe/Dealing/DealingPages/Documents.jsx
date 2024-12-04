@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from "react"
-import { ChevronRight, ChevronLeft, Menu } from "lucide-react"
+import { ChevronRight, ChevronLeft, Menu, DockIcon, File, FileBadge, FileIcon, Folder } from "lucide-react"
 import Table from "../../../CompoCards/Tables/Table"
+import { GrDocument } from "react-icons/gr"
 
 // Mock data structure
 const Data = {
@@ -78,7 +79,7 @@ const Data = {
   Others: { hasSecondLayer: false, category: "other" },
 }
 
-export default function DocumentManager({ PropName = "Sample Property" }) {
+export default function DocumentManager({ PropName = "Sample Property", onDocumentSelect }) {
   const [activeSection, setActiveSection] = useState(Object.keys(Data)[0])
   const [activeDocument, setActiveDocument] = useState(Data[Object.keys(Data)[0]].content[0])
   const [isMobile, setIsMobile] = useState(false)
@@ -102,6 +103,9 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
 
   const handleDocumentClick = (document) => {
     setActiveDocument(document)
+    if (onDocumentSelect) {
+      onDocumentSelect(`${activeSection} / ${document.name}`)
+    }
     if (isMobile) setShowFirstLayer(false)
   }
 
@@ -119,7 +123,6 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
   return (
     <div className="flex flex-col  text-black ">
       <h1 className="text-2xl font-bold p-4   flex justify-between items-center">
-        {PropName}
         {isMobile && (activeSection || activeDocument) && (
           <button onClick={handleBack} className="text-black/20">
             <ChevronLeft size={24} />
@@ -144,15 +147,13 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
           {Object.keys(Data).map((section) => (
             <div
               key={section}
-              className={`flex items-center justify-between p-4 font-semibold rounded-xl  cursor-pointer  ${
-                activeSection === section ? "border-b-[4px] bg-[#f3f3f3] border-b-gold shadow-md shadow-gold text-xl text-black z-0 " : " hover:bg-gray-100 transition-all text-lg"
+              className={`flex items-center justify-between px-4 py-1.5  rounded-xl  cursor-pointer  ${
+                activeSection === section ? "border-b-[5px] bg-[#f3f3f3] border-b-gold border-[1px] border-gold shadow-gold  text-black z-0 " : " hover:bg-gray-100 transition-all "
               }`}
               onClick={() => handleSectionClick(section)}
             >
               {section}
-              <div className="p-1 rounded-full bg-gold ">
-              <ChevronRight className="ml-auto text-white font-extrabold scale-110" size={16} />
-              </div>
+              <img src="/images/greater-than.png" className="w-7 scale-125" alt="img" />
             </div>
           ))}
         </div>
@@ -164,14 +165,17 @@ export default function DocumentManager({ PropName = "Sample Property" }) {
               {Data[activeSection].content.map((doc) => (
                 <div
                   key={doc.name}
-                  className={`p-4  cursor-pointer  ${
+                  className={`px-4 py-2  cursor-pointer flex  items-center gap-3 text-sm ${
                     activeDocument?.name === doc.name
                       ? "border-b-[4px] border-b-gold bg-[#f3f3f3]  shadow-gold  text-black z-0 "
                       : "hover:bg-gray-100 transition-all"
                   }`}
                   onClick={() => handleDocumentClick(doc)}
                 >
+                  <Folder size={15}/> 
+                  <p>
                   {doc.name}
+                  </p>
                 </div>
               ))}
             </div>

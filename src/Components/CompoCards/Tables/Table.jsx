@@ -13,15 +13,15 @@ const Table = ({ tablename, category, tableopen = false}) => {
   const [tableData, setdata] = useState([]);
   const contentRef = useRef(null);
 
-  const toggleExpand = () => {
-    setMaxHeight(isExpanded ? '0px' : `${contentRef.current.scrollHeight}px`);
-    setIsExpanded(!isExpanded);
-  };
+  // const toggleExpand = () => {
+  //   setMaxHeight(isExpanded ? '0px' : `${contentRef.current.scrollHeight}px`);
+  //   setIsExpanded(!isExpanded);
+  // };
 
-  useEffect(() => {
-    setIsExpanded(tableopen);
-    setMaxHeight(tableopen ? `${contentRef.current.scrollHeight}px` : '0px');
-  }, [tableopen]);
+  // useEffect(() => {
+  //   setIsExpanded(tableopen);
+  //   setMaxHeight(tableopen ? `${contentRef.current.scrollHeight}px` : '0px');
+  // }, [tableopen]);
 
   useEffect(() => {
     // Automatically adjust height when tableData changes
@@ -205,7 +205,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
       <div className={`${!isExpanded ? 'border-2 rounded-xl border-gray-600 ' : ''} w-full   `}>
         <div
           className={`${!isExpanded ? '' : 'bg-white text-black border-[1px] border-black/20 '} p-4 rounded-t-lg flex text-black  justify-between items-center w-full cursor-pointer px-10 py-6`}
-          onClick={toggleExpand}
+          
         >
           <h2 className={`${isExpanded ? 'text-black font-semibold' : ''} text-sm md:text-2xl font-semibold text-center w-full`}>
             {tablename}

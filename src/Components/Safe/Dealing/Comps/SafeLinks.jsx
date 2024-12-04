@@ -100,7 +100,7 @@ export default function Links() {
       </div>
 
       <div
-        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex border-b-[1px] border-b-white/20 pb-5"
+        className="justify-normal lg:!justify-start gap-5 overflow-y-scroll no-scrollbar rounded-md  p-1 text-muted-foreground px-8 hidden lg:!flex border-b-[1px] border-b-white/20 "
         style={{ outline: "none" }}
       >
         {ConciergeLink.map((item, index) => (

@@ -17,7 +17,8 @@ export default function PropCard2({props}) {
           </div>
           <div className="flex flex-row justify-between mt-4 gap-2">
             <button className=" w-full text-[14px] bg-slate-100 py-2 px-4 rounded-lg">
-              {props.applicationStatus}
+              {/* {props.applicationStatus} */}
+              View Details
             </button>
           </div>
         </div>

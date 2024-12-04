@@ -241,7 +241,7 @@ function IncomingMessage({
           </div>
           <p
             className={`text-[12px] font-extralight ${
-              theme.palette.mode === "dark" ? "text-gray-300" : "text-gray-500"
+              theme.palette.mode === "dark" ? "text-white" : "text-white"
             }`}
           >
             {getTime(createdAt)}
@@ -275,7 +275,7 @@ function OutgoingMessage({
       </p>
       <div className="flex justify-end ">
         <div className="flex flex-col items-end">
-          <div className="flex relative items-center max-w-96 bg-gold text-white rounded-lg p-3 gap-3">
+          <div className="flex relative items-center max-w-96 bg-white text-black rounded-lg p-3 gap-3">
             <div className="absolute -left-[68px] flex flex-row-reverse">
              
 
@@ -287,8 +287,8 @@ function OutgoingMessage({
                 <MdDelete
                   className={`rounded-full py-2 hover:text-red-400  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
                     theme.palette.mode === "dark"
-                      ? " text-gray-300 hover:bg-gray-600"
-                      : "text-gray-700 hover:bg-gray-200"
+                      ? " text-white hover:bg-gray-600"
+                      : "text-white hover:bg-gray-200"
                   }`}
                 />
               </button>
@@ -341,12 +341,12 @@ function OutgoingMessage({
                 </a>
               )
             ) : (
-              <p className="text-white text-[16px]">{text}</p>
+              <p className="text-black text-[16px]">{text}</p>
             )}
           </div>
           <p
             className={` text-[12px] font-extralight ${
-              theme.palette.mode === "dark" ? "text-gray-300" : "text-gray-500"
+              theme.palette.mode === "dark" ? "text-black" : "text-black"
             }`}
           >
             {getTime(createdAt)}
@@ -693,8 +693,8 @@ function Chats({
   return (
     <>
       <div
-        className={`flex absolute top-5 right-[20%] md:right-[10%] lg:right-[31%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? 'w-48 border-b-[1px] border-b-white/20 pb-1 ' : 'w-6'
+        className={`flex absolute top-5 right-[25%] md:right-[10%] lg:right-[30%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+          isExpanded ? 'w-48 border-b-[1px] border-b-black/20 pb-1 ' : 'w-6'
         }`}
       >
         <button
@@ -702,7 +702,7 @@ function Chats({
           className="mr-3 focus:outline-none"
           aria-label={isExpanded ? "Collapse search" : "Expand search"}
         >
-          <Search className="w-6 h-6 text-white" />
+          <Search className="w-6 h-6 text-black" />
         </button>
         <input
           ref={inputRef}
@@ -710,7 +710,7 @@ function Chats({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search"
-          className={`w-full outline-none bg-transparent text-white text-sm transition-all duration-300 ${
+          className={`w-full outline-none bg-transparent text-black text-sm transition-all duration-300 ${
             isExpanded ? 'opacity-100' : 'opacity-0'
           }`}
           style={{ pointerEvents: isExpanded ? 'auto' : 'none' }}
@@ -734,7 +734,7 @@ function Chats({
 
                 {isNewDay && (
                   // date wise seperator
-                  <div className="text-center text-white my-2">
+                  <div className="text-center text-black my-2">
                     {format(new Date(msg.createdAt), "yyyy-MM-dd") ===
                     format(new Date(), "yyyy-MM-dd")
                       ? "Today"
@@ -807,7 +807,7 @@ function Chats({
           })}
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
-      <footer className=" border-t-[1px] bg-[#383838] border-t-white/20 p-4 w-full">
+      <footer className=" border-t-[1px] bg-gray-400 border-t-black/20 p-4 w-full">
         {!fileToUpload && (
           <div className="flex items-center">
             <input
@@ -816,7 +816,7 @@ function Chats({
               placeholder="Type a message..."
               value={textMessage}
               onChange={handleTextMessageChange}
-              className={`w-full p-2 rounded-md border bg-white/90 focus:outline-none focus:border-gold text-black placeholder:text-black`}
+              className={`w-full p-2 rounded-md border bg-gray-200 focus:outline-none  text-black placeholder:text-black`}
             />
 
             {/* // button to send files  */}
@@ -830,8 +830,8 @@ function Chats({
               <TbPaperclip
                 className={
                   theme.palette.mode === "dark"
-                    ? "h-6 w-6 text-white hover:scale-110 hover:text-white"
-                    : "h-6 w-6 text-white hover:scale-110 hover:ext-gray-900"
+                    ? "h-6 w-6 text-gray-500 hover:scale-110 hover:text-black"
+                    : "h-6 w-6 text-white hover:scale-110 hover:text-gray-900"
                 }
               />
             </button>
@@ -844,8 +844,8 @@ function Chats({
               <FaSmile
                 className={
                   theme.palette.mode === "dark"
-                    ? "text-white hover:scale-110 hover:text-white"
-                    : "text-white hover:scale-110 hover:ext-gray-900"
+                    ? "text-gray-500 hover:scale-110 hover:text-black"
+                    : "text-white hover:scale-110 hover:text-gray-900"
                 }
                 style={{
                   fontSize: "24px",
@@ -875,7 +875,7 @@ function Chats({
 
             <button
               disabled={textMessage === "" ? true : false}
-              className={`bg-gold hover:bg-gold/50 text-black px-4 py-2 rounded-md ml-2`}
+              className={`bg-white text-black px-4 py-2 rounded-md ml-2`}
               onClick={(e) => {
                 e.preventDefault();
                 addMessage();

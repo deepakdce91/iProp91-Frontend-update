@@ -1,12 +1,15 @@
 import Header from "./Comps/Header";
 import Main_Con from "./Comps/Main_Cont";
-export default function FirstSafe() {
+import { useState } from "react";
+
+export default function Dealing() {
+  const [activeDocument, setActiveDocument] = useState(null);
+
   return (
     <>
-      <div className="w-full border-b-[1px] pb-3 border-b-black/20 ">
-          <Header />
-          <Main_Con />
-        
+      <div className="w-full">
+        <Header activeDocument={activeDocument} />
+        <Main_Con onDocumentSelect={setActiveDocument} />
       </div>
     </>
   );

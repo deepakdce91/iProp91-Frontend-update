@@ -286,7 +286,7 @@ export default function MyProperties() {
         </div>
       ) : (
         <div className="flex flex-col">
-          <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2">
+          <div className="hidden lg:!flex flex-wrap gap-4  mx-2">
             {prop.map((property, index) => (
               <div key={index} onClick={() => handleCardClick(property)}>
                 <PropCard key={property._id} props={property} />
@@ -299,7 +299,10 @@ export default function MyProperties() {
                   src={"/images/propertyicon.png"}
                   alt="img"
                 />
-                <div className="bg-gray-200 p-2 rounded-xl w-full ">Haven&apos;t added property yet!! </div>
+                {prop ? (
+                  <div className="bg-gray-200 p-2 rounded-xl w-full ">Add more Properties </div>
+                 ) : (<div className="bg-gray-200 p-2 rounded-xl w-full ">Haven&apos;t added property yet!! </div>)
+                 }
                 <Link className="w-full" to="/addproperty">
                   <button className="text-black w-full bg-white border-secondary hover:border-simple shadow-2xl flex border-[1.5px]  text-xs py-3 rounded-md  gap-2 items-center justify-center"> 
                     Add property
