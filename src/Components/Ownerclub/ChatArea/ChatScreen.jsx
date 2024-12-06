@@ -151,7 +151,7 @@ function ChatScreen() {
         <div className="flex w-full min-h-screen overflow-hidden relative  ">
           {/* <!-- Sidebar --> */}
           <div
-            className={` bg-white text-black  w-full md:w-[30%] lg:w-[22%] border-r-[1px] border-r-white/20 ${
+            className={` bg-white text-black  w-full md:w-[30%] lg:w-[22%] border-r-[1px] border-r-black/20 ${
               currentGroupData ? "hidden md:block  " : "w-[30%]"
             }`}
           >
@@ -236,7 +236,7 @@ function ChatScreen() {
             className={`w-full lg:w-[50%] ${
               currentGroupData ? "lg:w-[54%] w-full" : "hidden"
             } custom-scrollbar`}
-            style={{ backgroundImage: `url(${currentGroupThumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity:50,  }}
+            // style={{ backgroundImage: `url(${currentGroupThumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity:50,  }}
           >
             <div className="flex flex-col h-[100vh]">
               {/* <!-- Chat Header --> */}
