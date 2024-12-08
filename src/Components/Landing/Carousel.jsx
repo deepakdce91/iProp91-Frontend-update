@@ -2,20 +2,16 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-export default function Component() {
+function extractImageUrls(dataArray) {
+  return dataArray.map(item => item.image?.url).filter(Boolean);
+}
+
+export default function Component({data}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const controls = useAnimation()
   
-  const slides = [
-    "/images/phn1.png",
-    "/images/phn2.png",
-    "/images/phn3.png",
-    "/images/phn4.png",
-    "/images/phn5.png",
-    "/images/phn6.png",
-    "/images/phn7.png",
-  ]
+  const slides = extractImageUrls(data);
 
   useEffect(() => {
     const timer = setInterval(() => {
