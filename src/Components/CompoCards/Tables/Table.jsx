@@ -125,6 +125,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
     const files = e.target.files;
     const token = localStorage.getItem('token');
     const user = jwtDecode(token);
+    const userId = user.userId;
     const newData = [];
     // if now fieles are selected
     // any file has more than 25MB size then it will not be uploaded
@@ -147,7 +148,7 @@ const Table = ({ tablename, category, tableopen = false}) => {
       newData.push({
         name: item.name,
         path: cloudFilePath,
-        addedBy: user,
+        addedBy: userId,
       });
     }
 

@@ -140,39 +140,27 @@ function IncomingMessage({
   isGroupAdmin,
 }) {
   const theme = useTheme();
-  // console.log(userProfilePicture);
-  
 
   return (
     <div className="flex flex-col my-5 cursor-pointer group">
-      <p className="ml-12 mb-1 text-white">{userName}</p>
+      <p className="ml-12 mb-1 text-black">{userName}</p>
       <div className="flex">
         <div className="w-9 h-9 relative rounded-full flex items-center justify-center mr-2">
           <img
-            src={
-              userProfilePicture && userProfilePicture !== ""
-                ? userProfilePicture
-                : "/images/default.png"
-            }
+            src={userProfilePicture || "/images/default.png"}
             alt="User Avatar"
             className="w-8 h-8 rounded-full"
           />
-          {isGroupAdmin === true ? (
+          {isGroupAdmin && (
             <img
               src="/star-badge.svg"
               alt="admin-badge"
-              className="absolute text-yellow-500  right-0 -top-1 z-20 w-5 h-5"
+              className="absolute text-yellow-500 right-0 -top-1 z-20 w-5 h-5"
             />
-          ) : null}
+          )}
         </div>
-        <div className="flex flex-col items-start">
-          <div
-            className={`relative flex max-w-96 items-center ${
-              theme.palette.mode === "dark"
-                ? "bg-[#383838] text-white"
-                : "bg-[#383838] text-white"
-            } rounded-lg p-3 gap-3`}
-          >
+        <div className="flex flex-col items-start max-w-[80%]">
+          <div className="relative flex w-full border border-gray-600 bg-[#383838] text-white rounded-lg p-3 gap-3">
             {file ? (
               checkFileType(file) === "image" ? (
                 <Image
@@ -239,11 +227,7 @@ function IncomingMessage({
               </button>
             </div>
           </div>
-          <p
-            className={`text-[12px] font-extralight ${
-              theme.palette.mode === "dark" ? "text-white" : "text-white"
-            }`}
-          >
+          <p className="text-[12px] font-extralight text-white mt-1">
             {getTime(createdAt)}
           </p>
         </div>
@@ -269,13 +253,27 @@ function OutgoingMessage({
   const theme = useTheme();
 
   return (
-    <div className="flex flex-col   mb-5 cursor-pointer group items-end">
-      <p className="mr-12 mb-1 text-white">
-        {userId.includes("IPA") === true ? "Admin" : "You"}
+    <div className="flex flex-col my-5 cursor-pointer group">
+      <p className="ml-12 mb-1 text-black">
+        {userId.includes("IPA") ? "Admin" : "You"}
       </p>
-      <div className="flex justify-end ">
-        <div className="flex flex-col items-end">
-          <div className="flex relative items-center max-w-96 bg-white text-black rounded-lg p-3 gap-3">
+      <div className="flex">
+        <div className="w-9 h-9 relative rounded-full flex items-center justify-center mr-2">
+          <img
+            src={userProfilePicture || process.env.REACT_APP_DEFAULT_PROFILE_URL}
+            alt="My Avatar"
+            className="w-8 h-8 rounded-full"
+          />
+          {isGroupAdmin && (
+            <img
+              src="/star-badge.svg"
+              alt="admin-badge"
+              className="absolute text-yellow-500 right-0 -top-1 z-20 w-5 h-5"
+            />
+          )}
+        </div>
+        <div className="flex flex-col items-start max-w-[80%]">
+          <div className="relative flex w-full border border-gray-300 bg-white text-black rounded-lg p-3 gap-3">
             <div className="absolute -left-[68px] flex flex-row-reverse">
              
 
@@ -344,32 +342,9 @@ function OutgoingMessage({
               <p className="text-black text-[16px]">{text}</p>
             )}
           </div>
-          <p
-            className={` text-[12px] font-extralight ${
-              theme.palette.mode === "dark" ? "text-black" : "text-black"
-            }`}
-          >
+          <p className="text-[12px] font-extralight text-white mt-1">
             {getTime(createdAt)}
           </p>
-        </div>
-
-        <div className="w-9 h-9 relative rounded-full flex items-center justify-center ml-2">
-          <img
-            src={
-              userProfilePicture && userProfilePicture !== ""
-                ? userProfilePicture
-                : process.env.REACT_APP_DEFAULT_PROFILE_URL
-            }
-            alt="My Avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          {isGroupAdmin === true ? (
-            <img
-              src="/star-badge.svg"
-              alt="admin-badge"
-              className="absolute text-yellow-500  right-0 -top-1 z-20 w-5 h-5"
-            />
-          ) : null}
         </div>
       </div>
     </div>
