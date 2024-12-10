@@ -1,8 +1,8 @@
 'use client'
 
 import * as React from "react"
-import { motion, AnimatePresence, PanInfo } from "framer-motion"
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Download, X } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronLeft, ChevronRight, Download, X } from "lucide-react"
 
 const carouselData = [
   {
@@ -96,7 +96,6 @@ export default function AdviceCards() {
 
               {/* Carousel */}
               <div className="w-full md:w-2/3 relative">
-                {/* Vertical Carousel for larger screens */}
                 <div className="hidden md:flex flex-col items-center justify-center h-[100vh]">
                   {[-1, 0, 1].map((offset) => {
                     const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length
@@ -104,9 +103,9 @@ export default function AdviceCards() {
                     return (
                       <motion.div
                         key={item.id}
-                        className={`absolute w-full max-w-2xl py-16 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                        className={`absolute w-full max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
                           offset === 0 ? 'z-20' : 'z-10'
-                        }`}
+                        } overflow-hidden`}
                         initial={{ 
                           scale: offset === 0 ? 0.9 : 0.7, 
                           y: `${offset * 60}%`,
@@ -129,74 +128,7 @@ export default function AdviceCards() {
                           backgroundPosition: 'center'
                         }}
                       >
-                        <h3 className="text-2xl md:text-5xl font-bold mb-4 text-white">{item.title}</h3>
-                        <ul className="space-y-3">
-                          {item.features.map((feature, idx) => (
-                            <motion.li
-                              key={idx}
-                              initial={{ opacity: 0, x: 20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.1 }}
-                              className="flex items-start gap-2"
-                            >
-                              <span className="text-xl text-gray-300">•</span>
-                              <span className="text-base md:text-2xl text-gray-300">{feature}</span>
-                            </motion.li>
-                          ))}
-                        </ul>
-                      </motion.div>
-                    )
-                  })}
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-1/2 top-4 transform -translate-x-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                    aria-label="Previous slide"
-                  >
-                    <ChevronUp className="h-6 w-6" />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute left-1/2 bottom-4 transform -translate-x-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                    aria-label="Next slide"
-                  >
-                    <ChevronDown className="h-6 w-6" />
-                  </button>
-                </div>
-
-                {/* Horizontal Carousel for smaller screens */}
-                <div className="md:hidden flex justify-center items-center h-[500px] overflow-hidden">
-                  {[-1, 0, 1].map((offset) => {
-                    const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length
-                    const item = carouselData[slideIndex]
-                    return (
-                      <motion.div
-                        key={item.id}
-                        className={`absolute w-[80%] py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
-                          offset === 0 ? 'z-20' : 'z-10'
-                        }`}
-                        initial={{ 
-                          scale: offset === 0 ? 0.9 : 0.7, 
-                          x: `${offset * 60}%`,
-                          opacity: offset === 0 ? 0.9 : 0.5 
-                        }}
-                        animate={{ 
-                          scale: offset === 0 ? 1 : 0.8, 
-                          x: `${offset * 50}%`,
-                          opacity: offset === 0 ? 1 : 0.7 
-                        }}
-                        transition={{ duration: 0.5 }}
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        onDragEnd={handleDragEnd}
-                        onMouseEnter={() => setIsPaused(true)}
-                        onMouseLeave={() => setIsPaused(false)}
-                        style={{
-                          backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
-                        }}
-                      >
-                        <h3 className="text-3xl font-bold mb-4 text-white">{item.title}</h3>
+                        <h3 className="text-3xl font-bold mb-4 text-white overflow-hidden text-ellipsis whitespace-nowrap">{item.title}</h3>
                         <ul className="space-y-3">
                           {item.features.map((feature, idx) => (
                             <motion.li
@@ -207,7 +139,7 @@ export default function AdviceCards() {
                               className="flex items-start gap-2"
                             >
                               <span className="text-base text-gray-300">•</span>
-                              <span className="text-base text-gray-300">{feature}</span>
+                              <span className="text-base text-gray-300 overflow-hidden text-ellipsis whitespace-nowrap">{feature}</span>
                             </motion.li>
                           ))}
                         </ul>
