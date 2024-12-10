@@ -5,37 +5,6 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-coverflow';
 import axios from "axios";
-<<<<<<< HEAD
-import parse from 'html-react-parser';
-
-const CompComponent = ({compData}) => {
-
-
-  return (
-        
-    <div className="rounded-3xl border-2 border-gold max-w-3xl mx-auto overflow-hidden relative ">
-      <div className="flex flex-col bg-gray-100 text-black">
-        <div className="flex-1 flex flex-col justify-center p-4">
-          <h2 className="text-2xl font-semibold">{parse(compData.topText)}</h2>
-        </div>
-        <div>
-        {compData.centerImage1 && <img
-                src={compData.centerImage1.url}
-                alt="profile"
-                className="w-12 h-12 rounded-full"
-              />}
-              {compData.centerImage2 && <img
-                src={compData.centerImage2.url}
-                alt="profile"
-                className="w-12 h-12 rounded-full"
-              />}
-        </div>
-        <div className="flex-1 flex flex-col justify-center p-4">
-          <h2 className="text-2xl font-semibold">{parse(compData.bottomText)}</h2>
-        </div>
-      </div>
-      
-=======
 import DOMPurify from 'dompurify';
 
 const CompComponent = ({ item }) => {
@@ -73,18 +42,12 @@ const CompComponent = ({ item }) => {
         <p className="font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomTitle) }}></p>
         <p className="text-black text-sm mt-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomText) }}></p>
       </div>
->>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
     </div>
   );
 };
 
 export default function Comparison() {
-<<<<<<< HEAD
-
-  const [data, setData] = useState();
-=======
   const [data, setData] = useState([]);
->>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,11 +61,6 @@ export default function Comparison() {
           }
         );
         setData(response.data);
-<<<<<<< HEAD
-
-        
-=======
->>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -156,17 +114,10 @@ export default function Comparison() {
           modules={[EffectCoverflow, Navigation, Autoplay]}
           className="relative"
         >
-<<<<<<< HEAD
-          {data?.map((item, index) => (
-            <SwiperSlide key={index}>
-              <div className="swiper-slide-wrapper bg-black">
-                <CompComponent compData={item}/>
-=======
           {data.map((item, index) => (
             <SwiperSlide key={index}>
               <div className="swiper-slide-wrapper ">
                 <CompComponent item={item} />
->>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
               </div>
             </SwiperSlide>
           ))}

@@ -40,10 +40,6 @@ export default function Component({data}) {
   }, []);
   
   
-<<<<<<< HEAD
-  const slides = extractImageUrls(data);
-=======
->>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
 
   useEffect(() => {
     const timer = setInterval(() => {
