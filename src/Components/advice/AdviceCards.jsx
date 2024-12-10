@@ -51,15 +51,16 @@ const draftAgreements = Array(8).fill({
 export default function AdviceCards() {
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [showAgreements, setShowAgreements] = React.useState(false)
+  const [isPaused, setIsPaused] = React.useState(false)
 
-  // Add auto-animation effect
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
+    if (!isPaused) {
+      const interval = setInterval(() => {
+        nextSlide();
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [isPaused]);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length)
@@ -79,7 +80,7 @@ export default function AdviceCards() {
 
   return (
     <div className="w-full min-h-screen bg-transparent text-white p-4 md:p-8 overflow-hidden">
-      <div className="mx-auto min-h-screen flex flex-col  justify-center">
+      <div className="mx-auto min-h-screen flex flex-col justify-center">
         <AnimatePresence mode="wait">
           {!showAgreements ? (
             <motion.div
@@ -88,11 +89,10 @@ export default function AdviceCards() {
               exit={{ opacity: 0 }}
               className="flex flex-col md:flex-row items-center md:gap-8 justify-center"
             >
-             {/* Text content */}
-          <div className="w-full md:w-1/3 mb-8 md:mb-0 md:ml-24">
-           <p className=" md:text-3xl text-black font-semibold">Understand the law, legal positions and the key terms of your documents. Happy ownership!</p>
-          {/* <button className="relative flex py-4 w-2/4 items-center justify-center overflow-hidden rounded-full bg-black border-[2px] border-black text-white shadow-2xl duration-300 before:absolute before:h-0 before:w-0 before:rounded-full before:bg-white before:duration-500 before:ease-out hover:shadow-white hover:text-black hover:before:h-56 hover:before:w-56" onClick={()=> {setShowAgreements(true)}}>Show Drafts</button> */}
-          </div>
+              {/* Text content */}
+              <div className="w-full md:w-1/3 mb-8 md:mb-0 md:ml-24">
+                <p className="md:text-3xl text-black font-semibold">Understand the law, legal positions and the key terms of your documents. Happy ownership!</p>
+              </div>
 
               {/* Carousel */}
               <div className="w-full md:w-2/3 relative">
@@ -121,6 +121,8 @@ export default function AdviceCards() {
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
                         onDragEnd={handleDragEnd}
+                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseLeave={() => setIsPaused(false)}
                         style={{
                           backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
                           backgroundSize: 'cover',
@@ -186,6 +188,8 @@ export default function AdviceCards() {
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
                         onDragEnd={handleDragEnd}
+                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseLeave={() => setIsPaused(false)}
                         style={{
                           backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
                           backgroundSize: 'cover',
@@ -236,7 +240,7 @@ export default function AdviceCards() {
             >
               <button
                 onClick={() => setShowAgreements(false)}
-                className="absolute  right-0 p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="absolute right-0 p-2 hover:bg-white/10 rounded-full transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>

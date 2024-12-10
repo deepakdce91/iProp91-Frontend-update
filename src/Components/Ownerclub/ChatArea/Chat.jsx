@@ -39,6 +39,9 @@ import { FaRegFilePowerpoint } from "react-icons/fa";
 import { supabase } from "../../../config/supabase.js";
 import { client } from "../../../config/s3client.js";
 import { Search } from "lucide-react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import DOMPurify from "dompurify";
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transportOptions: ["websocket"],
@@ -142,12 +145,11 @@ function IncomingMessage({
   const theme = useTheme();
 
   return (
-    <div className="flex flex-col my-5 cursor-pointer group">
-      <p className="ml-12 mb-1 text-black">{userName}</p>
-      <div className="flex">
-        <div className="w-9 h-9 relative rounded-full flex items-center justify-center mr-2">
+    <div className="flex flex-col  cursor-pointer group">
+      <div className="flex items-center">
+        <div className="w-9 h-9 relative mb-4 rounded-full flex items-center justify-center ">
           <img
-            src={userProfilePicture || "/images/default.png"}
+            src={"/images/default.png"}
             alt="User Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -160,7 +162,12 @@ function IncomingMessage({
           )}
         </div>
         <div className="flex flex-col items-start max-w-[80%]">
-          <div className="relative flex w-full border border-gray-600 bg-[#383838] text-white rounded-lg p-3 gap-3">
+          <p className="ml-3 text-sm text-black">{userName}</p>
+          <div
+            className={`relative flex w-full rounded-lg px-3 ${
+              file || isValidURL(text) ? "bg-[#3f3f3f] ml-2 text-white p-2" : ""
+            }`}
+          >
             {file ? (
               checkFileType(file) === "image" ? (
                 <Image
@@ -175,7 +182,7 @@ function IncomingMessage({
               ) : (
                 <div className="flex items-center">
                   {file.type.includes("pdf") ? (
-                    <FaRegFilePdf className="w-8 h-8 mr-3" />
+                    <FaRegFilePdf className="w-8 h-8 mr-3 mt-1" />
                   ) : hasWordExtension(file.type) ? (
                     <GrDocumentWord className="w-8 h-8 mr-3" />
                   ) : hasExcelExtension(file.type) ? (
@@ -187,8 +194,8 @@ function IncomingMessage({
                   )}
 
                   <a
-                    className="hover:underline text-[16px]"
-                    target="_blank"
+                    className="hover:underline text-sm"
+                    target="/_blank"
                     href={file.url}
                   >
                     {file.name}
@@ -202,30 +209,37 @@ function IncomingMessage({
                 <a
                   className="underline text-[16px]"
                   href={text}
-                  target="_blank"
+                  target="/_blank"
                 >
                   {text}
                 </a>
               )
             ) : (
-              <p className="text-white  text-[16px]">{text}</p>
-            )}
-
-            <div className={`absolute -right-[68px] flex`}>
-              <button
-                onClick={() => {
-                  removeMessage(_id, userId);
+              <div
+                className="text-gray-600 text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(text, {
+                    ALLOWED_TAGS: [
+                      "p",
+                      "b",
+                      "i",
+                      "em",
+                      "strong",
+                      "u",
+                      "h1",
+                      "h2",
+                      "h3",
+                      "ul",
+                      "ol",
+                      "li",
+                      "span",
+                      "div",
+                    ],
+                    ALLOWED_ATTR: ["style", "class"],
+                  }),
                 }}
-              >
-                <MdDelete
-                  className={`rounded-full py-2 hover:text-red-400  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                    theme.palette.mode === "dark"
-                      ? " text-gray-300 hover:bg-gray-600"
-                      : "text-gray-700 hover:bg-gray-200"
-                  }`}
-                />
-              </button>
-            </div>
+              />
+            )}
           </div>
           <p className="text-[12px] font-extralight text-white mt-1">
             {getTime(createdAt)}
@@ -253,14 +267,11 @@ function OutgoingMessage({
   const theme = useTheme();
 
   return (
-    <div className="flex flex-col my-5 cursor-pointer group">
-      <p className="ml-12 mb-1 text-black">
-        {userId.includes("IPA") ? "Admin" : "You"}
-      </p>
+    <div className="flex flex-col  cursor-pointer group">
       <div className="flex">
-        <div className="w-9 h-9 relative rounded-full flex items-center justify-center mr-2">
+        <div className="w-9 h-9 mb-4 relative rounded-full flex items-center justify-center ">
           <img
-            src={userProfilePicture || process.env.REACT_APP_DEFAULT_PROFILE_URL}
+            src={"/images/default.png"}
             alt="My Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -273,24 +284,15 @@ function OutgoingMessage({
           )}
         </div>
         <div className="flex flex-col items-start max-w-[80%]">
-          <div className="relative flex w-full border border-gray-300 bg-white text-black rounded-lg p-3 gap-3">
-            <div className="absolute -left-[68px] flex flex-row-reverse">
-             
-
-              <button
-                onClick={() => {
-                  removeMessage(_id, userId);
-                }}
-              >
-                <MdDelete
-                  className={`rounded-full py-2 hover:text-red-400  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
-                    theme.palette.mode === "dark"
-                      ? " text-white hover:bg-gray-600"
-                      : "text-white hover:bg-gray-200"
-                  }`}
-                />
-              </button>
-            </div>
+          <p className="ml-3 text-sm text-black">
+            {userId.includes("IPA") ? "Admin" : "You"}
+          </p>
+          <div
+            className={`relative flex w-full rounded-lg px-3 ${
+              file || isValidURL(text) ? "bg-[#3f3f3f] ml-2 text-white p-2" : ""
+            }`}
+          >
+            <div className="absolute -left-[68px] flex flex-row-reverse"></div>
 
             {file ? (
               checkFileType(file) === "image" ? (
@@ -339,8 +341,46 @@ function OutgoingMessage({
                 </a>
               )
             ) : (
-              <p className="text-black text-[16px]">{text}</p>
+              <div
+                className="text-gray-600 text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(text, {
+                    ALLOWED_TAGS: [
+                      "p",
+                      "b",
+                      "i",
+                      "em",
+                      "strong",
+                      "u",
+                      "h1",
+                      "h2",
+                      "h3",
+                      "ul",
+                      "ol",
+                      "li",
+                      "span",
+                      "div",
+                    ],
+                    ALLOWED_ATTR: ["style", "class"],
+                  }),
+                }}
+              />
             )}
+            <div className={`absolute -top-5 -right-[68px] flex`}>
+              <button
+                onClick={() => {
+                  removeMessage(_id, userId);
+                }}
+              >
+                <MdDelete
+                  className={`rounded-full py-2 hover:text-red-400  h-8 my-2 w-8 p-1  group-hover:block hidden  ${
+                    theme.palette.mode === "dark"
+                      ? " text-gray-300 hover:bg-gray-600"
+                      : "text-gray-700 hover:bg-gray-200"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
           <p className="text-[12px] font-extralight text-white mt-1">
             {getTime(createdAt)}
@@ -361,8 +401,8 @@ function Chats({
 }) {
   // users/fetchuser/:id
 
-  const inputRef = useRef(null)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const inputRef = useRef(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   let lastMessageDate = null;
 
@@ -393,13 +433,10 @@ function Chats({
       setFilteredMessages((prevData) => ({
         ...prevData,
         messages: myFilteredMessages,
-        
-        
       }));
     } else {
       setFilteredMessages(messages);
       console.log(messages);
-      
     }
   }, [searchTerm, messages]);
 
@@ -584,7 +621,7 @@ function Chats({
         if (publicUrl) {
           const msgObj = {
             userId,
-            userProfilePicture: "/admin-avatar.jpg", /// try catch
+            userProfilePicture: "/images/default.png", /// try catch
             file: {
               name: fileName,
               url: publicUrl,
@@ -594,8 +631,8 @@ function Chats({
           };
 
           handleSendMessage(msgObj, userId, userToken);
-      setTextMessage("");
-      setFileToUpload();
+          setTextMessage("");
+          setFileToUpload();
         }
       }
     } catch (error) {
@@ -604,16 +641,53 @@ function Chats({
     }
   };
 
+  const sanitizeHTML = (html) => {
+    // Remove potentially dangerous tags/attributes while keeping basic formatting
+    return html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+      .replace(/on\w+="[^"]*"/g, "")
+      .replace(/javascript:/g, "")
+      .trim();
+  };
+
   const addMessage = () => {
     if (!isBlank(textMessage)) {
-      const msgObj = {
-        text: textMessage,
-        userId,
-        userProfilePicture: "/admin-avatar.jpg",
-        userName: "Admin",
-      };
-      handleSendMessage(msgObj, userId, userToken);
-      setTextMessage("");
+      // First sanitize the HTML content
+      const sanitizedText = DOMPurify.sanitize(textMessage, {
+        ALLOWED_TAGS: [
+          "p",
+          "b",
+          "i",
+          "em",
+          "strong",
+          "u",
+          "h1",
+          "h2",
+          "h3",
+          "ul",
+          "ol",
+          "li",
+          "span",
+          "div",
+        ],
+        ALLOWED_ATTR: ["style", "class"],
+      });
+
+      // Remove any extra whitespace and check if there's actual content
+      const textWithoutTags = sanitizedText.replace(/<[^>]*>/g, "").trim();
+
+      if (textWithoutTags !== "") {
+        const msgObj = {
+          text: sanitizedText,
+          userId,
+          userProfilePicture: "/admin-avatar.jpg",
+          userName: "Admin",
+          isRichText: true,
+        };
+        handleSendMessage(msgObj, userId, userToken);
+        setTextMessage("");
+      }
     }
   };
 
@@ -628,7 +702,7 @@ function Chats({
       message,
       messageId,
       messageBy,
-      groupId : communityId
+      groupId: communityId,
     };
 
     handleFlagMessage(communityId, messageId, userId, userToken, reportData);
@@ -643,8 +717,8 @@ function Chats({
     setShowPicker(false);
   };
 
-  const handleTextMessageChange = (e) => {
-    setTextMessage(e.target.value);
+  const handleTextMessageChange = (value) => {
+    setTextMessage(value);
   };
 
   const handleKeyDown = (e) => {
@@ -653,11 +727,11 @@ function Chats({
     }
   };
   const handleToggle = () => {
-    setIsExpanded(!isExpanded)
+    setIsExpanded(!isExpanded);
     if (!isExpanded) {
-      setTimeout(() => inputRef.current?.focus(), 300)
+      setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }
+  };
 
   const isAdmin = (id, myObj) => {
     const customers = myObj.customers;
@@ -665,11 +739,35 @@ function Chats({
     return customer ? customer.admin === "true" : false;
   };
 
+  const modules = {
+    toolbar: [
+      ["bold", "italic", "underline", "strike"],
+      [{ align: [] }],
+      [{ color: [] }, { background: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link"],
+      ["clean"],
+    ],
+  };
+
+  const formats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "align",
+    "color",
+    "background",
+    "list",
+    "bullet",
+    "link",
+  ];
+
   return (
     <>
       <div
         className={`flex absolute top-5 right-[25%] md:right-[10%] lg:right-[30%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? 'w-48 border-b-[1px] border-b-black/20 pb-1 ' : 'w-6'
+          isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
         }`}
       >
         <button
@@ -686,9 +784,9 @@ function Chats({
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search"
           className={`w-full outline-none bg-transparent text-black text-sm transition-all duration-300 ${
-            isExpanded ? 'opacity-100' : 'opacity-0'
+            isExpanded ? "opacity-100" : "opacity-0"
           }`}
-          style={{ pointerEvents: isExpanded ? 'auto' : 'none' }}
+          style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
       <ScrollToBottom className="h-screen overflow-y-auto px-4 ">
@@ -706,10 +804,9 @@ function Chats({
 
             return (
               <div key={`msg-${index}`}>
-
                 {isNewDay && (
                   // date wise seperator
-                  <div className="text-center text-black my-2">
+                  <div className="text-center text-sm text-black ">
                     {format(new Date(msg.createdAt), "yyyy-MM-dd") ===
                     format(new Date(), "yyyy-MM-dd")
                       ? "Today"
@@ -782,60 +879,71 @@ function Chats({
           })}
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
-      <footer className=" border-t-[1px] bg-gray-400 border-t-black/20 p-4 w-full">
+      <footer className="border-t-[1px]  border-t-black/20 p-4  w-full">
         {!fileToUpload && (
-          <div className="flex items-center">
-            <input
-              type="text"
-              onKeyDown={handleKeyDown}
-              placeholder="Type a message..."
-              value={textMessage}
-              onChange={handleTextMessageChange}
-              className={`w-full p-2 rounded-md border bg-gray-200 focus:outline-none  text-black placeholder:text-black`}
-            />
-
-            {/* // button to send files  */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileAdding}
-            />
-            <button className="ml-3" onClick={handleButtonClick}>
-              <TbPaperclip
-                className={
-                  theme.palette.mode === "dark"
-                    ? "h-6 w-6 text-gray-500 hover:scale-110 hover:text-black"
-                    : "h-6 w-6 text-white hover:scale-110 hover:text-gray-900"
-                }
+          <div className="flex flex-col">
+            <div className="bg-gray-200 rounded-md mb-2">
+              <ReactQuill
+                value={textMessage}
+                onChange={handleTextMessageChange}
+                modules={modules}
+                formats={formats}
+                placeholder="Type a message..."
+                theme="snow"
+                className="bg-white text-black rounded-lg"
               />
-            </button>
-
-            {/* Emoji button/icon */}
-            <button
-              className="mr-1"
-              onClick={() => setShowPicker(!showPicker)} // Toggle picker visibility
-            >
-              <FaSmile
-                className={
-                  theme.palette.mode === "dark"
-                    ? "text-gray-500 hover:scale-110 hover:text-black"
-                    : "text-white hover:scale-110 hover:text-gray-900"
-                }
-                style={{
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  marginLeft: "8px",
+            </div>
+            <div className="flex justify-between items-center mt-2">
+              <div className="flex items-center">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileAdding}
+                />
+                <button className="ml-3" onClick={handleButtonClick}>
+                  <TbPaperclip
+                    className={
+                      theme.palette.mode === "dark"
+                        ? "h-6 w-6 text-gray-500 hover:scale-110 hover:text-black"
+                        : "h-6 w-6 text-gray-500 hover:scale-110 hover:text-gray-900"
+                    }
+                  />
+                </button>
+                <button
+                  className="mr-1"
+                  onClick={() => setShowPicker(!showPicker)}
+                >
+                  <FaSmile
+                    className={
+                      theme.palette.mode === "dark"
+                        ? "text-gray-500 hover:scale-110 hover:text-black"
+                        : "text-gray-500 hover:scale-110 hover:text-gray-900"
+                    }
+                    style={{
+                      fontSize: "24px",
+                      cursor: "pointer",
+                      marginLeft: "8px",
+                    }}
+                  />
+                </button>
+              </div>
+              <button
+                disabled={textMessage === "" ? true : false}
+                className={`bg-gray-200 text-black px-4 py-2 rounded-md ml-2`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  addMessage();
                 }}
-              />
-            </button>
-
-            {/* Emoji Picker - it should be absolutely positioned */}
+              >
+                Send
+              </button>
+            </div>
             {showPicker && (
               <div
                 style={{
                   position: "absolute",
-                  bottom: "50px",
+                  bottom: "100px",
                   right: "0px",
                   zIndex: 1000,
                 }}
@@ -847,17 +955,6 @@ function Chats({
                 />
               </div>
             )}
-
-            <button
-              disabled={textMessage === "" ? true : false}
-              className={`bg-white text-black px-4 py-2 rounded-md ml-2`}
-              onClick={(e) => {
-                e.preventDefault();
-                addMessage();
-              }}
-            >
-              Send
-            </button>
           </div>
         )}
 
@@ -889,5 +986,3 @@ function Chats({
 }
 
 export default Chats;
-
-

@@ -24,7 +24,7 @@ import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
 
-function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
+function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange }) {
   const [otp, setOTP] = useState("");
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
@@ -236,7 +236,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
 
       setTimeout(() => {
         navigate("/concierge");
-      }, 2000);
+      }, 1000);
       // set is login === true
       setIsLoggedIn(true);
       setLoading(false);
@@ -255,9 +255,9 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
   };
 
   return (
-    <>
+    <section className="relative">
       {loading ? (
-        <div className="h-screen w-full backdrop-blur-sm absolute flex justify-center items-center">
+        <div className="h-screen w-full right-0 absolute flex justify-center items-center">
           <Spinner color="amber" className="h-12 w-16" />
         </div>
       ) : null}
@@ -337,6 +337,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
                 placeholder={"Enter OTP"}
                 value={otp}
                 setValue={setOTP}
+                onChange={handleOtpChange}
               />
             </div>
 
@@ -378,7 +379,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn }) {
           </div> */}
         </div>
       </div>
-    </>
+    </section>
   );
 }
 
@@ -388,9 +389,10 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("+91");
   const [phone, setPhone] = useState("");
-  const [passwordlogin, setpasswordlogin] = useState(true);
+  const [passwordlogin, setPasswordLogin] = useState(true);
   const [password, setPassword] = useState("");
   const [verify, setVerify] = useState(false);
+  const [otp, setOtp] = useState("");
 
   useEffect(() => initOTPless(callback), []);
 
@@ -400,7 +402,6 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
 
   const HandleOTPLogin = async (e) => {
     e.preventDefault();
-    // phone should be numberic
     setLoading(true);
     if (isNaN(phone)) {
       toast.error("Invalid Phone number");
@@ -408,7 +409,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
       return;
     }
     if (phone.length !== 10) {
-      toast.error("Inavlid Phone number");
+      toast.error("Invalid Phone number");
       setLoading(false);
       return;
     } else {
@@ -421,7 +422,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
       toast.success("OTP Sent");
       console.log("OTP Sent");
       setVerify(true);
-      setpasswordlogin(false);
+      setPasswordLogin(false);
     }
     setLoading(false);
   };
@@ -593,7 +594,41 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
     }, 2000);
   };
 
-  
+  const handleOtpChange = (e) => {
+    const value = e.target.value;
+    setOtp(value);
+
+    if (value.length === 6) {
+      verifyOtp(value);
+    }
+  };
+
+  const verifyOtp = async (otpValue) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, otp: otpValue }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success("OTP Verified Successfully");
+        setIsLoggedIn(true);
+        navigate("/concierge");
+      } else {
+        toast.error(data.error || "OTP Verification Failed");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="absolute h-screen w-screen">
@@ -612,13 +647,10 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
           <div className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px] h-[500px] lg:h-[600px]">
             {verify ? (
               <Verify
-                onclick={() => {
-                  setVerify(false);
-                  setpasswordlogin(true);
-                }}
                 phone={phone}
                 countryCode={selectedCountry}
-                setIsLoggedIn = {setIsLoggedIn}
+                setIsLoggedIn={setIsLoggedIn}
+                handleOtpChange={handleOtpChange}
               />
             ) : passwordlogin ? (
               <>
@@ -649,7 +681,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 <div
                   className="flex items-center mt-4 cursor-pointer"
                   onClick={() => {
-                    setpasswordlogin(false);
+                    setPasswordLogin(false);
                     setVerify(false);
                   }}
                 >
@@ -663,7 +695,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
               <>
                 <div
                   className="flex items-center mb-4 cursor-pointer"
-                  onClick={() => setpasswordlogin(true)}
+                  onClick={() => setPasswordLogin(true)}
                 >
                   <i
                     className="bx bxs-chevron-left"
@@ -704,7 +736,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 <div
                   className="flex items-center mt-4 cursor-pointer"
                   onClick={() => {
-                    setpasswordlogin(true);
+                    setPasswordLogin(true);
                     setVerify(false);
                   }}
                 >
