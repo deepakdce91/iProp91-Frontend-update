@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import axios from "axios"
 
 function extractImageUrls(dataArray) {
   return dataArray.map(item => item.image?.url).filter(Boolean);
@@ -10,8 +11,39 @@ export default function Component({data}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const controls = useAnimation()
+  const [slides, setSlides] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/mobileTiles/fetchAllEnabledMobileTiles`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setSlides(response.data);
+        console.log(response.data);
+        
+      } catch (error) {
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
   
+  
+<<<<<<< HEAD
   const slides = extractImageUrls(data);
+=======
+>>>>>>> c83cab10c652c42cdb46c1402bdae1f79c27f23c
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,7 +112,7 @@ export default function Component({data}) {
   }
 
   return (
-    <div className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full overflow-hidden">
+    <section to className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
         <div className="relative h-full w-full mt-5">
           {slides.map((slide, index) => (
@@ -91,7 +123,7 @@ export default function Component({data}) {
               animate={controls}
             >
               <img
-                src={slide}
+                src={slide.image.url}
                 alt={`Slide ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -115,6 +147,6 @@ export default function Component({data}) {
           <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-black" />
         </button>
       </div>
-    </div>
+    </section>
   )
 }

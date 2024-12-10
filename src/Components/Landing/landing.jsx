@@ -82,7 +82,7 @@ const TypingLandingPage = () => {
         <div className="flex justify-center items-center h-screen">
           {showMessage && (
             <div className="flex flex-col items-center">
-              <h1 className="text-4xl font-bold text-gold fade-in-text">
+              <h1 className="text-4xl font-bold text-black fade-in-text">
                 {animatedText}
               </h1>
             </div>

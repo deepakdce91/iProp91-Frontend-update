@@ -69,7 +69,7 @@ export default function Cards() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent backdrop-blur-md  text-black  overflow-hidden">
+    <div className="w-full min-h-screen bg-transparent backdrop-blur-md  text-black  ">
       <div className=" p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
         <div className="flex flex-col md:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}

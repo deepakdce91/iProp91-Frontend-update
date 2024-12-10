@@ -159,7 +159,7 @@ function ChatScreen() {
               <div className="mx-2 my-5">
                 <NameHeader firstname="iProp91" secondname="Family" />
               </div>
-              <div className="my-2  ">
+              <div className="my-1  ">
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg
@@ -194,24 +194,24 @@ function ChatScreen() {
             </div>
 
             {/* <!-- Contact List --> */}
-            <div className="overflow-y-auto     p-3  ">
+            <div className="overflow-y-auto     px-3  ">
               {filteredGroupNames.map((item, index) => {
                 return (
                   <div
                     onClick={() => handleGroupSelect(item)}
                     key={`community-${index}`}
-                    className={`flex items-center mb-2 hover:bg-gray-300   cursor-pointer ${
+                    className={`flex items-center mb-1 hover:bg-gray-300   cursor-pointer ${
                       currentGroupData &&
                       (currentGroupData._id === item._id
-                        ? "bg-gray-200 text-black border-2 border-gold"
+                        ? "bg-gray-200 text-black border-2 border-b-[2px] border-b-gold "
                         : null)
                     } hover:bg-gray-100  ${
                       theme.palette.mode === "dark"
                         ? "bg-opacity-20 hover:bg-opacity-20"
                         : null
-                    } px-4 py-3 rounded-xl`}
+                    } px-4 py-1 rounded-xl`}
                   >
-                    <div className="w-[52px] h-[52px] items-center flex justify-center bg-gray-300 rounded-full mr-3 border-[2px] border-gold">
+                    <div className="w-[42px] h-[42px] items-center flex justify-center bg-gray-300 rounded-full mr-3 border-[2px] border-gold">
                       <img
                         src={
                           item.thumbnail !== ""
@@ -219,11 +219,11 @@ function ChatScreen() {
                             : defaultCommunityUrl
                         }
                         alt="User Avatar"
-                        className="w-12 h-12 rounded-full"
+                        className="w-10 h-10 rounded-full"
                       />
                     </div>
                     <div className="flex-1">
-                      <h2 className="text-lg font-semibold">{item.name}</h2>
+                      <p className="text-sm font-semibold">{item.name}</p>
                     </div>
                   </div>
                 );
@@ -363,7 +363,7 @@ function ChatScreen() {
               Articles Section
             </p>
             <div className="flex flex-col gap-4 justify-center items-center">
-              <div className="relative flex flex-col bg-white/20 shadow-md shadow-black border border-slate-200 rounded-lg">
+              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
                 <div className="p-4">
                   <div className="flex items-center mb-2">
                     <h6 className="text-black text-lg font-semibold">
@@ -392,7 +392,7 @@ function ChatScreen() {
                   </p>
                 </div>
               </div>
-              <div className="relative flex flex-col bg-white/20 shadow-md shadow-black border border-slate-200 rounded-lg">
+              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
                 <div className="p-4">
                   <div className="flex items-center mb-2">
                     <h6 className="text-black text-lg font-semibold">
@@ -421,7 +421,7 @@ function ChatScreen() {
                   </p>
                 </div>
               </div>
-              <div className="relative flex flex-col bg-white/20 shadow-md shadow-black border border-slate-200 rounded-lg">
+              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
                 <div className="p-4">
                   <div className="flex items-center mb-2">
                     <h6 className="text-black text-lg font-semibold">
@@ -450,7 +450,7 @@ function ChatScreen() {
                   </p>
                 </div>
               </div>
-              <div className="relative flex flex-col bg-white/20 shadow-md shadow-black border border-slate-200 rounded-lg">
+              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
                 <div className="p-4">
                   <div className="flex items-center mb-2">
                     <h6 className="text-black text-lg font-semibold">
@@ -479,7 +479,7 @@ function ChatScreen() {
                   </p>
                 </div>
               </div>
-              <div className="relative flex flex-col bg-white/20 shadow-md shadow-black border border-slate-200 rounded-lg">
+              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
                 <div className="p-4">
                   <div className="flex items-center mb-2">
                     <h6 className="text-black text-lg font-semibold">

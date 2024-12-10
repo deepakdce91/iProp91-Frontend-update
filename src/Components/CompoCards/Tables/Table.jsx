@@ -130,8 +130,8 @@ const Table = ({ tablename, category, tableopen = false}) => {
     // if now fieles are selected
     // any file has more than 25MB size then it will not be uploaded
     for (let i = 0; i < files.length; i++) {
-      if (files[i].size > 25000000) {
-        toast.error('File size should be less than 25MB');
+      if (files[i].size > 250000000000000) {
+        toast.error('File size should be less than 250MB');
         return;
       }
     }

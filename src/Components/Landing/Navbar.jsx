@@ -11,6 +11,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
   const [isVisible, setIsVisible] = useState(true);
+  const [scrollPos, setScrollPos] = useState(0);
   const [user, setUser] = useState();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
@@ -64,6 +65,11 @@ const Navbar = () => {
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
   };
+  const handleClickOutside = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
+    }
+};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,6 +99,22 @@ const Navbar = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+useEffect(() => {
+    const handleScroll = () => {
+        const currentScrollPos = window.scrollY;
+        setIsVisible(currentScrollPos < scrollPos);
+        setScrollPos(currentScrollPos);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+}, [scrollPos]);
+
+
   return (
     <nav
       className={`flex items-center justify-between px-10 py-4 bg-white bg-opacity-10  backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-white ${
@@ -100,14 +122,14 @@ const Navbar = () => {
       }`}
     >
       {/* Logo */}
-      <div className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
+      <Link to={"/"} className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
         <img
           className="w-12 h-12 scale-125"
           src="/images/logo1.png"
           alt="logo"
         />
         <p>iProp91</p>
-      </div>
+      </Link>
 
       {/* Desktop Links */}
       <div className="hidden md:flex text-white space-x-8 ">

@@ -30,13 +30,13 @@ export default function GsapTextColorChange() {
         {
           opacity: 1,
           y: 0,
-          stagger: 0.2,      // Increased from 0.1 to 0.2
-          duration: 1.5,     // Added longer duration
+          stagger: 0.1,      // Increased from 0.1 to 0.2
+          duration: 1.0,     // Added longer duration
           ease: "power2.out", // Smoother easing
           scrollTrigger: {
             trigger: ref.current,
             start: "top 90%",
-            end: "bottom 30%",
+            end: "bottom 50%",
             scrub: 1,        // Increased from true to 1 for smoother scrubbing
           },
         }
