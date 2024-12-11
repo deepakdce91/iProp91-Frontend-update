@@ -93,7 +93,7 @@ const TypingLandingPage = () => {
   );
 };
 
-function Landing() {
+function Landing({setIsLoggedIn }) {
   const [userId, setUserId] = useState();
   const [userToken, setUserToken] = useState();
   const location = useLocation(); // Hook to get current route
@@ -112,8 +112,8 @@ function Landing() {
   }, []);
 
   return (
-    <>
-      <Navbar />
+    <> 
+      <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
         <Route path="/library" element={<Library />} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Goldbutton from '../../CompoCards/GoldButton/Goldbutton';
 import Input from '../../CompoCards/InputTag/simpleinput';
 
@@ -49,7 +49,7 @@ function AskName() {
                 </div>
             </div>
 
-            <ToastContainer position="top-right" autoClose={2000} />
+   
         </>
     )
 }

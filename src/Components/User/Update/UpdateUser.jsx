@@ -1,6 +1,6 @@
 import LabelInput from '../../CompoCards/InputTag/labelinput'
 import { useEffect, useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode } from "jwt-decode";
 import GoldButton from "../../CompoCards/GoldButton/Goldbutton";
@@ -366,7 +366,6 @@ export default function UpdateUser() {
             <div className="w-full">
                 <NameHeader />
                 <EditUser />
-                <ToastContainer position="top-right" autoClose={2000} />
             </div>
         </>
     )

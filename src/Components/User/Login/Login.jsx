@@ -16,7 +16,7 @@ import Input from "../../CompoCards/InputTag/simpleinput"
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton"
 import { Link } from "react-router-dom"
 import { useState } from "react"
-import { ToastContainer, toast } from "react-toastify"
+import { toast } from "react-toastify"
 
 function Verify({ onclick, phone }) {
     const [otp, setOTP] = useState("");
@@ -264,7 +264,6 @@ export default function Login() {
                 </div>
             }
 
-            <ToastContainer position="top-right" autoClose={2000} />
         </>
     )
 }
