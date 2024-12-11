@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const GetStartedForm = ({ close, openAuth }) => {
   const [formdata, setFormData] = useState({
@@ -148,7 +148,6 @@ const GetStartedForm = ({ close, openAuth }) => {
           </div>
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={2000} />
     </section>
   );
 };

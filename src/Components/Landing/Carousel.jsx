@@ -3,7 +3,11 @@ import { motion, AnimatePresence, useAnimation } from "framer-motion"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import axios from "axios"
 
-export default function Component() {
+function extractImageUrls(dataArray) {
+  return dataArray.map(item => item.image?.url).filter(Boolean);
+}
+
+export default function Component({data}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const controls = useAnimation()

@@ -2,7 +2,7 @@ import SimpleInput from "../../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import LableInput from "../../CompoCards/InputTag/labelinput";
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PhoneInput from "../../CompoCards/PhoneInput";
 import {
@@ -379,7 +379,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
           </div> */}
         </div>
       </div>
-    </section>
+    </section> 
   );
 }
 
@@ -431,20 +431,18 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/loginwithpassword`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/loginwithpassword?phone=${phone}&password=${password}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            phone: phone,
-            password: password,
-          }),
+         
         }
       );
       const loginresjson = await response.json();
       if (loginresjson.success === true) {
+        console.log(loginresjson);
         // First store the token
         localStorage.setItem("token", loginresjson.token);
         const decoded = jwtDecode(loginresjson.token);
@@ -746,7 +744,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                   </p>
                 </div>
               </>
-            )}
+            )} 
           </div>
 
           {/* Right Side - Image */}
@@ -760,7 +758,6 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
         </div>
       </div>
 
-      <ToastContainer position="top-right" autoClose={2000} />
       </div>
     </section>
   );

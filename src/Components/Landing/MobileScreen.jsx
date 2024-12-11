@@ -19,7 +19,6 @@ const MobileScreen = () => {
         );
 
         setData(response.data);
-        console.log(response.data);
         
       } catch (error) {
         console.error(
@@ -44,7 +43,7 @@ const MobileScreen = () => {
               <p className="md:py-2 hidden md:block">How iProp91 does</p>
               <p className="md:py-2 hidden md:block">things differently</p>
             </div>
-            <Carousel />
+            <Carousel data = {data}/>
           </div>
         </div>
            

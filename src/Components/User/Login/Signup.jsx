@@ -16,7 +16,7 @@ import Input from "../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useState } from "react";
 
 
@@ -226,7 +226,6 @@ export default function Signup() {
                 : <Verify onclick={() => setVerify(false)} phone={phone} />
             }
 
-            <ToastContainer position="top-right" autoClose={2000} />
         </>
     )
 }

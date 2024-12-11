@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Footer = () => {
@@ -175,9 +175,6 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-
-      {/* Toast Container */}
-      <ToastContainer />
     </>
   );
 };

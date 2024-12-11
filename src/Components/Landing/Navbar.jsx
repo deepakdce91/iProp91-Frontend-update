@@ -7,19 +7,17 @@ import axios from "axios";
 import Auth from "../User/Login/Auth";
 import useAuthToken from "../../hooks/useAuthToken";
 
-const Navbar = () => {
+const Navbar = ({setIsLoggedIn}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
   const [isVisible, setIsVisible] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
   const [user, setUser] = useState();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);
       const tokenid = jwtDecode(token);
       const fetchUser = async () => {
         try {
@@ -46,7 +44,7 @@ const Navbar = () => {
       };
       fetchUser();
     }
-  }, [isLoggedIn]);
+  }, []);
 
   // Custom hook to manage JWT token
   useAuthToken(navigate);
@@ -125,7 +123,7 @@ useEffect(() => {
       <Link to={"/"} className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
         <img
           className="w-12 h-12 scale-125"
-          src="/images/logo1.png"
+          src="/images/Logo1.png"
           alt="logo"
         />
         <p>iProp91</p>
@@ -235,7 +233,7 @@ useEffect(() => {
       {/* Auth Modal */}
       {isAuthModalOpen && <Auth onClose={closeAuthModal} setIsLoggedIn={setIsLoggedIn} properties={"lg:mt-[1%] top-[55%] right-20 md:right-24 lg:right-44"}/>}
     </nav>
-  );
+  ); 
 };
 
 export default Navbar;

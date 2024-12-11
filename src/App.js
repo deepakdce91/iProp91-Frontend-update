@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAuthToken from "./hooks/useAuthToken.js";
-
 import { ToastContainer } from "react-toastify";
 
 // import { FcLock } from "react-icons/fc";
@@ -60,7 +59,7 @@ function App() {
         {" "}
         {/* <Footer /> */}{" "}
         <Routes>
-          {isLoggedIn === false && <Route path="/*" element={<Landing />} />}{" "}
+          {isLoggedIn === false && <Route path="/*" element={<Landing setIsLoggedIn={setIsLoggedIn}  />} />}{" "}
 
           <Route
             path="/authenticate"
