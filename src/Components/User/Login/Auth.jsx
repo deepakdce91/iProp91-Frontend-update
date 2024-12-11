@@ -191,6 +191,13 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
     }
   };
 
+
+  useEffect(()=> {
+    if (otp.length === 6) {
+      HandleVerifyOTP({preventDefault: ()=> {}})
+    }
+  }, [otp]);
+
   // for askname
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -341,13 +348,15 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
               />
             </div>
 
-            <div className="w-72 max-lg:m-auto">
-              <Goldbutton
-                btnname={"Verify OTP"}
-                properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
-                onclick={HandleVerifyOTP}
-              />
-            </div>
+            {/* <div className="w-72 max-lg:m-auto">
+              {otp.length === 6 ? null : (
+                <Goldbutton
+                  btnname={"Verify OTP"}
+                  properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
+                  onclick={HandleVerifyOTP}
+                />
+              )}
+            </div> */}
 
             {!showtimer ? (
               <div className="w-72 max-lg:m-auto mt-2">
