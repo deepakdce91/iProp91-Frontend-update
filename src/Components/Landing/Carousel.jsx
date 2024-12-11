@@ -113,6 +113,10 @@ export default function Component() {
               className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px] overflow-hidden shadow-2xl"
               style={getSlideStyles(index)}
               animate={controls}
+              // drag='x'
+              // dragConstraints={{ left: -100, right: 100 }} // Set drag constraints
+
+
             >
               <img
                 src={slide.image.url}

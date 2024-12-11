@@ -69,25 +69,25 @@ export default function Cards() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent backdrop-blur-md  text-black  ">
-      <div className=" p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
+    <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black">
+      <div className="p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
         <div className="flex flex-col md:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}
           <div className="w-full md:w-1/3 mb-8 md:mb-0 lg:ml-20 space-y-2 md:space-y-4 mt-28 text-center md:text-start md:mt-0">
-            <p className="text-4xl md:text-6xl text-black font-semibold ">
+            <p className="text-4xl md:text-6xl text-black font-semibold">
               NRI
             </p>
             <p className="text-2xl md:text-3xl text-black font-semibold">
               We connect to the world NRI
             </p>
-            <p className=" md:text-2xl text-black">
+            <p className="md:text-2xl text-black overflow-hidden text-ellipsis whitespace-nowrap">
               iProp91 endeavors to provide customized services to NRIs in the
               following categories, to ensure hassle-free ownership
             </p>
           </div>
 
           {/* Carousel */}
-          <div className="w-full md:w-2/3 relative ">
+          <div className="w-full md:w-2/3 relative">
             {/* Vertical Carousel for larger screens */}
             <div className="hidden md:flex flex-col items-center justify-center h-[100vh]">
               {[-1, 0, 1].map((offset) => {
@@ -98,9 +98,9 @@ export default function Cards() {
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute w-full max-w-2xl py-16 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                    className={`absolute w-full max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
                       offset === 0 ? "z-20" : "z-10"
-                    }`}
+                    } overflow-hidden`}
                     initial={{
                       scale: offset === 0 ? 0.9 : 0.7,
                       y: `${offset * 60}%`,
@@ -109,7 +109,7 @@ export default function Cards() {
                     animate={{
                       scale: offset === 0 ? 1 : 0.8,
                       y: `${offset * 50}%`,
-                      opacity: offset === 0 ? 1 : 0.7,
+                      opacity: offset === 0 ? 1 : 0.6,
                     }}
                     transition={{ duration: 0.5 }}
                     drag="y"
@@ -121,7 +121,7 @@ export default function Cards() {
                       backgroundPosition: "center",
                     }}
                   >
-                    <h3 className="text-2xl md:text-4xl lg:text-5xl mb-7 text-white">
+                    <h3 className="text-3xl font-bold mb-4 text-white overflow-hidden text-ellipsis whitespace-nowrap">
                       {item.title}
                     </h3>
                     <ul className="space-y-3">
@@ -133,8 +133,8 @@ export default function Cards() {
                           transition={{ delay: idx * 0.1 }}
                           className="flex items-start gap-2"
                         >
-                          <span className="text-xl text-gray-300">•</span>
-                          <span className="text-base md:text-xl lg:text-2xl text-gray-300">
+                          <span className="text-base text-gray-300">•</span>
+                          <span className="text-base text-gray-300 overflow-hidden text-ellipsis whitespace-nowrap">
                             {feature}
                           </span>
                         </motion.li>
@@ -143,20 +143,8 @@ export default function Cards() {
                   </motion.div>
                 );
               })}
-              {/* <button
-                onClick={prevSlide}
-                className="absolute left-1/2 top-4 transform -translate-x-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Previous slide"
-              >
-                <ChevronUp className="h-6 w-6" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute left-1/2 bottom-4 transform -translate-x-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Next slide"
-              >
-                <ChevronDown className="h-6 w-6" />
-              </button> */}
+              {/* Navigation buttons */}
+              {/* ... existing button code ... */}
             </div>
 
             {/* Horizontal Carousel for smaller screens */}
