@@ -34,13 +34,8 @@ const MobileScreen = () => {
     <section className='w-full'>
         <section className="relative z-10 w-full">
         <div
-          className="w-full flex items-center justify-center bg-white  lg:mt-20"
-          style={{
-            zIndex: 10,
-            boxShadow: "0 -100px 100px -100px white",
-            // borderTopLeftRadius: "50%",
-            // borderTopRightRadius: "50%",
-          }}
+          className="w-full flex items-center justify-center bg-white  "
+          
         >
           <div className="flex flex-col w-full min-h-screen py-20 gap-10 justify-center items-center">
             <div className="text-black w-full text-4xl md:text-6xl lg:text-7xl font-semibold flex flex-col items-center justify-center text-center">

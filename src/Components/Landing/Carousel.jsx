@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import axios from "axios"
+import { useNavigate } from "react-router-dom";
 
 function extractImageUrls(dataArray) {
   return dataArray.map(item => item.image?.url).filter(Boolean);
@@ -12,6 +13,7 @@ export default function Component({data}) {
   const [direction, setDirection] = useState(1)
   const controls = useAnimation()
   const [slides, setSlides] = useState([]);
+  let navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,6 +108,18 @@ export default function Component({data}) {
       transition: "all 0.5s ease-out",
     }
   }
+  const handleDrag = (event, info) => {
+    const dragOffset = info.offset.x;
+  
+    // Calculate how many indexes the user has dragged based on the card width
+    const cardWidth = 150; // Adjust based on actual width
+    const draggedIndexes = Math.round(dragOffset / cardWidth);
+  
+    if (draggedIndexes !== 0) {
+      const newIndex = (currentIndex - draggedIndexes + slides.length) % slides.length;
+      setCurrentIndex(newIndex);
+    }
+  };
 
   return (
     <section to className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full overflow-hidden">
@@ -117,12 +131,19 @@ export default function Component({data}) {
               className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px] overflow-hidden shadow-2xl"
               style={getSlideStyles(index)}
               animate={controls}
+              onClick={() => setCurrentIndex(index)}
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={handleDrag}
+            
             >
+              <a className="cursor-pointer" href={slide.redirectionLink} target="_blank" rel="noopener noreferrer">
               <img
-                src={slide.image.url}
-                alt={`Slide ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+              
+              src={slide.image.url}
+              alt={`Slide ${index + 1}`}
+              className="w-full h-full object-cover"
+            /></a>
+             
             </motion.div>
           ))}
         </div>

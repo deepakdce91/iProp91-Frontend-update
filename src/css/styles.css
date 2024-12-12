@@ -50,13 +50,3 @@
     transform: rotate(-90deg);
 }
 
-.swiper-slide-custom {
-    transition: filter 0.3s ease;
-    filter: blur(4px);
-    /* Default blur for non-centered slides */
-}
-
-.swiper-slide-active {
-    filter: blur(0px);
-    /* Remove blur for the active (centered) slide */
-}
