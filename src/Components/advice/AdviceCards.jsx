@@ -139,7 +139,7 @@ export default function AdviceCards() {
                               className="flex items-start gap-2"
                             >
                               <span className="text-base text-gray-300">•</span>
-                              <span className="text-base text-gray-300 overflow-hidden text-ellipsis whitespace-nowrap">{feature}</span>
+                              <span className={feature[1] ? "text-sm text-gray-300 overflow-hidden text-ellipsis " : "text-base text-gray-300 overflow-hidden text-ellipsis"}>{feature}</span>
                             </motion.li>
                           ))}
                         </ul>

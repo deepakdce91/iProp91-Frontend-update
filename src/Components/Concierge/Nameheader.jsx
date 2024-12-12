@@ -6,11 +6,17 @@ export default function NameHeader (){
         <div className="hidden lg:!block ">
           <div className="lg:pt-5 mb-3 px-7 pt-3">
             <div className="flex justify-between">
-              <div className="mb-auto">
+              <div className="mb-auto flex gap-1.5">
+                <div>
                 <p className="text-xl font-semibold mb-2">
-                  iProp <span className="text-primary">Concierge</span>
+                  iProp <span className="text-black">Concierge</span>
                 </p>
-                <hr className="bg-primary w-12 h-1 rounded-sm" />
+                {/* <hr className="bg-primary w-12 h-1 rounded-sm" /> */}
+                </div>
+                <div className="flex gap-1.5">
+                    <span className="text-gray-400 text-xl font-bold">&gt;</span>
+                    <span className="text-primary font-semibold text-xl">My Property </span>
+                </div>
               </div>
               <Profile />
             </div>
