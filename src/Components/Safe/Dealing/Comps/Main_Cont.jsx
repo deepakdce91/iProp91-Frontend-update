@@ -53,7 +53,7 @@ export default function Conci() {
         <div className="w-full flex justify-between items-center border-b-[1px] py-3 pr-5  border-b-black/20">
           <Links />
           
-          <Link to="/addproperty">
+          {/* <Link to="/addproperty">
             <button className="text-black bg-white/90 border-secondary hover:border-simple shadow-2xl flex border-[1.5px] border-white/20 px-5 text-xs py-3 rounded-md gap-2">
               Add property
               <img
@@ -68,7 +68,7 @@ export default function Conci() {
                 src="/svgs/plus.aef96496.svg"
               />
             </button>
-          </Link>
+          </Link> */}
         </div>
         <div className="w-full text-black pt-3">
           <Routes>

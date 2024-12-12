@@ -11,9 +11,9 @@ export default function Conci() {
   return (
     <>
       <div className="flex flex-col lg:min-h-screen bg-white text-black   ">
-        <div className="border-b-[1px]  border-b-black/20">
+        <div className="border-b-[1px] pb-5 border-b-black/20">
           <NameHeader />
-          <div className="py-3 flex items-center justify-between pr-5">
+          {/* <div className="py-3 flex items-center justify-between pr-5">
             <Links />
 
             <Link to="/addproperty">
@@ -32,7 +32,7 @@ export default function Conci() {
                 />
               </button>
             </Link>
-          </div>
+          </div> */}
         </div>
         {/* <div className="mt-5 w-full"> */}
         <div className="w-full pt-3">
