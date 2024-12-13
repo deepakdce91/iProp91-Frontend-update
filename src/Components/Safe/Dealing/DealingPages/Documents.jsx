@@ -84,6 +84,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   const [activeDocument, setActiveDocument] = useState(Data[Object.keys(Data)[0]].content[0])
   const [isMobile, setIsMobile] = useState(false)
   const [showFirstLayer, setShowFirstLayer] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -103,10 +104,15 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
 
   const handleDocumentClick = (document) => {
     setActiveDocument(document)
+    setLoading(true)
     if (onDocumentSelect) {
       onDocumentSelect(`${activeSection} / ${document.name}`)
     }
     if (isMobile) setShowFirstLayer(false)
+    
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000)
   }
 
   const handleBack = () => {
@@ -118,6 +124,13 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
     if (isMobile && !activeDocument && !activeSection) {
       setShowFirstLayer(true)
     }
+  }
+
+  const handleFileChange = async (e) => {
+    setLoading(true)
+    // ... existing file handling logic ...
+    // After uploading files
+    setLoading(false)
   }
 
   return (
@@ -186,9 +199,10 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
         {(!isMobile || (isMobile && !showFirstLayer)) && activeDocument && (
           <div className="flex-grow px-3 overflow-y-auto lg:w-[60%]">
             <Table
-              category={activeDocument.category}
-              tablename={activeDocument.name}
+              category={activeDocument?.category}
+              tablename={activeDocument?.name}
               tableopen={true}
+              loading={loading}
             />
           </div>
         )}

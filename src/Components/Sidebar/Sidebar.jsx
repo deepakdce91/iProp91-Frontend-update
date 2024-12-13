@@ -80,7 +80,8 @@ const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  const [isLocked, setIsLocked] = useState(true);
+  const [isSafeLocked, setIsSafeLocked] = useState(true); // Separate state for Safe
+  const [isFamilyLocked, setIsFamilyLocked] = useState(true); // Separate state for Family
 
   const addActive = (link) => {
     setActiveLink(link);
@@ -94,6 +95,8 @@ const Sidebar = () => {
     let token = localStorage.getItem("token");
     if (token) {
       const decoded = jwtDecode(token);
+      
+      // Fetch communities for the Family route
       axios
         .get(
           `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${decoded.userId}`,
@@ -104,9 +107,28 @@ const Sidebar = () => {
           }
         )
         .then((response) => {
-
           if (response.data.data.length > 0) {
-            setIsLocked(false);
+            setIsFamilyLocked(false); // Unlock Family if communities exist
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+
+      // Fetch properties for the Safe route
+      axios
+        .get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,
+          {
+            headers: {
+              "auth-token": token,
+            },
+          }
+        )
+        .then((response) => {
+          const approvedProperties = response.data.filter(property => property.applicationStatus === "approved");
+          if (approvedProperties.length > 0) {
+            setIsSafeLocked(false); // Unlock Safe if there are approved properties
           }
         })
         .catch((error) => {
@@ -129,11 +151,9 @@ const Sidebar = () => {
           />
           {Object.keys(Linklist).map((key, index) => (
             <div key={index} className="w-full">
-              {Linklist[key].link === "/safe" ||
-              Linklist[key].link === "/family" ? (
-                isLocked === true ? (
+              {Linklist[key].link === "/safe" ? (
+                isSafeLocked ? (
                   <button
-                    
                     className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
                       location.pathname.includes(Linklist[key].link)
                         ? "border-simple "
@@ -141,7 +161,41 @@ const Sidebar = () => {
                     } hover:!border-simple`}
                     onClick={() => toast("Add a property to unlock this feature.")}
                   >
-                    <FcLock/>
+                    <FcLock />
+                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
+                  </button>
+                ) : (
+                  <Link
+                    to={Linklist[key].link}
+                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                      location.pathname.includes(Linklist[key].link)
+                        ? "border-simple "
+                        : ""
+                    } hover:!border-simple`}
+                    onClick={() => addActive(Linklist[key].link)}
+                  >
+                    <img
+                      alt={key}
+                      loading="lazy"
+                      width="12"
+                      height="13"
+                      className="mt-auto mb-auto ml-auto"
+                      src={Linklist[key].icon}
+                    />
+                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
+                  </Link>
+                )
+              ) : Linklist[key].link === "/family" ? (
+                isFamilyLocked ? (
+                  <button
+                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
+                      location.pathname.includes(Linklist[key].link)
+                        ? "border-simple "
+                        : ""
+                    } hover:!border-simple`}
+                    onClick={() => toast("You need to join a community to unlock this feature.")}
+                  >
+                    <FcLock />
                     <p className="text-sm text-left mb-auto mt-auto">{key}</p>
                   </button>
                 ) : (
@@ -219,7 +273,7 @@ const Sidebar = () => {
 
         {/* Small sidebar */}
         {sidebarOpen && (
-          <SmallSidebar isLocked={isLocked} onClose={toggleSidebar} />
+          <SmallSidebar isLocked={isFamilyLocked} onClose={toggleSidebar} />
         )}
       </div>
     </>
