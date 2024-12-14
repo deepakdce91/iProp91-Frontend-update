@@ -24,7 +24,41 @@ import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
 
-function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange }) {
+async function AddGuestProperty(userId, userToken, data, myCallback){
+  // Handle property submission
+  try {
+    const propertyResponse = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": userToken,
+        },
+        body: JSON.stringify({
+          state: data.selectedState,
+          city: data.selectedCity,
+          builder: data.selectBuilder,
+          project: data.selectProject,
+        })
+      }
+    );
+
+    if (propertyResponse.ok) {
+      toast.success("Property details saved successfully!");
+      myCallback();
+    } else {
+      const errorData = await propertyResponse.json();
+      console.error("Property submission error:", errorData);
+      toast.error("Failed to save property details");
+    }
+  } catch (error) {
+    console.error("Error saving property:", error);
+    toast.error("Failed to save property details");
+  }
+}
+
+function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, stage1FormData  }) {
   const [otp, setOTP] = useState("");
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
@@ -116,54 +150,24 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
                   // Get user details after login
                   const decoded = jwtDecode(loginresjson.token);
                   const userId = decoded.userId; // This should be the correct user ID
-
-                  // Handle property submission
-                  const tempPropertyData = localStorage.getItem('tempPropertyData');
-                  if (tempPropertyData) {
-                    const { data, expiry } = JSON.parse(tempPropertyData);
-                    
-                    if (Date.now() < expiry) {
-                      try {
-                        const propertyResponse = await fetch(
-                          `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
-                          {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                              "auth-token": loginresjson.token,
-                            },
-                            body: JSON.stringify({
-                              state: data.selectedState,
-                              city: data.selectedCity,
-                              builder: data.selectBuilder,
-                              project: data.selectProject,
-                              houseNumber: data.selectHouseNumber,
-                              floorNumber: data.selectFloorNumber
-                            })
-                          }
-                        );
-
-                        if (propertyResponse.ok) {
-                          toast.success("Property details saved successfully!");
-                        } else {
-                          const errorData = await propertyResponse.json();
-                          console.error("Property submission error:", errorData);
-                          toast.error("Failed to save property details");
-                        }
-                      } catch (error) {
-                        console.error("Error saving property:", error);
-                        toast.error("Failed to save property details");
-                      }
-                    }
-                    localStorage.removeItem('tempPropertyData');
-                  }
-
                   setIsLoggedIn(true);
                   toast.success("Login Successful");
+                  if(stage1FormData){
+                    const SendToConciPage = () => {
+                      setTimeout(() => {
+                        navigate("/concierge");
+                      }, 2000)
+                    }
+                    AddGuestProperty(userId,loginresjson.token,stage1FormData,SendToConciPage );
+                  }
+                  
+                  return;
+                }else{
                   setTimeout(() => {
                     navigate("/concierge");
                   }, 2000);
                   return;
+
                 }
               } catch (error) {
                 console.error(error.message);
@@ -241,12 +245,25 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
 
       toast.success("Signup Successfull");
 
-      setTimeout(() => {
-        navigate("/concierge");
-      }, 1000);
-      // set is login === true
-      setIsLoggedIn(true);
-      setLoading(false);
+      const decoded = jwtDecode(token);
+      const userId = decoded.userId;
+
+      if(stage1FormData){
+        const SendToConciPage = () => {
+          setTimeout(() => {
+            navigate("/concierge");
+          }, 2000)
+        }
+        AddGuestProperty(userId,token,stage1FormData,SendToConciPage );
+      }else{
+        setTimeout(() => {
+          navigate("/concierge");
+        }, 1000);
+        // set is login === true
+        setIsLoggedIn(true);
+        setLoading(false);
+      }
+      
     } catch (err) {
       toast.error("Something went wrong");
       setTimeout(() => {
@@ -392,7 +409,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
   );
 }
 
-export default function Login({setIsLoggedIn, onClose, properties }) {
+export default function Login({setIsLoggedIn, onClose, properties, stage1FormData }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -460,52 +477,24 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
         setIsLoggedIn(true);
         toast.success("Login Successful");
 
-        // Then handle property submission
-        const tempPropertyData = localStorage.getItem('tempPropertyData');
-        if (tempPropertyData) {
-          const { data, expiry } = JSON.parse(tempPropertyData);
-          
-          if (Date.now() < expiry) {
-            // Wait a bit to ensure token is properly set
-            setTimeout(async () => {
-              try {
-                const propertyResponse = await fetch(
-                  `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${decoded.userId}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "auth-token": loginresjson.token,
-                    },
-                    body: JSON.stringify(data)
-                  }
-                );
+      
+      const userId = decoded.userId;
 
-                if (propertyResponse.ok) {
-                  toast.success("Property details saved successfully!");
-                } else {
-                  toast.error("Failed to save property details");
-                }
-              } catch (error) {
-                console.error("Error saving property:", error);
-                toast.error("Failed to save property details");
-              }
-              
-              // Clear the temporary data
-              localStorage.removeItem('tempPropertyData');
-              
-              // Navigate after property submission attempt
-              navigate("/concierge");
-            }, 1000); // Add a 1-second delay
-          } else {
-            // If data expired, just navigate
+      if(stage1FormData){
+        const SendToConciPage = () => {
+          setTimeout(() => {
             navigate("/concierge");
-          }
-        } else {
-          // If no property data, just navigate
-          navigate("/concierge");
+          }, 2000)
         }
-        return;
+        AddGuestProperty(userId,loginresjson.token,stage1FormData,SendToConciPage );
+      }else{
+        setTimeout(() => {
+          navigate("/concierge");
+        }, 1000);
+        // set is login === true
+        setIsLoggedIn(true);
+        setLoading(false);
+      }
       } else {
         toast.error(loginresjson.error);
         return;
@@ -517,89 +506,6 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
     }
   };
 
-  const saveFormDataToBackend = async (userId) => {
-    const savedFormData = localStorage.getItem('formData');
-    if (savedFormData) {
-      const { data, expiry } = JSON.parse(savedFormData);
-      
-      // Check if data hasn't expired
-      if (Date.now() < expiry) {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${userId}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem("token"),
-              },
-              body: JSON.stringify({
-                ...data,
-                addedBy: userId
-              }),
-            }
-          );
-
-          if (response.ok) {
-            toast.success("Property details saved successfully!");
-          }
-        } catch (error) {
-          console.error("Error saving property:", error);
-          toast.error("Failed to save property details");
-        }
-      }
-      
-      // Clear the saved form data
-      localStorage.removeItem('formData');
-    }
-  };
-
-  // Add this to your successful login handlers
-  const handleSuccessfulLogin = async (loginResponse) => {
-    const token = loginResponse.token;
-    const decoded = jwtDecode(token);
-    const userId = decoded.userId;
-    
-    // Check for saved property data
-    const tempPropertyData = localStorage.getItem('tempPropertyData');
-    if (tempPropertyData) {
-      const { data, expiry } = JSON.parse(tempPropertyData);
-      
-      // Check if data hasn't expired
-      if (Date.now() < expiry) {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "auth-token": token,
-              },
-              body: JSON.stringify(data)
-            }
-          );
-
-          if (response.ok) {
-            toast.success("Property details saved successfully!");
-          } else {
-            toast.error("Failed to save property details");
-          }
-        } catch (error) {
-          console.error("Error saving property:", error);
-          toast.error("Failed to save property details");
-        }
-      }
-      
-      // Clear the temporary data
-      localStorage.removeItem('tempPropertyData');
-    }
-
-    setIsLoggedIn(true);
-    setTimeout(() => {
-      navigate("/concierge");
-    }, 2000);
-  };
 
   const handleOtpChange = (e) => {
     const value = e.target.value;
@@ -658,6 +564,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 countryCode={selectedCountry}
                 setIsLoggedIn={setIsLoggedIn}
                 handleOtpChange={handleOtpChange}
+                stage1FormData={stage1FormData}
               />
             ) : passwordlogin ? (
               <>

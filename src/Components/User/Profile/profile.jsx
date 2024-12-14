@@ -80,11 +80,11 @@ export default function Profile() {
                         <img
                             className="aspect-square h-full w-full "
                             alt="profilePic"
-                            src={dataloaded  ? (user.data.profilePicture === "" ? "/dummyPFP.jpg" : user.data.profilePicture) : "/dummyPFP.jpg"}
+                            src={dataloaded  ? (!user || !user.data || !user.data.profilePicture || user.data.profilePicture === "" ? "/dummyPFP.jpg" : user.data.profilePicture) : "/dummyPFP.jpg"}
                         />
                     </span>
                     <p className="mt-auto mb-auto text-black text-sm mx-1">
-                        {dataloaded && user.data.name.split(' ')[0]}
+                        {dataloaded && user && user.data && user.data.name && user.data.name.split(' ')[0]}
                     </p>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

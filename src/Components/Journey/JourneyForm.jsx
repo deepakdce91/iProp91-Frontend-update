@@ -448,7 +448,7 @@ const JourneyForm = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-6 space-y-6">
+    <div className="w-full bg-black h-screen max-w-3xl mx-auto p-6 space-y-6">
       {initialQuestions.length > 0 && (
         <>
           {/* Enhanced Progress Bar Container with Glow Effect */}

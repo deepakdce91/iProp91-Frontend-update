@@ -234,6 +234,6 @@ useEffect(() => {
       {isAuthModalOpen && <Auth onClose={closeAuthModal} setIsLoggedIn={setIsLoggedIn} properties={"lg:mt-[1%] top-[55%] right-20 md:right-24 lg:right-44"}/>}
     </nav>
   ); 
-};
+}; 
 
 export default Navbar;
