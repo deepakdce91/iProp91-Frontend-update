@@ -25,7 +25,6 @@ import MobileScreen from "./MobileScreen";
 import JourneyPage from "../getstartedForm/getStartedForm";
 import Call from "../NRI/corousal/corsoual"
 import Stage1Form from "../Journey/Stage1Form";
-import Stage2Form from "../Journey/Stage2Form";
 
 function LandingPage() {
   return (
@@ -118,7 +117,7 @@ function Landing({setIsLoggedIn }) {
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
-
+ 
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
@@ -129,11 +128,10 @@ function Landing({setIsLoggedIn }) {
         <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} />
         <Route path="/journey" element={<JourneyPage />} />
 
-        <Route path="/stage1Form" element={<Stage1Form />} />
-        <Route path="/stage2Form" element={<Stage2Form />} />
+        <Route path="/stage1Form" element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />} />
 
       </Routes>
-      {location.pathname !== "/advice" && <Footer />}
+      {location.pathname !== "/advice" || location.pathname !== "/journey" || location.pathname !== "/stage1Form"  && <Footer />}
     </>
   );
 }
