@@ -213,9 +213,9 @@ export default function MyProperties() {
         setSlides([]);
         approvedProperties.forEach((property) => {
           setSlides((prev) => [...prev,
-            <Link to={"/safe/Dealing/"+property._id}>
-              <PropCard2 key={property._id} props={property}/>
-            </Link>
+            // <Link to={`/safe/Dealing/${property._id}/Documents`}>
+              <PropCard2  props={property}/>
+            // </Link>
           ]);
         });
         return;
@@ -230,9 +230,9 @@ export default function MyProperties() {
       <div className=" flex  flex-col pt-5">
         <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 ">
          {prop.map((property) => (
-          <Link to={"/safe/Dealing/"+property._id}>
-            <PropCard key={property._id} props={property}/>
-          </Link>
+          // <Link to={`/safe/Dealing/${property._id}/Documents`}>
+            <PropCard props={property}/>
+          // </Link>
          ))}
         </div>
 

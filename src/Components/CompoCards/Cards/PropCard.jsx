@@ -1,26 +1,280 @@
+import { Edit } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import Goldbutton from "../GoldButton/Goldbutton"
+import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
+import { useState } from "react";
+import BuyForm from "../../forms/buy";
+import SellForm from "../../forms/sell";
+
+const uploadFileToCloud = async (myFile, userNumber) => {
+  // ... existing upload function ...
+};
+
 export default function PropCard ({props}) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [uploadFiles, setUploadFiles] = useState([]);
+  const [termsncond, setTermsnCond] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState("");
+
+  const documentTypes = [
+    { id: 1, name: "Identity Proof" },
+    { id: 2, name: "Address Proof" },
+    { id: 3, name: "Property Documents" },
+    { id: 4, name: "Other" },
+  ];
+
+  const onClickEdit = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const onClickBuy = () => {
+    setIsBuyModalOpen(true);
+  };
+  const onClickSell = () => {
+    setIsSellModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const closeBuyModal = () => {
+    setIsBuyModalOpen(false);
+  };
+  const closeSellModal = () => {
+    setIsSellModalOpen(false);
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  // New function to handle file upload
+  const handleFileAdding = (e) => {
+    if (e.target.files.length > 0) {
+      setUploadFiles([...uploadFiles, ...e.target.files]);
+      handleFileUpload(e.target.files);
+    } else {
+      console.error("Please select a file to upload.");
+    }
+  };
+
+  const handleFileUpload = async (files) => {
+    if (files.length === 0) {
+      return console.error("Please select a file to upload.");
+    }
+
+    try {
+      for (const item of files) {
+        let cloudFilePath = await uploadFileToCloud(item, props.userNumber); // Assuming userNumber is available in props
+        // Handle the uploaded file path as needed
+      }
+      console.log("Files Uploaded!");
+    } catch (error) {
+      console.error("Some error occurred while uploading.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Update application status to "under-review" after file upload
+    // ... existing submit logic ...
+  };
+
+  const handleCardClick = () => {
+    console.log("Property ID:", props._id);
+    if (props.applicationStatus.applicationStatus === "approved") {
+      // Redirect to the defined state
+      // window.location.href = `/safe/Dealing/${}/Documents`;
+      console.log("approved property ");
+      
+    } else if (props.applicationStatus === "more-info-required") {
+      console.log("clicked a ", props.applicationStatus);
+      // Open modal for more-info-required status
+      setModalMessage(
+        `Property status: ${props.applicationStatus}. Please upload the required documents.`
+      );
+      setModalIsOpen(true);
+    } else if (props.applicationStatus === "under-review") {
+      // Show a simple message modal for under-review status
+      setModalMessage(`Property status: ${props.applicationStatus}. Your application is currently under review.`);
+      setModalIsOpen(true);
+    }
+  };
+  const location = useLocation();
     return (
       <>
-        <div className="bg-white drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64 ">
-          <img
-            src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="home"
-            className=" rounded-xl object-cover "
-          />
-          <div className=" flex justify-between mt-3 mb-1">
-            <h1 className="text-xl text-black">{props.project}</h1>
-            <p className="text-xs text-black mt-auto mb-auto">Tower: {props.tower}</p>
-          </div>
-          <div className="flex justify-between">
-            <h1 className="text-xs text-black">{props.builder}</h1>
-            <p className="text-xs text-black">Unit: {props.unit}</p>
-          </div>
-          <div className="flex flex-row justify-between mt-4 gap-2">
-            <button className=" w-full text-[14px] hover:border-[1px] hover:border-b-[5px] hover:border-b-gold hover:border-gold hover:shadow-gold border-b-[4px] border-b-gold  bg-[#edeaea] text-black font-semibold py-2 px-4 rounded-xl">
-              {props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}
-            </button>
+      {modalIsOpen && props.applicationStatus === "more-info-required" ? (
+        <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+            <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
+              Upload Required Documents
+            </div>
+            <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
+              {modalMessage}
+              
+              <div className="flex flex-col lg:flex-row w-full items-end mt-5">
+                <div className="w-full my-2 xl:m-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Select Document Type
+                  </label>
+                  <select
+                    id="doctype"
+                    name="selectedDocType"
+                    value={selectedDocType}
+                    onChange={(e) => setSelectedDocType(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                  >
+                    <option value="">Select Document Type</option>
+                    {documentTypes?.map((doctype) => (
+                      <option key={doctype._id} value={doctype.name}>
+                        {doctype.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* File Upload */}
+                <div className="w-full  my-2 xl:m-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Upload File
+                  </label>
+                  <input
+                    type="file"
+                    id="file"
+                    name="selectDoc"
+                    onChange={handleFileAdding}
+                    multiple
+                    className="mt-1 block w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+                  />
+                </div>
+              </div>
+              {/* <label className="inline-flex items-center mt-3">
+                <input
+                  type="checkbox"
+                  checked={termsncond}
+                  onChange={(e) => setTermsnCond(e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-yellow-600"
+                />
+                <span className="ml-2 text-sm text-gray-700">
+                  I agree to the terms and conditions.
+                </span>
+              </label> */}
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
+              <button
+                onClick={handleSubmit}
+                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                type="button"
+              >
+                Submit
+              </button>
+              <button
+                onClick={closeModal}
+                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
+      ) : null}
+
+      {modalIsOpen && props.applicationStatus === "under-review" ? (
+        <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+            <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
+              Application Under Review
+            </div>
+            <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
+              {modalMessage}
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
+              <button
+                onClick={closeModal}
+                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="bg-white drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64 ">
+        <img
+          src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="home"
+          className=" rounded-xl object-cover "
+        />
+        <div className=" flex justify-between mt-3 mb-1">
+          <h1 className="text-xl text-black">{props.project}</h1>
+          <p className="text-xs text-black mt-auto mb-auto">Tower: {props.tower}</p>
+        </div>
+        <div className="flex justify-between">
+          <h1 className="text-xs text-black">{props.builder}</h1>
+          <p className="text-xs text-black">Unit: {props.unit}</p>
+        </div>
+        <div className="flex flex-row justify-between mt-4 gap-2">
+          {location.pathname === "/safe" ? (
+            <>
+            <Link to={`/safe/Dealing/${props._id}/Documents`}>
+              <Goldbutton btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus} properties="w-full text-black  bg-slate-100 py-2 px-4 rounded-lg">    
+              </Goldbutton>
+            </Link>
+              <div className="relative group">
+              <button onClick={onClickEdit} className={`w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg`}>
+                <Edit />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1  bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Edit
+              </span>
+            </div>
+            </>
+          ) : location.pathname === "/concierge" ? (
+            <>
+              {props.applicationStatus === "approved" ? (
+                <><Goldbutton properties="w-[40%] text-black bg-slate-100 py-2 px-4 rounded-lg" btnname={"Sell"} onclick={onClickSell} />
+                  <Goldbutton properties="w-[40%] text-black bg-slate-100 py-2 px-4 rounded-lg" btnname={"Rent"} onclick={onClickBuy} />
+                  
+                </>
+              ) : (
+                <Goldbutton onclick={handleCardClick} btnname={props.applicationStatus} properties="w-[80%] text-black bg-slate-100 py-2 px-4 rounded-lg" />
+              )}
+              <div className="relative group">
+              <button onClick={onClickEdit} className={`w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg`}>
+                <Edit />
+              </button>
+              <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                Edit
+              </span>
+            </div>
+            </>
+          ) : null}
+        </div>
+      </div>
+         {/* Edit Modal */}
+         {isEditModalOpen && (  
+              <PropertyForm closeEditModal={closeEditModal} propertyId={props._id} />
+          
+        )}
+         {/* buy modal Modal */}
+         {isBuyModalOpen && (  
+              <BuyForm closeBuyModal={closeBuyModal}  />
+          
+        )}
+         {/* sell modal Modal */}
+         {isSellModalOpen && (  
+              <SellForm closeSellModal={closeSellModal} />
+          
+        )}
       </>
     );
   };

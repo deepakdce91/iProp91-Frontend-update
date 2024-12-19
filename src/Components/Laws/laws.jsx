@@ -10,6 +10,7 @@ const Law = () => {
   const [lawData, setLawData] = useState([]);
 
   const handleBack = () => {
+    console.log("Back button clicked");
     setView("main");
     setLawData([]);
   };
@@ -22,12 +23,12 @@ const Law = () => {
     : view === "state"
     ? [
         { label: "Knowledge Center", link: "/" },
-        { label: "Laws", link: "#", onClick: handleBack },
+        { label: "Laws", link: "/laws" },
         { label: "State Laws" }
       ]
     : [
         { label: "Knowledge Center", link: "/" },
-        { label: "Laws", link: "#", onClick: handleBack },
+        { label: "Laws", link: "/laws" },
         { label: "Central Laws" }
       ];
 
@@ -79,9 +80,9 @@ const Law = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white p-4">
+    <div className="w-full min-h-screen bg-black p-4">
       <div className="container mx-auto">
-        <Breadcrumb items={breadcrumbItems} properties={" "} />
+        <Breadcrumb items={breadcrumbItems} onBack={handleBack} />
         
         <main className="mt-10 ">
           {view === "main" && (

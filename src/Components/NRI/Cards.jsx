@@ -73,7 +73,7 @@ export default function Cards() {
       <div className="p-4 md:p-8 flex flex-col md:flex-row items-center justify-center">
         <div className="flex flex-col md:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}
-          <div className="w-full md:w-1/3 mb-8 md:mb-0 lg:ml-20 space-y-2 md:space-y-4 mt-28 text-center md:text-start md:mt-0">
+          <div className="w-full md:w-1/3 mb-8 md:mb-0  space-y-2 md:space-y-4 mt-28 text-center md:text-start md:mt-0">
             <p className="text-4xl md:text-6xl text-black font-semibold">
               NRI
             </p>
@@ -89,7 +89,7 @@ export default function Cards() {
           {/* Carousel */}
           <div className="w-full md:w-2/3 relative">
             {/* Vertical Carousel for larger screens */}
-            <div className="hidden md:flex flex-col items-center justify-center h-[100vh]">
+            <div className="hidden md:flex flex-col items-center justify-center h-[100vh] ">
               {[-1, 0, 1].map((offset) => {
                 const slideIndex =
                   (currentIndex + offset + carouselData.length) %
@@ -98,7 +98,7 @@ export default function Cards() {
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute w-full max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                    className={`absolute w-full hover:scale-110 max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
                       offset === 0 ? "z-20" : "z-10"
                     } overflow-hidden`}
                     initial={{
@@ -111,6 +111,7 @@ export default function Cards() {
                       y: `${offset * 50}%`,
                       opacity: offset === 0 ? 1 : 0.6,
                     }}
+                    whileHover={{ scale: 1.001 }}
                     transition={{ duration: 0.5 }}
                     drag="y"
                     dragConstraints={{ top: 0, bottom: 0 }}

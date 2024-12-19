@@ -23,22 +23,28 @@ const Linklist = {
     icon: "/svgs/insight.f81afa5c.svg",
     link: "/realinsight",
   },
-  "Buy/Sell": {
-    icon: "/svgs/buyselllease.708aab01.svg",
-    link: "/buysell",
-  },
-  "NRI": {
-    icon: "/svgs/buyselllease.708aab01.svg",
-    link: "/nri",
+  // "Buy/Sell": {
+  //   icon: "/svgs/buyselllease.708aab01.svg",
+  //   link: "/buysell",
+  // },
+  Advice: {
+    icon: "/svgs/advice.ad7002e7.svg",
+    link: "/advice",
   },
   Lend: {
     icon: "/svgs/lend.610c2e62.svg",
     link: "/lend",
   },
-  Advice: {
-    icon: "/svgs/advice.ad7002e7.svg",
-    link: "/advice",
+  NRI: {
+    icon: "/svgs/buyselllease.708aab01.svg",
+    link: "/nri",
   },
+  listingPage: {
+    icon: "/svgs/buyselllease.708aab01.svg",
+    link: "/property-for-sale",
+  },
+  
+  
 };
 
 // SmallSidebar component

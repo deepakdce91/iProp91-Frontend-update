@@ -46,15 +46,15 @@ export default function NameHeader({ activeDocument }) {
           <div className="flex justify-between">
             <div className="mb-">
               <div className="flex items-center gap-2 text-2xl font-semibold mb-2">
-                <Link to="/safe" className="text-black hover:text-gray-700">
+                <Link to="/safe" className="text-primary hover:text-gray-700">
                   iProp91 Safe
                 </Link>
                 <span className="text-gray-400">&gt;</span>
-                <span className="text-primary">{properyname}</span>
+                <span className="text-black">{properyname}</span>
                 {activeDocument && (
                   <>
                     <span className="text-gray-400">&gt;</span>
-                    <span className="text-primary">{activeDocument}</span>
+                    <span className="text-black">{activeDocument}</span>
                   </>
                 )}
               </div>
@@ -63,7 +63,7 @@ export default function NameHeader({ activeDocument }) {
           </div>
         </div>
         <div className="flex justify-between px-7 align-middle">
-          <p className="text-secondary text-xs">
+          <p className="text-secondary text-base">
             Upload all your real estate documents, applicable at different stages of ownership in an encrypted safe, accessible at all times
           </p>
         </div>

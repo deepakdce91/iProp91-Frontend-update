@@ -12,9 +12,9 @@ const CompComponent = ({ item }) => {
 
   return (
     <a href={item.redirectionLink} target="_blank" rel="noopener noreferrer"
-     className="rounded-3xl w-[600px] h-[450px] border-2 border-gold overflow-hidden relative flex flex-col">
-      <div className="h-[80px] bg-gray-100 text-black px-4 py-2 flex items-center justify-center">
-        <p className="text-2xl text-center font-semibold">{item.title}</p>
+     className="rounded-3xl w-[600px] h-[450px] border-2  border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500 ">
+      <div className="h-[80px] bg-gray-100 text-black px-4 py-2 flex flex-col items-center justify-center">
+        <p className="text-lg text-start font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.topText) }}></p>
       </div>
       <div className="h-[250px] bg-gray-100 text-black px-6 py-2">
         <div className="bg-white h-full p-4 shadow-md flex flex-row gap-7">
@@ -40,8 +40,7 @@ const CompComponent = ({ item }) => {
         VS
       </div>
       <div className="flex-1 bg-gray-200 border-t-[2px] border-t-gold text-black  px-4 flex flex-col items-center justify-center ">
-        <p className="font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomTitle) }}></p>
-        <p className="text-black text-sm mt-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomText) }}></p>
+        <p className="text-black text-sm mt-2 text-start" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomText) }}></p>
       </div>
     </a>
   );
@@ -62,6 +61,8 @@ export default function Comparison() {
           }
         );
         setData(response.data);
+        console.log(response.data);
+        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -93,7 +94,7 @@ export default function Comparison() {
         </p>
         <Swiper
           effect={'coverflow'}
-          grabCursor={false}
+          grabCursor={true}
           centeredSlides={true}
           loop={true}
           slidesPerView={3}
@@ -117,7 +118,7 @@ export default function Comparison() {
         >
           {data.map((item, index) => (
             <SwiperSlide key={index}>
-              <div className="swiper-slide-wrapper ">
+              <div className="swiper-slide-wrapper py-10 ">
                 <CompComponent item={item} />
               </div>
             </SwiperSlide>
