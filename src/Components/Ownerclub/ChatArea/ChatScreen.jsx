@@ -21,7 +21,9 @@ function ChatScreen() {
   const [isUsersListOpen, setIsUsersListOpen] = useState(false);
   const [communitySearchQuery, setCommunitySearchQuery] = useState("");
   const [hasGroups, setHasGroups] = useState(true);
-  const [currentGroupThumbnail, setCurrentGroupThumbnail] = useState(defaultCommunityUrl);
+  const [currentGroupThumbnail, setCurrentGroupThumbnail] =
+    useState(defaultCommunityUrl);
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   // Fetch all communities
   const fetchAllCommunities = () => {
@@ -131,7 +133,9 @@ function ChatScreen() {
   // Update current group data and thumbnail when a group is selected
   const handleGroupSelect = (item) => {
     setCurrentGroupData(item);
-    setCurrentGroupThumbnail(item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl); // Set thumbnail
+    setCurrentGroupThumbnail(
+      item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
+    ); // Set thumbnail
   };
 
   return (
@@ -141,7 +145,9 @@ function ChatScreen() {
         <div className="fixed lg:ml-44 inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50 pointer-events-auto">
           <div className="text-center flex flex-col items-center justify-center">
             <IoLockClosed className="w-32 h-32 text-gray-700" />
-            <p className="text-gray-700 mt-4">No groups available. Please Add property to unlock this feature.</p>
+            <p className="text-gray-700 mt-4">
+              No groups available. Please Add property to unlock this feature.
+            </p>
           </div>
         </div>
       )}
@@ -151,7 +157,7 @@ function ChatScreen() {
         <div className="flex w-full min-h-screen overflow-hidden relative  ">
           {/* <!-- Sidebar --> */}
           <div
-            className={` bg-white text-black  w-full md:w-[30%] lg:w-[22%] border-r-[1px] border-r-black/20 ${
+            className={`relative bg-white text-black  w-full md:w-[30%] lg:w-[22%] border-r-[1px] border-r-black/20 ${
               currentGroupData ? "hidden md:block  " : "w-[30%]"
             }`}
           >
@@ -228,6 +234,19 @@ function ChatScreen() {
                   </div>
                 );
               })}
+            </div>
+            {/* Guidelines Footer */}
+            <div className="absolute bottom-0 left-0 p-2 text-xs bg-gray-200  w-full">
+              <p>
+                You shall adhere to these{" "}
+                <span
+                  className="cursor-pointer text-blue-600"
+                  onClick={() => setShowGuidelines(true)}
+                >
+                  guidelines
+                </span>{" "}
+                while using the services at iProp91.
+              </p>
             </div>
           </div>
 
@@ -354,6 +373,46 @@ function ChatScreen() {
               </ul>
             </div>
           )}
+
+          {/* Guidelines Popup */}
+          {showGuidelines && (
+  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50  ">
+    <div className="bg-white px-6 py-16 rounded-lg shadow-lg max-w-2xl w-full h-4/5 overflow-hidden border-[1px] border-black">
+      <h2 className="text-xl font-bold mb-4">Guidelines</h2>
+      <div
+        className="h-full overflow-y-auto space-y-6 pr-4 custom-scrollbar"
+      >
+        <p>
+          Thanks for using iProp91! We value your views and independence to express your views on this platform. However, we also value the sentiments and thoughts of your fellow users and in the interest of everyone on this platform, we expect you to adhere to the following guidelines at all times while using this platform. In case of any questions, please write us on info@iprop91.com
+        </p>
+        <ol className="list-decimal pl-5 space-y-4">
+          <li>Hate Speech and Discrimination: Do not post content that promotes discrimination, hatred, or violence based on race, ethnicity, gender, religion, disability, sexual orientation, or any other characteristic. Avoid using derogatory language and slurs that may offend or harm other users of this platform.</li>
+          <li>Harassment and Bullying: Refrain from engaging in or endorsing any form of online harassment, bullying, or intimidation. Report incidents of harassment promptly and assist in creating a supportive online community.</li>
+          <li>Graphic or Violent Content: Do not share graphic or violent content that may disturb or harm others. Exercise sensitivity when sharing content that involves tragedy or crisis situations.</li>
+          <li>Misinformation and Fake News: Verify information before sharing to prevent the spread of misinformation. Refrain from intentionally spreading false or misleading content.</li>
+          <li>Privacy Violations: Respect the privacy of others and avoid sharing personal information without consent. Be cautious about sharing your own sensitive information online.</li>
+          <li>Spam and Scams: Do not engage in spamming activities or share content intended to deceive or defraud others. Report and block suspicious accounts to help maintain a secure online environment.</li>
+          <li>Copyright Infringement: Avoid posting content that infringes on the intellectual property rights of others, including copyrighted material. Give proper credit when sharing content created by others.</li>
+          <li>NSFW (Not Safe For Work) Content: Refrain from posting explicit or sexually suggestive content, unless allowed by the platform's community guidelines.</li>
+          <li>Impersonation: Do not create fake accounts or impersonate others to deceive or harm users. Report accounts that engage in impersonation or identity theft.</li>
+          <li>Illegal Activities: Do not promote or share content related to illegal activities, including but not limited to drug trafficking, violence, or terrorism. Report any illegal activities or content to the appropriate authorities.</li>
+          <li>Respectful Communication: Engage in respectful and constructive conversations, even when disagreeing with others. Avoid using offensive language or engaging in personal attacks.</li>
+          <li>Platform-Specific Rules: Familiarize yourself with the specific rules and community guidelines of iProp91.</li>
+        </ol>
+        <p>
+          We believe these guidelines provide a foundation for a positive and inclusive online community. iProp91 reserves the right to delete comments that violate any of these Guidelines. Comments that violate these Guidelines, but also offer valuable contributions may be edited by the iProp91 team. Keep in mind that information posted on this platform may be available for all to see, and comments are subject to defamation, antitrust, privacy, and other laws. iProp91 reserves the right to remove any comments for any reason at any time.
+        </p>
+      <button
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={() => setShowGuidelines(false)}
+      >
+        Close
+      </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
           {/* article section */}
           <div
