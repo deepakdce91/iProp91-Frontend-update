@@ -24,8 +24,9 @@ import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
 
-function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange }) {
+function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, onBack }) {
   const [otp, setOTP] = useState("");
+  const [currentView, setCurrentView] = useState('mobileNumber'); // Example state
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
   const [askforname, setAskforname] = useState(false);
@@ -190,7 +191,10 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
       }
     }
   };
-
+  
+  const handleBackClick = () => {
+    setCurrentView('mobileNumber'); // Update the state to show the mobile number input
+  };
 
   useEffect(()=> {
     if (otp.length === 6) {
@@ -321,10 +325,11 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
       <div className="min-h-screen flex items-center justify-center ">
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
+          
           <div className=" p-8">
             <div
               className="flex items-center mb-4 cursor-pointer"
-              // onClick={on}  have to fix it back btn
+              onClick={onBack}
              >
               <i
                 className="bx bxs-chevron-left "
@@ -363,7 +368,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange })
                 <p className="text-gray-500 text-center">
                   Didn't receive the code?{" "}
                   <span
-                    className="cursor-pointer text-green-500"
+                    className="cursor-pointer text-gold"
                     onClick={HandleResendOTP}
                   >
                     Resend
@@ -402,6 +407,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
   const [password, setPassword] = useState("");
   const [verify, setVerify] = useState(false);
   const [otp, setOtp] = useState("");
+  const [isOtpScreen, setIsOtpScreen] = useState(false);
 
   useEffect(() => initOTPless(callback), []);
 
@@ -554,53 +560,6 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
     }
   };
 
-  // Add this to your successful login handlers
-  const handleSuccessfulLogin = async (loginResponse) => {
-    const token = loginResponse.token;
-    const decoded = jwtDecode(token);
-    const userId = decoded.userId;
-    
-    // Check for saved property data
-    const tempPropertyData = localStorage.getItem('tempPropertyData');
-    if (tempPropertyData) {
-      const { data, expiry } = JSON.parse(tempPropertyData);
-      
-      // Check if data hasn't expired
-      if (Date.now() < expiry) {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "auth-token": token,
-              },
-              body: JSON.stringify(data)
-            }
-          );
-
-          if (response.ok) {
-            toast.success("Property details saved successfully!");
-          } else {
-            toast.error("Failed to save property details");
-          }
-        } catch (error) {
-          console.error("Error saving property:", error);
-          toast.error("Failed to save property details");
-        }
-      }
-      
-      // Clear the temporary data
-      localStorage.removeItem('tempPropertyData');
-    }
-
-    setIsLoggedIn(true);
-    setTimeout(() => {
-      navigate("/concierge");
-    }, 2000);
-  };
-
   const handleOtpChange = (e) => {
     const value = e.target.value;
     setOtp(value);
@@ -644,6 +603,17 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
     }
   };
 
+  const handleBack = () => {
+    setVerify(false);
+    setPasswordLogin(true);
+    setOtp("");
+  };
+
+  const handleBackClick = () => {
+    setPasswordLogin(true);
+    setVerify(false);
+  };
+
   return (
     <section className="absolute h-screen w-screen">
       <div className="relative w-full h-full">
@@ -665,6 +635,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
                 countryCode={selectedCountry}
                 setIsLoggedIn={setIsLoggedIn}
                 handleOtpChange={handleOtpChange}
+                onBack={handleBack}
               />
             ) : passwordlogin ? (
               <>
@@ -710,7 +681,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
               <>
                 <div
                   className="flex items-center mb-4 cursor-pointer"
-                  onClick={() => setPasswordLogin(true)}
+                  onClick={handleBackClick}
                 >
                   <i
                     className="bx bxs-chevron-left"
