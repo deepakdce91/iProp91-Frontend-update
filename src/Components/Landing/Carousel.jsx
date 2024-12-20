@@ -123,12 +123,12 @@ export default function Component({data}) {
 
   return (
     <section to className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
+      <div className="absolute top-0 left-0 right-0 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[600px]">
         <div className="relative h-full w-full mt-5">
           {slides.map((slide, index) => (
             <motion.div
               key={index}
-              className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px] overflow-hidden shadow-2xl"
+              className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px]  shadow-2xl"
               style={getSlideStyles(index)}
               animate={controls}
               onClick={() => setCurrentIndex(index)}
@@ -141,7 +141,7 @@ export default function Component({data}) {
               
               src={slide.image.url}
               alt={`Slide ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-110 duration-300"
             /></a>
              
             </motion.div>
@@ -150,7 +150,7 @@ export default function Component({data}) {
       </div>
       
       {/* Navigation Controls */}
-      <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-28 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute bottom-8 sm:bottom-12 md:bottom-16 lg:bottom-16 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
           className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handlePrevious}

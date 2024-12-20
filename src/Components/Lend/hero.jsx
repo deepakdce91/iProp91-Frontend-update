@@ -1,26 +1,42 @@
 'use client'
 import { Play } from 'lucide-react'
+import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
+import { useState } from 'react'
+import DisclaimerModal from './DisclaimerModal'
+
 
 export function Hero() {
+const [showDisclaimer, setShowDisclaimer] = useState(false)
+
+
+const showDisclaimerModal = ()=>{
+  setShowDisclaimer(true);
+}
+const closeDisclaimerModal = ()=>{
+  setShowDisclaimer(false);
+}
+
+
+
   return (
-    <section className="relative bg-black text-white">
-      <div className="container mx-auto px-4 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="relative  text-black h-screen"  >
+      <div className="container mx-auto px-4 py-20 ">
+        <div className="grid lg:grid-cols-1 gap-12 items-center mt-16">
           <div className="space-y-8">
-            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-              The Home Loan Process,<br />Now Online
+            <h1 className="text-4xl lg:text-6xl font-bold w-full leading-tight">
+              The Home Loan Process, <br /> Now Online
             </h1>
-            <p className="text-xl text-gray-400">
+            <p className="text-xl text-gray-500">
               Grow Home with every BASIC step
             </p>
             <ul className="space-y-4">
               <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span>Apply at BASIC</span>
+                <span>Apply with IProp91 Partners</span>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center">
@@ -48,21 +64,16 @@ export function Hero() {
               </li>
             </ul>
           </div>
-          <div className="relative aspect-video bg-white">
-            <img
-              src="/placeholder.svg"
-              alt="Home Loan Process"
-              fill
-              className="object-cover rounded-lg"
-            />
-            <button className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                <Play className="w-8 h-8 text-black ml-1" />
-              </div>
-            </button>
-          </div>
+          
         </div>
+          <div className="text-center flex items-center  w-full mt-12">
+            <Goldbutton properties="border-[1px] border-gold bg-gray-100 w-[20%]  text-black px-8 py-3 rounded-lg font-medium  transition-colors text-lg font-bold" btnname={"GET STARTED"} onclick={showDisclaimerModal} />
+          </div>
       </div>
+
+      {showDisclaimer && (
+        <DisclaimerModal onClose={closeDisclaimerModal}/>
+      )}
     </section>
   )
 }

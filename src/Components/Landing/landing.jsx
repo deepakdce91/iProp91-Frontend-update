@@ -50,23 +50,35 @@ const TypingLandingPage = () => {
   const [showNavbar, setShowNavbar] = useState(false);
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem("hasVisited");
+    const checkVisit = async () => {
+      const hasVisited = localStorage.getItem("hasVisited");
+      const visitTime = localStorage.getItem("visitTime");
 
-    if (hasVisited) {
-      // Skip animation if user has already visited
-      setShowMessage(false);
-      setShowNavbar(true);
-    } else {
-      // First visit: Show animation and set 'hasVisited' in localStorage
-      localStorage.setItem("hasVisited", "true");
-      const messageTimeout = setTimeout(() => setShowMessage(false), 3000);
-      const navbarTimeout = setTimeout(() => setShowNavbar(true), 3000);
+      const currentTime = new Date().getTime();
+      const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-      return () => {
+      if (hasVisited && visitTime && (currentTime - visitTime < thirtyMinutes)) {
+        // Skip animation if user has already visited within 30 minutes
+        setShowMessage(false);
+        setShowNavbar(true);
+      } else {
+        // First visit or session expired: Show animation
+        const messageTimeout = setTimeout(() => setShowMessage(false), 5000);
+        const navbarTimeout = setTimeout(() => setShowNavbar(true), 5000);
+
+        // Wait for the animation to complete
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        // Set 'hasVisited' in localStorage after animation
+        localStorage.setItem("hasVisited", "true");
+        localStorage.setItem("visitTime", currentTime); // Store current time
+
         clearTimeout(messageTimeout);
         clearTimeout(navbarTimeout);
-      };
-    }
+      }
+    };
+
+    checkVisit();
   }, []);
 
   const welcomeMessage = "Welcome to iProp91";

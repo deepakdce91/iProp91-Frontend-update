@@ -3,10 +3,34 @@ import Call from './corousal/corsoual'
 import Starter from '../CompoCards/Starter/Starter'
 import Cards from './Cards';
 import ContactUs from '../CompoCards/contactus/ContactUs';
+import { useEffect, useState } from 'react';
+import Profile from '../User/Profile/profile';
+
+
 export default function NRI(){
+    const [hasToken, setHasToken] = useState(false); // State for token presence
+
+    useEffect(() => {
+    
+        const checkToken = () => {
+          setHasToken(!!localStorage.getItem("token")); // Check for token in localStorage
+        };
+    
+        checkToken();
+    
+        
+      }, []);
+
+
     return (
         <>
-        <Starter/>
+        {/* Profile Header */}
+      {hasToken && (
+        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
+          <Profile/>
+        </div>
+      )}
+        {/* <Starter/> */}
          <Cards/>
         <Que/>
         <Call/>
