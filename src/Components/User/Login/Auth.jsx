@@ -2,7 +2,7 @@ import SimpleInput from "../../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import LableInput from "../../CompoCards/InputTag/labelinput";
 import { useState, useEffect } from "react";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PhoneInput from "../../CompoCards/PhoneInput";
 import {
@@ -25,7 +25,7 @@ import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
 import { ChevronLeft } from "lucide-react";
 
-async function AddGuestProperty(userId, userToken, data, myCallback){
+async function AddGuestProperty(userId, userToken, data, myCallback) {
   // Handle property submission
   try {
     const propertyResponse = await fetch(
@@ -41,7 +41,7 @@ async function AddGuestProperty(userId, userToken, data, myCallback){
           city: data.selectedCity,
           builder: data.selectBuilder,
           project: data.selectProject,
-        })
+        }),
       }
     );
 
@@ -59,7 +59,14 @@ async function AddGuestProperty(userId, userToken, data, myCallback){
   }
 }
 
-function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, stage1FormData  }) {
+function Verify({
+  onclick,
+  phone,
+  countryCode,
+  setIsLoggedIn,
+  handleOtpChange,
+  stage1FormData,
+}) {
   const [otp, setOTP] = useState("");
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
@@ -107,7 +114,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
         countryCode: countryCode,
       });
       setOTP("");
-      
+
       if (verifyresponse) {
         console.log("Response:", verifyresponse);
         if (verifyresponse.response.verification === "FAILED") {
@@ -147,28 +154,32 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
                 let loginresjson = await loginres.json();
                 if (loginresjson.success === true) {
                   localStorage.setItem("token", loginresjson.token);
-                  
+
                   // Get user details after login
                   const decoded = jwtDecode(loginresjson.token);
                   const userId = decoded.userId; // This should be the correct user ID
                   setIsLoggedIn(true);
                   toast.success("Login Successful");
-                  if(stage1FormData){
+                  if (stage1FormData) {
                     const SendToConciPage = () => {
                       setTimeout(() => {
                         navigate("/concierge");
-                      }, 2000)
-                    }
-                    AddGuestProperty(userId,loginresjson.token,stage1FormData,SendToConciPage );
+                      }, 2000);
+                    };
+                    AddGuestProperty(
+                      userId,
+                      loginresjson.token,
+                      stage1FormData,
+                      SendToConciPage
+                    );
                   }
-                  
+
                   return;
-                }else{
+                } else {
                   setTimeout(() => {
                     navigate("/concierge");
                   }, 2000);
                   return;
-
                 }
               } catch (error) {
                 console.error(error.message);
@@ -196,10 +207,9 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
     }
   };
 
-
-  useEffect(()=> {
+  useEffect(() => {
     if (otp.length === 6) {
-      HandleVerifyOTP({preventDefault: ()=> {}})
+      HandleVerifyOTP({ preventDefault: () => {} });
     }
   }, [otp]);
 
@@ -249,14 +259,14 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
       const decoded = jwtDecode(token);
       const userId = decoded.userId;
 
-      if(stage1FormData){
+      if (stage1FormData) {
         const SendToConciPage = () => {
           setTimeout(() => {
             navigate("/concierge");
-          }, 2000)
-        }
-        AddGuestProperty(userId,token,stage1FormData,SendToConciPage );
-      }else{
+          }, 2000);
+        };
+        AddGuestProperty(userId, token, stage1FormData, SendToConciPage);
+      } else {
         setTimeout(() => {
           navigate("/concierge");
         }, 1000);
@@ -264,7 +274,6 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
         setIsLoggedIn(true);
         setLoading(false);
       }
-      
     } catch (err) {
       toast.error("Something went wrong");
       setTimeout(() => {
@@ -287,14 +296,18 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
         </div>
       ) : null}
       <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
-      
-        <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
+        <p
+          onClick={handleOpen}
+          className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20"
+        >
+          Skip for now
+        </p>
         <DialogHeader className="relative m-0 block">
           {/* <Typography variant="h4" color="blue-gray">
             Enter Your Details
           </Typography> */}
           <Typography className="mt-1 font-bold text-lg text-gray-800">
-          Helping you manage your real estate assets brick by brick
+            Helping you manage your real estate assets brick by brick
           </Typography>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
@@ -333,17 +346,27 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
           </div>
         </DialogBody>
         <DialogFooter>
-          <Goldbutton btnname={"Sign Up"} properties={"bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"} onclick={handleOpen} />
+          <Goldbutton
+            btnname={"Sign Up"}
+            properties={
+              "bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
+            }
+            onclick={handleOpen}
+          />
         </DialogFooter>
       </Dialog>
-      <div className={`${stage1FormData ? "h-fit" : "min-h-screen"} flex items-center justify-center `}>
+      <div
+        className={`${
+          stage1FormData ? "h-fit" : "min-h-screen"
+        } flex items-center justify-center `}
+      >
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
           <div className=" p-8">
             <div
               className="flex items-center mb-4 cursor-pointer"
               // onClick={on}  have to fix it back btn
-             >
+            >
               <i
                 className="bx bxs-chevron-left "
                 style={{ fontSize: "20px" }}
@@ -406,11 +429,17 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
           </div> */}
         </div>
       </div>
-    </section> 
+    </section>
   );
 }
 
-export default function Login({setIsLoggedIn, onClose, properties, stage1FormData, goBackToStage1 }) {
+export default function Login({
+  setIsLoggedIn,
+  onClose,
+  properties,
+  stage1FormData,
+  goBackToStage1,
+}) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -464,7 +493,6 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
           headers: {
             "Content-Type": "application/json",
           },
-         
         }
       );
       const loginresjson = await response.json();
@@ -473,29 +501,33 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
         // First store the token
         localStorage.setItem("token", loginresjson.token);
         const decoded = jwtDecode(loginresjson.token);
-        
+
         // Set login state first
         setIsLoggedIn(true);
         toast.success("Login Successful");
 
-      
-      const userId = decoded.userId;
+        const userId = decoded.userId;
 
-      if(stage1FormData){
-        const SendToConciPage = () => {
+        if (stage1FormData) {
+          const SendToConciPage = () => {
+            setTimeout(() => {
+              navigate("/concierge");
+            }, 2000);
+          };
+          AddGuestProperty(
+            userId,
+            loginresjson.token,
+            stage1FormData,
+            SendToConciPage
+          );
+        } else {
           setTimeout(() => {
             navigate("/concierge");
-          }, 2000)
+          }, 1000);
+          // set is login === true
+          setIsLoggedIn(true);
+          setLoading(false);
         }
-        AddGuestProperty(userId,loginresjson.token,stage1FormData,SendToConciPage );
-      }else{
-        setTimeout(() => {
-          navigate("/concierge");
-        }, 1000);
-        // set is login === true
-        setIsLoggedIn(true);
-        setLoading(false);
-      }
       } else {
         toast.error(loginresjson.error);
         return;
@@ -506,7 +538,6 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
       return;
     }
   };
-
 
   const handleOtpChange = (e) => {
     const value = e.target.value;
@@ -520,13 +551,16 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
   const verifyOtp = async (otpValue) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone, otp: otpValue }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ phone, otp: otpValue }),
+        }
+      );
 
       const data = await response.json();
       if (data.success) {
@@ -546,157 +580,173 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
 
   // Add this function to handle key press
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       HandleOTPLogin(e);
     }
   };
 
   return (
-    <section className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}>
+    <section
+      className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
+    >
       <div className="relative w-full h-full">
-      {/* {loading ? (
+        {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
         </div>
       ) : null} */}
-      <div className={`shadow-md ${stage1FormData ? "bg-black flex-col pt-20" : "rounded-xl bg-gray-100 absolute"} w-full h-full   flex items-center justify-center  ${properties}`}>
-        {!stage1FormData && <button onClick={onClose}  className="absolute right-4 top-5 ">
-        <GrClose  />
-        </button>}
+        <div
+          className={`shadow-md ${
+            stage1FormData
+              ? "bg-black items-center  flex-col pt-20 h-full"
+              : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`
+          }     flex justify-center  `}
+        >
+          <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
+            {!stage1FormData && (
+              <button onClick={onClose} className="absolute right-4 top-5 ">
+                <GrClose />
+              </button>
+            )}
 
-        
-        
-        <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
-
-        
-
-          {/* Left Side - Form */}
-          <form onKeyDown={handleKeyPress} className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${stage1FormData ? "h-fit" : "h-[500px] lg:h-[600px]"}`}>
-            {verify ? (
-              <Verify
-                phone={phone}
-                countryCode={selectedCountry}
-                setIsLoggedIn={setIsLoggedIn}
-                handleOtpChange={handleOtpChange}
-                stage1FormData={stage1FormData}
-              />
-            ) : passwordlogin ? (
-              <>
-                <div className="flex items-center mb-4 cursor-pointer">
-                  <span className="ml-2 text-gray-600">Sign in / Sign up</span>
-                </div>
-                <h2 className="text-2xl font-semibold mb-4 ">
-                  Enter Phone Number
-                </h2>
-                <p className="text-gray-500 text-sm mb-8" onClick={onclick}>
-                  Enter your mobile number to get an OTP 
-                </p>
-                <div className="w-72">
-                  <PhoneInput
-                    selectedCountry={selectedCountry}
-                    setSelectedCountry={setSelectedCountry}
-                    phone={phone}
-                    setPhone={setPhone}
-                    
-                  />
-                </div>
-                <div className="w-72  mt-1">
-                  <Goldbutton
-                    btnname={"Send OTP"}
-                    properties={" bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"}
-                    onclick={HandleOTPLogin}
-                  />
-                </div>
-                <div
-                  className="flex items-center mt-4 cursor-pointer"
-                  onClick={() => {
-                    setPasswordLogin(false);
-                    setVerify(false);
-                  }}
-                >
-                  <p>
-                    Login with{" "}
-                    <span className="text-gold underline">Password</span>
+            {/* Left Side - Form */}
+            <form
+              onKeyDown={handleKeyPress}
+              className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${
+                stage1FormData ? "h-fit" : "h-[500px] lg:h-[600px]"
+              }`}
+            >
+              {verify ? (
+                <Verify
+                  phone={phone}
+                  countryCode={selectedCountry}
+                  setIsLoggedIn={setIsLoggedIn}
+                  handleOtpChange={handleOtpChange}
+                  stage1FormData={stage1FormData}
+                />
+              ) : passwordlogin ? (
+                <>
+                  <div className="flex items-center mb-4 cursor-pointer">
+                    <span className="ml-2 text-gray-600">
+                      Sign in / Sign up
+                    </span>
+                  </div>
+                  <h2 className="text-2xl font-semibold mb-4 ">
+                    Enter Phone Number
+                  </h2>
+                  <p className="text-gray-500 text-sm mb-8" onClick={onclick}>
+                    Enter your mobile number to get an OTP
                   </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className="flex items-center mb-4 cursor-pointer"
-                  onClick={() => setPasswordLogin(true)}
-                >
-                  <i
-                    className="bx bxs-chevron-left"
-                    style={{ fontSize: "20px" }}
-                  ></i>
-                  <span className="ml-2 text-gray-600">Back</span>
-                </div>
-                <h2 className="text-3xl font-semibold mb-4">
-                  Enter Credentials
-                </h2>
-                <p className="text-gray-500 mb-8" onClick={onclick}>
-                  Enter your mobile number and password to continue with login
-                  and password.
-                </p>
-                <div className="w-72 ">
-                  <PhoneInput
-                    selectedCountry={selectedCountry}
-                    setSelectedCountry={setSelectedCountry}
-                    phone={phone}
-                    setPhone={setPhone}
-                  />
-                </div>
-                <div className="w-72  mt-1">
-                  <SimpleInputPass
-                    type={"password"}
-                    placeholder={"Password"}
-                    value={password}
-                    setValue={setPassword}
-                  />
-                </div>
-                <div className="w-72 mt-1">
-                  <Goldbutton
-                    btnname={"Submit"}
-                    properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
-                    onclick={HandlePasswordLogin}
-                  />
-                </div>
-                <div
-                  className="flex items-center mt-4 cursor-pointer"
-                  onClick={() => {
-                    setPasswordLogin(true);
-                    setVerify(false);
-                  }}
-                >
-                  <p>
-                    Login with{" "}
-                    <span className="text-gold underline">OTP</span>
+                  <div className="w-72">
+                    <PhoneInput
+                      selectedCountry={selectedCountry}
+                      setSelectedCountry={setSelectedCountry}
+                      phone={phone}
+                      setPhone={setPhone}
+                    />
+                  </div>
+                  <div className="w-72  mt-1">
+                    <Goldbutton
+                      btnname={"Send OTP"}
+                      properties={
+                        " bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
+                      }
+                      onclick={HandleOTPLogin}
+                    />
+                  </div>
+                  <div
+                    className="flex items-center mt-4 cursor-pointer"
+                    onClick={() => {
+                      setPasswordLogin(false);
+                      setVerify(false);
+                    }}
+                  >
+                    <p>
+                      Login with{" "}
+                      <span className="text-gold underline">Password</span>
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="flex items-center mb-4 cursor-pointer"
+                    onClick={() => setPasswordLogin(true)}
+                  >
+                    <i
+                      className="bx bxs-chevron-left"
+                      style={{ fontSize: "20px" }}
+                    ></i>
+                    <span className="ml-2 text-gray-600">Back</span>
+                  </div>
+                  <h2 className="text-3xl font-semibold mb-4">
+                    Enter Credentials
+                  </h2>
+                  <p className="text-gray-500 mb-8" onClick={onclick}>
+                    Enter your mobile number and password to continue with login
+                    and password.
                   </p>
-                </div>
-              </>
-            )} 
-          </form>
+                  <div className="w-72 ">
+                    <PhoneInput
+                      selectedCountry={selectedCountry}
+                      setSelectedCountry={setSelectedCountry}
+                      phone={phone}
+                      setPhone={setPhone}
+                    />
+                  </div>
+                  <div className="w-72  mt-1">
+                    <SimpleInputPass
+                      type={"password"}
+                      placeholder={"Password"}
+                      value={password}
+                      setValue={setPassword}
+                    />
+                  </div>
+                  <div className="w-72 mt-1">
+                    <Goldbutton
+                      btnname={"Submit"}
+                      properties={
+                        "bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"
+                      }
+                      onclick={HandlePasswordLogin}
+                    />
+                  </div>
+                  <div
+                    className="flex items-center mt-4 cursor-pointer"
+                    onClick={() => {
+                      setPasswordLogin(true);
+                      setVerify(false);
+                    }}
+                  >
+                    <p>
+                      Login with{" "}
+                      <span className="text-gold underline">OTP</span>
+                    </p>
+                  </div>
+                </>
+              )}
+            </form>
 
-          {/* Right Side - Image */}
-          {/* <div className="w-4/6 hidden ">
+            {/* Right Side - Image */}
+            {/* <div className="w-4/6 hidden ">
             <img
               src="images/login.png" // Replace this with the actual image URL
               alt="Building"
               className="w-full h-[90%] rounded-xl object-cover"
             />
           </div> */}
+          </div>
+
+          {stage1FormData && (
+            <button
+              onClick={goBackToStage1}
+              className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back
+            </button>
+          )}
         </div>
-
-        {stage1FormData && <button
-                onClick={goBackToStage1}
-                className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Back
-              </button>}
-      </div>
-
       </div>
     </section>
   );
