@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Link } from 'react-router-dom';
+
 
 const JourneyForm = () => {
   // Initial questions data
@@ -383,12 +385,14 @@ const JourneyForm = () => {
       ],
     },
   ];
-
+  
   const [initialQuestions, setInitialQuestions] = useState(dummyQues);
+  const [entryPoint, setEntryPoint] = useState({});
   const [history, setHistory] = useState([
     {
       question: initialQuestions[0],
       path: [],
+      selections: {} // Add selections to track question-answer pairs
     },
   ]);
 
@@ -408,21 +412,40 @@ const JourneyForm = () => {
   };
 
   const maxDepth = calculateMaxDepth(initialQuestions[0]);
-  // Calculate progress but never reach 100%
   const progress = Math.min(((history.length - 1) / maxDepth) * 95, 95);
 
   const currentState = history[history.length - 1];
 
+  // Update entryPoint whenever history changes
+  useEffect(() => {
+    const newEntryPoint = {};
+    history.forEach(item => {
+      if (item.question.questionText && item.selections) {
+        const questionKey = item.question.questionText.replace(/\s+/g, '-').toLowerCase();
+        Object.assign(newEntryPoint, item.selections);
+      }
+    });
+    setEntryPoint(newEntryPoint);
+  }, [history]);
+
   const handleOptionSelect = (option) => {
     if (option.subQuestions && option.subQuestions.length > 0) {
       const nextQuestion = option.subQuestions[0];
-      setHistory([
+      const questionKey = currentState.question.questionText.replace(/\s+/g, '-').toLowerCase();
+      const newSelections = {
+        ...currentState.selections,
+        [questionKey]: option.text.replace(/\s+/g, '-')
+      };
+      
+      const newHistory = [
         ...history,
         {
           question: nextQuestion,
           path: [...currentState.path, option.text],
+          selections: newSelections
         },
-      ]);
+      ];
+      setHistory(newHistory);
     }
   };
 
@@ -448,48 +471,41 @@ const JourneyForm = () => {
   }, []);
 
   return (
-    <div className="w-full bg-black h-screen max-w-3xl mx-auto p-6 space-y-6">
+    <div className="w-full bg-black h-screen max-w-4xl mx-auto p-6 pt-12 space-y-6">
       {initialQuestions.length > 0 && (
         <>
-          {/* Enhanced Progress Bar Container with Glow Effect */}
           <div className="relative">
             <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
-              {/* Glowing Border Effect */}
               <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
-
-              {/* Progress Bar */}
               <div
-                className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-in-out relative"
+                className="h-full bg-white rounded-full transition-all duration-300 ease-in-out relative"
                 style={{ width: `${progress}%` }}
               >
-                {/* Inner Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-50" />
-                <div className="absolute inset-0 animate-pulse bg-white opacity-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white to-white opacity-50" />
+                <div className="absolute inset-0  bg-white opacity-10" />
               </div>
             </div>
           </div>
 
-          {/* Current Question */}
           <div className="bg-black rounded-lg shadow p-6">
-            <h2 className="text-2xl text-center font-semibold text-white mb-6">
+            <h2 className="text-3xl text-center font-semibold text-white mb-6">
               {currentState.question.questionText}
             </h2>
 
-            {/* Options */}
-            <div className="space-y-3 text-gray-200 hover:text-white">
+            <div className="space-y-3 mt-6 text-gray-200 hover:text-white">
               {currentState.question.options.map((option) => (
                 <React.Fragment key={option.id.$numberDouble}>
                   {option.redirectionLink ? (
                     <a
-                      href={option.redirectionLink}
-                      className="w-full block text-left px-4 py-2 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    href={`${option.redirectionLink}?entryPoint=${encodeURIComponent(JSON.stringify(entryPoint))}`}
+                      className="w-full block text-center text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
                     >
                       {option.text}
                     </a>
                   ) : (
                     <button
                       onClick={() => handleOptionSelect(option)}
-                      className="w-full text-left px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full text-center text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     >
                       {option.text}
                     </button>
@@ -499,12 +515,11 @@ const JourneyForm = () => {
             </div>
           </div>
 
-          {/* Navigation Path */}
           <div className="flex items-center space-x-2 text-sm">
             {history.length > 1 && (
               <button
                 onClick={handleBack}
-                className="flex items-center px-3 py-1 rounded-sm text-white bg-blue-600 hover:bg-blue-800"
+                className="flex items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Back

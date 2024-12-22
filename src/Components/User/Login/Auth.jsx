@@ -23,6 +23,7 @@ import { Spinner } from "@material-tailwind/react";
 import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
+import { ChevronLeft } from "lucide-react";
 
 async function AddGuestProperty(userId, userToken, data, myCallback){
   // Handle property submission
@@ -335,7 +336,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
           <Goldbutton btnname={"Sign Up"} properties={"bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"} onclick={handleOpen} />
         </DialogFooter>
       </Dialog>
-      <div className="min-h-screen flex items-center justify-center ">
+      <div className={`${stage1FormData ? "h-fit" : "min-h-screen"} flex items-center justify-center `}>
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
           <div className=" p-8">
@@ -409,7 +410,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
   );
 }
 
-export default function Login({setIsLoggedIn, onClose, properties, stage1FormData }) {
+export default function Login({setIsLoggedIn, onClose, properties, stage1FormData, goBackToStage1 }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -551,20 +552,26 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
   };
 
   return (
-    <section className="absolute h-screen w-screen">
+    <section className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}>
       <div className="relative w-full h-full">
       {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
         </div>
       ) : null} */}
-      <div className={`shadow-md absolute  rounded-xl flex items-center justify-center bg-gray-100 ${properties}`}>
-        <button onClick={onClose}  className="absolute right-4 top-5 ">
+      <div className={`shadow-md ${stage1FormData ? "bg-black flex-col pt-20" : "rounded-xl bg-gray-100 absolute"} w-full h-full   flex items-center justify-center  ${properties}`}>
+        {!stage1FormData && <button onClick={onClose}  className="absolute right-4 top-5 ">
         <GrClose  />
-        </button>
-        <div className="flex rounded-lg max-w-7xl overflow-hidden justify-center">
+        </button>}
+
+        
+        
+        <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
+
+        
+
           {/* Left Side - Form */}
-          <form onKeyDown={handleKeyPress} className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px] h-[500px] lg:h-[600px]">
+          <form onKeyDown={handleKeyPress} className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${stage1FormData ? "h-fit" : "h-[500px] lg:h-[600px]"}`}>
             {verify ? (
               <Verify
                 phone={phone}
@@ -680,6 +687,14 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
             />
           </div> */}
         </div>
+
+        {stage1FormData && <button
+                onClick={goBackToStage1}
+                className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>}
       </div>
 
       </div>

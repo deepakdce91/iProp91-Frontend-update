@@ -7,6 +7,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { jwtDecode } from "jwt-decode";
 import { client } from "../../../config/s3client";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
+import StateCityCompo from "../../GeneralUi/StateCityCompo";
 
 import { useNavigate } from "react-router-dom";
 
@@ -88,6 +89,28 @@ function Addpropform() {
       ...prevData,
       [e.target.name]: e.target.value, // update the respective radio button value
     }));
+  };
+
+  const handleStateChange = (newState) => {
+    // Accept the new state
+    setFormData((prevFormData) => {
+      const updatedFormData = {
+        ...prevFormData,
+        selectedState: newState,
+      };
+      return updatedFormData;
+    });
+  };
+
+  const handleCityChange = (newCity) => {
+    // Accept the new city as a parameter
+    setFormData((prevFormData) => {
+      const updatedFormData = {
+        ...prevFormData,
+        selectedCity: newCity,
+      };
+      return updatedFormData;
+    });
   };
 
   // Fetch User Details
@@ -268,15 +291,15 @@ function Addpropform() {
 
     // Update the selectedDocType within selectDoclist
     setFormData((prevFormData) => {
-        const updatedFormData = {
-            ...prevFormData, // keep other properties
-            selectDoclist: {
-                ...prevFormData.selectDoclist, // keep previous selectDoclist values
-                selectedDocType: newDocType, // update selectedDocType
-            },
-        };
-        console.log("Updated Form Data after Doc Type Change:", updatedFormData);
-        return updatedFormData;
+      const updatedFormData = {
+        ...prevFormData, // keep other properties
+        selectDoclist: {
+          ...prevFormData.selectDoclist, // keep previous selectDoclist values
+          selectedDocType: newDocType, // update selectedDocType
+        },
+      };
+      console.log("Updated Form Data after Doc Type Change:", updatedFormData);
+      return updatedFormData;
     });
   };
 
@@ -291,14 +314,16 @@ function Addpropform() {
     }
   };
 
-  const handleFileUpload = async (files) => { // Accept files as a parameter
+  const handleFileUpload = async (files) => {
+    // Accept files as a parameter
     if (files.length === 0) {
       return toast.error("Please select a file to upload.");
     }
 
     try {
       toast("Uploading files!");
-      for (const item of files) { // Use a for loop for async/await
+      for (const item of files) {
+        // Use a for loop for async/await
         let cloudFilePath = await uploadFileToCloud(item, user.phone);
         setFormData((prevFormData) => {
           const updatedFormData = {
@@ -333,7 +358,7 @@ function Addpropform() {
 
     // Debugging: Log the form data
     console.log("Form Data:", formdata);
-    
+
     let token = localStorage.getItem("token");
     let tokenid = jwtDecode(token);
 
@@ -362,7 +387,7 @@ function Addpropform() {
     if (!termsncond) {
       return toast.error("Please agree to the terms and conditions.");
     }
-    
+
     // Updated validation: only check for mandatory fields
     if (
       !formdata.selectedState ||
@@ -511,52 +536,13 @@ function Addpropform() {
         <div className="bg-gray-100 shadow-lg rounded-3xl p-4 md:p-10 w-full ">
           <form>
             <div className="flex flex-col w-full">
-              {/* State */}
+              {/* State and city*/}
               <div className="flex flex-col xl:flex-row w-full">
-                <div className="w-full my-2 xl:m-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Select State
-                  </label>
-                  <input
-                    list="states-list"
-                    id="state"
-                    name="selectedState"
-                    value={formdata.selectedState}
-                    onChange={handleChange}
-                    placeholder="Select or type a state..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                  />
-                  <datalist id="states-list">
-                    {states.map((state) => (
-                      <option key={state._id} value={state.name}>
-                        {state.name}
-                      </option>
-                    ))}
-                  </datalist>
-                </div>
+                <StateCityCompo
+                  setMainCity={handleCityChange}
+                  setMainState={handleStateChange}
+                />
 
-                {/* City */}
-                <div className="w-full my-2 xl:m-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Select City
-                  </label>
-                  <input
-                    list="cities-list"
-                    id="city"
-                    name="selectedCity"
-                    value={formdata.selectedCity}
-                    onChange={handleChange}
-                    placeholder="Select or type a city..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                  />
-                  <datalist id="cities-list">
-                    {cities.map((city) => (
-                      <option key={city._id} value={city.name}>
-                        {city.name}
-                      </option>
-                    ))}
-                  </datalist>
-                </div>
                 {/* builder */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
