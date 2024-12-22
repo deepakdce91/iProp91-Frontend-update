@@ -1,24 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import Auth from "../User/Login/Auth";
+import StateCityCompo from "../GeneralUi/StateCityCompo";
+import { useSearchParams } from 'react-router-dom';
 
+const Stage1Form = ({ setIsLoggedIn }) => {
 
-const Stage1Form = ({setIsLoggedIn}) => {
-
+  const [searchParams] = useSearchParams();
+  
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
   const [formdata, setFormData] = useState({
     selectedState: "",
-    selectedCity: "", 
+    selectedCity: "",
     selectBuilder: "",
     selectProject: "",
+    entryPoint : "asasas",
+    moreInfoReason : "Upload your property's documents to get it approved."
   });
+
+  const [builders, setBuilders] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   const handleChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleStateChange = (newState) => {
+    // Accept the new state
+    setFormData((prevFormData) => {
+      const updatedFormData = {
+        ...prevFormData,
+        selectedState: newState,
+      };
+      return updatedFormData;
+    });
+  };
+
+  const handleCityChange = (newCity) => {
+    // Accept the new city as a parameter
+    setFormData((prevFormData) => {
+      const updatedFormData = {
+        ...prevFormData,
+        selectedCity: newCity,
+      };
+      return updatedFormData;
+    });
+  };
+
+  // Fetch builders based on selected city
+  const fetchBuilders = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/builders/fetchAllBuildersForGuestForm`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const builders = await response.json();
+      setBuilders(builders);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  // Fetch projects based on selected builder
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projects/fetchAllProjectsForGuestForm`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const projects = await response.json();
+      setProjects(projects);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   const openAuthModal = () => {
@@ -33,93 +101,139 @@ const Stage1Form = ({setIsLoggedIn}) => {
     e.preventDefault();
 
     // Form validation
-    if (!formdata.selectedState || !formdata.selectedCity || 
-        !formdata.selectBuilder || !formdata.selectProject) {
+    if (
+      !formdata.selectedState ||
+      !formdata.selectedCity ||
+      !formdata.selectBuilder ||
+      !formdata.selectProject
+    ) {
       return toast.error("Please fill all the fields.");
-    } 
+    }
 
     try {
       toast("Please login to continue!");
       openAuthModal();
-
     } catch (error) {
       console.error(error.message);
       toast.error("Some error occurred.");
     }
   };
 
+  // Fetch and projects projects
+  useEffect(() => {
+    fetchBuilders();
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    try {
+      // Get the entryPoint parameter from URL
+      const entryPointParam = searchParams.get('entryPoint');
+
+      if (entryPointParam) {
+        setFormData((prevData) => ({
+          ...prevData,
+          entryPoint: entryPointParam,
+        }));
+        
+      }
+    } catch (error) {
+      console.error('Error parsing entry point data:', error);
+    }
+  }, [searchParams]);
+
   return (
     <section className="  flex items-center justify-center ">
-      <div className=" bg-[#212121] h-screen p-8 w-full px-12 md:px-32 pt-[17vh]">
-        <div className="flex flex-col justify-center items-center py-24">
-          <p className="md:text-3xl text-3xl text-white font-bold mb-5">Add Property Details</p>
-          
+      {!isAuthModalOpen && <div className=" bg-black h-screen p-8 w-full px-12 md:px-32 pt-[17vh] ">
+        <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
+          <p className="md:text-3xl text-3xl text-white font-bold mb-5">
+            Add Property Details
+          </p>
+
           {/* Form Fields */}
-          <div className="flex flex-col  w-full md:w-[60vw] lg:w-[40vw]">
-            <div className="w-full my-2 xl:m-2">
-              <label className="block text-sm font-medium text-gray-300">State</label>
-              <input
-                type="text"
-                name="selectedState"
-                value={formdata.selectedState}
-                onChange={handleChange}
-                placeholder="Enter state"
-                className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-sm shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
-              />
-            </div>
+          <div className="flex flex-col  w-full">
+            <StateCityCompo
+            initialCity={formdata.selectedCity}
+            initialState={formdata.selectedState}
+              fromGuestForm={true}
+              setMainCity={handleCityChange}
+              setMainState={handleStateChange}
+            />
 
+            {/* builder */}
             <div className="w-full my-2 xl:m-2">
-              <label className="block text-sm font-medium text-gray-300">City</label>
+              <label className="block mb-3 text-sm font-medium text-gray-200">
+                Select Builder
+              </label>
               <input
-                type="text"
-                name="selectedCity"
-                value={formdata.selectedCity}
-                onChange={handleChange}
-                placeholder="Enter city"
-                className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-sm shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
-              />
-            </div>
-
-            <div className="w-full my-2 xl:m-2">
-              <label className="block text-sm font-medium text-gray-300">Builder</label>
-              <input
-                type="text"
+                list="builders-list"
+                id="builder"
                 name="selectBuilder"
                 value={formdata.selectBuilder}
                 onChange={handleChange}
-                placeholder="Enter builder name"
-                className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-sm shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
+                placeholder="Select or type a builder..."
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
               />
+              {builders.length > 0 && (
+                <datalist id="builders-list">
+                  {builders.map((builder) => (
+                    <option key={builder._id} value={builder.name}>
+                      {builder.name}
+                    </option>
+                  ))}
+                </datalist>
+              )}
             </div>
 
+            {/* Project */}
             <div className="w-full my-2 xl:m-2">
-              <label className="block text-sm font-medium text-gray-300">Project</label>
+              <label className="block mb-3 text-sm font-medium text-gray-200">
+                Select Project
+              </label>
               <input
-                type="text"
+                list="projects-list"
+                id="project"
                 name="selectProject"
                 value={formdata.selectProject}
                 onChange={handleChange}
-                placeholder="Enter project name"
-                className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-sm shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm bg-white"
+                placeholder="Select or type a project..."
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
               />
+              {projects.length > 0 && (
+                <datalist id="projects-list">
+                  {projects.map((project) => (
+                    <option key={project._id} value={project.name}>
+                      {project.name}
+                    </option>
+                  ))}
+                </datalist>
+              )}
             </div>
           </div>
 
-        
           {/* Submit Button */}
-          <div className="w-full md:w-1/2 flex items-end justify-center mt-5 md:px-2">
-            <button 
-              onClick={handleSubmit} 
-              className="bg-black  hover:bg-white/90 text-white hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+          <div className="w-full md:w-1/2 flex items-end justify-center mt-10 md:px-2">
+            <button
+              onClick={handleSubmit}
+              className="bg-gray-100  hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
             >
               Continue <IoIosArrowRoundForward className="h-7 w-7 ml-1" />
             </button>
           </div>
         </div>
-      </div>
-            {/* Auth Modal */}
-            {isAuthModalOpen && <Auth onClose={closeAuthModal} setIsLoggedIn={setIsLoggedIn} properties={"absolute top-[20%] sm:top-[7%] right-[2%] z-50"}
-                stage1FormData={formdata}/>}
+      </div>}
+      {/* Auth Modal */}
+      {isAuthModalOpen && (
+        <Auth
+        goBackToStage1={()=>{
+          setIsAuthModalOpen(false);
+        }}
+          onClose={closeAuthModal}
+          setIsLoggedIn={setIsLoggedIn}
+          properties={" "}
+          stage1FormData={formdata}
+        />
+      )}
     </section>
   );
 };
