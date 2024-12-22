@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
-import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect } from "react";
+import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { jwtDecode } from 'jwt-decode';
-import { client } from '../../../config/s3client'
-import Goldbutton from '../../CompoCards/GoldButton/Goldbutton'
+import { jwtDecode } from "jwt-decode";
+import { client } from "../../../config/s3client";
+import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 
 import { useNavigate } from "react-router-dom";
 
 const uploadFileToCloud = async (myFile, userNumber) => {
   // remove spaces from file name
-  let filename = myFile.name.replace(/\s/g, '');
+  let filename = myFile.name.replace(/\s/g, "");
 
   const myPath = `propertyDocs/${userNumber}/${filename}`;
   try {
@@ -25,22 +25,19 @@ const uploadFileToCloud = async (myFile, userNumber) => {
     // console.log("Uploading file:", myFile.name);
     const command = new PutObjectCommand(uploadParams);
     const sent = await client.send(command);
-    if(sent){
+    if (sent) {
       return myPath; //  return the file path
-    }else{
+    } else {
       console.error("Error uploading file");
     }
-    
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
   }
 };
 
-
 // state,city,builder,project,houserNumber,floorNumber,tower,unit,size,nature,status,name,documents,applicationStatus,addedBy,isDeleted
 function Addpropform() {
-
   const navigate = useNavigate();
 
   // change name of the Page
@@ -58,7 +55,6 @@ function Addpropform() {
   const [builders, setBuilders] = useState([]);
   const [projects, setProjects] = useState([]);
   const [doctypes, setDocTypes] = useState([]);
-
 
   const [termsncond, setTermsnCond] = useState(false);
 
@@ -88,27 +84,28 @@ function Addpropform() {
     enable: "no",
   });
   const handleChange = (e) => {
-
     setFormData((prevData) => ({
       ...prevData,
       [e.target.name]: e.target.value, // update the respective radio button value
     }));
   };
 
-
   // Fetch User Details
   useEffect(() => {
     const token = localStorage.getItem("token");
     const tokenid = jwtDecode(token);
-    const fetchUser = async () => { 
+    const fetchUser = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": token,
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${tokenid.userId}?userId=${tokenid.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
           }
-        });
+        );
         if (response.ok) {
           const user = await response.json();
           setUser(user);
@@ -128,11 +125,12 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/state/fetchallstates?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/state/fetchallstates?userId=${tokenid.userId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token":token,
+            "auth-token": token,
           },
         }
       );
@@ -149,11 +147,12 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/city/fetchcitiesbystate/${state}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/city/fetchcitiesbystate/${state}?userId=${tokenid.userId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token":token,
+            "auth-token": token,
           },
         }
       );
@@ -170,12 +169,13 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/builders/fetchbuildersbycity/${city}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/builders/fetchbuildersbycity/${city}?userId=${tokenid.userId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token":token,
-          }, 
+            "auth-token": token,
+          },
         }
       );
       const builders = await response.json();
@@ -191,11 +191,12 @@ function Addpropform() {
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/projects/fetchprojectbybuilder/${builder}?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/projects/fetchprojectbybuilder/${builder}?userId=${tokenid.userId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token":token,
+            "auth-token": token,
           },
         }
       );
@@ -206,19 +207,20 @@ function Addpropform() {
     }
   };
 
-
   // Fetch document types
   const fetchDocTypes = async () => {
     const token = localStorage.getItem("token");
     const tokenid = jwtDecode(token);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,{
+        `${process.env.REACT_APP_BACKEND_URL}/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token":token,
-          },}
+            "auth-token": token,
+          },
+        }
       );
       const doctypes = await response.json();
       setDocTypes(doctypes);
@@ -246,7 +248,6 @@ function Addpropform() {
     }
   }, [formdata.selectedCity]);
 
-
   // Fetch projects when the selectBuilder changes
   useEffect(() => {
     if (formdata.selectBuilder) {
@@ -259,8 +260,6 @@ function Addpropform() {
     fetchDocTypes();
   }, []);
 
-
-
   // handle doctype
   const handleDocTypeChange = (e) => {
     e.preventDefault();
@@ -268,13 +267,17 @@ function Addpropform() {
     const newDocType = e.target.value;
 
     // Update the selectedDocType within selectDoclist
-    setFormData((prevFormData) => ({
-      ...prevFormData, // keep other properties
-      selectDoclist: {
-        ...prevFormData.selectDoclist, // keep previous selectDoclist values
-        selectedDocType: newDocType,   // update selectedDocType
-      },
-    }));
+    setFormData((prevFormData) => {
+        const updatedFormData = {
+            ...prevFormData, // keep other properties
+            selectDoclist: {
+                ...prevFormData.selectDoclist, // keep previous selectDoclist values
+                selectedDocType: newDocType, // update selectedDocType
+            },
+        };
+        console.log("Updated Form Data after Doc Type Change:", updatedFormData);
+        return updatedFormData;
+    });
   };
 
   // handles file upload
@@ -282,48 +285,55 @@ function Addpropform() {
     // append files to the state
     if (e.target.files.length > 0) {
       setUploadFiles([...uploadFiles, ...e.target.files]);
+      handleFileUpload(e.target.files); // Pass the selected files directly
     } else {
       toast.error("Please select a file to upload.");
     }
   };
 
-  const handleFileUpload = (e) => {
-    e.preventDefault();
-
-    if (uploadFiles.length === 0) {
+  const handleFileUpload = async (files) => { // Accept files as a parameter
+    if (files.length === 0) {
       return toast.error("Please select a file to upload.");
     }
 
     try {
       toast("Uploading files!");
-      uploadFiles.length > 0 &&
-        uploadFiles.map( async(item) => {
-          let cloudFilePath =  await uploadFileToCloud(item,user.phone);
-          setFormData({
-            ...formdata,
+      for (const item of files) { // Use a for loop for async/await
+        let cloudFilePath = await uploadFileToCloud(item, user.phone);
+        setFormData((prevFormData) => {
+          const updatedFormData = {
+            ...prevFormData,
             selectDoclist: {
-              ...formdata.selectDoclist,
-              selectedDoc: [...formdata.selectDoclist.selectedDoc, cloudFilePath],
+              ...prevFormData.selectDoclist,
+              selectedDoc: [
+                ...prevFormData.selectDoclist.selectedDoc,
+                cloudFilePath,
+              ],
             },
-          });
+          };
+          console.log("Updated Form Data after File Upload:", updatedFormData);
+          return updatedFormData;
         });
+      }
       setTimeout(() => {
         toast.success("Files Uploaded!");
         setUploadStatus(true);
         setUploadFiles([]);
       }, 3000);
     } catch (error) {
-      toast.error("Some error occured while uploading.");
+      toast.error("Some error occurred while uploading.");
       console.log(error.message);
     }
     setUploadFiles([]);
-    
   };
 
   // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Debugging: Log the form data
+    console.log("Form Data:", formdata);
+    
     let token = localStorage.getItem("token");
     let tokenid = jwtDecode(token);
 
@@ -345,91 +355,135 @@ function Addpropform() {
         type: formdata.selectDoclist.selectedDocType,
         files: formdata.selectDoclist.selectedDoc,
       },
-      addedBy:  tokenid.userId,
+      addedBy: tokenid.userId,
       applicationStatus: "under-review",
-    }
-
+    };
 
     if (!termsncond) {
       return toast.error("Please agree to the terms and conditions.");
     }
-    // check from validity
-    if (!formdata.selectedState || !formdata.selectedCity || !formdata.selectBuilder || !formdata.selectProject || !formdata.selectHouseNumber || !formdata.selectFloorNumber || !formdata.selectedTower || !formdata.selectedUnit || !formdata.selectedSize || !formdata.selectedNature || !formdata.selectedStatus || !formdata.selectDoclist.selectedDocType || !formdata.selectDoclist.selectedDoc) {
-      return toast.error("Please fill all the fields.");
-    }
     
+    // Updated validation: only check for mandatory fields
+    if (
+      !formdata.selectedState ||
+      !formdata.selectedCity ||
+      !formdata.selectBuilder ||
+      !formdata.selectProject ||
+      !formdata.selectDoclist.selectedDocType ||
+      !formdata.selectDoclist.selectedDoc
+    ) {
+      console.log("Validation failed: One or more mandatory fields are empty.");
+      return toast.error("Please fill all the mandatory fields.");
+    }
+
     try {
       // if selected state is not in the list of states
-      if (!states.find(state => state.name === formdata.selectedState)) {
+      if (!states.find((state) => state.name === formdata.selectedState)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/state/addstate?userId=${tokenid.userId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-          "auth-token":token,
-           },
-          body: JSON.stringify({ name: formdata.selectedState, addedBy : tokenid.userId }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/state/addstate?userId=${tokenid.userId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: JSON.stringify({
+              name: formdata.selectedState,
+              addedBy: tokenid.userId,
+            }),
+          }
+        );
       }
       // if selected city is not in the list of cities
-      if (!cities.find(city => city.name === formdata.selectedCity)) {
+      if (!cities.find((city) => city.name === formdata.selectedCity)) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/city/addcity?userId=${tokenid.userId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-          "auth-token":token,
-           },
-          body: JSON.stringify({ name: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/city/addcity?userId=${tokenid.userId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: JSON.stringify({
+              name: formdata.selectedCity,
+              state: formdata.selectedState,
+              addedBy: tokenid.userId,
+            }),
+          }
+        );
       }
 
       // if selected builder is not in the list of builders
-      if (!builders.find(builder => builder.name === formdata.selectBuilder)) {
+      if (
+        !builders.find((builder) => builder.name === formdata.selectBuilder)
+      ) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/builders/addbuilder?userId=${tokenid.userId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-          "auth-token":token,
-           },
-          body: JSON.stringify({ name: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId}),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/builders/addbuilder?userId=${tokenid.userId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: JSON.stringify({
+              name: formdata.selectBuilder,
+              city: formdata.selectedCity,
+              state: formdata.selectedState,
+              addedBy: tokenid.userId,
+            }),
+          }
+        );
       }
 
       // if selected project is not in the list of projects
-      if (!projects.find(project => project.name === formdata.selectProject)) {
+      if (
+        !projects.find((project) => project.name === formdata.selectProject)
+      ) {
         const token = localStorage.getItem("token");
         const tokenid = jwtDecode(token);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/projects/addproject?userId=${tokenid.userId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-          "auth-token":token,
-           },
-          body: JSON.stringify({ name: formdata.selectProject, builder: formdata.selectBuilder, city: formdata.selectedCity, state: formdata.selectedState, addedBy : tokenid.userId }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/projects/addproject?userId=${tokenid.userId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: JSON.stringify({
+              name: formdata.selectProject,
+              builder: formdata.selectBuilder,
+              city: formdata.selectedCity,
+              state: formdata.selectedState,
+              addedBy: tokenid.userId,
+            }),
+          }
+        );
       }
-
-
     } catch (error) {
       console.error(error.message);
       toast.error("Some ERROR occurred.");
     }
     try {
-
       if (uploadStatus === false) {
         return toast.error("Please upload the documents.");
       }
 
       setIsUploading(true);
-      
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${tokenid.userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-        "auth-token":token,
-         },
-        body: JSON.stringify(reqBody),
-      });
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${tokenid.userId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "auth-token": token },
+          body: JSON.stringify(reqBody),
+        }
+      );
 
       if (response.status !== 200) {
         setIsUploading(false);
@@ -441,23 +495,23 @@ function Addpropform() {
         toast.success("Property added successfully!");
 
         setTimeout(() => {
-        navigate("/concierge");
-      }, 2000);
+          navigate("/concierge");
+        }, 2000);
       }
     } catch (error) {
       setIsUploading(false);
       console.error(error.message);
       toast.error("Some ERROR occurred.");
     }
-  }
+  };
 
   return (
     <>
       <div className="flex justify-center my-6 max-w-[1400px] m-auto p-4">
         <div className="bg-gray-100 shadow-lg rounded-3xl p-4 md:p-10 w-full ">
           <form>
-            {/* State */}
             <div className="flex flex-col w-full">
+              {/* State */}
               <div className="flex flex-col xl:flex-row w-full">
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
@@ -503,8 +557,7 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
-              </div>
-              <div className="flex flex-col xl:flex-row w-full">
+                {/* builder */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Select Builder
@@ -526,7 +579,8 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
-
+              </div>
+              <div className="flex flex-col xl:flex-row w-full">
                 {/* Project */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
@@ -549,10 +603,7 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
-              </div>
-
-              {/* Tower */}
-              <div className="flex flex-col xl:flex-row w-full">
+                {/*house */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     House Number
@@ -567,7 +618,7 @@ function Addpropform() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
-
+                {/* floor */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Floor Number
@@ -583,8 +634,8 @@ function Addpropform() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col xl:flex-row w-full">
 
+              <div className="flex flex-col xl:flex-row w-full">
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Enter Tower
@@ -632,85 +683,99 @@ function Addpropform() {
                 </div>
 
                 {/* Size Unit */}
-
               </div>
 
-              {/* Nature of Property */}
-              <div className="w-full my-2 xl:m-2 ">
-        <label className="block text-sm font-medium text-gray-700">
-          Select Nature of Property
-        </label>
-        <div className="flex items-center w-full mt-1 gap-2">
-          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-            <input
-              id="residential"
-              name="selectedNature"
-              value="residential"
-              type="radio"
-              onChange={handleChange}
-              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-              checked={formdata.selectedNature === "residential"}
-            />
-            <label htmlFor="residential" className="ml-1 block w-full text-sm font-medium text-gray-700">
-              Residential
-            </label>
-          </div>
-          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-            <input
-              id="commercial"
-              name="selectedNature"
-              value="commercial"
-              type="radio"
-              onChange={handleChange}
-              checked={formdata.selectedNature === "commercial"}
-              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-            />
-            <label htmlFor="commercial" className="ml-1 block w-full text-sm font-medium text-gray-700">
-              Commercial
-            </label>
-          </div>
-        </div>
-      </div>
+              <div className="flex flex-col xl:flex-row w-full">
+                {/* Nature of Property */}
+                <div className="w-full my-2 xl:m-2 ">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Select Nature of Property
+                  </label>
+                  <div className="flex items-center w-full mt-1 gap-2">
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                      <input
+                        id="residential"
+                        name="selectedNature"
+                        value="residential"
+                        type="radio"
+                        onChange={handleChange}
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        checked={formdata.selectedNature === "residential"}
+                      />
+                      <label
+                        htmlFor="residential"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
+                      >
+                        Residential
+                      </label>
+                    </div>
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                      <input
+                        id="commercial"
+                        name="selectedNature"
+                        value="commercial"
+                        type="radio"
+                        onChange={handleChange}
+                        checked={formdata.selectedNature === "commercial"}
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                      />
+                      <label
+                        htmlFor="commercial"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
+                      >
+                        Commercial
+                      </label>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Select Status */}
-      <div className="w-full my-2 xl:m-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Select Status
-        </label>
-        <div className="flex items-center w-full mt-1 gap-2">
-          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-            <input
-              id="under-construction"
-              name="selectedStatus"
-              value="under-construction"
-              type="radio"
-              onChange={handleChange}
-              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-              checked={formdata.selectedStatus === "under-construction"}
-            />
-            <label htmlFor="under-construction" className="ml-1 w-full block text-sm font-medium text-gray-700 text-nowrap">
-              Under Construction
-            </label>
-          </div>
-          <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
-            <input
-              id="completed"
-              name="selectedStatus"
-              value="completed"
-              type="radio"
-              checked={formdata.selectedStatus === "completed"}
-              onChange={handleChange}
-              className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-            />
-            <label htmlFor="completed" className="ml-1 block w-full text-sm font-medium text-gray-700">
-              Completed
-            </label>
-          </div>
-        </div>
-      </div>
+                {/* Select Status */}
+                <div className="w-full my-2 xl:m-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Select Status
+                  </label>
+                  <div className="flex items-center w-full mt-1 gap-2">
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                      <input
+                        id="under-construction"
+                        name="selectedStatus"
+                        value="under-construction"
+                        type="radio"
+                        onChange={handleChange}
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        checked={
+                          formdata.selectedStatus === "under-construction"
+                        }
+                      />
+                      <label
+                        htmlFor="under-construction"
+                        className="ml-1 w-full block text-sm font-medium text-gray-700 text-nowrap"
+                      >
+                        Under Construction
+                      </label>
+                    </div>
+                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                      <input
+                        id="completed"
+                        name="selectedStatus"
+                        value="completed"
+                        type="radio"
+                        checked={formdata.selectedStatus === "completed"}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                      />
+                      <label
+                        htmlFor="completed"
+                        className="ml-1 block w-full text-sm font-medium text-gray-700"
+                      >
+                        Completed
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex flex-col lg:flex-row w-full items-end">
-
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Select Document Type
@@ -745,15 +810,6 @@ function Addpropform() {
                     className="mt-1 block w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
                   />
                 </div>
-
-                {/* Upload Button */}
-                <div className="w-96  my-2 xl:m-2 ">
-                  <Goldbutton
-                  properties={"bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"}
-                    btnname={"Upload"}
-                    onclick={handleFileUpload}
-                  ></Goldbutton>
-                </div>
               </div>
 
               {/* Checkbox */}
@@ -779,8 +835,10 @@ function Addpropform() {
               {/* Submit Button */}
               <div className="my-2 w-48 xl:m-2">
                 <Goldbutton
-                properties={"bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"}
-                isDisabled = {isUploading}
+                  properties={
+                    "bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"
+                  }
+                  isDisabled={isUploading}
                   btnname={"Submit"}
                   onclick={handleSubmit}
                 ></Goldbutton>

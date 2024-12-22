@@ -39,23 +39,19 @@ export function Features() {
     ]
   
     return (
-      <section className="py-20">
+      <section className="py-20 bg-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+          <h2 className="text-4xl text-white font-bold text-center mb-12">Key Features</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-                <div className="text-gold mb-4">{feature.icon}</div>
+              <div key={index} className="p-6 bg-white rounded-lg shadow-lg hover:shadow-white hover:shadow-base transition-shadow">
+                <div className="text-gray-600 mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
               </div>
             ))}
           </div>
-          <div className="text-center mt-12">
-            <button className="bg-gold text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
-              GET STARTED
-            </button>
-          </div>
+          
         </div>
       </section>
     )

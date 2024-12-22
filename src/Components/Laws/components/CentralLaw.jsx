@@ -21,7 +21,7 @@ const CentralLaw = ({ onBack, data }) => {
   };
 
   return (
-    <div className="flex flex-col text-black relative gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
+    <div className="flex flex-col text-white relative gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
       
       <div className="w-full">
         {data.map((item, index) => {
@@ -34,7 +34,7 @@ const CentralLaw = ({ onBack, data }) => {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out ${
-                openIndex === index ? "bg-white/20 border-[1px] border-black" : "border-[1px] border-black"
+                openIndex === index ? "bg-white text-black border-[1px] border-white" : "border-[1px] border-white"
               } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl md:max-w-screen-lg max-w-xs lg:min-w-[800px]`}
             >
               <div
@@ -49,7 +49,7 @@ const CentralLaw = ({ onBack, data }) => {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-black underline"
+                      className="text-white underline"
                     >
                       {item.title}
                     </a>
@@ -69,7 +69,7 @@ const CentralLaw = ({ onBack, data }) => {
                     openIndex === index ? "max-h-screen mt-4" : "max-h-0"
                   }`}
                 >
-                  <hr className="border-t-[2px] border-white mb-4" />
+                  <hr className="border-t-[2px] border-black mb-4" />
                   {/* Display parsed link and text */}
                   <p>
                     <a

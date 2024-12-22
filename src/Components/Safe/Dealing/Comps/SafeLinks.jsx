@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const ConciergeLink = [
-  { name: "Property Details", link: "/" },
+  // { name: "Property Details", link: "/" },
   { name: "Documents", link: "/Documents" },
   // { name: "Handbook", link: "/Handbook" },
   // { name: "Loans", link: "/Loans" },
@@ -82,21 +82,6 @@ export default function Links() {
             </div>
           )}
         </div>
-        <Link to="/addproperty">
-          <button className="mt-auto mb-auto inactive  text-black hover:text-white border-black flex ml-auto border-2 sm:px-20 px-4 py-4 rounded-xl gap-2 ">
-            <img
-              alt="plus"
-              loading="lazy"
-              width="12"
-              height="12"
-              decoding="async"
-              data-nimg="1"
-              className="mt-auto mb-auto"
-              style={{ color: "transparent" }}
-              src="/svgs/plus.aef96496.svg"
-            />{" "}
-          </button>
-        </Link>
       </div>
 
       <div

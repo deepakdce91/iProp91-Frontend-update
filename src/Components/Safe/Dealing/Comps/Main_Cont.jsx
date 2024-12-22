@@ -50,8 +50,8 @@ export default function Conci() {
   return (
     <>
       <div className="flex flex-col text-white z-50 ">
-        <div className="w-full flex justify-between items-center border-b-[1px] py-3 pr-5  border-b-black/20">
-          <Links />
+        {/* <div className="w-full flex justify-between items-center border-b-[1px] py-3 pr-5  border-b-black/20">
+          {/* <Links /> */}
           
           {/* <Link to="/addproperty">
             <button className="text-black bg-white/90 border-secondary hover:border-simple shadow-2xl flex border-[1.5px] border-white/20 px-5 text-xs py-3 rounded-md gap-2">
@@ -69,15 +69,15 @@ export default function Conci() {
               />
             </button>
           </Link> */}
-        </div>
+        {/* </div>  */}
         <div className="w-full text-black pt-3">
           <Routes>
-            <Route path="/*" element={<PropDetails />} />
-            <Route path="/Documents/*" element={<Documents PropId={PropId} PropName={properyname} />} />
-            <Route path="/Handbook" element={<Handbook />} />
+            {/* <Route path="/*" element={<PropDetails />} /> */}
+            <Route path="/Documents" element={<Documents PropId={PropId} PropName={properyname} />} />
+            {/* <Route path="/Handbook" element={<Handbook />} />
             <Route path="/Loans" element={<Loans />} />
             <Route path="/Rental" element={<Rental />} />
-            <Route path="/RecentUpdates" element={<RecentUpdates />} />
+            <Route path="/RecentUpdates" element={<RecentUpdates />} /> */}
           </Routes>
         </div>
       </div>

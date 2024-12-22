@@ -7,16 +7,15 @@ export default function NameHeader() {
         <div className="lg:pt-5 px-7 pt-3">
           <div className="flex justify-between">
             <div className="mb-auto">
-              <p className="text-xl font-semibold mb-2 text-black">
-                iProp <span className="text-primary">Safe</span>
+              <p className="text-xl font-semibold mb-2 text-primary">
+                iProp91 <span className="text-black">Safe</span>
               </p>
-              <hr className="bg-primary w-12 h-1 rounded-sm" />
             </div>
             <Profile />
           </div>
         </div>
         <div className="flex justify-between px-7 align-middle">
-          <p className="text-secondary text-xs">
+          <p className="text-secondary text-base">
           Upload all your real estate documents, applicable at different stages of ownership in an encrypted safe, accessible at all times
           </p>
          
@@ -25,7 +24,7 @@ export default function NameHeader() {
 
       <div className="mt-5 px-8 lg:!hidden flex flex-row justify-between">
         <p className="text-xl font-semibold mb-2">
-          iProp91 <span className="text-primary">Safe</span>
+          iProp91 <span className="text-black">Safe</span>
         </p>
         <Link to="/addproperty">
           <button className="mt-auto mb-auto inactive text-black hover:text-white border-black flex ml-auto border-2 sm:px-20 px-4 py-4 rounded-xl gap-2">

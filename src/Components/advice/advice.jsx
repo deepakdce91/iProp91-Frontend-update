@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Que from "../NRI/questoin/question";
 import Call from "../NRI/corousal/corsoual";
 import AdviceCards from "./AdviceCards";
 import Footer from "../Landing/Footer";
-import ContactUs from "../CompoCards/contactus/ContactUs";
 import DraftAgreementsList from "./ShowDrafts";
-import GetStartedForm from "../Landing/GetStartedForm";
+import Profile from "../User/Profile/profile";
 
 export default function Advice() {
   const [scrollY, setScrollY] = useState(0);
@@ -41,6 +39,13 @@ export default function Advice() {
 
   return (
     <section ref={containerRef} className="relative ">
+      {/* Profile Header */}
+      {hasToken && (
+        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
+          <Profile/>
+        </div>
+      )}
+
       {/* Background Section */}
       {/* <motion.div
         className={`fixed  inset-0 ${

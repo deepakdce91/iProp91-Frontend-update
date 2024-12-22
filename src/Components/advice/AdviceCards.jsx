@@ -87,16 +87,18 @@ export default function AdviceCards() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col md:flex-row items-center md:gap-8 justify-center"
+              className="flex flex-col lg:flex-row items-center lg:gap-8 justify-center"
             >
               {/* Text content */}
-              <div className="w-full md:w-1/3 mb-8 md:mb-0 md:ml-24">
-                <p className="md:text-3xl text-black font-semibold">Understand the law, legal positions and the key terms of your documents. Happy ownership!</p>
+              <div className="w-full lg:w-1/3 mb-8 md:mb-0 lg:ml-14">
+
+                <p className="lg:text-7xl text-4xl text-black font-bold text-center lg:text-start">Advice</p>
+                <p className="lg:text-xl text-center lg:text-start text-xl text-black font-semibold">Understand the law, legal positions and the key terms of your documents. Happy ownership!</p>
               </div>
 
               {/* Carousel */}
-              <div className="w-full md:w-2/3 relative">
-                <div className="hidden md:flex flex-col items-center justify-center h-[100vh]">
+              <div className="w-full lg:w-2/3 relative">
+                <div className="hidden md:flex flex-col items-center justify-center h-[50vh] lg:h-[100vh] ">
                   {[-1, 0, 1].map((offset) => {
                     const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length
                     const item = carouselData[slideIndex]
@@ -104,7 +106,7 @@ export default function AdviceCards() {
                       <motion.div
                         key={item.id}
                         className={`absolute w-full max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
-                          offset === 0 ? 'z-20' : 'z-10'
+                          offset === 0 ? 'z-30 ' : 'z-20 '
                         } overflow-hidden`}
                         initial={{ 
                           scale: offset === 0 ? 0.9 : 0.7, 
@@ -116,7 +118,8 @@ export default function AdviceCards() {
                           y: `${offset * 50}%`,
                           opacity: offset === 0 ? 1 : 0.6 
                         }}
-                        transition={{ duration: 0.5 }}
+                        whileHover={{ scale: 1.001 }}
+                        transition={{ duration: 0.3 }}
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
                         onDragEnd={handleDragEnd}

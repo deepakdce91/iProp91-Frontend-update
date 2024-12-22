@@ -44,6 +44,8 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
   const fetchSafeDate = async () => {
 
     const propertyId = window.location.pathname.split('/')[3];
+    console.log(propertyId);
+    
     const token = localStorage.getItem('token');
     const user = jwtDecode(token);
 

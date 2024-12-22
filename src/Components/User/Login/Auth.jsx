@@ -289,11 +289,11 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
       
         <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
         <DialogHeader className="relative m-0 block">
-          <Typography variant="h4" color="blue-gray">
+          {/* <Typography variant="h4" color="blue-gray">
             Enter Your Details
-          </Typography>
-          <Typography className="mt-1 font-normal text-gray-600">
-            Please enter your details to continue...
+          </Typography> */}
+          <Typography className="mt-1 font-bold text-lg text-gray-800">
+          Helping you manage your real estate assets brick by brick
           </Typography>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
@@ -332,7 +332,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
           </div>
         </DialogBody>
         <DialogFooter>
-          <Goldbutton btnname={"Sign Up"} properties={""} onclick={handleOpen} />
+          <Goldbutton btnname={"Sign Up"} properties={"bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"} onclick={handleOpen} />
         </DialogFooter>
       </Dialog>
       <div className="min-h-screen flex items-center justify-center ">
@@ -341,14 +341,14 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, s
           <div className=" p-8">
             <div
               className="flex items-center mb-4 cursor-pointer"
-              onClick={onclick}
-            >
+              // onClick={on}  have to fix it back btn
+             >
               <i
                 className="bx bxs-chevron-left "
                 style={{ fontSize: "20px" }}
               ></i>
 
-              <span className="ml-2 text-gray-600">back</span>
+              <span className="ml-2 text-gray-600">Back</span>
             </div>
             <h2 className="text-3xl font-semibold mb-4">Verify Code</h2>
             <p className="text-gray-500 mb-8">
@@ -543,6 +543,13 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
     }
   };
 
+  // Add this function to handle key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      HandleOTPLogin(e);
+    }
+  };
+
   return (
     <section className="absolute h-screen w-screen">
       <div className="relative w-full h-full">
@@ -557,7 +564,7 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
         </button>
         <div className="flex rounded-lg max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
-          <div className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px] h-[500px] lg:h-[600px]">
+          <form onKeyDown={handleKeyPress} className="md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px] h-[500px] lg:h-[600px]">
             {verify ? (
               <Verify
                 phone={phone}
@@ -571,11 +578,11 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
                 <div className="flex items-center mb-4 cursor-pointer">
                   <span className="ml-2 text-gray-600">Sign in / Sign up</span>
                 </div>
-                <h2 className="text-3xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold mb-4 ">
                   Enter Phone Number
                 </h2>
-                <p className="text-gray-500 mb-8" onClick={onclick}>
-                  Enter your mobile number to get an OTP to your number
+                <p className="text-gray-500 text-sm mb-8" onClick={onclick}>
+                  Enter your mobile number to get an OTP 
                 </p>
                 <div className="w-72">
                   <PhoneInput
@@ -583,6 +590,7 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
                     setSelectedCountry={setSelectedCountry}
                     phone={phone}
                     setPhone={setPhone}
+                    
                   />
                 </div>
                 <div className="w-72  mt-1">
@@ -661,7 +669,7 @@ export default function Login({setIsLoggedIn, onClose, properties, stage1FormDat
                 </div>
               </>
             )} 
-          </div>
+          </form>
 
           {/* Right Side - Image */}
           {/* <div className="w-4/6 hidden ">

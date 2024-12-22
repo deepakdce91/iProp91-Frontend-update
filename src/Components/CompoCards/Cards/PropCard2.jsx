@@ -1,4 +1,17 @@
-export default function PropCard2({props}) {
+import { useState } from "react";
+import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
+import { Link } from "react-router-dom";
+
+export default function PropCard2({props, key}) {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const onClickEdit = () =>{
+      isModalOpen(true);
+  }
+
+  const closeEditModal = ()=>{
+    isModalOpen(false)
+  }
   return (
     <>
       <div className="min-h-52 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
@@ -16,10 +29,27 @@ export default function PropCard2({props}) {
             <p className="text-xs text-gray-500">Unit: {props.unit}</p>
           </div>
           <div className="flex flex-row justify-between mt-4 gap-2">
-            <button className=" w-full text-[14px] bg-slate-100 py-2 px-4 rounded-lg">
+            <Link to={`/safe/Dealing/${key}/Documents`}>
+            <button className=" w-[90%] text-[14px] bg-slate-100 py-2 px-4 rounded-lg">
               {props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}
             </button>
+            </Link>
+            <button onClick={onClickEdit} className=" w-[10%] text-[14px] bg-slate-100 py-2 px-4 rounded-lg">
+              Edit
+            </button>
           </div>
+
+
+          {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-4 shadow-lg max-w-lg w-full">
+              <button onClick={closeEditModal} className="absolute top-2 right-2 text-gray-600">
+                &times;
+              </button>
+              <PropertyForm propertyId={props._id}  />
+            </div>
+          </div>
+        )}
         </div>
     </>
   );
