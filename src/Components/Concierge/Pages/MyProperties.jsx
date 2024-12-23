@@ -10,6 +10,11 @@ import "react-toastify/dist/ReactToastify.css";
 import Modal from "react-modal";
 import { CrossIcon } from "lucide-react";
 
+function hasMoreInfoRequired(objectsArray) {
+  // Use the `some` method to check if any object meets the condition
+  return objectsArray.some(obj => obj.applicationStatus === "more-info-required");
+}
+
 const usePrevNextButtons = (emblaApi, onButtonClick) => {
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
@@ -193,6 +198,8 @@ const EmblaCarousel = (props) => {
 };
 
 export default function MyProperties() {
+
+  const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [prop, setProp] = useState([]);
   const [SLIDES, setSlides] = useState([]);
 
@@ -215,8 +222,11 @@ export default function MyProperties() {
       if (response) {
         const properties = await response.json();
         setProp(properties);
-        console.log(properties);
 
+        const needMoreInfo = hasMoreInfoRequired(properties);
+        if(needMoreInfo===true){
+          setShowMoreInfoModal(true);
+        }
         // Populate slides only for approved properties
         properties.forEach((property) => {
           if (property.applicationStatus === "approved") {
@@ -280,6 +290,28 @@ export default function MyProperties() {
               </div>
             </Link>
           </div>
+
+          {showMoreInfoModal === true && <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+            <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
+              More Info required
+            </div>
+            <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
+              {"You need to provide more information to complete the application process. Please upload documents for your property."}
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
+              <button
+                onClick={()=>{
+                  setShowMoreInfoModal(false);
+                }}
+                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>}
 
           <div className="lg:!hidden pb-5 mt-10">
             <EmblaCarousel slides={SLIDES} options={OPTIONS} />

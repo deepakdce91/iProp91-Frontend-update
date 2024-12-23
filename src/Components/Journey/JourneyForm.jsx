@@ -471,7 +471,7 @@ const JourneyForm = () => {
   }, []);
 
   return (
-    <div className="w-full bg-black h-screen max-w-4xl mx-auto p-6 pt-12 space-y-6">
+    <div className="w-full px-16 bg-black h-screen max-w-4xl mx-auto p-6 pt-12 space-y-6">
       {initialQuestions.length > 0 && (
         <>
           <div className="relative">
@@ -487,8 +487,8 @@ const JourneyForm = () => {
             </div>
           </div>
 
-          <div className="bg-black rounded-lg shadow p-6">
-            <h2 className="text-3xl text-center font-semibold text-white mb-6">
+          <div className="bg-black rounded-lg shadow p-6 border border-1 border-gray-300 px-24 py-10">
+            <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
               {currentState.question.questionText}
             </h2>
 
@@ -498,14 +498,14 @@ const JourneyForm = () => {
                   {option.redirectionLink ? (
                     <a
                     href={`${option.redirectionLink}?entryPoint=${encodeURIComponent(JSON.stringify(entryPoint))}`}
-                      className="w-full block text-center text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
+                      className="w-full block text-center text-sm md:text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
                     >
                       {option.text}
                     </a>
                   ) : (
                     <button
                       onClick={() => handleOptionSelect(option)}
-                      className="w-full text-center text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full text-center text-sm md:text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     >
                       {option.text}
                     </button>
