@@ -161,6 +161,7 @@ function Verify({
                   setIsLoggedIn(true);
                   toast.success("Login Successful");
                   if (stage1FormData) {
+                    localStorage.setItem("addPropDetails", "true");
                     const SendToConciPage = () => {
                       setTimeout(() => {
                         navigate("/concierge");
@@ -260,6 +261,7 @@ function Verify({
       const userId = decoded.userId;
 
       if (stage1FormData) {
+        localStorage.setItem("addPropDetails", "true");
         const SendToConciPage = () => {
           setTimeout(() => {
             navigate("/concierge");
@@ -509,6 +511,7 @@ export default function Login({
         const userId = decoded.userId;
 
         if (stage1FormData) {
+          localStorage.setItem("addPropDetails", "true");
           const SendToConciPage = () => {
             setTimeout(() => {
               navigate("/concierge");
