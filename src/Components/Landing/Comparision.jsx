@@ -96,8 +96,9 @@ export default function Comparison() {
           effect={'coverflow'}
           grabCursor={true}
           centeredSlides={true}
-          loop={true}
-          slidesPerView={3}
+          loop={data.length > 3}
+          slidesPerView={Math.min(data.length, 3)}
+          slidesPerGroup={1}
           navigation={{
             enabled: true,
           }}

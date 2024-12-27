@@ -66,8 +66,10 @@ function Verify({
   setIsLoggedIn,
   handleOtpChange,
   stage1FormData,
+  onBack
 }) {
   const [otp, setOTP] = useState("");
+  const [currentView, setCurrentView] = useState('mobileNumber'); // Example state
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
   const [askforname, setAskforname] = useState(false);
@@ -161,6 +163,7 @@ function Verify({
                   setIsLoggedIn(true);
                   toast.success("Login Successful");
                   if (stage1FormData) {
+                    localStorage.setItem("addPropDetails", "true");
                     const SendToConciPage = () => {
                       setTimeout(() => {
                         navigate("/concierge");
@@ -206,8 +209,12 @@ function Verify({
       }
     }
   };
+  
+  const handleBackClick = () => {
+    setCurrentView('mobileNumber'); // Update the state to show the mobile number input
+  };
 
-  useEffect(() => {
+  useEffect(()=> {
     if (otp.length === 6) {
       HandleVerifyOTP({ preventDefault: () => {} });
     }
@@ -260,6 +267,7 @@ function Verify({
       const userId = decoded.userId;
 
       if (stage1FormData) {
+        localStorage.setItem("addPropDetails", "true");
         const SendToConciPage = () => {
           setTimeout(() => {
             navigate("/concierge");
@@ -362,11 +370,12 @@ function Verify({
       >
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
+          
           <div className=" p-8">
             <div
               className="flex items-center mb-4 cursor-pointer"
-              // onClick={on}  have to fix it back btn
-            >
+              onClick={onBack}
+             >
               <i
                 className="bx bxs-chevron-left "
                 style={{ fontSize: "20px" }}
@@ -404,7 +413,7 @@ function Verify({
                 <p className="text-gray-500 text-center">
                   Didn't receive the code?{" "}
                   <span
-                    className="cursor-pointer text-green-500"
+                    className="cursor-pointer text-gold"
                     onClick={HandleResendOTP}
                   >
                     Resend
@@ -449,6 +458,7 @@ export default function Login({
   const [password, setPassword] = useState("");
   const [verify, setVerify] = useState(false);
   const [otp, setOtp] = useState("");
+  const [isOtpScreen, setIsOtpScreen] = useState(false);
 
   useEffect(() => initOTPless(callback), []);
 
@@ -509,6 +519,7 @@ export default function Login({
         const userId = decoded.userId;
 
         if (stage1FormData) {
+          localStorage.setItem("addPropDetails", "true");
           const SendToConciPage = () => {
             setTimeout(() => {
               navigate("/concierge");
@@ -585,6 +596,17 @@ export default function Login({
     }
   };
 
+  const handleBack = () => {
+    setVerify(false);
+    setPasswordLogin(true);
+    setOtp("");
+  };
+
+  const handleBackClick = () => {
+    setPasswordLogin(true);
+    setVerify(false);
+  };
+
   return (
     <section
       className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
@@ -623,6 +645,7 @@ export default function Login({
                   setIsLoggedIn={setIsLoggedIn}
                   handleOtpChange={handleOtpChange}
                   stage1FormData={stage1FormData}
+                  onBack={handleBack}
                 />
               ) : passwordlogin ? (
                 <>
