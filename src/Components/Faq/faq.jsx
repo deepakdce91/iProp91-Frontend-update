@@ -45,7 +45,7 @@ export default function Faq() {
   ];
 
   return (
-    <div className="flex relative  text-black  py-28 px-6 md:px-8 bg-white min-h-screen  lg:px-32 pt-5 md:pt-10">
+    <div className="flex relative  text-white  py-28 px-6 md:px-8 bg-black min-h-screen  lg:px-32 pt-5 md:pt-10">
       <Breadcrumb items={breadcrumbItems} />
       <div className="flex flex-col md:flex-row justify-center h-full items-center lg:items-start mt-32">
         <div className="md:w-1/3 flex flex-col gap-3">

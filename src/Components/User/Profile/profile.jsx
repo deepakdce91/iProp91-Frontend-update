@@ -1,127 +1,138 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
-import {toast} from 'react-toastify';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 export default function Profile() {
-    const navigate = useNavigate();
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null); // Create a reference for the dropdown
-    const [user, setUser] = useState({});
-    const [dataloaded, setDataloaded] = useState(false);
-    useEffect(() => {
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null); // Create a reference for the dropdown
+  const [user, setUser] = useState({});
+  const [dataloaded, setDataloaded] = useState(false);
+  useEffect(() => {
+    const fetchUser = async () => {
+      // Fetch user data from the server
+      let token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/");
+        return;
+      }
+      let tokenid = jwtDecode(token);
 
-        const fetchUser = async () => {
-          // Fetch user data from the server
-          let token = localStorage.getItem("token");
-          if (!token) {
-            navigate("/");
-            return;
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
           }
-          let tokenid = jwtDecode(token);
-   
-          try {
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                "auth-token": token,
-              },
-            });
-            const data = await response.json();
-            setUser(data);
-            setDataloaded(true);
-          }
-          catch (error) {
-            console.log(error);
-          }
-        }
-        fetchUser();
-      }, [navigate]);
+        );
+        const data = await response.json();
+        setUser(data);
+        setDataloaded(true);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUser();
+  }, [navigate]);
 
-      
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Close the dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
     };
 
-    // Close the dropdown if clicked outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [dropdownRef]);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    toast("Logging Out.");
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        toast("Logging Out.")
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-    }
+  return (
+    <>
+      <div ref={dropdownRef} className="relative mr-10 inline-block text-left">
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center space-x-2"
+        >
+          <span className="flex h-10 w-10 border-2 border-gold overflow-hidden rounded-full">
+            <img
+              className="h-full w-full object-cover"
+              alt="profilePic"
+              src={
+                dataloaded
+                  ? user.data.profilePicture === ""
+                    ? "/dummyPFP.jpg"
+                    : user.data.profilePicture
+                  : "/dummyPFP.jpg"
+              }
+            />
+          </span>
+        </button>
 
-    return (
-        <>
-            <div
-                ref={dropdownRef}
-                className="absolute right-10 inline-block border bg-white rounded-3xl border-gold"
-            >
-                <button
-                    onClick={toggleDropdown}
-                    className="px-1 py-1 flex mt-auto mb-auto"
-                >
-                    <span className="relative flex h-10 w-10 shrink-0 border-2 border-gold overflow-hidden rounded-full mt-auto mb-auto mr-1">
-                        <img
-                            className="aspect-square h-full w-full "
-                            alt="profilePic"
-                            src={dataloaded  ? (!user || !user.data || !user.data.profilePicture || user.data.profilePicture === "" ? "/dummyPFP.jpg" : user.data.profilePicture) : "/dummyPFP.jpg"}
-                        />
-                    </span>
-                    <p className="mt-auto mb-auto text-black text-sm mx-1">
-                        {dataloaded && user && user.data && user.data.name && user.data.name.split(' ')[0]}
-                    </p>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="black"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-chevron-down mt-auto mb-auto h-4"
-                    >
-                        <path d="m6 9 6 6 6-6"></path>
-                    </svg>
-                </button>
-
-                {/* Dropdown menu */}
-                <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        isOpen ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-                >
-                    <Link
-                        to="/profile"
-                        className="block px-4 p-2 m-1 text-center text-sm text-gray-700 hover:bg-gray-100 rounded-3xl"
-                    >
-                        Profile
-                    </Link>
-                    <div
-                        onClick={handleLogout}
-                        className="block px-4 p-2 m-1 text-center text-sm text-gray-700 hover:bg-gray-100 rounded-3xl"
-                    >
-                        Logout
-                    </div>
+        {/* Dropdown menu */}
+        <div
+          className={`absolute right-0 mt-2  bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300 ease-in-out ${
+            isOpen ? "block" : "hidden"
+          }`}
+        >
+          <div className="px-4 py-2">
+            <p className=" text-bold my-3">Account</p>
+            {dataloaded && (
+              <div className="flex gap-2 items-center justify-center ">
+                <span className="flex h-10 w-10 border-2 border-gold overflow-hidden rounded-full">
+                  <img
+                    className="h-full w-full object-cover"
+                    alt="profilePic"
+                    src={
+                      dataloaded
+                        ? user.data.profilePicture === ""
+                          ? "/dummyPFP.jpg"
+                          : user.data.profilePicture
+                        : "/dummyPFP.jpg"
+                    }
+                  />
+                </span>
+                <div className="">
+                <p className="font-semibold text-sm">{user.data.name}</p>
+                <p className="text-xs text-gray-500">{user.data.email}</p>
                 </div>
-            </div>
-        </>
-    );
+              </div>
+            )}
+          </div>
+          <div className="border-t border-gray-200"></div>
+          <Link
+            to="/profile"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Manage Profile
+          </Link>
+          <div
+            onClick={handleLogout}
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+          >
+            Logout
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }

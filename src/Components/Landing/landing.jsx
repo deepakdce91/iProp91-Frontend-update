@@ -92,10 +92,10 @@ const TypingLandingPage = () => {
     <>
       {showNavbar && <LandingPage />}
       {!showNavbar && (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-screen bg-black">
           {showMessage && (
             <div className="flex flex-col items-center">
-              <h1 className="text-4xl font-bold text-black fade-in-text">
+              <h1 className="text-4xl md:text-6xl font-bold text-white fade-in-text">
                 {animatedText}
               </h1>
             </div>
