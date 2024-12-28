@@ -225,8 +225,9 @@ export default function MyProperties() {
         const properties = await response.json();
         setProp(properties);
 
+        const stillShowModal = localStorage.getItem("addPropDetails");
         const needMoreInfo = hasMoreInfoRequired(properties);
-        if (needMoreInfo === true) {
+        if(stillShowModal && needMoreInfo===true){
           setShowMoreInfoModal(true);
         }
         // Populate slides only for approved properties

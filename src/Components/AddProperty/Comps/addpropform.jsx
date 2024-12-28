@@ -362,6 +362,7 @@ function Addpropform() {
   // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsUploading(true);
 
     // Debugging: Log the form data
     console.log("Form Data:", formdata);
@@ -505,8 +506,6 @@ function Addpropform() {
       if (uploadStatus === false) {
         return toast.error("Please upload the documents.");
       }
-
-      setIsUploading(true);
 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/property/addproperty?userId=${tokenid.userId}`,

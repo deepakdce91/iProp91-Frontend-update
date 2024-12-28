@@ -112,8 +112,8 @@ export default function Profile() {
                   />
                 </span>
                 <div className="">
-                <p className="font-semibold text-base">{user.data.name}</p>
-                <p className="text-sm text-gray-500">{user.data.email}</p>
+                <p className="font-semibold text-sm">{user.data.name}</p>
+                <p className="text-xs text-gray-500">{user.data.email}</p>
                 </div>
               </div>
             )}
