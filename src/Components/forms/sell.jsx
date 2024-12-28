@@ -26,11 +26,23 @@ const SellForm = ({closeSellModal}) => {
       securityDeposit: "",
       availableFrom: "",
     });
+
+    const [mediaFiles, setMediaFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleMediaChange = (e) => {
+    const files = Array.from(e.target.files);
+    setMediaFiles(files);
+  };
   
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      console.log(formData);
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+    // Simulate file upload
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(formData, mediaFiles);
+    setIsUploading(false);
+  };
   return (
     <div className="h-screen z-20 fixed w-[90%] overflow-y-auto custom-scrollbar ">
       <div className="backdrop-blur-sm flex flex-col items-center rounded-lg relative overflow-y-auto max-h-[80vh] w-full ">
@@ -48,11 +60,11 @@ const SellForm = ({closeSellModal}) => {
           {/* Property Details Section */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-600">Unit No</label>
+              <label className="text-sm text-gray-800">Unit No</label>
               <input
                 type="text"
                 placeholder="Enter Unit No"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.unitNo}
                 onChange={(e) =>
                   setFormData({ ...formData, unitNo: e.target.value })
@@ -61,11 +73,11 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Size</label>
+              <label className="text-sm text-gray-800">Size</label>
               <input
                 type="text"
                 placeholder="Enter Size"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.size}
                 onChange={(e) =>
                   setFormData({ ...formData, size: e.target.value })
@@ -74,11 +86,11 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Expected Price</label>
+              <label className="text-sm text-gray-800">Expected Price</label>
               <input
                 type="text"
                 placeholder="Enter Expected Price"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.expectedPrice}
                 onChange={(e) =>
                   setFormData({ ...formData, expectedPrice: e.target.value })
@@ -87,9 +99,9 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Type</label>
+              <label className="text-sm text-gray-800">Type</label>
               <select
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.propertyType}
                 onChange={(e) =>
                   setFormData({ ...formData, propertyType: e.target.value })
@@ -103,11 +115,11 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">No of Washrooms</label>
+              <label className="text-sm text-gray-800">No of Washrooms</label>
               <input
                 type="number"
                 placeholder="Enter No of Washrooms"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.noOfWashrooms}
                 onChange={(e) =>
                   setFormData({ ...formData, noOfWashrooms: e.target.value })
@@ -116,11 +128,11 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Floor</label>
+              <label className="text-sm text-gray-800">Floor</label>
               <input
                 type="text"
                 placeholder="Enter Floor"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.floor}
                 onChange={(e) =>
                   setFormData({ ...formData, floor: e.target.value })
@@ -129,16 +141,38 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Parkings</label>
+              <label className="text-sm text-gray-800">Parkings</label>
               <input
                 type="number"
                 placeholder="Enter No of Parkings"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.parkings}
                 onChange={(e) =>
                   setFormData({ ...formData, parkings: e.target.value })
                 }
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-800">Upload Media</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={handleMediaChange}
+              className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+            />
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {mediaFiles.map((file, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -158,7 +192,7 @@ const SellForm = ({closeSellModal}) => {
                   })
                 }
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-800">
                 I am posting this property 'exclusively' on Magicbricks
               </span>
             </label>
@@ -175,7 +209,7 @@ const SellForm = ({closeSellModal}) => {
                   })
                 }
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-800">
                 I want to receive responses on WhatsApp
               </span>
             </label>
@@ -189,7 +223,7 @@ const SellForm = ({closeSellModal}) => {
                   setFormData({ ...formData, agreeToTerms: e.target.checked })
                 }
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-800">
                 I agree to Magicbricks T&C, Privacy Policy, & Cookie Policy
               </span>
             </label>
@@ -197,9 +231,10 @@ const SellForm = ({closeSellModal}) => {
 
           <button
             type="submit"
-            className="w-full  bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-300 hover:border-gold hover:border-b-gold  px-4 py-2 text-black rounded-xl  focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2"
+            disabled={isUploading}
+            className={`w-full bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-500 hover:border-gold hover:border-b-gold px-4 py-2 text-black rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-             Submit
+             {isUploading ? 'Uploading...' : 'Submit'}
           </button>
         </form>
       </div>

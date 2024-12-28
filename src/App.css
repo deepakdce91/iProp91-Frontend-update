@@ -21,3 +21,9 @@ body {
     transform: translateY(0);
 }
 
+.responsive-text {
+    max-width: 100%; /* Ensure it doesn't exceed the container */
+    font-size: calc(1rem + 0.5vw); /* Adjust the base size and scaling */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow */
+  }

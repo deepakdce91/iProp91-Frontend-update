@@ -137,7 +137,7 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
         onChange={handleInputChange}
         onFocus={() => setIsOpen(true)}
         className={`mt-1 block w-full text-gray-900 px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white ${
-          fromGuestForm ? "rounded-lg" : "rounded-3xl"
+          fromGuestForm ? "rounded-lg" : "rounded-lg"
         }`}
         placeholder="Type to search cities..."
       />

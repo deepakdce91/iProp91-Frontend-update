@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Search, MapPin, Mic } from 'lucide-react'
-
+import { Link, Routes, Route } from 'react-router-dom'
+import PropertyDetail from './id/page'
 
 const MainListingPage = () => {
     const [activeTab, setActiveTab] = useState('Buy')
@@ -29,30 +30,30 @@ const MainListingPage = () => {
     }
   ]
 
-  const featuredProjects = [
+  const properties = [
     {
-      title: "Vatika The Seven Lamps",
-      location: "Sector 82, Gurgaon",
-      price: "₹1.95 - 3.64 Cr",
-      type: "1, 2, 3, 4, 5 BHK Apartment",
-      image: "/images/propfea.jpg",
-      tag: "Ready To Move"
+      id: 0,
+      title: "Luxury Villa",
+      location: "Beverly Hills, CA",
+      description: "A beautiful luxury villa with stunning views.",
+      image: "/images/villa.jpg",
+      price: "$2,500,000"
     },
     {
-      title: "Tulip White",
-      location: "Sector 69, Gurgaon",
-      price: "₹12 L - 3.75 Cr",
-      type: "2, 3 BHK Apartment | 1 RK Studio",
-      image: "/images/propfea.jpg",
-      tag: "Ready To Move"
+      id: 1,
+      title: "Modern Apartment",
+      location: "New York, NY",
+      description: "A modern apartment in the heart of the city.",
+      image: "/images/apartment.jpg",
+      price: "$1,200,000"
     },
     {
-      title: "Emaar MGF Palm Hills",
-      location: "Sector 77, Gurgaon",
-      price: "₹11 L - 2.7 Cr",
-      type: "1, 3, 4 BHK Apartment",
-      image: "/images/propfea.jpg",
-      tag: "Ready To Move"
+      id: 2,
+      title: "Cozy Cottage",
+      location: "Lake Tahoe, CA",
+      description: "A cozy cottage perfect for weekend getaways.",
+      image: "/images/cottage.jpg",
+      price: "$750,000"
     }
   ]
 
@@ -135,8 +136,8 @@ const MainListingPage = () => {
       <p className="text-gray-600 mb-6">Featured Projects in Gurgaon</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featuredProjects.map((project, index) => (
-          <div key={index} className="border rounded-lg overflow-hidden group cursor-pointer">
+        {properties.map((project) => (
+          <Link to={`/property-for-sale/${project.id}`} key={project.id} className="border rounded-lg overflow-hidden group cursor-pointer">
             <div className="relative h-48">
               <img
                 src={project.image}
@@ -145,23 +146,22 @@ const MainListingPage = () => {
                 className="object-cover group-hover:scale-110 z-10 transition-transform duration-300"
               />
               <span className="absolute top-3 left-3 bg-white px-3 py-1 rounded text-sm">
-                {project.tag}
+                "Ready To Move"
               </span>
             </div>
             <div className="p-4 z-20">
               <h3 className="font-medium text-lg mb-1">{project.title}</h3>
               <div className="flex items-center gap-1 text-gray-600 text-sm mb-2">
                 <MapPin className="w-4 h-4" />
-
                 <span>{project.location}</span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{project.type}</p>
               <p className="font-bold text-lg">{project.price}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
+
   </main>
   )
 }

@@ -23,7 +23,7 @@ import Lend from "../Lend/Lend";
 import WeDoMore from "./WeDoMore";
 import MobileScreen from "./MobileScreen";
 import JourneyPage from "../getstartedForm/getStartedForm";
-import Call from "../NRI/corousal/corsoual"
+import Call from "../CompoCards/Call"
 import Stage1Form from "../Journey/Stage1Form";
 
 function LandingPage() {
@@ -40,6 +40,7 @@ function LandingPage() {
       <Insight />
       <Testimonials />
       <Call/>
+
       {/* <ContactUs /> */}
     </>
   );
@@ -48,12 +49,11 @@ function LandingPage() {
 const TypingLandingPage = () => {
   const [showMessage, setShowMessage] = useState(true);
   const [showNavbar, setShowNavbar] = useState(false);
+  const hasVisited = localStorage.getItem("hasVisited"); // Check if user has visited
 
   useEffect(() => {
     const checkVisit = async () => {
-      const hasVisited = localStorage.getItem("hasVisited");
       const visitTime = localStorage.getItem("visitTime");
-
       const currentTime = new Date().getTime();
       const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
 
@@ -79,7 +79,7 @@ const TypingLandingPage = () => {
     };
 
     checkVisit();
-  }, []);
+  }, [hasVisited]); // Add hasVisited to dependencies
 
   const welcomeMessage = "Welcome to iProp91";
   const animatedText = welcomeMessage.split("").map((char, index) => (
@@ -91,7 +91,7 @@ const TypingLandingPage = () => {
   return (
     <>
       {showNavbar && <LandingPage />}
-      {!showNavbar && (
+      {!showNavbar && hasVisited === null && ( // Only show message if hasVisited is null
         <div className="flex justify-center items-center h-screen bg-black">
           {showMessage && (
             <div className="flex flex-col items-center">
@@ -144,6 +144,7 @@ function Landing({setIsLoggedIn }) {
 
       </Routes>
       {location.pathname !== "/advice" || location.pathname !== "/journey" || location.pathname !== "/stage1Form"  && <Footer />}
+      <Footer/>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import Que from './questoin/question'
-import Call from './corousal/corsoual'
+import Call from '../CompoCards/Call'
 import Starter from '../CompoCards/Starter/Starter'
 import Cards from './Cards';
 import ContactUs from '../CompoCards/contactus/ContactUs';
@@ -30,11 +30,9 @@ export default function NRI(){
           <Profile/>
         </div>
       )}
-        {/* <Starter/> */}
          <Cards/>
         <Que/>
         <Call/>
-        {/* <ContactUs/> */}
         </>
     );
 };

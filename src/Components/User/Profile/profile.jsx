@@ -73,7 +73,7 @@ export default function Profile() {
           onClick={toggleDropdown}
           className="flex items-center space-x-2"
         >
-          <span className="flex h-10 w-10 border-2 border-gold overflow-hidden rounded-full">
+          <span className="flex h-10 scale-125 w-10 border-2 border-gold overflow-hidden rounded-full">
             <img
               className="h-full w-full object-cover"
               alt="profilePic"
@@ -90,7 +90,7 @@ export default function Profile() {
 
         {/* Dropdown menu */}
         <div
-          className={`absolute right-0 mt-2  bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300 ease-in-out ${
+          className={`absolute right-0 mt-2 px-5 py-3 bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300 ease-in-out ${
             isOpen ? "block" : "hidden"
           }`}
         >
@@ -98,7 +98,7 @@ export default function Profile() {
             <p className=" text-bold my-3">Account</p>
             {dataloaded && (
               <div className="flex gap-2 items-center justify-center ">
-                <span className="flex h-10 w-10 border-2 border-gold overflow-hidden rounded-full">
+                <span className="flex h-14 w-14 border-2 border-gold overflow-hidden rounded-full">
                   <img
                     className="h-full w-full object-cover"
                     alt="profilePic"
@@ -112,8 +112,8 @@ export default function Profile() {
                   />
                 </span>
                 <div className="">
-                <p className="font-semibold text-sm">{user.data.name}</p>
-                <p className="text-xs text-gray-500">{user.data.email}</p>
+                <p className="font-semibold text-base">{user.data.name}</p>
+                <p className="text-sm text-gray-500">{user.data.email}</p>
                 </div>
               </div>
             )}
@@ -121,13 +121,13 @@ export default function Profile() {
           <div className="border-t border-gray-200"></div>
           <Link
             to="/profile"
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            className="block px-6 py-3 text-base text-gray-700 hover:bg-gray-100"
           >
             Manage Profile
           </Link>
           <div
             onClick={handleLogout}
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+            className="block px-6 py-3 text-base text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
             Logout
           </div>

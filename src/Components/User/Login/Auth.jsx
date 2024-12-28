@@ -2,7 +2,7 @@ import SimpleInput from "../../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import LableInput from "../../CompoCards/InputTag/labelinput";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PhoneInput from "../../CompoCards/PhoneInput";
 import {
@@ -23,7 +23,6 @@ import { Spinner } from "@material-tailwind/react";
 import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
-import { ChevronLeft } from "lucide-react";
 
 function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, onBack }) {
   const [otp, setOTP] = useState("");
@@ -74,7 +73,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
         countryCode: countryCode,
       });
       setOTP("");
-
+      
       if (verifyresponse) {
         console.log("Response:", verifyresponse);
         if (verifyresponse.response.verification === "FAILED") {
@@ -114,28 +113,54 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
                 let loginresjson = await loginres.json();
                 if (loginresjson.success === true) {
                   localStorage.setItem("token", loginresjson.token);
-
+                  
                   // Get user details after login
                   const decoded = jwtDecode(loginresjson.token);
                   const userId = decoded.userId; // This should be the correct user ID
-                  setIsLoggedIn(true);
-                  toast.success("Login Successful");
-                  if (stage1FormData) {
-                    const SendToConciPage = () => {
-                      setTimeout(() => {
-                        navigate("/concierge");
-                      }, 2000);
-                    };
-                    AddGuestProperty(
-                      userId,
-                      loginresjson.token,
-                      stage1FormData,
-                      SendToConciPage
-                    );
+
+                  // Handle property submission
+                  const tempPropertyData = localStorage.getItem('tempPropertyData');
+                  if (tempPropertyData) {
+                    const { data, expiry } = JSON.parse(tempPropertyData);
+                    
+                    if (Date.now() < expiry) {
+                      try {
+                        const propertyResponse = await fetch(
+                          `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              "auth-token": loginresjson.token,
+                            },
+                            body: JSON.stringify({
+                              state: data.selectedState,
+                              city: data.selectedCity,
+                              builder: data.selectBuilder,
+                              project: data.selectProject,
+                              houseNumber: data.selectHouseNumber,
+                              floorNumber: data.selectFloorNumber
+                            })
+                          }
+                        );
+
+                        if (propertyResponse.ok) {
+                          toast.success("Property details saved successfully!");
+                        } else {
+                          const errorData = await propertyResponse.json();
+                          console.error("Property submission error:", errorData);
+                          toast.error("Failed to save property details");
+                        }
+                      } catch (error) {
+                        console.error("Error saving property:", error);
+                        toast.error("Failed to save property details");
+                      }
+                    }
+                    localStorage.removeItem('tempPropertyData');
                   }
 
-                  return;
-                } else {
+                  setIsLoggedIn(true);
+                  toast.success("Login Successful");
                   setTimeout(() => {
                     navigate("/concierge");
                   }, 2000);
@@ -173,7 +198,7 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
 
   useEffect(()=> {
     if (otp.length === 6) {
-      HandleVerifyOTP({ preventDefault: () => {} });
+      HandleVerifyOTP({preventDefault: ()=> {}})
     }
   }, [otp]);
 
@@ -220,24 +245,12 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
 
       toast.success("Signup Successfull");
 
-      const decoded = jwtDecode(token);
-      const userId = decoded.userId;
-
-      if (stage1FormData) {
-        const SendToConciPage = () => {
-          setTimeout(() => {
-            navigate("/concierge");
-          }, 2000);
-        };
-        AddGuestProperty(userId, token, stage1FormData, SendToConciPage);
-      } else {
-        setTimeout(() => {
-          navigate("/concierge");
-        }, 1000);
-        // set is login === true
-        setIsLoggedIn(true);
-        setLoading(false);
-      }
+      setTimeout(() => {
+        navigate("/concierge");
+      }, 1000);
+      // set is login === true
+      setIsLoggedIn(true);
+      setLoading(false);
     } catch (err) {
       toast.error("Something went wrong");
       setTimeout(() => {
@@ -260,18 +273,14 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
         </div>
       ) : null}
       <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
-        <p
-          onClick={handleOpen}
-          className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20"
-        >
-          Skip for now
-        </p>
+      
+        <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
         <DialogHeader className="relative m-0 block">
           {/* <Typography variant="h4" color="blue-gray">
             Enter Your Details
           </Typography> */}
           <Typography className="mt-1 font-bold text-lg text-gray-800">
-            Helping you manage your real estate assets brick by brick
+          Helping you manage your real estate assets brick by brick
           </Typography>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
@@ -310,20 +319,10 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
           </div>
         </DialogBody>
         <DialogFooter>
-          <Goldbutton
-            btnname={"Sign Up"}
-            properties={
-              "bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
-            }
-            onclick={handleOpen}
-          />
+          <Goldbutton btnname={"Sign Up"} properties={"bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"} onclick={handleOpen} />
         </DialogFooter>
       </Dialog>
-      <div
-        className={`${
-          stage1FormData ? "h-fit" : "min-h-screen"
-        } flex items-center justify-center `}
-      >
+      <div className="min-h-screen flex items-center justify-center ">
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
           
@@ -394,17 +393,11 @@ function Verify({ onclick, phone, countryCode, setIsLoggedIn, handleOtpChange, o
           </div> */}
         </div>
       </div>
-    </section>
+    </section> 
   );
 }
 
-export default function Login({
-  setIsLoggedIn,
-  onClose,
-  properties,
-  stage1FormData,
-  goBackToStage1,
-}) {
+export default function Login({setIsLoggedIn, onClose, properties }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -459,6 +452,7 @@ export default function Login({
           headers: {
             "Content-Type": "application/json",
           },
+         
         }
       );
       const loginresjson = await response.json();
@@ -467,33 +461,57 @@ export default function Login({
         // First store the token
         localStorage.setItem("token", loginresjson.token);
         const decoded = jwtDecode(loginresjson.token);
-
+        
         // Set login state first
         setIsLoggedIn(true);
         toast.success("Login Successful");
 
-        const userId = decoded.userId;
+        // Then handle property submission
+        const tempPropertyData = localStorage.getItem('tempPropertyData');
+        if (tempPropertyData) {
+          const { data, expiry } = JSON.parse(tempPropertyData);
+          
+          if (Date.now() < expiry) {
+            // Wait a bit to ensure token is properly set
+            setTimeout(async () => {
+              try {
+                const propertyResponse = await fetch(
+                  `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${decoded.userId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "auth-token": loginresjson.token,
+                    },
+                    body: JSON.stringify(data)
+                  }
+                );
 
-        if (stage1FormData) {
-          const SendToConciPage = () => {
-            setTimeout(() => {
+                if (propertyResponse.ok) {
+                  toast.success("Property details saved successfully!");
+                } else {
+                  toast.error("Failed to save property details");
+                }
+              } catch (error) {
+                console.error("Error saving property:", error);
+                toast.error("Failed to save property details");
+              }
+              
+              // Clear the temporary data
+              localStorage.removeItem('tempPropertyData');
+              
+              // Navigate after property submission attempt
               navigate("/concierge");
-            }, 2000);
-          };
-          AddGuestProperty(
-            userId,
-            loginresjson.token,
-            stage1FormData,
-            SendToConciPage
-          );
-        } else {
-          setTimeout(() => {
+            }, 1000); // Add a 1-second delay
+          } else {
+            // If data expired, just navigate
             navigate("/concierge");
-          }, 1000);
-          // set is login === true
-          setIsLoggedIn(true);
-          setLoading(false);
+          }
+        } else {
+          // If no property data, just navigate
+          navigate("/concierge");
         }
+        return;
       } else {
         toast.error(loginresjson.error);
         return;
@@ -554,16 +572,13 @@ export default function Login({
   const verifyOtp = async (otpValue) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ phone, otp: otpValue }),
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, otp: otpValue }),
+      });
 
       const data = await response.json();
       if (data.success) {
@@ -583,7 +598,7 @@ export default function Login({
 
   // Add this function to handle key press
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       HandleOTPLogin(e);
     }
   };
@@ -600,11 +615,9 @@ export default function Login({
   };
 
   return (
-    <section
-      className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
-    >
+    <section className="absolute h-screen w-screen">
       <div className="relative w-full h-full">
-        {/* {loading ? (
+      {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
         </div>
@@ -722,144 +735,17 @@ export default function Login({
             )} 
           </form>
 
-            {/* Left Side - Form */}
-            <form
-              onKeyDown={handleKeyPress}
-              className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${
-                stage1FormData ? "h-fit" : "h-[500px] lg:h-[600px]"
-              }`}
-            >
-              {verify ? (
-                <Verify
-                  phone={phone}
-                  countryCode={selectedCountry}
-                  setIsLoggedIn={setIsLoggedIn}
-                  handleOtpChange={handleOtpChange}
-                  stage1FormData={stage1FormData}
-                />
-              ) : passwordlogin ? (
-                <>
-                  <div className="flex items-center mb-4 cursor-pointer">
-                    <span className="ml-2 text-gray-600">
-                      Sign in / Sign up
-                    </span>
-                  </div>
-                  <h2 className="text-2xl font-semibold mb-4 ">
-                    Enter Phone Number
-                  </h2>
-                  <p className="text-gray-500 text-sm mb-8" onClick={onclick}>
-                    Enter your mobile number to get an OTP
-                  </p>
-                  <div className="w-72">
-                    <PhoneInput
-                      selectedCountry={selectedCountry}
-                      setSelectedCountry={setSelectedCountry}
-                      phone={phone}
-                      setPhone={setPhone}
-                    />
-                  </div>
-                  <div className="w-72  mt-1">
-                    <Goldbutton
-                      btnname={"Send OTP"}
-                      properties={
-                        " bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
-                      }
-                      onclick={HandleOTPLogin}
-                    />
-                  </div>
-                  <div
-                    className="flex items-center mt-4 cursor-pointer"
-                    onClick={() => {
-                      setPasswordLogin(false);
-                      setVerify(false);
-                    }}
-                  >
-                    <p>
-                      Login with{" "}
-                      <span className="text-gold underline">Password</span>
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div
-                    className="flex items-center mb-4 cursor-pointer"
-                    onClick={() => setPasswordLogin(true)}
-                  >
-                    <i
-                      className="bx bxs-chevron-left"
-                      style={{ fontSize: "20px" }}
-                    ></i>
-                    <span className="ml-2 text-gray-600">Back</span>
-                  </div>
-                  <h2 className="text-3xl font-semibold mb-4">
-                    Enter Credentials
-                  </h2>
-                  <p className="text-gray-500 mb-8" onClick={onclick}>
-                    Enter your mobile number and password to continue with login
-                    and password.
-                  </p>
-                  <div className="w-72 ">
-                    <PhoneInput
-                      selectedCountry={selectedCountry}
-                      setSelectedCountry={setSelectedCountry}
-                      phone={phone}
-                      setPhone={setPhone}
-                    />
-                  </div>
-                  <div className="w-72  mt-1">
-                    <SimpleInputPass
-                      type={"password"}
-                      placeholder={"Password"}
-                      value={password}
-                      setValue={setPassword}
-                    />
-                  </div>
-                  <div className="w-72 mt-1">
-                    <Goldbutton
-                      btnname={"Submit"}
-                      properties={
-                        "bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"
-                      }
-                      onclick={HandlePasswordLogin}
-                    />
-                  </div>
-                  <div
-                    className="flex items-center mt-4 cursor-pointer"
-                    onClick={() => {
-                      setPasswordLogin(true);
-                      setVerify(false);
-                    }}
-                  >
-                    <p>
-                      Login with{" "}
-                      <span className="text-gold underline">OTP</span>
-                    </p>
-                  </div>
-                </>
-              )}
-            </form>
-
-            {/* Right Side - Image */}
-            {/* <div className="w-4/6 hidden ">
+          {/* Right Side - Image */}
+          {/* <div className="w-4/6 hidden ">
             <img
               src="images/login.png" // Replace this with the actual image URL
               alt="Building"
               className="w-full h-[90%] rounded-xl object-cover"
             />
           </div> */}
-          </div>
-
-          {stage1FormData && (
-            <button
-              onClick={goBackToStage1}
-              className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </button>
-          )}
         </div>
+      </div>
+
       </div>
     </section>
   );

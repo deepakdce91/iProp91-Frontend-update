@@ -35,7 +35,7 @@ export default function TestimonialForm({ close }) {
 
   return (
     <section className="relative">
-      <div className=" mx-auto fixed lg:left-[30%] left-7 top-28 max-w-5xl border-[1px] border-gray-200 shadow-lg  shadow-black rounded-3xl lg:top-[25%] py-5 md:py-10 z-50 bg-white">
+      <div className=" mx-auto fixed lg:left-[30%] left-7 top-28 max-w-5xl shadow-lg  shadow-black rounded-3xl lg:top-[25%] py-5 md:py-10 z-50 bg-white border-[1px] border-black/40">
         <div className=" overflow-hidden relative">
           <button
             onClick={close}

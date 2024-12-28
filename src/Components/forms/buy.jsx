@@ -30,10 +30,23 @@ const BuyForm = ({closeBuyModal}) => {
     availableFrom: "",
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleMediaChange = (e) => {
+    const files = Array.from(e.target.files);
+    setMediaFiles(files);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+    // Simulate file upload
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(formData, mediaFiles);
+    setIsUploading(false);
+  };
+
   return (
     <div className="h-screen z-20 fixed w-[90%] overflow-y-auto custom-scrollbar ">
       <div className="backdrop-blur-sm flex flex-col items-center rounded-lg relative overflow-y-auto max-h-[80vh] w-full border-[1px] ">
@@ -53,52 +66,52 @@ const BuyForm = ({closeBuyModal}) => {
           <div className="space-y-4">
             
             <div>
-              <label className="text-sm text-gray-600">Unit No</label>
+              <label className="text-sm text-gray-800">Unit No</label>
               <input
                 type="text"
                 placeholder="Enter Unit Number"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.unitNo}
                 onChange={(e) => setFormData({ ...formData, unitNo: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Size</label>
+              <label className="text-sm text-gray-800">Size</label>
               <input
                 type="text"
                 placeholder="Enter Size"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.size}
                 onChange={(e) => setFormData({ ...formData, size: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Expected Rent</label>
+              <label className="text-sm text-gray-800">Expected Rent</label>
               <input
                 type="text"
                 placeholder="Enter Expected Rent"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.expectedRent}
                 onChange={(e) => setFormData({ ...formData, expectedRent: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Available From</label>
+              <label className="text-sm text-gray-800">Available From</label>
               <input
                 type="date"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.availableFrom}
                 onChange={(e) => setFormData({ ...formData, availableFrom: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Type</label>
+              <label className="text-sm text-gray-800">Type</label>
               <select
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.propertyType}
                 onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
               >
@@ -110,44 +123,44 @@ const BuyForm = ({closeBuyModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">No of Washrooms</label>
+              <label className="text-sm text-gray-800">No of Washrooms</label>
               <input
                 type="number"
                 placeholder="Enter Number of Washrooms"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.noOfWashrooms}
                 onChange={(e) => setFormData({ ...formData, noOfWashrooms: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Floor</label>
+              <label className="text-sm text-gray-800">Floor</label>
               <input
                 type="text"
                 placeholder="Enter Floor Number"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.floor}
                 onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Parking</label>
+              <label className="text-sm text-gray-800">Parking</label>
               <input
                 type="text"
                 placeholder="Enter Parking Details"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.parking}
                 onChange={(e) => setFormData({ ...formData, parking: e.target.value })}
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">Security Deposit (in Rs)</label>
+              <label className="text-sm text-gray-800">Security Deposit (in Rs)</label>
               <input
                 type="text"
                 placeholder="Enter Security Deposit"
-                className="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.securityDeposit}
                 onChange={(e) => setFormData({ ...formData, securityDeposit: e.target.value })}
               />
@@ -155,7 +168,7 @@ const BuyForm = ({closeBuyModal}) => {
 
             {/* Furnished or Non-Furnished */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-600">Furnished Status</label>
+              <label className="text-sm text-gray-800">Furnished Status</label>
               <div className="flex gap-4">
                 {["furnished", "non-furnished"].map((status) => (
                   <label key={status} className="flex items-center gap-2">
@@ -174,15 +187,34 @@ const BuyForm = ({closeBuyModal}) => {
             </div>
           </div>
 
-         
-
-          
+          <div>
+            <label className="text-sm text-gray-800">Upload Media</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={handleMediaChange}
+              className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+            />
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {mediaFiles.map((file, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
 
           <button
             type="submit"
-            className="w-full  bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-300 hover:border-gold hover:border-b-gold  px-4 py-2 text-black rounded-xl  focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2"
+            disabled={isUploading}
+            className={`w-full bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-500 hover:border-gold hover:border-b-gold px-4 py-2 text-black rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            Submit
+            {isUploading ? 'Uploading...' : 'Submit'}
           </button>
         </form>
       </div>

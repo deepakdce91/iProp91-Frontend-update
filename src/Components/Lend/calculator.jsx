@@ -116,6 +116,7 @@ const  Calculator = () =>{
                 type="range"
                 min={1}
                 max={30}
+                step={0.5}
                 value={loanPeriod}
                 onChange={(e) => setLoanPeriod(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-black"
@@ -136,6 +137,7 @@ const  Calculator = () =>{
                 type="range"
                 min={7}
                 max={11}
+                step={0.2}
                 value={interestRate}
                 onChange={(e) => setInterestRate(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-black"
