@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const DisclaimerModal = ({ onClose }) => {
   return (
@@ -21,16 +22,15 @@ const DisclaimerModal = ({ onClose }) => {
         <div className="flex justify-end gap-4">
           <button
             onClick={onClose}
-            className="bg-black text-white py-2 px-4 rounded  transition"
+            className="bg-white text-black border-[1px] border-black py-2 px-4 rounded hover:bg-black hover:text-white transition"
           >
             Cancel
           </button>
-          <button
-            onClick={onClose}
-            className="bg-white text-black border-[1px] border-black py-2 px-4 rounded hover:bg-black hover:text-white transition"
+          <Link to={"https://www.basichomeloan.com/apply?qrid=BAE0012YW"} target="_blank"
+            className="bg-black text-white py-2 px-4 rounded  transition"
           >
             Agree
-          </button>
+          </Link>
         </div>
       </div>
     </div>

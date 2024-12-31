@@ -62,6 +62,10 @@ function Addpropform() {
   const [uploadStatus, setUploadStatus] = useState(false);
   const [uploadFiles, setUploadFiles] = useState([]);
 
+  // Update state to manage loading and tooltip message
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
+
   const handleTermsnCond = (e) => {
     setTermsnCond(e.target.checked);
   };
@@ -321,9 +325,10 @@ function Addpropform() {
     }
 
     try {
+      setIsLoading(true); // Set loading state
+      setUploadMessage("Uploading documents..."); // Set upload message
       toast("Uploading files!");
       for (const item of files) {
-        // Use a for loop for async/await
         let cloudFilePath = await uploadFileToCloud(item, user.phone);
         setFormData((prevFormData) => {
           const updatedFormData = {
@@ -336,7 +341,6 @@ function Addpropform() {
               ],
             },
           };
-          console.log("Updated Form Data after File Upload:", updatedFormData);
           return updatedFormData;
         });
       }
@@ -344,10 +348,13 @@ function Addpropform() {
         toast.success("Files Uploaded!");
         setUploadStatus(true);
         setUploadFiles([]);
+        setIsLoading(false); // Reset loading state
+        setUploadMessage(""); // Clear upload message
       }, 3000);
     } catch (error) {
       toast.error("Some error occurred while uploading.");
       console.log(error.message);
+      setIsLoading(false); // Reset loading state on error
     }
     setUploadFiles([]);
   };
@@ -531,11 +538,11 @@ function Addpropform() {
 
   return (
     <>
-      <div className="flex justify-center my-6 max-w-[1400px] m-auto p-4">
-        <div className="bg-gray-100 shadow-lg rounded-3xl p-4 md:p-10 w-full ">
+      <div className="flex justify-center my-6 w-full md:w-[80vw] m-auto p-4">
+        <div className="bg-gray-100 shadow-lg rounded-lg p-4 md:p-10 w-full ">
           <form>
             <div className="flex flex-col w-full">
-              {/* State and city*/}
+              {/* State */}
               <div className="flex flex-col xl:flex-row w-full">
                 <StateCityCompo
                   setMainCity={handleCityChange}
@@ -554,7 +561,7 @@ function Addpropform() {
                     value={formdata.selectBuilder}
                     onChange={handleChange}
                     placeholder="Select or type a builder..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                   <datalist id="builders-list">
                     {builders.map((builder) => (
@@ -578,7 +585,7 @@ function Addpropform() {
                     value={formdata.selectProject}
                     onChange={handleChange}
                     placeholder="Select or type a project..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                   <datalist id="projects-list">
                     {projects.map((project) => (
@@ -600,7 +607,7 @@ function Addpropform() {
                     value={formdata.selectHouseNumber}
                     onChange={handleChange}
                     placeholder="Enter House Number"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
                 {/* floor */}
@@ -615,7 +622,7 @@ function Addpropform() {
                     value={formdata.selectFloorNumber}
                     onChange={handleChange}
                     placeholder="Enter Floor Number"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
               </div>
@@ -632,7 +639,7 @@ function Addpropform() {
                     value={formdata.selectedTower}
                     onChange={handleChange}
                     placeholder="Enter Tower"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
 
@@ -648,7 +655,7 @@ function Addpropform() {
                     value={formdata.selectedUnit}
                     onChange={handleChange}
                     placeholder="Enter Unit"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
 
@@ -663,7 +670,7 @@ function Addpropform() {
                     value={formdata.selectedSize}
                     onChange={handleChange}
                     placeholder="Enter Size"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div>
 
@@ -677,7 +684,7 @@ function Addpropform() {
                     Select Nature of Property
                   </label>
                   <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="residential"
                         name="selectedNature"
@@ -694,7 +701,7 @@ function Addpropform() {
                         Residential
                       </label>
                     </div>
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="commercial"
                         name="selectedNature"
@@ -720,7 +727,7 @@ function Addpropform() {
                     Select Status
                   </label>
                   <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="under-construction"
                         name="selectedStatus"
@@ -739,7 +746,7 @@ function Addpropform() {
                         Under Construction
                       </label>
                     </div>
-                    <div className="flex w-full flex-row border items-center rounded-3xl px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
                       <input
                         id="completed"
                         name="selectedStatus"
@@ -770,7 +777,7 @@ function Addpropform() {
                     name="selectedDocType"
                     value={formdata.selectDoclist.selectedDocType}
                     onChange={handleDocTypeChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   >
                     <option value="">Select Document Type</option>
                     {doctypes?.map((doctype) => (
@@ -792,7 +799,7 @@ function Addpropform() {
                     name="selectDoc"
                     onChange={handleFileAdding}
                     multiple
-                    className="mt-1 block w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+                    className="mt-1 block w-full text-gray-500  border-2 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
                   />
                 </div>
               </div>
@@ -821,11 +828,12 @@ function Addpropform() {
               <div className="my-2 w-48 xl:m-2">
                 <Goldbutton
                   properties={
-                    "bg-white/90 hover:shadow-gold hover:shadow-sm rounded-full text-black"
+                    "bg-white/90 hover:shadow-gold hover:shadow-sm rounded-lg text-black"
                   }
-                  isDisabled={isUploading}
-                  btnname={"Submit"}
+                  isDisabled={isUploading || isLoading} // Disable if uploading or loading
+                  btnname={isLoading ? "Uploading..." : "Submit"} // Change button text
                   onclick={handleSubmit}
+                  tooltip={isLoading ? uploadMessage : ""} // Show tooltip message
                 ></Goldbutton>
               </div>
             </div>

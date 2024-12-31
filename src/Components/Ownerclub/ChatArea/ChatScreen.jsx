@@ -163,7 +163,7 @@ function ChatScreen() {
           >
             <div className=" p-2 relative top-0 ">
               <div className="mx-2 my-5">
-                <NameHeader firstname="Owner's" secondname="Club" />
+                <NameHeader firstname="Iprop91 Owner's Club"  />
               </div>
               <div className="my-1  ">
                 <div className="relative">

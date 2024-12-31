@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, ChevronRight, Download, X } from "lucide-react"
+import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
 
 const carouselData = [
   {
@@ -14,8 +14,8 @@ const carouselData = [
       "Power of attorney",
       "On-ground assistance in relation to the registration process",
       "Guidance on foreign exchange and tax-related compliance",
-      "Documentation support for purchase, sale, or lease of property"
-    ]
+      "Documentation support for purchase, sale, or lease of property",
+    ],
   },
   {
     id: 2,
@@ -27,8 +27,8 @@ const carouselData = [
       "Assistance in the sale or lease of the property",
       "Documentation support",
       "Tenant identification, KYC, and management of leased property",
-      "Periodic updates of the project status"
-    ]
+      "Periodic updates of the project status",
+    ],
   },
   {
     id: 3,
@@ -38,20 +38,20 @@ const carouselData = [
       "Access to best property options from the best developers",
       "Market analysis and reports",
       "Access to genuine reviews and ratings",
-      "Regular status updates"
-    ]
-  }
-]
+      "Regular status updates",
+    ],
+  },
+];
 
 const draftAgreements = Array(8).fill({
   title: "DRAFT AGREEMENTS",
-  subtitle: "iProp 91- Residential lease agreement"
-})
+  subtitle: "iProp 91- Residential lease agreement",
+});
 
 export default function AdviceCards() {
-  const [currentIndex, setCurrentIndex] = React.useState(0)
-  const [showAgreements, setShowAgreements] = React.useState(false)
-  const [isPaused, setIsPaused] = React.useState(false)
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [showAgreements, setShowAgreements] = React.useState(false);
+  const [isPaused, setIsPaused] = React.useState(false);
 
   React.useEffect(() => {
     if (!isPaused) {
@@ -63,20 +63,22 @@ export default function AdviceCards() {
   }, [isPaused]);
 
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length)
-  }
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
+  };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + carouselData.length) % carouselData.length)
-  }
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + carouselData.length) % carouselData.length
+    );
+  };
 
   const handleDragEnd = (event, info) => {
     if (info.offset.x < -50 || info.offset.y < -50) {
-      nextSlide()
+      nextSlide();
     } else if (info.offset.x > 50 || info.offset.y > 50) {
-      prevSlide()
+      prevSlide();
     }
-  }
+  };
 
   return (
     <div className="w-full min-h-screen bg-transparent text-white p-4 md:p-8 overflow-hidden">
@@ -90,35 +92,57 @@ export default function AdviceCards() {
               className="flex flex-col lg:flex-row items-center lg:gap-8 justify-center"
             >
               {/* Text content */}
-              <div className="w-full lg:w-1/3 mb-8 md:mb-0 lg:ml-14">
-
-                <p className="lg:text-7xl text-4xl text-black font-bold text-center lg:text-start">Advice</p>
-                <p className="lg:text-xl text-center lg:text-start text-xl text-black font-semibold">Understand the law, legal positions and the key terms of your documents. Happy ownership!</p>
+              <div className="w-full lg:w-1/3 mb-8  md:mb-0 lg:ml-14 space-y-6 mt-20 lg:mt-0">
+                <p className="lg:text-7xl text-5xl text-primary font-bold text-start">
+                  Advice
+                </p>
+                <div className="space-y-1  ">
+                <p className="lg:text-2xl max-w-2xl lg:w-full text-start text-xl text-black font-semibold">
+                  Understand the law, legal positions and the key terms of your
+                  documents. Happy ownership!
+                </p>
+                <ul className="md:text-lg space-y-2 text-gray-700 md:px-2">
+                  <li className="flex items-center">
+                    <span>Foundational principles and regulations</span>
+                  </li>
+                  <li className="flex items-center ">
+                    <span>Relevant laws for your situation</span>
+                  </li>
+                  <li className="flex items-center ">
+                    <span>Your rights and responsibilities</span>
+                  </li>
+                  <li className="flex items-center ">
+                    <span>Compliance for smooth ownership</span>
+                  </li>
+                  </ul>
+                </div>
               </div>
 
               {/* Carousel */}
               <div className="w-full lg:w-2/3 relative">
-                <div className="hidden md:flex flex-col items-center justify-center h-[50vh] lg:h-[100vh] ">
+                <div className="hidden md:flex flex-col items-center justify-center h-[90vh] lg:h-[100vh] ">
                   {[-1, 0, 1].map((offset) => {
-                    const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length
-                    const item = carouselData[slideIndex]
+                    const slideIndex =
+                      (currentIndex + offset + carouselData.length) %
+                      carouselData.length;
+                    const item = carouselData[slideIndex];
                     return (
                       <motion.div
                         key={item.id}
                         className={`absolute w-full max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
-                          offset === 0 ? 'z-30 ' : 'z-20 '
+                          offset === 0 ? "z-30 " : "z-20 "
                         } overflow-hidden`}
-                        initial={{ 
-                          scale: offset === 0 ? 0.9 : 0.7, 
+                        initial={{
+                          scale: offset === 0 ? 0.9 : 0.7,
                           y: `${offset * 60}%`,
-                          opacity: offset === 0 ? 0.9 : 0.5 
+                          opacity: offset === 0 ? 0.9 : 0.5,
                         }}
-                        animate={{ 
-                          scale: offset === 0 ? 1 : 0.8, 
+                        animate={{
+                          scale: offset === 0 ? 1 : 0.8,
                           y: `${offset * 50}%`,
-                          opacity: offset === 0 ? 1 : 0.6 
+                          opacity: offset === 0 ? 1 : 0.6,
                         }}
-                        whileHover={{ scale: 1.001 }}
+                        whileHover={{ scale: offset === 0 ? 1.05 : 0.85 }}
                         transition={{ duration: 0.3 }}
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
@@ -127,11 +151,13 @@ export default function AdviceCards() {
                         onMouseLeave={() => setIsPaused(false)}
                         style={{
                           backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
                         }}
                       >
-                        <h3 className="text-3xl font-bold mb-4 text-white overflow-hidden text-ellipsis whitespace-nowrap">{item.title}</h3>
+                        <h3 className="text-3xl font-bold mb-4 text-white overflow-hidden text-ellipsis whitespace-nowrap">
+                          {item.title}
+                        </h3>
                         <ul className="space-y-3">
                           {item.features.map((feature, idx) => (
                             <motion.li
@@ -142,12 +168,20 @@ export default function AdviceCards() {
                               className="flex items-start gap-2"
                             >
                               <span className="text-base text-gray-300">•</span>
-                              <span className={feature[1] ? "text-sm text-gray-300 overflow-hidden text-ellipsis " : "text-base text-gray-300 overflow-hidden text-ellipsis"}>{feature}</span>
+                              <span
+                                className={
+                                  feature[1]
+                                    ? "text-sm text-gray-300 overflow-hidden text-ellipsis "
+                                    : "text-base text-gray-300 overflow-hidden text-ellipsis"
+                                }
+                              >
+                                {feature}
+                              </span>
                             </motion.li>
                           ))}
                         </ul>
                       </motion.div>
-                    )
+                    );
                   })}
                   <button
                     onClick={prevSlide}
@@ -164,6 +198,80 @@ export default function AdviceCards() {
                     <ChevronRight className="h-6 w-6" />
                   </button>
                 </div>
+
+                 {/* Horizontal Carousel for smaller screens */}
+            <div className="md:hidden flex justify-center items-center h-[80vh] overflow-hidden ">
+              {[-1, 0, 1].map((offset) => {
+                const slideIndex =
+                  (currentIndex + offset + carouselData.length) %
+                  carouselData.length;
+                const item = carouselData[slideIndex];
+                return (
+                  <motion.div
+                    key={item.id}
+                    className={`absolute w-[80%] py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                      offset === 0 ? "z-20" : "z-10 hover:scale-110"
+                    }`}
+                    initial={{
+                      scale: offset === 0 ? 0.9 : 0.7,
+                      x: `${offset * 60}%`,
+                      opacity: offset === 0 ? 0.9 : 0.5,
+                    }}
+                    animate={{
+                      scale: offset === 0 ? 1 : 0.8,
+                      x: `${offset * 50}%`,
+                      opacity: offset === 0 ? 1 : 0.7,
+                    }}
+                    whileHover={{ scale: offset === 0 ? 1.05 : 0.85 }}
+                    transition={{ duration: 0.5 }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={handleDragEnd}
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    <h3 className="text-3xl  font-bold mb-4 text-white">
+                      {item.title}
+                    </h3>
+                    <ul className="space-y-3">
+                      {item.features.map((feature, idx) => (
+                        <motion.li
+                          key={idx}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          className="flex items-start gap-2"
+                        >
+                          <span className="text-base text-gray-300">•</span>
+                          <span className="text-base text-gray-300">
+                            {feature}
+                          </span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                );
+              })}
+              {/* <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button> */}
+            </div>
               </div>
             </motion.div>
           ) : (
@@ -179,21 +287,27 @@ export default function AdviceCards() {
               >
                 <X className="h-6 w-6" />
               </button>
-              <h2 className="text-4xl font-bold mb-8 text-center">Download Draft Agreements</h2>
+              <h2 className="text-4xl font-bold mb-8 text-center">
+                Download Draft Agreements
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
                 {draftAgreements.map((agreement, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: 1, 
+                    animate={{
+                      opacity: 1,
                       y: 0,
-                      transition: { delay: idx * 0.1 }
+                      transition: { delay: idx * 0.1 },
                     }}
                     className="bg-white/10 backdrop-blur-lg rounded-lg p-4 flex flex-col items-center text-center hover:bg-white/20 transition-colors group"
                   >
-                    <h3 className="text-sm font-semibold mb-2">{agreement.title}</h3>
-                    <p className="text-xs text-white mb-4">{agreement.subtitle}</p>
+                    <h3 className="text-sm font-semibold mb-2">
+                      {agreement.title}
+                    </h3>
+                    <p className="text-xs text-white mb-4">
+                      {agreement.subtitle}
+                    </p>
                     <button className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors">
                       <Download className="h-5 w-5" />
                     </button>
@@ -205,5 +319,5 @@ export default function AdviceCards() {
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }

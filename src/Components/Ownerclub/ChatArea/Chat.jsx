@@ -149,7 +149,7 @@ function IncomingMessage({
       <div className="flex items-center">
         <div className="w-9 h-9 relative mb-4 rounded-full flex items-center justify-center ">
           <img
-            src={"/images/default.png"}
+            src={userProfilePicture}
             alt="User Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -271,7 +271,7 @@ function OutgoingMessage({
       <div className="flex">
         <div className="w-9 h-9 mb-4 relative rounded-full flex items-center justify-center ">
           <img
-            src={"/images/default.png"}
+            src={userProfilePicture}
             alt="My Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -285,7 +285,7 @@ function OutgoingMessage({
         </div>
         <div className="flex flex-col items-start max-w-[80%]">
           <p className="ml-3 text-sm text-black">
-            {userId.includes("IPA") ? "Admin" : "You"}
+            {"You"}
           </p>
           <div
             className={`relative flex w-full rounded-lg px-3 ${
@@ -723,7 +723,8 @@ function Chats({
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      addMessage();
+      e.preventDefault(); // Prevent new line
+      addMessage(); // Send message on Enter key press
     }
   };
   const handleToggle = () => {
@@ -886,6 +887,7 @@ function Chats({
               <ReactQuill
                 value={textMessage}
                 onChange={handleTextMessageChange}
+                onKeyDown={handleKeyDown}
                 modules={modules}
                 formats={formats}
                 placeholder="Type a message..."
