@@ -68,7 +68,7 @@ export default function Profile() {
 
   return (
     <>
-      <div ref={dropdownRef} className="relative mr-10 inline-block text-left">
+      <div ref={dropdownRef} className="relative mr-10 inline-block text-left ">
         <button
           onClick={toggleDropdown}
           className="flex items-center space-x-2"
@@ -90,7 +90,7 @@ export default function Profile() {
 
         {/* Dropdown menu */}
         <div
-          className={`absolute right-0 mt-2 px-5 py-3 bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300 ease-in-out ${
+          className={`absolute right-0 mt-2 px-5 py-3 bg-white border border-gray-200 rounded-md shadow-lg z-10 transition-all duration-300 ease-in-out min-w-[300px] ${
             isOpen ? "block" : "hidden"
           }`}
         >

@@ -12,7 +12,7 @@ import NRI from "../NRI/nri.jsx";
 import Adivce from "../advice/advice.jsx";
 import Lend from "../Lend/Lend.jsx";
 import JourneyPage from "../getstartedForm/getStartedForm.jsx";
-import MainListingPage from "../listingpage/main.jsx";
+import MainListingPage from "../listingpage/page.jsx";
 import PropertyDetail from "../listingpage/id/page.jsx";
 
 export default function AllPage() {
@@ -33,6 +33,7 @@ export default function AllPage() {
                         <Route path="/journey" element={<JourneyPage/>} />
                         <Route path="/addproperty" element={<AddProperty />} />
                         <Route path="/profile" element={<UpdateUser />} />
+                        
                         <Route path="/property-for-sale" element={<MainListingPage />} />
                         <Route path="/property-for-sale/:id" component={<PropertyDetail/>} /> 
                     </Routes>

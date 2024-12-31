@@ -15,6 +15,8 @@ function PropertyForm({ closeEditModal, propertyId }) {
     tower: "",
     unit: "",
     size: "",
+    houseNumber: "",
+    floorNumber: "",
     nature: "",
     status: "",
   });
@@ -23,7 +25,7 @@ function PropertyForm({ closeEditModal, propertyId }) {
     // fetch property details
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    // Use propertyId from props instead of URL
+    
     const fetchProperty = async () => {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}?userId=${decoded.userId}`,
@@ -41,15 +43,15 @@ function PropertyForm({ closeEditModal, propertyId }) {
         setForm({
           builder: property.builder,
           project: property.project,
-          tower: property.tower,
-          unit: property.unit,
-          size: property.size,
-          nature: property.nature,
-          status: property.status,
+          tower: property.tower || "",
+          unit: property.unit || "",
+          size: property.size || "",
+          houseNumber: property.houseNumber || "",
+          floorNumber: property.floorNumber || "",
+          nature: property.nature || "residential",
+          status: property.status || "under-construction",
         });
-        return;
       }
-      toast.error("Error fetching property");
     };
     fetchProperty();
   }, [propertyId]);
@@ -65,13 +67,6 @@ function PropertyForm({ closeEditModal, propertyId }) {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
 
-    // Log the form data before sending
-    console.log("Submitting form with data:", {
-      ...form,
-      builder: form.builder, // Pass existing value
-      project: form.project, // Pass existing value
-    });
-
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${propertyId}?userId=${decoded.userId}`,
@@ -86,23 +81,24 @@ function PropertyForm({ closeEditModal, propertyId }) {
             // Pass existing values for builder and project
             builder: form.builder,
             project: form.project,
+            tower: form.tower,
+            unit: form.unit,
+            size: form.size,
+            houseNumber: form.houseNumber,
+            floorNumber: form.floorNumber,
+            nature: form.nature,
+            status: form.status,
           }),
         }
       );
 
-      // Log the response for debugging
-      console.log("Response from API:", response);
-
       if (response.ok) {
-        const responseData = await response.json(); // Get the response data
-        console.log("Property updated successfully:", responseData);
         toast.success("Property updated successfully");
-        return;
+        closeEditModal();
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Error updating property");
       }
-
-      const errorData = await response.json(); // Get error data if response is not ok
-      console.error("Error updating property:", errorData);
-      toast.error("Error updating property");
     } catch (err) {
       console.error("Fetch error:", err.message);
       toast.error("Internal server error");

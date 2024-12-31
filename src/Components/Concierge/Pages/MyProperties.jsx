@@ -79,7 +79,7 @@ const NextButton = (props) => {
 
   return (
     <button
-      className="embla__button embla__button--next border-2 border-gold"
+      className="embla__button embla__button--next border-2 border-gold "
       type="button"
       {...restProps}
     >
@@ -233,9 +233,9 @@ export default function MyProperties() {
         // Populate slides only for approved properties
         properties.forEach((property) => {
           if (property.applicationStatus === "approved") {
-            setSlides((prev) => [
+            setSlides((prev, index) => [
               ...prev,
-              <Link to={"/safe/Dealing/" + property._id} key={property._id}>
+              <Link to={"/safe/Dealing/" + property._id} key={index}>
                 <PropCard2 props={property} />
               </Link>,
             ]);
@@ -256,7 +256,7 @@ export default function MyProperties() {
         <div className="hidden lg:!flex flex-wrap gap-4  mx-2">
           {prop.map((property, index) => (
             // <div key={index} onClick={() => handleCardClick(property)}>
-            <PropCard key={property._id} props={property} />
+            <PropCard key={index} props={property} />
             // </div>
           ))}
           <Link
@@ -324,13 +324,13 @@ export default function MyProperties() {
           </div>
         )}
 
-        <div className="lg:!hidden pb-5 mt-10">
-          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+        <div className="lg:!hidden pb-5 mt-10 z-10">
+          <EmblaCarousel  slides={SLIDES} options={OPTIONS} />
         </div>
       </div>
 
       <div className="mt-5">
-        <ApprovedListedProperties />
+        <ApprovedListedProperties propertyData={prop} />
       </div>
     </>
   );

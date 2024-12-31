@@ -3,8 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import Goldbutton from "../GoldButton/Goldbutton"
 import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
 import { useState } from "react";
-import BuyForm from "../../forms/buy";
+import BuyForm from "../../forms/rent";
 import SellForm from "../../forms/sell";
+import {jwtDecode} from "jwt-decode";
+import { toast } from "react-hot-toast";
 
 const uploadFileToCloud = async (myFile, userNumber) => {
   // ... existing upload function ...
@@ -19,6 +21,15 @@ export default function PropCard ({props}) {
   const [uploadFiles, setUploadFiles] = useState([]);
   const [termsncond, setTermsnCond] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState("");
+  const [editFormData, setEditFormData] = useState({
+    tower: props.tower || '',
+    unit: props.unit || '',
+    size: props.size || '',
+    houseNumber: props.houseNumber || '',
+    floorNumber: props.floorNumber || '',
+    nature: props.nature || 'residential',
+    status: props.status || 'under-construction'
+  });
 
   const documentTypes = [
     { id: 1, name: "Identity Proof" },
@@ -106,7 +117,85 @@ export default function PropCard ({props}) {
       setModalIsOpen(true);
     }
   };
+
+  // Add new function for classification tag
+  const renderClassificationTag = () => {
+    const classification = props.classification.toLowerCase();
+    switch (classification) {
+      case "rent":
+        return (
+          <div className="absolute  left-0 -top-0.5 bg-primary text-white px-3 py-1 rounded-b-lg shadow-md z-10">
+            Listed for Rent
+          </div>
+        );
+      case "sell":
+        return (
+          <div className="absolute  left-0 -top-0.5 bg-primary text-white px-3 py-1 rounded-b-lg shadow-md z-10">
+            Listed for Sell
+          </div>
+        );
+      case "rent and sell":
+        return (
+          <div className="absolute  left-0 -top-0.5 bg-primary text-white px-3 py-1 rounded-b-lg shadow-md z-10">
+            Listed for Rent & Sell
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const location = useLocation();
+
+  const handleDocumentSubmit = async () => {
+    if (!selectedDocType || uploadFiles.length === 0) {
+      return toast.error("Please select document type and upload files");
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+      
+      // First upload files to cloud
+      const uploadedPaths = [];
+      for (const file of uploadFiles) {
+        const cloudPath = await uploadFileToCloud(file, props.customerNumber);
+        uploadedPaths.push(cloudPath);
+      }
+
+      // Update property with new documents and change status
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${props._id}?userId=${decoded.userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({
+            documents: {
+              type: selectedDocType,
+              files: uploadedPaths,
+            },
+            applicationStatus: "under-review", // Change status to under-review after upload
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Documents uploaded successfully");
+        closeModal();
+        // Optionally refresh the component or update local state
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Error uploading documents");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error uploading documents");
+    }
+  };
+
     return (
       <>
       {modalIsOpen && props.applicationStatus === "more-info-required" ? (
@@ -168,11 +257,11 @@ export default function PropCard ({props}) {
             </div>
             <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
               <button
-                onClick={handleSubmit}
-                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                onClick={handleDocumentSubmit}
+                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100"
                 type="button"
               >
-                Submit
+                Submit Documents
               </button>
               <button
                 onClick={closeModal}
@@ -208,13 +297,14 @@ export default function PropCard ({props}) {
         </div>
       ) : null}
 
-      <div className="bg-white drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64 ">
+      <div className="bg-white drop-shadow-2xl border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64 overflow-hidden">
+      {renderClassificationTag()}
         <img
           src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="home"
-          className=" rounded-xl object-cover "
+          className="rounded-xl object-cover"
         />
-        <div className=" flex justify-between mt-3 mb-1">
+        <div className="flex justify-between mt-3 mb-1">
           <h1 className="text-xl text-black">{props.project}</h1>
           <p className="text-xs text-black mt-auto mb-auto">Tower: {props.tower}</p>
         </div>
@@ -225,37 +315,58 @@ export default function PropCard ({props}) {
         <div className="flex flex-row justify-between mt-4 gap-2">
           {location.pathname === "/safe" ? (
             <>
-            <Link to={`/safe/Dealing/${props._id}/Documents`}>
-              <Goldbutton btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus} properties="w-full text-black  bg-slate-100 py-2 px-4 rounded-lg">    
-              </Goldbutton>
-            </Link>
+              <Link to={`/safe/Dealing/${props._id}/Documents`}>
+                <Goldbutton 
+                  btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}
+                  properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg"
+                />
+              </Link>
               <div className="relative group">
-              <button onClick={onClickEdit} className={`w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg`}>
-                <Edit />
-              </button>
-              <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1  bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                Edit
-              </span>
-            </div>
+                <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
+                  <Edit />
+                </button>
+                <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Edit
+                </span>
+              </div>
             </>
           ) : location.pathname === "/concierge" ? (
             <>
               {props.applicationStatus === "approved" ? (
-                <><Goldbutton properties="w-[40%] text-black bg-slate-100 py-2 px-4 rounded-lg" btnname={"Sell"} onclick={onClickSell} />
-                  <Goldbutton properties="w-[40%] text-black bg-slate-100 py-2 px-4 rounded-lg" btnname={"Rent"} onclick={onClickBuy} />
-                  
+                <>
+                  {props.classification === "rent" ? (
+                    <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Sell" onclick={onClickSell} />
+                  ) : props.classification === "sell" ? (
+                    <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Rent" onclick={onClickBuy} />
+                  ) : props.classification === "rent and sell" ? (
+                    null
+                  ) : (
+                    <>
+                      <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Sell" onclick={onClickSell} />
+                      <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Rent" onclick={onClickBuy} />
+                    </>
+                  )}
+                  <div className="relative group">
+                    <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
+                      <Edit />
+                    </button>
+                    <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      Edit
+                    </span>
+                  </div>
                 </>
-              ) : (
+              ) : (<>
                 <Goldbutton onclick={handleCardClick} btnname={props.applicationStatus} properties="w-[80%] text-black bg-slate-100 py-2 px-4 rounded-lg" />
+                <div className="relative group">
+                <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
+                  <Edit />
+                </button>
+                <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Edit
+                </span>
+              </div>
+              </>
               )}
-              <div className="relative group">
-              <button onClick={onClickEdit} className={`w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg`}>
-                <Edit />
-              </button>
-              <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                Edit
-              </span>
-            </div>
             </>
           ) : null}
         </div>
@@ -267,12 +378,12 @@ export default function PropCard ({props}) {
         )}
          {/* buy modal Modal */}
          {isBuyModalOpen && (  
-              <BuyForm closeBuyModal={closeBuyModal}  />
+              <BuyForm closeBuyModal={closeBuyModal} propertyId={props._id}  />
           
         )}
          {/* sell modal Modal */}
          {isSellModalOpen && (  
-              <SellForm closeSellModal={closeSellModal} />
+              <SellForm closeSellModal={closeSellModal} propertyId={props._id}  />
           
         )}
       </>

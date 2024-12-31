@@ -1,60 +1,192 @@
-import { X } from 'lucide-react';
-import React, { useState } from 'react'
+import { X } from "lucide-react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import axios from "axios";
+import { client } from "../../config/s3client";
+import { supabase } from "../../config/supabase";
 
-const SellForm = ({closeSellModal}) => {
-    const [propertyFor, setPropertyFor] = useState("rent");
-    const [userType, setUserType] = useState("owner");
-    const [formData, setFormData] = useState({
-      unitNo: "",
-      size: "",
-      expectedPrice: "",
-      propertyType: "",
-      noOfWashrooms: "",
-      floor: "",
-      parkings: "",
-    });
-  
-    // Additional fields based on property type
-    const [saleSpecificData, setSaleSpecificData] = useState({
-      expectedPrice: "",
-      propertyAge: "",
-      possessionStatus: "",
-    });
-  
-    const [rentSpecificData, setRentSpecificData] = useState({
-      monthlyRent: "",
-      securityDeposit: "",
-      availableFrom: "",
-    });
+const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
+  const [formData, setFormData] = useState({
+    unitNo: "",
+    size: "",
+    expectedPrice: "",
+    propertyType: "",
+    noOfWashrooms: "",
+    numberOfFloors: "",
+    numberOfParkings: "",
+  });
 
-    const [mediaFiles, setMediaFiles] = useState([]);
+  const [mediaFiles, setMediaFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleMediaChange = (e) => {
+  const handleMediaChange = async (e) => {
     const files = Array.from(e.target.files);
     setMediaFiles(files);
   };
+
+  // Helper function to remove spaces from filename
+  const removeSpaces = (filename) => filename.replace(/\s/g, "");
   
+  // Get signed URL for private file
+  const getSignedUrlForPrivateFile = async (path) => {
+    try {
+      const getParams = {
+        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+        Key: path,
+        ResponseContentDisposition: "inline",
+      };
+
+      const command = new GetObjectCommand(getParams);
+      const signedUrl = await getSignedUrl(client, command, {
+        expiresIn: 3600,
+      }); // URL valid for 1 hour
+
+      return {
+        name: path.split("/")[path.split("/").length - 1],
+        url: signedUrl,
+      };
+    } catch (error) {
+      console.error("Error getting signed URL:", error);
+      throw error;
+    }
+  };
+  
+  // Upload file to cloud storage
+  const uploadFileToCloud = async (myFile) => {
+    const myFileName = removeSpaces(myFile.name);
+    const myPath = `SellListings/${myFileName}`;
+  
+    try {
+      const uploadParams = {
+        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+        Key: myPath,
+        Body: myFile,
+        ContentType: myFile.type
+      };
+  
+      const command = new PutObjectCommand(uploadParams);
+      await client.send(command);
+  
+      // Get the signed URL after successful upload
+      const signedUrlData = await getSignedUrlForPrivateFile(myPath);
+      if (!signedUrlData) {
+        throw new Error("Failed to get signed URL");
+      }
+  
+      return signedUrlData; // Returns both the name and url
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
-    // Simulate file upload
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(formData, mediaFiles);
-    setIsUploading(false);
+    const token = localStorage.getItem("token");
+    const tokenid = jwtDecode(token);
+    const userId = tokenid.userId;
+
+    console.log("User ID:", userId); // Log the userId for debugging
+
+    // Check if userId is defined
+    if (!userId) {
+        console.error("User ID is undefined. Cannot proceed with upload.");
+        toast.error("User ID is undefined. Please log in again.");
+        setIsUploading(false);
+        return; // Exit the function if userId is not valid
+    }
+
+    try {
+      // Upload all media files and collect their URLs
+      const mediaPaths = await Promise.all(
+        mediaFiles.map((file) => uploadFileToCloud(file, userId))
+      );
+
+      // First, get the current property details
+      const propertyResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}`,
+        {
+          headers: { "auth-token": token },
+          params: { userId },
+        }
+      );
+
+      const currentClassification =
+        propertyResponse.data.classification || "unclassified";
+      let newClassification = "sell";
+
+      // If property is already classified as "Rent", update to "Rent and Sell"
+      if (currentClassification === "rent") {
+        newClassification = "rent and sell";
+      }
+
+      // Update property classification
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${propertyId}`,
+        { classification: newClassification },
+        {
+          headers: { "auth-token": token },
+          params: { userId },
+        }
+      );
+
+      // Add sell listing
+      const reqBody = {
+        propertyId: propertyId,
+        sellDetails: {
+          unitNumber: formData.unitNo,
+          size: formData.size,
+          expectedPrice: formData.expectedPrice,
+          type: formData.propertyType,
+          numberOfWashrooms: formData.noOfWashrooms,
+          numberOfFloors: formData.numberOfFloors,
+          numberOfParkings: formData.numberOfParkings,
+          media: mediaPaths, // Use the uploaded media URLs
+        },
+      };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/listings/addsalelisting?userId=${userId}`,
+        reqBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        }
+      );
+
+      toast.success("Property listed for sell successfully!");
+      if (onRefresh) onRefresh(); // Call the callback to refresh listings
+      closeSellModal();
+    } catch (error) {
+      console.error(error.message);
+      toast.error("Error occurred while listing the property.");
+    } finally {
+      setIsUploading(false);
+    }
   };
+
   return (
     <div className="h-screen z-20 fixed w-[90%] overflow-y-auto custom-scrollbar ">
       <div className="backdrop-blur-sm flex flex-col items-center rounded-lg relative overflow-y-auto max-h-[80vh] w-full ">
-        <form onSubmit={handleSubmit} className="space-y-6 relative bg-white px-4 md:px-14 py-10 rounded-lg shadow-md border-[1px] border-black">
-        <span onClick={closeSellModal} className="cursor-pointer absolute right-3">
-        <X/>
-        </span>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 relative bg-white px-4 md:px-14 py-10 rounded-lg shadow-md border-[1px] border-black"
+        >
+          <span
+            onClick={closeSellModal}
+            className="cursor-pointer absolute right-3"
+          >
+            <X />
+          </span>
           {/* Personal Details Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Sell Form
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900">Sell Form</h2>
           </div>
 
           {/* Property Details Section */}
@@ -128,27 +260,27 @@ const SellForm = ({closeSellModal}) => {
             </div>
 
             <div>
-              <label className="text-sm text-gray-800">Floor</label>
+              <label className="text-sm text-gray-800">numberOfFloors</label>
               <input
                 type="text"
-                placeholder="Enter Floor"
+                placeholder="Enter numberOfFloors"
                 className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.floor}
+                value={formData.numberOfFloors}
                 onChange={(e) =>
-                  setFormData({ ...formData, floor: e.target.value })
+                  setFormData({ ...formData, numberOfFloors: e.target.value })
                 }
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-800">Parkings</label>
+              <label className="text-sm text-gray-800">numberOfParkings</label>
               <input
                 type="number"
-                placeholder="Enter No of Parkings"
+                placeholder="Enter No of numberOfParkings"
                 className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.parkings}
+                value={formData.numberOfParkings}
                 onChange={(e) =>
-                  setFormData({ ...formData, parkings: e.target.value })
+                  setFormData({ ...formData, numberOfParkings: e.target.value })
                 }
               />
             </div>
@@ -176,70 +308,19 @@ const SellForm = ({closeSellModal}) => {
             </div>
           </div>
 
-          
-
-          {/* Terms and Conditions */}
-          {/* <div className="space-y-4">
-            <label className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-gold"
-                checked={formData.exclusivePosting}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    exclusivePosting: e.target.checked,
-                  })
-                }
-              />
-              <span className="text-sm text-gray-800">
-                I am posting this property 'exclusively' on Magicbricks
-              </span>
-            </label>
-
-            <label className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-gold"
-                checked={formData.whatsappUpdates}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    whatsappUpdates: e.target.checked,
-                  })
-                }
-              />
-              <span className="text-sm text-gray-800">
-                I want to receive responses on WhatsApp
-              </span>
-            </label>
-
-            <label className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-gold"
-                checked={formData.agreeToTerms}
-                onChange={(e) =>
-                  setFormData({ ...formData, agreeToTerms: e.target.checked })
-                }
-              />
-              <span className="text-sm text-gray-800">
-                I agree to Magicbricks T&C, Privacy Policy, & Cookie Policy
-              </span>
-            </label>
-          </div> */}
-
           <button
             type="submit"
             disabled={isUploading}
-            className={`w-full bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-500 hover:border-gold hover:border-b-gold px-4 py-2 text-black rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-500 hover:border-gold hover:border-b-gold px-4 py-2 text-black rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 ${
+              isUploading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-             {isUploading ? 'Uploading...' : 'Submit'}
+            {isUploading ? "Uploading..." : "Submit"}
           </button>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SellForm
+export default SellForm;

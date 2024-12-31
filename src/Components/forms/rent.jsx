@@ -1,11 +1,16 @@
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { client, getSignedUrlForPrivateFile } from "../../config/s3client";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { supabase } from "../../config/supabase";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const BuyForm = ({closeBuyModal}) => {
-  const [propertyFor, setPropertyFor] = useState("sale");
-  const [userType, setUserType] = useState("owner");
+const BuyForm = ({closeBuyModal , propertyId}) => {
   const [formData, setFormData] = useState({
-    unitNo: "",
+    unitNumber: "",
     size: "",
     expectedRent: "",
     availableFrom: "",
@@ -16,19 +21,11 @@ const BuyForm = ({closeBuyModal}) => {
     securityDeposit: "",
     furnished: "non-furnished",
   });
+ 
 
-  // Additional fields based on property type
-  const [saleSpecificData, setSaleSpecificData] = useState({
-    expectedPrice: "",
-    propertyAge: "",
-    possessionStatus: "",
-  });
+   
 
-  const [rentSpecificData, setRentSpecificData] = useState({
-    monthlyRent: "",
-    securityDeposit: "",
-    availableFrom: "",
-  });
+ 
 
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -37,15 +34,140 @@ const BuyForm = ({closeBuyModal}) => {
     const files = Array.from(e.target.files);
     setMediaFiles(files);
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsUploading(true);
-    // Simulate file upload
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(formData, mediaFiles);
-    setIsUploading(false);
+  
+  //  Helper function to remove spaces from filename
+  const removeSpaces = (filename) => filename.replace(/\s/g, "");
+  
+  // Get public URL from Supabase storage
+  const getPublicUrlFromSupabase = (path) => {
+    const { data, error } = supabase.storage
+      .from(process.env.REACT_APP_PROPERTY_BUCKET)
+      .getPublicUrl(path);
+    
+    if (error) {
+      console.error("Error fetching public URL:", error);
+      return null;
+    }
+  
+    return {
+      name: path.split("/")[path.split("/").length - 1],
+      url: data.publicUrl,
+    };
   };
+  
+  // Upload file to cloud storage
+  const uploadFileToCloud = async (myFile) => {
+    const myFileName = removeSpaces(myFile.name);
+    const myPath = `RentListings/${myFileName}`;
+  
+    try {
+      const uploadParams = {
+        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+        Key: myPath,
+        Body: myFile,
+        ContentType: myFile.type
+      };
+  
+      const command = new PutObjectCommand(uploadParams);
+      await client.send(command);
+  
+      // Get the signed URL after successful upload
+      const signedUrlData = await getSignedUrlForPrivateFile(myPath);
+      if (!signedUrlData) {
+        throw new Error("Failed to get signed URL");
+      }
+  
+      return signedUrlData; // Returns both the name and url
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+  
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsUploading(true);
+  const token = localStorage.getItem("token");
+  const tokenid = jwtDecode(token);
+  const userId = tokenid.userId;
+
+  try {
+    // Upload files and get media data
+    const mediaPaths = await Promise.all(
+      mediaFiles.map((file) => uploadFileToCloud(file, userId))
+    );
+
+    // Format media data as array of objects
+    const formattedMedia = mediaPaths.map(media => ({
+      name: media.name,
+      url: media.url
+    }));
+
+    // First, get the current property details
+    const propertyResponse = await axios.get(
+      `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}`,
+      {
+        headers: { "auth-token": token },
+        params: { userId },
+      }
+    );
+
+    const currentClassification = propertyResponse.data.classification || "unclassified";
+    let newClassification = "rent";
+    
+    if (currentClassification === "sell") {
+      newClassification = "rent and sell";
+    }
+
+    // Update property classification
+    await axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${propertyId}`,
+      { classification: newClassification },
+      {
+        headers: { "auth-token": token },
+        params: { userId },
+      }
+    );
+
+    // Add rent listing with formatted media
+    const reqBody = {
+      propertyId: propertyId,
+      rentDetails: {
+        unitNumber: formData.unitNumber,
+        size: formData.size,
+        expectedRent: formData.expectedRent,
+        availableFrom: formData.availableFrom || "",
+        type: formData.propertyType,
+        securityDeposit: formData.securityDeposit || "",
+        furnishedStatus: formData.furnished,
+        numberOfWashrooms: formData.noOfWashrooms || "",
+        numberOfFloors: formData.floor || "",
+        numberOfParkings: formData.parking || "",
+        media: formattedMedia, // Use the formatted media array
+      },
+    };
+
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/api/listings/addrentlisting?userId=${userId}`,
+      reqBody,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      }
+    );
+
+    toast.success("Property listed for rent successfully!");
+    closeBuyModal();
+  } catch (error) {
+    console.error(error.message);
+    toast.error("Error occurred while listing the property.");
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   return (
     <div className="h-screen z-20 fixed w-[90%] overflow-y-auto custom-scrollbar ">
@@ -71,8 +193,8 @@ const BuyForm = ({closeBuyModal}) => {
                 type="text"
                 placeholder="Enter Unit Number"
                 className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.unitNo}
-                onChange={(e) => setFormData({ ...formData, unitNo: e.target.value })}
+                value={formData.unitNumber}
+                onChange={(e) => setFormData({ ...formData, unitNumber: e.target.value })}
               />
             </div>
 

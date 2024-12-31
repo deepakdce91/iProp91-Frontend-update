@@ -49,6 +49,7 @@ function LandingPage() {
 const TypingLandingPage = () => {
   const [showMessage, setShowMessage] = useState(true);
   const [showNavbar, setShowNavbar] = useState(false);
+  const [showFooter, setShowFooter] = useState(false);
   const hasVisited = localStorage.getItem("hasVisited"); // Check if user has visited
 
   useEffect(() => {
@@ -61,10 +62,12 @@ const TypingLandingPage = () => {
         // Skip animation if user has already visited within 30 minutes
         setShowMessage(false);
         setShowNavbar(true);
+        setShowFooter(true);
       } else {
         // First visit or session expired: Show animation
         const messageTimeout = setTimeout(() => setShowMessage(false), 5000);
         const navbarTimeout = setTimeout(() => setShowNavbar(true), 5000);
+        const footerTimeout = setTimeout(() => setShowFooter(true), 5000);
 
         // Wait for the animation to complete
         await new Promise(resolve => setTimeout(resolve, 5000));
@@ -75,6 +78,7 @@ const TypingLandingPage = () => {
 
         clearTimeout(messageTimeout);
         clearTimeout(navbarTimeout);
+        clearTimeout(footerTimeout);
       }
     };
 
@@ -90,8 +94,8 @@ const TypingLandingPage = () => {
 
   return (
     <>
-      {showNavbar && <LandingPage />}
-      {!showNavbar && hasVisited === null && ( // Only show message if hasVisited is null
+      {showNavbar && showFooter && <LandingPage />}
+      {!showNavbar && !showFooter && hasVisited === null && ( // Only show message if hasVisited is null
         <div className="flex justify-center items-center h-screen bg-black">
           {showMessage && (
             <div className="flex flex-col items-center">

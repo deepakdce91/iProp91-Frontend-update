@@ -2,7 +2,7 @@ import SimpleInput from "../../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import LableInput from "../../CompoCards/InputTag/labelinput";
 import { useState, useEffect } from "react";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PhoneInput from "../../CompoCards/PhoneInput";
 import {
@@ -23,6 +23,7 @@ import { Spinner } from "@material-tailwind/react";
 import SimpleInputPass from "../../CompoCards/InputTag/simpleinputpass";
 import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
+import { ChevronLeft } from "lucide-react";
 
 async function AddGuestProperty(userId, userToken, data, myCallback) {
   // Handle property submission
@@ -115,7 +116,7 @@ function Verify({
         countryCode: countryCode,
       });
       setOTP("");
-      
+
       if (verifyresponse) {
         console.log("Response:", verifyresponse);
         if (verifyresponse.response.verification === "FAILED") {
@@ -155,7 +156,7 @@ function Verify({
                 let loginresjson = await loginres.json();
                 if (loginresjson.success === true) {
                   localStorage.setItem("token", loginresjson.token);
-                  
+
                   // Get user details after login
                   const decoded = jwtDecode(loginresjson.token);
                   const userId = decoded.userId; // This should be the correct user ID
@@ -176,8 +177,8 @@ function Verify({
                     );
                   }
 
-                  setIsLoggedIn(true);
-                  toast.success("Login Successful");
+                  return;
+                } else {
                   setTimeout(() => {
                     navigate("/concierge");
                   }, 2000);
@@ -215,7 +216,7 @@ function Verify({
 
   useEffect(()=> {
     if (otp.length === 6) {
-      HandleVerifyOTP({preventDefault: ()=> {}})
+      HandleVerifyOTP({ preventDefault: () => {} });
     }
   }, [otp]);
 
@@ -303,14 +304,18 @@ function Verify({
         </div>
       ) : null}
       <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
-      
-        <p onClick={handleOpen} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20" >Skip for now</p>
+        <p
+          onClick={handleOpen}
+          className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20"
+        >
+          Skip for now
+        </p>
         <DialogHeader className="relative m-0 block">
           {/* <Typography variant="h4" color="blue-gray">
             Enter Your Details
           </Typography> */}
           <Typography className="mt-1 font-bold text-lg text-gray-800">
-          Helping you manage your real estate assets brick by brick
+            Helping you manage your real estate assets brick by brick
           </Typography>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
@@ -349,10 +354,20 @@ function Verify({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Goldbutton btnname={"Sign Up"} properties={"bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"} onclick={handleOpen} />
+          <Goldbutton
+            btnname={"Sign Up"}
+            properties={
+              "bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
+            }
+            onclick={handleOpen}
+          />
         </DialogFooter>
       </Dialog>
-      <div className="min-h-screen flex items-center justify-center ">
+      <div
+        className={`${
+          stage1FormData ? "h-fit" : "min-h-screen"
+        } flex items-center justify-center `}
+      >
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
           
@@ -423,11 +438,17 @@ function Verify({
           </div> */}
         </div>
       </div>
-    </section> 
+    </section>
   );
 }
 
-export default function Login({setIsLoggedIn, onClose, properties }) {
+export default function Login({
+  setIsLoggedIn,
+  onClose,
+  properties,
+  stage1FormData,
+  goBackToStage1,
+}) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -482,7 +503,6 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
           headers: {
             "Content-Type": "application/json",
           },
-         
         }
       );
       const loginresjson = await response.json();
@@ -491,47 +511,34 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
         // First store the token
         localStorage.setItem("token", loginresjson.token);
         const decoded = jwtDecode(loginresjson.token);
-        
+
         // Set login state first
         setIsLoggedIn(true);
         toast.success("Login Successful");
 
-        // Then handle property submission
-        const tempPropertyData = localStorage.getItem('tempPropertyData');
-        if (tempPropertyData) {
-          const { data, expiry } = JSON.parse(tempPropertyData);
-          
-          if (Date.now() < expiry) {
-            // Wait a bit to ensure token is properly set
-            setTimeout(async () => {
-              try {
-                const propertyResponse = await fetch(
-                  `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${decoded.userId}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "auth-token": loginresjson.token,
-                    },
-                    body: JSON.stringify(data)
-                  }
-                );
+        const userId = decoded.userId;
 
         if (stage1FormData) {
           localStorage.setItem("addPropDetails", "true");
           const SendToConciPage = () => {
             setTimeout(() => {
               navigate("/concierge");
-            }, 1000); // Add a 1-second delay
-          } else {
-            // If data expired, just navigate
-            navigate("/concierge");
-          }
+            }, 2000);
+          };
+          AddGuestProperty(
+            userId,
+            loginresjson.token,
+            stage1FormData,
+            SendToConciPage
+          );
         } else {
-          // If no property data, just navigate
-          navigate("/concierge");
+          setTimeout(() => {
+            navigate("/concierge");
+          }, 1000);
+          // set is login === true
+          setIsLoggedIn(true);
+          setLoading(false);
         }
-        return;
       } else {
         toast.error(loginresjson.error);
         return;
@@ -555,13 +562,16 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
   const verifyOtp = async (otpValue) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone, otp: otpValue }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/verify-otp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ phone, otp: otpValue }),
+        }
+      );
 
       const data = await response.json();
       if (data.success) {
@@ -581,7 +591,7 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
 
   // Add this function to handle key press
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       HandleOTPLogin(e);
     }
   };
@@ -598,9 +608,11 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
   };
 
   return (
-    <section className="absolute h-screen w-screen">
+    <section
+      className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
+    >
       <div className="relative w-full h-full">
-      {/* {loading ? (
+        {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
         </div>
@@ -746,9 +758,18 @@ export default function Login({setIsLoggedIn, onClose, properties }) {
               className="w-full h-[90%] rounded-xl object-cover"
             />
           </div> */}
-        </div>
-      </div>
+          </div>
 
+          {stage1FormData && (
+            <button
+              onClick={goBackToStage1}
+              className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -139,7 +139,7 @@ const ExpertContact = () => {
             <button className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors" onClick={handleContactModalClose}>
               {/* Close Button SVG */}
             </button>
-            <ContactUsForm />
+            <ContactUsForm onClose={handleContactModalClose} />
           </div>
         </div>
       )}
