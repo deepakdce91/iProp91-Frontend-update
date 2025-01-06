@@ -35,7 +35,7 @@ export default function AllPage() {
                         <Route path="/profile" element={<UpdateUser />} />
                         
                         <Route path="/property-for-sale" element={<MainListingPage />} />
-                        <Route path="/property-for-sale/:id" component={<PropertyDetail/>} /> 
+                        <Route path="/property-for-sale/:id" element={<PropertyDetail />} />
                     </Routes>
                 </div>
             </div>

@@ -768,7 +768,8 @@ function Chats({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const url = window.location.href
+  const baseUrl = window.location.href;
+const url = baseUrl.split('/').slice(0, 3).join('/');
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url)
