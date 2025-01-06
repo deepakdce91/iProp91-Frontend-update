@@ -96,13 +96,14 @@ const Knowledge = () => {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      localStorage.setItem("scrollPosition", window.scrollY);
     };
   }, []);
 
   useEffect(() => {
     const savedPosition = localStorage.getItem("scrollPosition");
-    if (savedPosition && location.pathname === "/") {
-      window.scrollTo(0, parseInt(savedPosition, 10));
+    if (savedPosition) {
+      window.scrollTo(0, parseInt(savedPosition));
     }
   }, [location]);
 

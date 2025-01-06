@@ -45,6 +45,7 @@ const CompComponent = ({ item }) => {
 
 export default function Comparison() {
   const [data, setData] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
 
   useEffect(() => {
@@ -71,14 +72,21 @@ export default function Comparison() {
 
   const handleSlideClick = (index) => {
     if (swiperRef.current) {
-      // Calculate the actual slide index considering the loop
       const swiper = swiperRef.current;
+      
+      // Get the current real index (considering loop)
+      const currentRealIndex = swiper.realIndex;
+      
+      // Don't do anything if clicking the center slide
+      if (currentRealIndex === index) return;
+      
+      // Calculate the actual slide index considering the loop
       const realIndex = swiper.params.loop 
-        ? index + swiper.loopedSlides 
+        ? index 
         : index;
       
-      // Use slideTo with immediate transition
       swiper.slideTo(realIndex, 300);
+      setActiveIndex(index);
     }
   };
 
@@ -126,7 +134,14 @@ export default function Comparison() {
           }}
           modules={[EffectCoverflow, Navigation, Autoplay]}
           className="relative"
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          onSlideChange={(swiper) => {
+            setActiveIndex(swiper.realIndex);
+          }}
+          initialSlide={activeIndex}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+            setActiveIndex(swiper.realIndex);
+          }}
         >
           {data.map((item, index) => (
             <SwiperSlide 
