@@ -14,6 +14,9 @@ export default function CaseLaws() {
 
     setOpenIndex(openIndex === index ? null : index);
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +62,7 @@ export default function CaseLaws() {
 
   return (
     <div className="flex flex-col gap-10 md:flex-row items-center  justify-center px-6 lg:px-32  bg-white min-h-screen text-black">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"}  />
       <div className="w-full mt-40 md:mt-10">
         {data && data.map((faq, index) => {
           const pdfLink = extractPdfLink(faq.content);

@@ -22,6 +22,10 @@ export default function Advice() {
   const blur = useTransform(scrollYProgress, [0, 0.5], [0, 8]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };

@@ -110,10 +110,15 @@ function PropertyForm({ closeEditModal, propertyId }) {
   };
 
   return (
-    <section className="h-full z-20 fixed w-[90%]  ">
-      <section className="  backdrop-blur-sm    flex flex-col  items-center    ">
+    <section className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5  ">
+      {/* Backdrop */}
+      <div onClick={closeEditModal}
+        className="absolute inset-0 "
+      />
+      <section className="  relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn    ">
         <div className="px-10 py-5 h-full lg:min-w-[40%] border-[1px] border-black bg-white rounded-lg relative shadow-md ">
           <div className="flex flex-col gap-1">
+            {/* <div className="flex gap-2"> */}
             {/* Developer Input */}
             <label className="font-medium">Builder:</label>
             <input
@@ -139,6 +144,7 @@ function PropertyForm({ closeEditModal, propertyId }) {
               onChange={isEditing ? handleChange : null}
               disabled={true}
             />
+            {/* </div> */}
 
             {/* Tower Input */}
             <label className="font-medium">Tower:</label>

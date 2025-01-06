@@ -10,6 +10,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Modal from "react-modal";
 import { CrossIcon } from "lucide-react";
 import ApprovedListedProperties from "../ApprovedListedProperties";
+import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
+import BuyForm from "../../forms/rent";
+import SellForm from "../../forms/sell";
 
 function hasMoreInfoRequired(objectsArray) {
   // Use the `some` method to check if any object meets the condition
@@ -205,6 +208,43 @@ export default function MyProperties() {
   const [prop, setProp] = useState([]);
   const [SLIDES, setSlides] = useState([]);
 
+  // Add new state for modals
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+
+  // Add modal control functions
+  const onClickEdit = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsEditModalOpen(true);
+  };
+
+  const onClickBuy = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsBuyModalOpen(true);
+  };
+
+  const onClickSell = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsSellModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedPropertyId(null);
+  };
+
+  const closeBuyModal = () => {
+    setIsBuyModalOpen(false);
+    setSelectedPropertyId(null);
+  };
+
+  const closeSellModal = () => {
+    setIsSellModalOpen(false);
+    setSelectedPropertyId(null);
+  };
+
   useEffect(() => {
     // fetch properties from the server
     const token = localStorage.getItem("token");
@@ -227,7 +267,7 @@ export default function MyProperties() {
 
         const stillShowModal = localStorage.getItem("addPropDetails");
         const needMoreInfo = hasMoreInfoRequired(properties);
-        if(stillShowModal && needMoreInfo===true){
+        if (stillShowModal && needMoreInfo === true) {
           setShowMoreInfoModal(true);
         }
         // Populate slides only for approved properties
@@ -252,12 +292,16 @@ export default function MyProperties() {
 
   return (
     <>
-      <div className="flex flex-col z-10 ">
-        <div className="hidden lg:!flex flex-wrap gap-4  mx-2">
+      <div className="flex flex-col z-10">
+        <div className="hidden lg:!flex flex-wrap gap-4 mx-2">
           {prop.map((property, index) => (
-            // <div key={index} onClick={() => handleCardClick(property)}>
-            <PropCard key={index} props={property} />
-            // </div>
+            <PropCard
+              key={index}
+              props={property}
+              onClickEdit={() => onClickEdit(property._id)}
+              onClickBuy={() => onClickBuy(property._id)}
+              onClickSell={() => onClickSell(property._id)}
+            />
           ))}
           <Link
             to="/addproperty"
@@ -324,14 +368,62 @@ export default function MyProperties() {
           </div>
         )}
 
-        <div className="lg:!hidden pb-5 mt-10 z-10">
-          <EmblaCarousel  slides={SLIDES} options={OPTIONS} />
+        <div className="lg:!hidden pb-5 mt-10 z-10 ">
+          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 ">
         <ApprovedListedProperties propertyData={prop} />
       </div>
+      {/* Add modals */}
+      
+
+      {isEditModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeEditModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+          <PropertyForm
+          closeEditModal={closeEditModal}
+          propertyId={selectedPropertyId}
+        />
+          </div>
+        </div>
+      )}
+
+      {isBuyModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeBuyModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+            <BuyForm
+              closeBuyModal={closeBuyModal}
+              propertyId={selectedPropertyId}
+            />
+          </div>
+        </div>
+      )}
+
+      {isSellModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeSellModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+            <SellForm
+              closeSellModal={closeSellModal}
+              propertyId={selectedPropertyId}
+            />
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

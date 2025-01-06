@@ -50,7 +50,7 @@ const Linklist = {
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <div className="fixed top-0 inset-0  lg:hidden  text-white bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
+    <div className="z-50  h-screen w-screen top-0 inset-0  lg:hidden  text-white bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
       <div className="w-full bg-primary h-full flex flex-col z-[100]">
         <div className="flex justify-end px-3 py-2">
           <button onClick={onClose} className="p-2">

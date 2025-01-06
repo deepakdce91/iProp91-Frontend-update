@@ -8,8 +8,11 @@ import Profile from '../User/Profile/profile';
 
 
 export default function NRI(){
-    const [hasToken, setHasToken] = useState(false); // State for token presence
 
+    const [hasToken, setHasToken] = useState(false); // State for token presence
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
     useEffect(() => {
     
         const checkToken = () => {

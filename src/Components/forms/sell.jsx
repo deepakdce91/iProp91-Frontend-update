@@ -29,7 +29,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
   // Helper function to remove spaces from filename
   const removeSpaces = (filename) => filename.replace(/\s/g, "");
-  
+
   // Get signed URL for private file
   const getSignedUrlForPrivateFile = async (path) => {
     try {
@@ -53,29 +53,29 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
       throw error;
     }
   };
-  
+
   // Upload file to cloud storage
   const uploadFileToCloud = async (myFile) => {
     const myFileName = removeSpaces(myFile.name);
     const myPath = `SellListings/${myFileName}`;
-  
+
     try {
       const uploadParams = {
         Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
         Key: myPath,
         Body: myFile,
-        ContentType: myFile.type
+        ContentType: myFile.type,
       };
-  
+
       const command = new PutObjectCommand(uploadParams);
       await client.send(command);
-  
+
       // Get the signed URL after successful upload
       const signedUrlData = await getSignedUrlForPrivateFile(myPath);
       if (!signedUrlData) {
         throw new Error("Failed to get signed URL");
       }
-  
+
       return signedUrlData; // Returns both the name and url
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -94,10 +94,10 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
     // Check if userId is defined
     if (!userId) {
-        console.error("User ID is undefined. Cannot proceed with upload.");
-        toast.error("User ID is undefined. Please log in again.");
-        setIsUploading(false);
-        return; // Exit the function if userId is not valid
+      console.error("User ID is undefined. Cannot proceed with upload.");
+      toast.error("User ID is undefined. Please log in again.");
+      setIsUploading(false);
+      return; // Exit the function if userId is not valid
     }
 
     try {
@@ -172,11 +172,13 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   };
 
   return (
-    <div className="h-screen z-20 fixed w-[90%] overflow-y-auto custom-scrollbar ">
-      <div className="backdrop-blur-sm flex flex-col items-center rounded-lg relative overflow-y-auto max-h-[80vh] w-full ">
+    <div className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5 ">
+      {/* Backdrop */}
+      <div onClick={closeSellModal} className="absolute inset-0 " />
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn ">
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 relative bg-white px-4 md:px-14 py-10 rounded-lg shadow-md border-[1px] border-black"
+          className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md "
         >
           <span
             onClick={closeSellModal}
@@ -191,92 +193,98 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
           {/* Property Details Section */}
           <div className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-800">Unit No</label>
-              <input
-                type="text"
-                placeholder="Enter Unit No"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.unitNo}
-                onChange={(e) =>
-                  setFormData({ ...formData, unitNo: e.target.value })
-                }
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Unit No</label>
+                <input
+                  type="text"
+                  placeholder="Enter Unit No"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.unitNo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, unitNo: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Size</label>
+                <input
+                  type="text"
+                  placeholder="Enter Size"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.size}
+                  onChange={(e) =>
+                    setFormData({ ...formData, size: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-800">Size</label>
-              <input
-                type="text"
-                placeholder="Enter Size"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.size}
-                onChange={(e) =>
-                  setFormData({ ...formData, size: e.target.value })
-                }
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Expected Price</label>
+                <input
+                  type="text"
+                  placeholder="Enter Expected Price"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.expectedPrice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, expectedPrice: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Type</label>
+                <select
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.propertyType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, propertyType: e.target.value })
+                  }
+                >
+                  <option value="">Select Property Type</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="house">Independent House</option>
+                  <option value="plot">Plot</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-800">Expected Price</label>
-              <input
-                type="text"
-                placeholder="Enter Expected Price"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.expectedPrice}
-                onChange={(e) =>
-                  setFormData({ ...formData, expectedPrice: e.target.value })
-                }
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">No of Washrooms</label>
+                <input
+                  type="number"
+                  placeholder="Enter No of Washrooms"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.noOfWashrooms}
+                  onChange={(e) =>
+                    setFormData({ ...formData, noOfWashrooms: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Floor no.</label>
+                <input
+                  type="text"
+                  placeholder="Enter Floor No."
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.numberOfFloors}
+                  onChange={(e) =>
+                    setFormData({ ...formData, numberOfFloors: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-800">Type</label>
-              <select
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.propertyType}
-                onChange={(e) =>
-                  setFormData({ ...formData, propertyType: e.target.value })
-                }
-              >
-                <option value="">Select Property Type</option>
-                <option value="apartment">Apartment</option>
-                <option value="house">Independent House</option>
-                <option value="plot">Plot</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-800">No of Washrooms</label>
+            <div className="flex-1">
+              <label className="text-sm text-gray-800">Number of Parkings</label>
               <input
                 type="number"
-                placeholder="Enter No of Washrooms"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.noOfWashrooms}
-                onChange={(e) =>
-                  setFormData({ ...formData, noOfWashrooms: e.target.value })
-                }
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-800">numberOfFloors</label>
-              <input
-                type="text"
-                placeholder="Enter numberOfFloors"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.numberOfFloors}
-                onChange={(e) =>
-                  setFormData({ ...formData, numberOfFloors: e.target.value })
-                }
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-800">numberOfParkings</label>
-              <input
-                type="number"
-                placeholder="Enter No of numberOfParkings"
+                placeholder="Enter No of Parkings"
                 className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                 value={formData.numberOfParkings}
                 onChange={(e) =>
