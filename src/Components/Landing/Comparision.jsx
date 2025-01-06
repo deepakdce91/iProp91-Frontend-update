@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { EffectCoverflow, Navigation, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -8,11 +8,8 @@ import axios from "axios";
 import DOMPurify from 'dompurify';
 
 const CompComponent = ({ item }) => {
-
-
   return (
-    <a href={item.redirectionLink} target="_blank" rel="noopener noreferrer"
-     className="rounded-3xl w-[600px] h-[450px] border-2  border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500 ">
+    <div className="rounded-3xl w-[600px] h-[450px] border-2 border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500">
       <div className="h-[80px] bg-gray-100 text-black px-4 py-2 flex flex-col items-center justify-center">
         <p className="text-lg text-start font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.topText) }}></p>
       </div>
@@ -21,7 +18,7 @@ const CompComponent = ({ item }) => {
           <div className="flex w-[30%] flex-col items-center justify-center">
             <img
               src={item.centerImage1?.url}
-              alt="profile"
+              alt={item.centerImage1?.name}
               className="w-16 h-16 object-contain"
             />
             <span className="text-sm font-medium mt-2 text-center">{item.centerImage1Text}</span>
@@ -29,7 +26,7 @@ const CompComponent = ({ item }) => {
           <div className="w-[70%] flex flex-col items-center justify-center">
             <img
               src={item.centerImage2?.url}
-              alt="profile"
+              alt={item.centerImage2?.name}
               className="w-16 h-16 object-contain"
             />
             <span className="text-sm font-medium mt-2 text-center">{item.centerImage2Text}</span>
@@ -39,15 +36,17 @@ const CompComponent = ({ item }) => {
       <div className="absolute left-6 top-[330px] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
         VS
       </div>
-      <div className="flex-1 bg-gray-200 border-t-[2px] border-t-gold text-black  px-4 flex flex-col items-center justify-center ">
+      <div className="flex-1 bg-gray-200 border-t-[2px] border-t-gold text-black px-4 flex flex-col items-center justify-center">
         <p className="text-black text-sm mt-2 text-start" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomText) }}></p>
       </div>
-    </a>
+    </div>
   );
 };
 
 export default function Comparison() {
   const [data, setData] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,8 +60,6 @@ export default function Comparison() {
           }
         );
         setData(response.data);
-        console.log(response.data);
-        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -72,6 +69,26 @@ export default function Comparison() {
     };
     fetchData();
   }, []);
+
+  const handleSlideClick = (index) => {
+    if (swiperRef.current) {
+      const swiper = swiperRef.current;
+      
+      // Get the current real index (considering loop)
+      const currentRealIndex = swiper.realIndex;
+      
+      // Don't do anything if clicking the center slide
+      if (currentRealIndex === index) return;
+      
+      // Calculate the actual slide index considering the loop
+      const realIndex = swiper.params.loop 
+        ? index 
+        : index;
+      
+      swiper.slideTo(realIndex, 300);
+      setActiveIndex(index);
+    }
+  };
 
   return (
     <>
@@ -97,7 +114,8 @@ export default function Comparison() {
           grabCursor={true}
           centeredSlides={true}
           loop={data.length > 3}
-          slidesPerView={Math.min(data.length, 3)}
+          slidesPerView={3}
+          spaceBetween={30}
           slidesPerGroup={1}
           navigation={{
             enabled: true,
@@ -116,10 +134,21 @@ export default function Comparison() {
           }}
           modules={[EffectCoverflow, Navigation, Autoplay]}
           className="relative"
+          onSlideChange={(swiper) => {
+            setActiveIndex(swiper.realIndex);
+          }}
+          initialSlide={activeIndex}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+            setActiveIndex(swiper.realIndex);
+          }}
         >
           {data.map((item, index) => (
-            <SwiperSlide key={index}>
-              <div className="swiper-slide-wrapper py-10 ">
+            <SwiperSlide 
+              key={index} 
+              onClick={() => handleSlideClick(index)}
+            >
+              <div className="swiper-slide-wrapper py-10">
                 <CompComponent item={item} />
               </div>
             </SwiperSlide>

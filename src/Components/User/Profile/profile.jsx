@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import { Edit } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -79,9 +80,9 @@ export default function Profile() {
               alt="profilePic"
               src={
                 dataloaded
-                  ? user.data.profilePicture === ""
+                  ? user.data?.profilePicture === ""
                     ? "/dummyPFP.jpg"
-                    : user.data.profilePicture
+                    : user.data?.profilePicture
                   : "/dummyPFP.jpg"
               }
             />
@@ -112,8 +113,17 @@ export default function Profile() {
                   />
                 </span>
                 <div className="">
-                <p className="font-semibold text-sm">{user.data.name}</p>
-                <p className="text-xs text-gray-500">{user.data.email}</p>
+                  <p className="font-semibold text-sm">{user.data.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {user.data.email ? (
+                      user.data.email.replace(/^.{5}/, "*****")
+                    ) : (
+                      <span className="flex items-center space-x-1 cursor-pointer text-blue-500 hover:underline">
+                        <Edit />
+                        <span>Update</span>
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             )}

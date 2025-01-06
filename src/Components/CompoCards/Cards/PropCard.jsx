@@ -1,10 +1,7 @@
 import { Edit } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Goldbutton from "../GoldButton/Goldbutton"
-import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
 import { useState } from "react";
-import BuyForm from "../../forms/rent";
-import SellForm from "../../forms/sell";
 import {jwtDecode} from "jwt-decode";
 import { toast } from "react-hot-toast";
 
@@ -12,10 +9,12 @@ const uploadFileToCloud = async (myFile, userNumber) => {
   // ... existing upload function ...
 };
 
-export default function PropCard ({props}) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
-  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+export default function PropCard ({
+  props,
+  onClickEdit,
+  onClickBuy,
+  onClickSell
+}) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [uploadFiles, setUploadFiles] = useState([]);
@@ -38,29 +37,6 @@ export default function PropCard ({props}) {
     { id: 4, name: "Other" },
   ];
 
-  const onClickEdit = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const onClickBuy = () => {
-    setIsBuyModalOpen(true);
-  };
-  const onClickSell = () => {
-    setIsSellModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-  };
-
-  const closeBuyModal = () => {
-    setIsBuyModalOpen(false);
-  };
-  const closeSellModal = () => {
-    setIsSellModalOpen(false);
-  };
-
-  // Function to close the modal
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -131,13 +107,13 @@ export default function PropCard ({props}) {
       case "sell":
         return (
           <div className="absolute  left-0 -top-0.5 bg-primary text-white px-3 py-1 rounded-b-lg shadow-md z-10">
-            Listed for Sell
+            Listed for Sale
           </div>
         );
       case "rent and sell":
         return (
           <div className="absolute  left-0 -top-0.5 bg-primary text-white px-3 py-1 rounded-b-lg shadow-md z-10">
-            Listed for Rent & Sell
+            Listed for Rent & Sale
           </div>
         );
       default:
@@ -255,21 +231,20 @@ export default function PropCard ({props}) {
                 </span>
               </label> */}
             </div>
-            <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
-              <button
-                onClick={handleDocumentSubmit}
-                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100"
-                type="button"
-              >
-                Submit Documents
-              </button>
-              <button
-                onClick={closeModal}
-                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                type="button"
-              >
-                Cancel
-              </button>
+            <div className="flex gap-3 items-center pt-2 justify-end">
+              <Goldbutton
+                onclick={handleDocumentSubmit}
+                btnname={"Submit Documents"}
+                properties={" bg-white text-black lg:w-[50%]  hover:bg-slate-100"}
+                
+              />
+              <Goldbutton
+                onclick={closeModal}
+                btnname={"Cancel"}
+                properties={" bg-white text-black lg:w-[20%]  hover:bg-slate-100"}
+                
+              />
+              
             </div>
           </div>
         </div>
@@ -314,7 +289,7 @@ export default function PropCard ({props}) {
         </div>
         <div className="flex flex-row justify-between mt-4 gap-2">
           {location.pathname === "/safe" ? (
-            <>
+            <div className="flex justify-end items-end">
               <Link to={`/safe/Dealing/${props._id}/Documents`}>
                 <Goldbutton 
                   btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}
@@ -329,7 +304,7 @@ export default function PropCard ({props}) {
                   Edit
                 </span>
               </div>
-            </>
+            </div>
           ) : location.pathname === "/concierge" ? (
             <>
               {props.applicationStatus === "approved" ? (
@@ -346,7 +321,7 @@ export default function PropCard ({props}) {
                       <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Rent" onclick={onClickBuy} />
                     </>
                   )}
-                  <div className="relative group">
+                  <div className="relative group justify-end">
                     <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
                       <Edit />
                     </button>
@@ -371,21 +346,6 @@ export default function PropCard ({props}) {
           ) : null}
         </div>
       </div>
-         {/* Edit Modal */}
-         {isEditModalOpen && (  
-              <PropertyForm closeEditModal={closeEditModal} propertyId={props._id} />
-          
-        )}
-         {/* buy modal Modal */}
-         {isBuyModalOpen && (  
-              <BuyForm closeBuyModal={closeBuyModal} propertyId={props._id}  />
-          
-        )}
-         {/* sell modal Modal */}
-         {isSellModalOpen && (  
-              <SellForm closeSellModal={closeSellModal} propertyId={props._id}  />
-          
-        )}
       </>
     );
   };

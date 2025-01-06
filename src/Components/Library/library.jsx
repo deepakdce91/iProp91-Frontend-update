@@ -14,6 +14,9 @@ const Library = () => {
   ];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -25,6 +28,8 @@ const Library = () => {
           }
         );
         setData(response.data);
+        console.log(response.data);
+        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -111,7 +116,7 @@ const Library = () => {
 
   return (
     <section className="pt-28 lg:pt-32 px-3 md:px-10 lg:px-20 bg-white text-white min-h-screen">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
       <div className="grid gap-8 place-items-center lg:place-items-stretch sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-4 md:mt-6">
         {data.map((item) => (
           <div

@@ -1,7 +1,7 @@
 import SimpleInput from "../../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import LableInput from "../../CompoCards/InputTag/labelinput";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import PhoneInput from "../../CompoCards/PhoneInput";
@@ -383,7 +383,7 @@ function Verify({
 
               <span className="ml-2 text-gray-600">Back</span>
             </div>
-            <h2 className="text-3xl font-semibold mb-4">Verify Code</h2>
+            <h2 className="text-3xl font-semibold mb-4 text-black">Verify Code</h2>
             <p className="text-gray-500 mb-8">
               An authentication code has been sent to your Phone Number
             </p>
@@ -450,6 +450,7 @@ export default function Login({
   goBackToStage1,
 }) {
   const navigate = useNavigate();
+  const modalRef = useRef(null); // Create a ref for the modal
 
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("+91");
@@ -607,11 +608,23 @@ export default function Login({
     setVerify(false);
   };
 
+  // Function to handle clicks outside the modal
+  const handleClickOutside = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      onClose(); // Close the modal
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <section
       className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
     >
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full" ref={modalRef}>
         {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
@@ -649,15 +662,15 @@ export default function Login({
                 />
               ) : passwordlogin ? (
                 <>
-                  <div className="flex items-center mb-4 cursor-pointer">
-                    <span className="ml-2 text-gray-600">
+                  <div className="flex items-center mb-2 cursor-pointer">
+                    <span className=" text-gray-600">
                       Sign in / Sign up
                     </span>
                   </div>
-                  <h2 className="text-2xl font-semibold mb-4 ">
+                  <h2 className="text-2xl font-semibold mb-2 text-black ">
                     Enter Phone Number
                   </h2>
-                  <p className="text-gray-500 text-sm mb-8" onClick={onclick}>
+                  <p className="text-gray-500 text-sm mb-3" onClick={onclick}>
                     Enter your mobile number to get an OTP
                   </p>
                   <div className="w-72">
@@ -684,9 +697,9 @@ export default function Login({
                       setVerify(false);
                     }}
                   >
-                    <p>
+                    <p className="text-black">
                       Login with{" "}
-                      <span className="text-gold underline">Password</span>
+                      <span className="text-gold underline ml-1">Password</span>
                     </p>
                   </div>
                 </>
@@ -700,12 +713,12 @@ export default function Login({
                       className="bx bxs-chevron-left"
                       style={{ fontSize: "20px" }}
                     ></i>
-                    <span className="ml-2 text-gray-600">Back</span>
+                    <span className=" text-gray-600">Back</span>
                   </div>
-                  <h2 className="text-3xl font-semibold mb-4">
+                  <h2 className="text-3xl text-black font-semibold mb-4">
                     Enter Credentials
                   </h2>
-                  <p className="text-gray-500 mb-8" onClick={onclick}>
+                  <p className="text-gray-500 mb-3" onClick={onclick}>
                     Enter your mobile number and password to continue with login
                     and password.
                   </p>
@@ -717,7 +730,7 @@ export default function Login({
                       setPhone={setPhone}
                     />
                   </div>
-                  <div className="w-72  mt-1">
+                  <div className="w-72">
                     <SimpleInputPass
                       type={"password"}
                       placeholder={"Password"}
@@ -725,7 +738,7 @@ export default function Login({
                       setValue={setPassword}
                     />
                   </div>
-                  <div className="w-72 mt-1">
+                  <div className="w-72 ">
                     <Goldbutton
                       btnname={"Submit"}
                       properties={
@@ -735,15 +748,15 @@ export default function Login({
                     />
                   </div>
                   <div
-                    className="flex items-center mt-4 cursor-pointer"
+                    className="flex items-center mt-2 cursor-pointer"
                     onClick={() => {
                       setPasswordLogin(true);
                       setVerify(false);
                     }}
                   >
-                    <p>
+                    <p className="text-black">
                       Login with{" "}
-                      <span className="text-gold underline">OTP</span>
+                      <span className="text-gold underline ml-1">OTP</span>
                     </p>
                   </div>
                 </>

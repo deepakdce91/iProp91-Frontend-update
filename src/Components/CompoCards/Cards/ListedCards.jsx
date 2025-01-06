@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Plus,
-  X,
-  Home,
-  DollarSign,
-  Maximize,
-  Bath,
-  Car,
-  Building,
-} from "lucide-react";
+import { Plus, X, Edit } from "lucide-react";
 
 const ListedPropertyCard = ({
   propertyType,
@@ -23,178 +14,322 @@ const ListedPropertyCard = ({
   onDelete,
   parkings,
   floors,
+  location = "N/A",
+  emi = "N/A",
+  beds = "N/A",
+  baths = "N/A",
+  balcony = "N/A",
+  furnished = "N/A",
+  developer = "N/A",
+  project = "N/A",
+  transactionType = "N/A",
+  status = "N/A",
+  facing = "N/A",
+  ageOfConstruction = "N/A",
+  pricePerSqft = "N/A",
+  onUpdate,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateFormData, setUpdateFormData] = useState({
+    unitNumber: details?.unitNumber || "",
+    size: details?.size || "",
+    type: details?.type || "",
+    numberOfWashrooms: details?.numberOfWashrooms || "",
+    numberOfFloors: details?.numberOfFloors || "",
+    numberOfParkings: details?.numberOfParkings || "",
+    media: details?.media || [],
+    ...(listingType === "rent"
+      ? {
+          expectedRent: details?.expectedRent || "",
+          securityDeposit: details?.securityDeposit || "",
+          furnishedStatus: details?.furnishedStatus || "",
+          availableFrom: details?.availableFrom || "",
+        }
+      : {
+          expectedPrice: details?.expectedPrice || "",
+        }),
+  });
 
-  //   console.log(media)
+  const handleInputChange = (e) => {
+    setUpdateFormData({
+      ...updateFormData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmitUpdate = () => {
+    const updatedDetails =
+      listingType === "rent"
+        ? { rentDetails: updateFormData }
+        : { sellDetails: updateFormData };
+
+    onUpdate(listingId, updatedDetails);
+    setShowUpdateModal(false);
+  };
 
   return (
-    <div
-      className={` rounded-lg overflow-hidden shadow-lg transition-colors duration-200 ${
-        darkMode ? "bg-black text-white" : "bg-white text-black"
-      }`}
-    >
-      <div className="relative">
-        <div className="relative aspect-video">
-          {media?.length > 0 ? (
-            <div
-              className={`grid gap-1 h-full ${
-                media.length === 1
-                  ? "grid-cols-1"
-                  : media.length === 2
-                  ? "grid-cols-2"
-                  : "grid-cols-2 grid-rows-2"
-              }`}
+    <div className="bg-white  rounded-lg overflow-hidden shadow-md border-[1px] border-gray-400 ">
+      {/* Header Section */}
+      <div className="px-4 py-2 border-b">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="mt-2">
+              <h2 className="text-2xl font-medium">
+                 For {listingType} in {propertyType}
+              </h2>
+              <p className="text-gray-600">{location}</p>
+            </div>
+          </div>
+          <button className="text-gray-400 hover:text-gray-600">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              {media
-                .slice(0, media.length > 4 ? 4 : media.length)
-                .map((item, index) => (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div className="flex gap-5 items-center justify-center p-4">
+        {/* Image Gallery */}
+        <div className="relative flex-1 ">
+          <div className="relative ">
+            {media?.length > 0 ? (
+              <div className="grid grid-cols-2 gap-0.5 ">
+                {media.slice(0, 3).map((item, index) => (
                   <div
                     key={index}
-                    className={`relative ${
-                      media.length === 3 && index === 2 ? "col-span-2" : ""
-                    }`}
+                    className={`relative  ${index === 0 ? "row-span-2" : ""}`}
                   >
-                    <img // using static img for testing 
-                    src={"./images/image.jpg"} 
-                    //   src={item.url}
+                    <img
+                      // src={item.url}
+                      src="./images/image.jpg"
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover "
                     />
                   </div>
                 ))}
-              {media.length > 4 && (
-                <div
-                  onClick={() => setShowModal(true)}
-                  className="cursor-pointer absolute bottom-0 right-0 bg-black bg-opacity-50 p-2 m-2 rounded-full"
-                >
-                  <div className="text-white text-center flex items-center">
-                    <Plus size={20} className="mr-1" />
-                    <span className="text-sm">+{media.length - 3}</span>
+                {media.length > 3 && (
+                  <div
+                    onClick={() => setShowModal(true)}
+                    className="absolute bottom-10 right-4 bg-black/70 px-3 py-1.5 rounded-md cursor-pointer"
+                  >
+                    <span className="text-white text-sm font-medium">
+                      +{media.length - 3} Photos
+                    </span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400">No images available</span>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Property Details */}
+        <div className="p-4 mt-10 flex-1">
+          <div className="  bg-black bg-opacity-85 w-full  rounded-lg ">
+            <div className="grid grid-cols-4 gap-4 py-2  border-b text-white text-sm">
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Beds</p>
+                <p className="font-medium">{beds}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Baths</p>
+                <p className="font-medium">{baths}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Balcony</p>
+                <p className="font-medium">{balcony}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500">Furnished</p>
+                <p className="font-medium">{furnished}</p>
+              </div>
             </div>
-          ) : (
-            <div
-              className={`w-full h-full flex items-center justify-center ${
-                darkMode ? "bg-gray-700" : "bg-gray-200"
-              }`}
+          </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-4">
+            <div>
+              <p className="text-sm text-gray-500">Super Built-Up Area</p>
+              <p className="font-medium">
+                {size}{" "}
+                <span className="text-gray-500 text-sm">
+                  ₹{pricePerSqft}/sqft
+                </span>
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Developer</p>
+              <p className="font-medium">{developer}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Project</p>
+              <p className="font-medium">{project}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Floor</p>
+              <p className="font-medium">{floors}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Transaction Type</p>
+              <p className="font-medium">{transactionType}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Status</p>
+              <p className="font-medium">{status}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Facing</p>
+              <p className="font-medium">{facing}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Age Of Construction</p>
+              <p className="font-medium">{ageOfConstruction}</p>
+            </div>
+          </div>
+
+          <div className="w-full flex gap-4">
+            <button
+              onClick={() => onDelete(listingId)}
+              className="w-full mt-4 py-2 px-4 bg-black text-white rounded hover:bg-black/80 transition-colors"
             >
-              <span
-                className={`text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                No image available
-              </span>
-            </div>
-          )}
-        </div>
-        {/* <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`absolute top-2 right-2 p-2 rounded-full ${
-            darkMode ? "bg-white text-black" : "bg-black text-white"
-          }`}
-        >
-          {darkMode ? "Light" : "Dark"}
-        </button> */}
-      </div>
-
-      <div className="p-6">
-        <div className="flex items-center mb-4">
-          <Home
-            className={`mr-2 ${
-              listingType === "sell" ? "text-gold" : "text-gold"
-            }`}
-          />
-          <h3
-            className={`text-xl font-bold ${
-              listingType === "sell" ? "text-gold" : "text-gold"
-            }`}
-          >
-            {propertyType} - For {listingType}
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center">
-            <DollarSign className="mr-2" />
-            <span className="font-semibold">{price}</span>
-          </div>
-          <div className="flex items-center">
-            <Maximize className="mr-2" />
-            <span>{size}</span>
-          </div>
-          <div className="flex items-center">
-            <Bath className="mr-2" />
-            <span>{washrooms} Washrooms</span>
-          </div>
-          <div className="flex items-center">
-            <Car className="mr-2" />
-            <span>{parkings} Parkings</span>
-          </div>
-          <div className="flex items-center">
-            <Building className="mr-2" />
-            <span>{floors} Floors</span>
-          </div>
-          <div className="flex items-center">
-            <Home className="mr-2" />
-            <span>Unit: {unitNo}</span>
+              Delete Listing
+            </button>
+            <button
+              onClick={() => setShowUpdateModal(true)}
+              className="w-full mt-4 py-2 px-4 bg- text-black rounded bg-white border-[1px] border-black/40 transition-colors"
+            >
+              Update Listing
+            </button>
           </div>
         </div>
 
-        <button
-          onClick={() => onDelete(listingId)}
-          className={`w-full py-2 px-4 rounded transition-colors duration-200 ${
-            darkMode
-              ? "bg-white text-black hover:bg-gray-200"
-              : "bg-black text-white hover:bg-gray-800"
-          }`}
-        >
-          Delete Listing
-        </button>
-      </div>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div
-            className={`p-4 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto ${
-              darkMode ? "bg-black" : "bg-white"
-            }`}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3
-                className={`text-xl font-semibold ${
-                  darkMode ? "text-white" : "text-black"
-                }`}
-              >
-                All Media
-              </h3>
-              <button onClick={() => setShowModal(false)}>
-                <X
-                  className={`w-6 h-6 ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
-                />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {media.map((item, index) => (
-                <div key={index} className="relative aspect-video">
-                  <img // using static img for testing 
-                    src={"./images/image.jpg"} 
-                    //   src={item.url}
+        {/* Media Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">All Photos</h3>
+                <button onClick={() => setShowModal(false)}>
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {media.map((item, index) => (
+                  <div key={index} className="relative aspect-video">
+                    <img
+                      src={item.url || "./images/image.jpg"}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded"
                     />
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Add Update Modal */}
+        {showUpdateModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Update Listing</h3>
+                <button onClick={() => setShowUpdateModal(false)}>
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Unit Number
+                  </label>
+                  <input
+                    type="text"
+                    name="unitNumber"
+                    value={updateFormData.unitNumber}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Add similar input fields for other properties */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Size
+                  </label>
+                  <input
+                    type="text"
+                    name="size"
+                    value={updateFormData.size}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {listingType === "rent"
+                      ? "Expected Rent"
+                      : "Expected Price"}
+                  </label>
+                  <input
+                    type="number"
+                    name={
+                      listingType === "rent" ? "expectedRent" : "expectedPrice"
+                    }
+                    value={
+                      listingType === "rent"
+                        ? updateFormData.expectedRent
+                        : updateFormData.expectedPrice
+                    }
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Add other fields based on listingType */}
+                {listingType === "rent" && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Security Deposit
+                      </label>
+                      <input
+                        type="number"
+                        name="securityDeposit"
+                        value={updateFormData.securityDeposit}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    {/* Add other rent-specific fields */}
+                  </>
+                )}
+
+                <div className="col-span-2 mt-4">
+                  <button
+                    onClick={handleSubmitUpdate}
+                    className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -50,9 +50,14 @@ const carouselData = [
 export default function Cards() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
+  const [isAnimating, setIsAnimating] = React.useState(false);
 
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
+      setTimeout(() => setIsAnimating(false), 500); // Match animation duration
+    }
   };
   
   React.useEffect(() => {
@@ -65,9 +70,11 @@ export default function Cards() {
   }, [isPaused]);
 
   const prevSlide = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + carouselData.length) % carouselData.length
-    );
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + carouselData.length) % carouselData.length);
+      setTimeout(() => setIsAnimating(false), 500); // Match animation duration
+    }
   };
 
   const handleDragEnd = (event, info) => {
@@ -78,6 +85,13 @@ export default function Cards() {
     }
   };
 
+  const handleCardClick = (offset, slideIndex) => {
+    if (offset !== 0 && !isAnimating) {
+      setIsAnimating(true);
+      setCurrentIndex(slideIndex);
+      setTimeout(() => setIsAnimating(false), 500);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black">
@@ -88,41 +102,38 @@ export default function Cards() {
                 <p className="lg:text-7xl text-5xl text-primary font-bold text-start">
                   NRI
                 </p>
-                <div className="space-y-1  ">
+                <div className="space-y-1">
                 <p className="lg:text-2xl max-w-2xl lg:w-full text-start text-xl text-black font-semibold">
                 IProp91&apos;s Customized Services for NRIs-
                 </p>
                 <ul className="md:text-lg space-y-2 text-gray-700 md:px-2">
                   <li className="flex items-center">
-                    <span>
-                    Property Buying and Selling Support</span>
+                    <span>Property Buying and Selling Support</span>
                   </li>
-                  <li className="flex items-center ">
+                  <li className="flex items-center">
                     <span>Financial Advisory</span>
                   </li>
-                  <li className="flex items-center ">
+                  <li className="flex items-center">
                     <span>Documentation and Compliance</span>
                   </li>
-                  <li className="flex items-center ">
+                  <li className="flex items-center">
                     <span>Property Management</span>
                   </li>
-                  </ul>
+                </ul>
                 </div>
-              </div>
+          </div>
 
           {/* Carousel */}
           <div className="w-full md:w-2/3 relative">
             {/* Vertical Carousel for larger screens */}
-            <div className="hidden md:flex flex-col items-center justify-center lg:h-[100vh] h-[90vh] ">
+            <div className="hidden md:flex flex-col items-center justify-center lg:h-[100vh] h-[90vh]">
               {[-1, 0, 1].map((offset) => {
-                const slideIndex =
-                  (currentIndex + offset + carouselData.length) %
-                  carouselData.length;
+                const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length;
                 const item = carouselData[slideIndex];
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute w-full hover:scale-110 max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                    className={`absolute w-full cursor-pointer hover:scale-110 max-w-2xl h-80 py-4 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
                       offset === 0 ? "z-20" : "z-10 hover:scale-110"
                     } overflow-hidden`}
                     initial={{
@@ -140,6 +151,7 @@ export default function Cards() {
                     drag="y"
                     dragConstraints={{ top: 0, bottom: 0 }}
                     onDragEnd={handleDragEnd}
+                    onClick={() => handleCardClick(offset, slideIndex)}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                     style={{
@@ -173,16 +185,14 @@ export default function Cards() {
             </div>
 
             {/* Horizontal Carousel for smaller screens */}
-            <div className="md:hidden flex justify-center items-center h-[80vh] overflow-hidden ">
+            <div className="md:hidden flex justify-center items-center h-[80vh] overflow-hidden">
               {[-1, 0, 1].map((offset) => {
-                const slideIndex =
-                  (currentIndex + offset + carouselData.length) %
-                  carouselData.length;
+                const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length;
                 const item = carouselData[slideIndex];
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute w-[80%] py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
+                    className={`absolute w-[80%] cursor-pointer py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
                       offset === 0 ? "z-20" : "z-10 hover:scale-110"
                     }`}
                     initial={{
@@ -202,13 +212,14 @@ export default function Cards() {
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => handleCardClick(offset, slideIndex)}
                     style={{
                       backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                     }}
                   >
-                    <h3 className="text-3xl  font-bold mb-4 text-white">
+                    <h3 className="text-3xl font-bold mb-4 text-white">
                       {item.title}
                     </h3>
                     <ul className="space-y-3">
@@ -230,20 +241,6 @@ export default function Cards() {
                   </motion.div>
                 );
               })}
-              {/* <button
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button> */}
             </div>
           </div>
         </div>

@@ -52,6 +52,15 @@ export default function AdviceCards() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [showAgreements, setShowAgreements] = React.useState(false);
   const [isPaused, setIsPaused] = React.useState(false);
+  const [isAnimating, setIsAnimating] = React.useState(false);
+
+  const nextSlide = () => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
+      setTimeout(() => setIsAnimating(false), 500); // Match animation duration
+    }
+  };
 
   React.useEffect(() => {
     if (!isPaused) {
@@ -62,9 +71,7 @@ export default function AdviceCards() {
     }
   }, [isPaused]);
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.length);
-  };
+  
 
   const prevSlide = () => {
     setCurrentIndex(
@@ -77,6 +84,13 @@ export default function AdviceCards() {
       nextSlide();
     } else if (info.offset.x > 50 || info.offset.y > 50) {
       prevSlide();
+    }
+  };
+  const handleCardClick = (offset, slideIndex) => {
+    if (offset !== 0 && !isAnimating) {
+      setIsAnimating(true);
+      setCurrentIndex(slideIndex);
+      setTimeout(() => setIsAnimating(false), 500);
     }
   };
 
@@ -147,6 +161,7 @@ export default function AdviceCards() {
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
                         onDragEnd={handleDragEnd}
+                        onClick={() => handleCardClick(offset, slideIndex)}
                         onMouseEnter={() => setIsPaused(true)}
                         onMouseLeave={() => setIsPaused(false)}
                         style={{
@@ -227,6 +242,7 @@ export default function AdviceCards() {
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
                     onDragEnd={handleDragEnd}
+                    onClick={() => handleCardClick(offset, slideIndex)}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                     style={{
