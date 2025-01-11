@@ -2,14 +2,33 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { Link } from "react-router-dom";
+
+function modifyUrl(url) {
+  try {
+      // Create a URL object from the input
+      const urlObj = new URL(url);
+      
+      // Keep only the origin (protocol + domain)
+      const baseUrl = urlObj.origin;
+      
+      // Append '/authenticate' to the base URL
+      return `${baseUrl}/authenticate`;
+  } catch (error) {
+      // Handle invalid URL input
+      console.error("Invalid URL:", error.message);
+      return null;
+  }
+}
 
 // Loader Component
 const Loader = () => (
   <div className="w-full h-screen bg-black flex flex-col items-center justify-center space-y-6">
     <div className="relative w-24 h-24">
       <div className="absolute w-full h-full border-4 border-white rounded-full animate-[spin_3s_linear_infinite]" />
-      <div className="absolute w-full h-full border-4 border-white rounded-full animate-[spin_2s_linear_infinite]" style={{ animationDirection: 'reverse' }} />
+      <div
+        className="absolute w-full h-full border-4 border-white rounded-full animate-[spin_2s_linear_infinite]"
+        style={{ animationDirection: "reverse" }}
+      />
       <div className="absolute w-full h-full border-4 border-blue-500 rounded-full animate-ping" />
     </div>
     <div className="text-white text-xl font-light tracking-wider animate-pulse">
@@ -65,7 +84,8 @@ const JourneyForm = () => {
   }, [initialQuestions, isInitialized]);
 
   // Calculate progress only if we have questions
-  const maxDepth = initialQuestions.length > 0 ? calculateMaxDepth(initialQuestions[0]) : 0;
+  const maxDepth =
+    initialQuestions.length > 0 ? calculateMaxDepth(initialQuestions[0]) : 0;
   const progress = Math.min(((history.length - 1) / maxDepth) * 95, 95);
 
   const currentState = history[history.length - 1];
@@ -94,7 +114,7 @@ const JourneyForm = () => {
         [questionKey]: option.text.replace(/\s+/g, "-"),
       };
 
-      setHistory(prevHistory => {
+      setHistory((prevHistory) => {
         const newHistory = [
           ...prevHistory,
           {
@@ -107,15 +127,15 @@ const JourneyForm = () => {
       });
 
       // Smooth scroll to top after option selection
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleBack = () => {
     if (history.length > 1) {
-      setHistory(prevHistory => prevHistory.slice(0, -1));
+      setHistory((prevHistory) => prevHistory.slice(0, -1));
       // Smooth scroll to top after going back
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -135,15 +155,20 @@ const JourneyForm = () => {
             setInitialQuestions(response.data[0].data);
             return;
           }
-          throw new Error('Invalid data format received');
+          throw new Error("Invalid data format received");
         } catch (error) {
-          console.error(`Error fetching questions (attempt ${retryCount + 1}):`, error);
+          console.error(
+            `Error fetching questions (attempt ${retryCount + 1}):`,
+            error
+          );
           retryCount++;
           if (retryCount === maxRetries) {
             toast.error("Failed to load questions. Please refresh the page.");
             setIsLoading(false);
           } else {
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * retryCount)
+            );
           }
         }
       }
@@ -152,11 +177,16 @@ const JourneyForm = () => {
     fetchQuestions();
 
     // Smooth scroll to top on load
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   // Guards against rendering with incomplete data
-  if (isLoading || !initialQuestions.length || !history.length || !currentState) {
+  if (
+    isLoading ||
+    !initialQuestions.length ||
+    !history.length ||
+    !currentState
+  ) {
     return <Loader />;
   }
 
@@ -190,15 +220,15 @@ const JourneyForm = () => {
                       option.redirectionLink.split("/").length - 1
                     ] === "stage1Form"
                       ? `${
-                          "http://localhost:3000/stage1Form"
+                          option.redirectionLink
                         }?entryPoint=${encodeURIComponent(
                           JSON.stringify(entryPoint)
                         )}`
                       : option.redirectionLink.split("/")[
                           option.redirectionLink.split("/").length - 1
                         ] === "authenticate"
-                      ? `${"http://localhost:3000/authenticate"}`
-                      : `${"http://localhost:3000/authenticate"}?toPage=${
+                      ? `${option.redirectionLink}`
+                      : `${modifyUrl(option.redirectionLink)}?toPage=${
                           option.redirectionLink.split("/")[
                             option.redirectionLink.split("/").length - 1
                           ]
