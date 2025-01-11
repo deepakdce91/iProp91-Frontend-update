@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Profile from "../User/Profile/profile";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -14,6 +14,62 @@ const Navbar = ({setIsLoggedIn}) => {
   const [scrollPos, setScrollPos] = useState(0);
   const [user, setUser] = useState();
   const navigate = useNavigate();
+  const [isDarkBg, setIsDarkBg] = useState(true);
+  const location = useLocation();
+  
+  // Define routes that should have specific backgrounds
+  const specificRoutes = {
+    '/nri': false,      // true means dark background
+    '/lend': false,
+    '/advice': false,  // false means light background
+    '/case-laws': false,
+    '/library': false,
+    '/': true
+  };
+
+  // Check if current route should override background detection
+  const shouldOverrideBackground = () => {
+    const currentPath = location.pathname;
+    return currentPath in specificRoutes ? specificRoutes[currentPath] : null;
+  };
+
+  // Function to check background color
+  const checkBackgroundColor = () => {
+    const routeOverride = shouldOverrideBackground();
+    
+    // If route has specific background setting, use that
+    if (routeOverride !== null) {
+      setIsDarkBg(routeOverride);
+      return;
+    }
+
+    // Otherwise use automatic detection
+    const element = document.body;
+    const bgColor = window.getComputedStyle(element).backgroundColor;
+    
+    const rgb = bgColor.match(/\d+/g);
+    if (rgb) {
+      const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+      setIsDarkBg(brightness < 128);
+    }
+  };
+
+  // Check background on route change
+  useEffect(() => {
+    checkBackgroundColor();
+  }, [location.pathname]);
+
+  useEffect(() => {
+    checkBackgroundColor();
+    const observer = new MutationObserver(checkBackgroundColor);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -115,9 +171,15 @@ useEffect(() => {
 
   return (
     <nav
-      className={`flex items-center justify-between px-10 py-4 bg-white bg-opacity-10  backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-transform duration-300 border border-white ${
-        isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
-      }`}
+    className={`flex items-center justify-between px-10 py-4 ${
+      isDarkBg 
+        ? "bg-white bg-opacity-10 text-white" 
+        : "bg-black bg-opacity-10 text-black"
+    } backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
+      isDarkBg ? "border-white" : "border-black"
+    } ${
+      isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
+    }`}
     >
       {/* Logo */}
       <Link to={"/"} className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
@@ -130,7 +192,7 @@ useEffect(() => {
       </Link>
 
       {/* Desktop Links */}
-      <div className="hidden md:flex text-white space-x-8 ">
+      <div className="hidden md:flex  space-x-8 ">
         <Link to="/services" className="hover:text-white/80 ">
           Services
         </Link>

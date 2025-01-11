@@ -17,23 +17,31 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
   const ITEM_HEIGHT = 40;
   const MAX_HEIGHT = 300;
 
+  // Default cities to show when input is empty
+  const defaultCities = useMemo(() => {
+    return cityStateData.slice(0, 5).map(city => ({
+      city: city.city,
+      state: city.state
+    }));
+  }, []);
+
   // Calculate dynamic height based on number of items
   const getDropdownHeight = useMemo(() => {
-    const totalHeight = filteredCities.length * ITEM_HEIGHT;
+    const itemCount = filteredCities.length || defaultCities.length;
+    const totalHeight = itemCount * ITEM_HEIGHT;
     return Math.min(totalHeight, MAX_HEIGHT);
-  }, [filteredCities.length]);
+  }, [filteredCities.length, defaultCities.length]);
 
   // Memoize the filter function
   const filterCities = useMemo(() => {
     return (searchValue) => {
-      if (!searchValue) return [];
-      // Limit results to first 100 matches for better performance
+      if (!searchValue) return defaultCities;
       return cityStateData
         .filter(item => 
           item.city.toLowerCase().includes(searchValue.toLowerCase()))
         .slice(0, 100);
     };
-  }, []);
+  }, [defaultCities]);
 
   // Debounced input handler
   const handleInputChange = useCallback((e) => {
@@ -41,17 +49,14 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
     setInputValue(value);
     setIsOpen(true);
 
-    // Clear existing timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Set new timer for filtering
     debounceTimerRef.current = setTimeout(() => {
       const filtered = filterCities(value);
       setFilteredCities(filtered);
 
-      // Check for exact match
       const exactMatch = filtered.find(
         item => item.city.toLowerCase() === value.toLowerCase()
       );
@@ -67,8 +72,14 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
         setSelectedState("");
         setMainState("");
       }
-    }, 300); // 300ms debounce delay
+    }, 300);
   }, [filterCities, setMainCity, setMainState]);
+
+  // Handle input focus
+  const handleInputFocus = useCallback(() => {
+    setIsOpen(true);
+    setFilteredCities(defaultCities);
+  }, [defaultCities]);
 
   // Cleanup debounce timer
   useEffect(() => {
@@ -108,7 +119,7 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
 
   // Memoized row renderer for virtualized list
   const Row = useCallback(({ index, style }) => {
-    const cityData = filteredCities[index];
+    const cityData = filteredCities.length > 0 ? filteredCities[index] : defaultCities[index];
     return (
       <div
         style={style}
@@ -119,7 +130,9 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
         <span className="text-xs text-gray-500">({cityData.state})</span>
       </div>
     );
-  }, [filteredCities, handleSelect]);
+  }, [filteredCities, defaultCities, handleSelect]);
+
+  const displayedCities = filteredCities.length > 0 ? filteredCities : defaultCities;
 
   return (
     <div ref={wrapperRef} className="w-full my-2 xl:m-2 relative">
@@ -131,22 +144,23 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
         Select City
       </label>
       <input
+      autoComplete="off"
         type="text"
         id="city"
         value={inputValue}
         onChange={handleInputChange}
-        onFocus={() => setIsOpen(true)}
+        onFocus={handleInputFocus}
         className={`mt-1 block w-full text-gray-900 px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white ${
-          fromGuestForm ? "rounded-lg" : "rounded-3xl"
+          fromGuestForm ? "rounded-lg" : "rounded-lg"
         }`}
         placeholder="Type to search cities..."
       />
 
-      {isOpen && filteredCities.length > 0 && (
+      {isOpen && displayedCities.length > 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
           <List
             height={getDropdownHeight}
-            itemCount={filteredCities.length}
+            itemCount={displayedCities.length}
             itemSize={ITEM_HEIGHT}
             width="100%"
           >

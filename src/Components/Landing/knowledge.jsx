@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const links = [
   {
@@ -85,16 +85,37 @@ const links = [
 ];
 
 const Knowledge = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      localStorage.setItem("scrollPosition", window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      localStorage.setItem("scrollPosition", window.scrollY);
+    };
+  }, []);
+
+  useEffect(() => {
+    const savedPosition = localStorage.getItem("scrollPosition");
+    if (savedPosition) {
+      window.scrollTo(0, parseInt(savedPosition));
+    }
+  }, [location]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-black">
       <h1 className="text-3xl text-center md:text-6xl font-semibold text-white py-6 ">
-      Empowering your ownership <br /> experience with knowledge
-
+        Empowering your ownership <br /> experience with knowledge
       </h1>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
         {links.map((link, index) => (
           <Link to={link.to} key={index} className="group">
-            <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1   rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold ">
+            <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold ">
               <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-black/80 transition-all duration-300 group-hover:scale-[10]"></span>
               <div className="relative z-10 mx-auto max-w-md ">
                 <span className="grid h-20 w-20 place-items-center rounded-full bg-black transition-all duration-300 ">

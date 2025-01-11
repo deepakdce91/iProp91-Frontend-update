@@ -65,7 +65,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:css": "tailwindcss -i ./src/index.css -o ./dist/output.css --minify"
   },
   "eslintConfig": {
     "extends": [
@@ -87,7 +88,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.45",
-    "tailwindcss": "^3.4.10"
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
   }
 }

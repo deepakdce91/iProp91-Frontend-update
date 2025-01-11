@@ -2,13 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ChevronRightIcon } from "@heroicons/react/solid";
 
-const Breadcrumb = ({ items, onBack }) => {
+const Breadcrumb = ({ items, onBack, className }) => {
   return (
-    <nav className="flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-40 left-[5%]">
+    <nav className={className} >
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
-            <ChevronRightIcon className="h-4 w-4 text-white" />
+            <ChevronRightIcon className="h-4 w-4 " />
           )}
           {item.link ? (
             <Link 
@@ -19,7 +19,7 @@ const Breadcrumb = ({ items, onBack }) => {
               {item.label}
             </Link>
           ) : (
-            <span className="text-white/80">{item.label}</span>
+            <span className="">{item.label}</span>
           )}
         </React.Fragment>
       ))}

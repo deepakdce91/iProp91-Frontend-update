@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Call from "../NRI/corousal/corsoual";
+import Call from "../CompoCards/Call";
 import AdviceCards from "./AdviceCards";
-import Footer from "../Landing/Footer";
 import DraftAgreementsList from "./ShowDrafts";
 import Profile from "../User/Profile/profile";
 
@@ -21,6 +20,10 @@ export default function Advice() {
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.05]);
   const blur = useTransform(scrollYProgress, [0, 0.5], [0, 8]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,7 +81,6 @@ export default function Advice() {
           {/* <Que /> */}
           <Call />
           {/* <ContactUs /> */}
-          <Footer/>
         </div>
     </section>
   );

@@ -38,7 +38,7 @@ export default function SidebarWithBurgerMenu() {
           <List>
             <ListItem>Concierge</ListItem>
             <ListItem>Safe</ListItem>
-            <ListItem>Owner's Club</ListItem>
+            <ListItem>Iprop91 Owner's Club</ListItem>
             <ListItem>Real Insight</ListItem>
             <ListItem>Buy/Sell/Lease</ListItem>
             <ListItem>NRI</ListItem>

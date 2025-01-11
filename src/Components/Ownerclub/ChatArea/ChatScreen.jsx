@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import Chats from "./Chat";
 import { jwtDecode } from "jwt-decode";
 import NameHeader from "../../CompoCards/Header/NameHeader";
+import { Link } from "react-router-dom";
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -24,6 +25,7 @@ function ChatScreen() {
   const [currentGroupThumbnail, setCurrentGroupThumbnail] =
     useState(defaultCommunityUrl);
   const [showGuidelines, setShowGuidelines] = useState(false);
+  const [articlesData, setArticlesData ] = useState([]);
 
   // Fetch all communities
   const fetchAllCommunities = () => {
@@ -122,6 +124,43 @@ function ChatScreen() {
     }
   }, [groupNames]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found in local storage.");
+      return;
+    }
+    const decodedToken = jwtDecode(token);
+    const userId = decodedToken.userId;
+    
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/articles/fetchAllArticles`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token
+            },
+            params: { userId }
+          }
+        );
+
+        setArticlesData(response.data);
+        console.log(response.data);
+        
+      } catch (error) {
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
+  
+
   const token = localStorage.getItem("token");
   if (!token) {
     console.error("No token found in local storage.");
@@ -137,6 +176,7 @@ function ChatScreen() {
       item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
     ); // Set thumbnail
   };
+  
 
   return (
     <div className="min-h-screen w-full">
@@ -163,7 +203,7 @@ function ChatScreen() {
           >
             <div className=" p-2 relative top-0 ">
               <div className="mx-2 my-5">
-                <NameHeader firstname="Owner's" secondname="Club" />
+                <NameHeader firstname="Iprop91 Owner's Club"  />
               </div>
               <div className="my-1  ">
                 <div className="relative">
@@ -422,151 +462,11 @@ function ChatScreen() {
               Articles Section
             </p>
             <div className="flex flex-col gap-4 justify-center items-center">
-              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <h6 className="text-black text-lg font-semibold">
-                      Wooden House, Florida
-                    </h6>
-                    <div className="flex items-center gap-0 5 ml-auto">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5 text-yellow-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                      <span className="text-black ml-1.5">5.0</span>
-                    </div>
-                  </div>
-                  <p className="text-black text-sm leading-normal font-light">
-                    Enter a freshly updated and thoughtfully furnished peaceful
-                    home surrounded by ancient trees, stone walls, and open
-                    meadows.
-                  </p>
-                </div>
-              </div>
-              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <h6 className="text-black text-lg font-semibold">
-                      Wooden House, Florida
-                    </h6>
-                    <div className="flex items-center gap-0 5 ml-auto">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5 text-yellow-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                      <span className="text-black ml-1.5">5.0</span>
-                    </div>
-                  </div>
-                  <p className="text-black text-sm leading-normal font-light">
-                    Enter a freshly updated and thoughtfully furnished peaceful
-                    home surrounded by ancient trees, stone walls, and open
-                    meadows.
-                  </p>
-                </div>
-              </div>
-              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <h6 className="text-black text-lg font-semibold">
-                      Wooden House, Florida
-                    </h6>
-                    <div className="flex items-center gap-0 5 ml-auto">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5 text-yellow-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                      <span className="text-black ml-1.5">5.0</span>
-                    </div>
-                  </div>
-                  <p className="text-black text-sm leading-normal font-light">
-                    Enter a freshly updated and thoughtfully furnished peaceful
-                    home surrounded by ancient trees, stone walls, and open
-                    meadows.
-                  </p>
-                </div>
-              </div>
-              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <h6 className="text-black text-lg font-semibold">
-                      Wooden House, Florida
-                    </h6>
-                    <div className="flex items-center gap-0 5 ml-auto">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5 text-yellow-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                      <span className="text-black ml-1.5">5.0</span>
-                    </div>
-                  </div>
-                  <p className="text-black text-sm leading-normal font-light">
-                    Enter a freshly updated and thoughtfully furnished peaceful
-                    home surrounded by ancient trees, stone walls, and open
-                    meadows.
-                  </p>
-                </div>
-              </div>
-              <div className="relative flex flex-col bg-white shadow-md shadow-black border border-slate-200 rounded-lg">
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <h6 className="text-black text-lg font-semibold">
-                      Wooden House, Florida
-                    </h6>
-                    <div className="flex items-center gap-0 5 ml-auto">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5 text-yellow-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                          clipRule="evenodd"
-                        ></path>
-                      </svg>
-                      <span className="text-black ml-1.5">5.0</span>
-                    </div>
-                  </div>
-                  <p className="text-black text-sm leading-normal font-light">
-                    Enter a freshly updated and thoughtfully furnished peaceful
-                    home surrounded by ancient trees, stone walls, and open
-                    meadows.
-                  </p>
-                </div>
-              </div>
+              {articlesData.map((item, index)=>(
+                <Link to={item.redirectionLink} className="w-full h-[250px]" key={index}>
+                  <img src={item.image.url} alt={item.image.name} className="object-cover" />
+                </Link>
+              ))}
             </div>
           </div>
         </div>

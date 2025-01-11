@@ -14,6 +14,9 @@ const Library = () => {
   ];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -25,6 +28,8 @@ const Library = () => {
           }
         );
         setData(response.data);
+        console.log(response.data);
+        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -111,12 +116,12 @@ const Library = () => {
 
   return (
     <section className="pt-28 lg:pt-32 px-3 md:px-10 lg:px-20 bg-white text-white min-h-screen">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
       <div className="grid gap-8 place-items-center lg:place-items-stretch sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-4 md:mt-6">
         {data.map((item) => (
           <div
             key={item._id}
-            className="max-w-[350px] lg:w-[350px] lg:h-[520px] min-h-[520px] flex flex-col justify-between hover:scale-105 hover:shadow-xl transition-all bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+            className="max-w-[350px] lg:w-[350px] lg:h-[520px] min-h-[520px] flex flex-col justify-between hover:scale-105 hover:shadow-xl duration-300 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
           >
             <img
               className="rounded-t-lg h-48 w-full object-cover"
@@ -137,7 +142,7 @@ const Library = () => {
               </div>
               <button
                 onClick={() => handleReadMore(item)}
-                className="relative flex gap-2 w-[60%] bg-gray-200 border-b-gold border-b-[4px] hover:shadow-lg hover:shadow-gold hover:bg-black rounded-full p-2 items-center justify-center shadow-lg font-semibold text-lg group"
+                className="relative flex gap-2 w-[60%] bg-gray-200 border-b-gold border-b-[4px] hover:shadow-lg hover:shadow-gold  rounded-full p-2 items-center justify-center shadow-lg font-semibold text-lg group"
               >
                 <p className="capitalize text-black">Read more</p>
               </button>

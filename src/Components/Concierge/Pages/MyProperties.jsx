@@ -9,10 +9,17 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "react-modal";
 import { CrossIcon } from "lucide-react";
+import ApprovedListedProperties from "../ApprovedListedProperties";
+import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
+import BuyForm from "../../forms/rent";
+import SellForm from "../../forms/sell";
+import { useNavigate } from "react-router-dom";
 
 function hasMoreInfoRequired(objectsArray) {
   // Use the `some` method to check if any object meets the condition
-  return objectsArray.some(obj => obj.applicationStatus === "more-info-required");
+  return objectsArray.some(
+    (obj) => obj.applicationStatus === "more-info-required"
+  );
 }
 
 const usePrevNextButtons = (emblaApi, onButtonClick) => {
@@ -76,7 +83,7 @@ const NextButton = (props) => {
 
   return (
     <button
-      className="embla__button embla__button--next border-2 border-gold"
+      className="embla__button embla__button--next border-2 border-gold "
       type="button"
       {...restProps}
     >
@@ -198,10 +205,48 @@ const EmblaCarousel = (props) => {
 };
 
 export default function MyProperties() {
+    const navigate = useNavigate();
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [prop, setProp] = useState([]);
   const [SLIDES, setSlides] = useState([]);
+
+  // Add new state for modals
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+
+  // Add modal control functions
+  const onClickEdit = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsEditModalOpen(true);
+  };
+
+  const onClickBuy = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsBuyModalOpen(true);
+  };
+
+  const onClickSell = (propertyId) => {
+    setSelectedPropertyId(propertyId);
+    setIsSellModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedPropertyId(null);
+  };
+
+  const closeBuyModal = () => {
+    setIsBuyModalOpen(false);
+    setSelectedPropertyId(null);
+  };
+
+  const closeSellModal = () => {
+    setIsSellModalOpen(false);
+    setSelectedPropertyId(null);
+  };
 
   useEffect(() => {
     // fetch properties from the server
@@ -225,15 +270,15 @@ export default function MyProperties() {
 
         const stillShowModal = localStorage.getItem("addPropDetails");
         const needMoreInfo = hasMoreInfoRequired(properties);
-        if(stillShowModal && needMoreInfo===true){
+        if (stillShowModal && needMoreInfo === true) {
           setShowMoreInfoModal(true);
         }
         // Populate slides only for approved properties
         properties.forEach((property) => {
           if (property.applicationStatus === "approved") {
-            setSlides((prev) => [
+            setSlides((prev, index) => [
               ...prev,
-              <Link to={"/safe/Dealing/" + property._id} key={property._id}>
+              <Link to={"/safe/Dealing/" + property._id} key={index}>
                 <PropCard2 props={property} />
               </Link>,
             ]);
@@ -244,35 +289,51 @@ export default function MyProperties() {
       toast.error("Error fetching properties");
     };
     fetchProperties();
+
+    //
+    const redirectToPage = localStorage.getItem("redirectToPage");
+    if(redirectToPage){
+      localStorage.removeItem("redirectToPage");
+      navigate(redirectToPage);
+    }
+
   }, []);
 
   // Function to handle card click
-  
-
-  
 
   return (
     <>
-       
-        <div className="flex flex-col z-10">
-          <div className="hidden lg:!flex flex-wrap gap-4  mx-2">
-            {prop.map((property, index) => (
-              // <div key={index} onClick={() => handleCardClick(property)}>
-                <PropCard key={property._id} props={property} />
-              // </div>
-            ))}
-            <Link  to="/addproperty" className="bg-white  drop-shadow-2xl z-0 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64">
-              <div className="flex flex-col items-center justify-between h-full gap-4">
-                <img
-                  className="w-[80%]  "
-                  src={"/images/propertyicon.png"}
-                  alt="img"
-                />
-                {prop ? (
-                  <div className="bg-gray-200 p-2 rounded-xl w-full text-center ">Add the property you want to manage </div>
-                 ) : (<div className="bg-gray-200 p-2 rounded-xl w-full ">Haven&apos;t added property yet!! </div>)
-                 }
-                {/* <Link className="w-full" to="/addproperty">
+      <div className="flex flex-col z-10">
+        <div className="hidden lg:!flex flex-wrap gap-4 mx-2">
+          {prop.map((property, index) => (
+            <PropCard
+              key={index}
+              props={property}
+              onClickEdit={() => onClickEdit(property._id)}
+              onClickBuy={() => onClickBuy(property._id)}
+              onClickSell={() => onClickSell(property._id)}
+            />
+          ))}
+          <Link
+            to="/addproperty"
+            className="bg-white  drop-shadow-2xl z-0 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64"
+          >
+            <div className="flex flex-col items-center justify-between h-full gap-4">
+              <img
+                className="w-[80%]  "
+                src={"/images/propertyicon.png"}
+                alt="img"
+              />
+              {prop ? (
+                <div className="bg-gray-200 p-2 rounded-xl w-full text-center ">
+                  Add the property you want to manage{" "}
+                </div>
+              ) : (
+                <div className="bg-gray-200 p-2 rounded-xl w-full ">
+                  Haven&apos;t added property yet!!{" "}
+                </div>
+              )}
+              {/* <Link className="w-full" to="/addproperty">
                   <button className="text-black w-full bg-white border-secondary hover:border-simple shadow-2xl flex border-[1.5px]  text-xs py-3 rounded-md  gap-2 items-center justify-center"> 
                     Add property
                     <img
@@ -288,38 +349,92 @@ export default function MyProperties() {
                     />
                   </button>
                 </Link> */}
+            </div>
+          </Link>
+        </div>
+
+        {showMoreInfoModal === true && (
+          <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
+            <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+              <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
+                More Info required
               </div>
-            </Link>
-          </div>
-
-          {showMoreInfoModal === true && <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
-          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
-            <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
-              More Info required
-            </div>
-            <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
-              {"You need to provide more information to complete the application process. Please upload documents for your property."}
-            </div>
-            <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
-              <button
-                onClick={()=>{
-                  setShowMoreInfoModal(false);
-                  localStorage.removeItem("addPropDetails");
-                }}
-                className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                type="button"
-              >
-                Close
-              </button>
+              <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
+                {
+                  "You need to provide more information to complete the application process. Please upload documents for your property."
+                }
+              </div>
+              <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
+                <button
+                  onClick={() => {
+                    setShowMoreInfoModal(false);
+                  }}
+                  className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>}
+        )}
 
-          <div className="lg:!hidden pb-5 mt-10">
-            <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+        <div className="lg:!hidden pb-5 mt-10 z-10 ">
+          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+        </div>
+      </div>
+
+      <div className="mt-5 ">
+        <ApprovedListedProperties propertyData={prop} />
+      </div>
+      {/* Add modals */}
+      
+
+      {isEditModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeEditModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+          <PropertyForm
+          closeEditModal={closeEditModal}
+          propertyId={selectedPropertyId}
+        />
           </div>
         </div>
-      
+      )}
+
+      {isBuyModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeBuyModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+            <BuyForm
+              closeBuyModal={closeBuyModal}
+              propertyId={selectedPropertyId}
+            />
+          </div>
+        </div>
+      )}
+
+      {isSellModalOpen && selectedPropertyId && (
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeSellModal}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+            <SellForm
+              closeSellModal={closeSellModal}
+              propertyId={selectedPropertyId}
+            />
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

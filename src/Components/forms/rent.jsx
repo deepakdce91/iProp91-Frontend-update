@@ -1,63 +1,59 @@
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { client, getSignedUrlForPrivateFile } from "../../config/s3client";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
-import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import axios from "axios";
-import { client } from "../../config/s3client";
+import { jwtDecode } from "jwt-decode";
 import { supabase } from "../../config/supabase";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
+const BuyForm = ({ closeBuyModal, propertyId }) => {
   const [formData, setFormData] = useState({
-    unitNo: "",
+    unitNumber: "",
     size: "",
-    expectedPrice: "",
+    expectedRent: "",
+    availableFrom: "",
     propertyType: "",
     noOfWashrooms: "",
-    numberOfFloors: "",
-    numberOfParkings: "",
+    floor: "",
+    parking: "",
+    securityDeposit: "",
+    furnished: "non-furnished",
   });
 
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleMediaChange = async (e) => {
+  const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
     setMediaFiles(files);
   };
 
-  // Helper function to remove spaces from filename
+  //  Helper function to remove spaces from filename
   const removeSpaces = (filename) => filename.replace(/\s/g, "");
 
-  // Get signed URL for private file
-  const getSignedUrlForPrivateFile = async (path) => {
-    try {
-      const getParams = {
-        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
-        Key: path,
-        ResponseContentDisposition: "inline",
-      };
+  // Get public URL from Supabase storage
+  const getPublicUrlFromSupabase = (path) => {
+    const { data, error } = supabase.storage
+      .from(process.env.REACT_APP_PROPERTY_BUCKET)
+      .getPublicUrl(path);
 
-      const command = new GetObjectCommand(getParams);
-      const signedUrl = await getSignedUrl(client, command, {
-        expiresIn: 3600,
-      }); // URL valid for 1 hour
-
-      return {
-        name: path.split("/")[path.split("/").length - 1],
-        url: signedUrl,
-      };
-    } catch (error) {
-      console.error("Error getting signed URL:", error);
-      throw error;
+    if (error) {
+      console.error("Error fetching public URL:", error);
+      return null;
     }
+
+    return {
+      name: path.split("/")[path.split("/").length - 1],
+      url: data.publicUrl,
+    };
   };
 
   // Upload file to cloud storage
   const uploadFileToCloud = async (myFile) => {
     const myFileName = removeSpaces(myFile.name);
-    const myPath = `SellListings/${myFileName}`;
+    const myPath = `RentListings/${myFileName}`;
 
     try {
       const uploadParams = {
@@ -90,21 +86,17 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
     const tokenid = jwtDecode(token);
     const userId = tokenid.userId;
 
-    console.log("User ID:", userId); // Log the userId for debugging
-
-    // Check if userId is defined
-    if (!userId) {
-      console.error("User ID is undefined. Cannot proceed with upload.");
-      toast.error("User ID is undefined. Please log in again.");
-      setIsUploading(false);
-      return; // Exit the function if userId is not valid
-    }
-
     try {
-      // Upload all media files and collect their URLs
+      // Upload files and get media data
       const mediaPaths = await Promise.all(
         mediaFiles.map((file) => uploadFileToCloud(file, userId))
       );
+
+      // Format media data as array of objects
+      const formattedMedia = mediaPaths.map((media) => ({
+        name: media.name,
+        url: media.url,
+      }));
 
       // First, get the current property details
       const propertyResponse = await axios.get(
@@ -117,10 +109,9 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
       const currentClassification =
         propertyResponse.data.classification || "unclassified";
-      let newClassification = "sell";
+      let newClassification = "rent";
 
-      // If property is already classified as "Rent", update to "Rent and Sell"
-      if (currentClassification === "rent") {
+      if (currentClassification === "sell") {
         newClassification = "rent and sell";
       }
 
@@ -134,23 +125,26 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
         }
       );
 
-      // Add sell listing
+      // Add rent listing with formatted media
       const reqBody = {
         propertyId: propertyId,
-        sellDetails: {
-          unitNumber: formData.unitNo,
+        rentDetails: {
+          unitNumber: formData.unitNumber,
           size: formData.size,
-          expectedPrice: formData.expectedPrice,
+          expectedRent: formData.expectedRent,
+          availableFrom: formData.availableFrom || "",
           type: formData.propertyType,
-          numberOfWashrooms: formData.noOfWashrooms,
-          numberOfFloors: formData.numberOfFloors,
-          numberOfParkings: formData.numberOfParkings,
-          media: mediaPaths, // Use the uploaded media URLs
+          securityDeposit: formData.securityDeposit || "",
+          furnishedStatus: formData.furnished,
+          numberOfWashrooms: formData.noOfWashrooms || "",
+          numberOfFloors: formData.floor || "",
+          numberOfParkings: formData.parking || "",
+          media: formattedMedia, // Use the formatted media array
         },
       };
 
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/listings/addsalelisting?userId=${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/listings/addrentlisting?userId=${userId}`,
         reqBody,
         {
           headers: {
@@ -160,9 +154,8 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
         }
       );
 
-      toast.success("Property listed for sell successfully!");
-      if (onRefresh) onRefresh(); // Call the callback to refresh listings
-      closeSellModal();
+      toast.success("Property listed for rent successfully!");
+      closeBuyModal();
     } catch (error) {
       console.error(error.message);
       toast.error("Error occurred while listing the property.");
@@ -172,37 +165,40 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   };
 
   return (
-    <div className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5 ">
+    <div className=" fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5">
       {/* Backdrop */}
-      <div onClick={closeSellModal} className="absolute inset-0 " />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn ">
+      <div onClick={closeBuyModal}
+        className="absolute inset-0 "
+      />
+      
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn">
         <form
           onSubmit={handleSubmit}
           className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md "
         >
           <span
-            onClick={closeSellModal}
-            className="cursor-pointer absolute right-3"
+            onClick={closeBuyModal}
+            className="cursor-pointer absolute right-3 mt-5"
           >
             <X />
           </span>
           {/* Personal Details Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Sell Form</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Rent Form</h2>
           </div>
 
           {/* Property Details Section */}
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex gap-4 w-full">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">Unit No</label>
                 <input
                   type="text"
-                  placeholder="Enter Unit No"
+                  placeholder="Enter Unit Number"
                   className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                  value={formData.unitNo}
+                  value={formData.unitNumber}
                   onChange={(e) =>
-                    setFormData({ ...formData, unitNo: e.target.value })
+                    setFormData({ ...formData, unitNumber: e.target.value })
                   }
                 />
               </div>
@@ -223,18 +219,32 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm text-gray-800">Expected Price</label>
+                <label className="text-sm text-gray-800">Expected Rent</label>
                 <input
                   type="text"
-                  placeholder="Enter Expected Price"
+                  placeholder="Enter Expected Rent"
                   className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                  value={formData.expectedPrice}
+                  value={formData.expectedRent}
                   onChange={(e) =>
-                    setFormData({ ...formData, expectedPrice: e.target.value })
+                    setFormData({ ...formData, expectedRent: e.target.value })
                   }
                 />
               </div>
 
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Available From</label>
+                <input
+                  type="date"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.availableFrom}
+                  onChange={(e) =>
+                    setFormData({ ...formData, availableFrom: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">Type</label>
                 <select
@@ -250,14 +260,12 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
                   <option value="plot">Plot</option>
                 </select>
               </div>
-            </div>
 
-            <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">No of Washrooms</label>
                 <input
                   type="number"
-                  placeholder="Enter No of Washrooms"
+                  placeholder="Enter Number of Washrooms"
                   className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
                   value={formData.noOfWashrooms}
                   onChange={(e) =>
@@ -265,32 +273,81 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
                   }
                 />
               </div>
+            </div>
 
+            <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm text-gray-800">Floor no.</label>
+                <label className="text-sm text-gray-800">Floor</label>
                 <input
                   type="text"
-                  placeholder="Enter Floor No."
+                  placeholder="Enter Floor Number"
                   className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                  value={formData.numberOfFloors}
+                  value={formData.floor}
                   onChange={(e) =>
-                    setFormData({ ...formData, numberOfFloors: e.target.value })
+                    setFormData({ ...formData, floor: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">Parking</label>
+                <input
+                  type="text"
+                  placeholder="Enter Parking Details"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.parking}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parking: e.target.value })
                   }
                 />
               </div>
             </div>
 
-            <div className="flex-1">
-              <label className="text-sm text-gray-800">Number of Parkings</label>
-              <input
-                type="number"
-                placeholder="Enter No of Parkings"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.numberOfParkings}
-                onChange={(e) =>
-                  setFormData({ ...formData, numberOfParkings: e.target.value })
-                }
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">
+                  Security Deposit (in Rs)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Security Deposit"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.securityDeposit}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      securityDeposit: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* Furnished or Non-Furnished */}
+              <div  className="space-y-2 flex-1">
+                <label className="text-sm text-gray-800">
+                  Furnished Status
+                </label>
+                <div className="flex gap-4">
+                  {["furnished", "non-furnished"].map((status) => (
+                    <label key={status} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="furnished"
+                        value={status}
+                        checked={formData.furnished === status}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            furnished: e.target.value,
+                          })
+                        }
+                        className="h-4 w-4 accent-gray-700"
+                      />
+                      <span className="capitalize">{status}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -331,4 +388,4 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   );
 };
 
-export default SellForm;
+export default BuyForm;

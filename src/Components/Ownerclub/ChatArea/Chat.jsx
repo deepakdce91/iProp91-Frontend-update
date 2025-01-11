@@ -43,6 +43,8 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import DOMPurify from "dompurify";
 
+import { Share2, Copy, X, Mail, Link2, PhoneIcon as WhatsApp } from 'lucide-react'
+
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transportOptions: ["websocket"],
 });
@@ -149,7 +151,7 @@ function IncomingMessage({
       <div className="flex items-center">
         <div className="w-9 h-9 relative mb-4 rounded-full flex items-center justify-center ">
           <img
-            src={"/images/default.png"}
+            src={userProfilePicture}
             alt="User Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -271,7 +273,7 @@ function OutgoingMessage({
       <div className="flex">
         <div className="w-9 h-9 mb-4 relative rounded-full flex items-center justify-center ">
           <img
-            src={"/images/default.png"}
+            src={userProfilePicture}
             alt="My Avatar"
             className="w-8 h-8 rounded-full"
           />
@@ -285,7 +287,7 @@ function OutgoingMessage({
         </div>
         <div className="flex flex-col items-start max-w-[80%]">
           <p className="ml-3 text-sm text-black">
-            {userId.includes("IPA") ? "Admin" : "You"}
+            {"You"}
           </p>
           <div
             className={`relative flex w-full rounded-lg px-3 ${
@@ -723,7 +725,8 @@ function Chats({
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      addMessage();
+      e.preventDefault(); // Prevent new line
+      addMessage(); // Send message on Enter key press
     }
   };
   const handleToggle = () => {
@@ -762,11 +765,36 @@ function Chats({
     "bullet",
     "link",
   ];
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const baseUrl = window.location.href;
+const url = baseUrl.split('/').slice(0, 3).join('/');
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
+  const shareToWhatsApp = () => {
+    const whatsappUrl = ``
+    window.open(whatsappUrl, '_blank')
+  }
+
+  const shareToEmail = () => {
+    const emailUrl = ``
+    window.location.href = emailUrl
+  }
+
 
   return (
     <>
       <div
-        className={`flex absolute top-5 right-[25%] md:right-[10%] lg:right-[30%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:flex absolute top-5 right-[15%] hidden  md:right-[15%] lg:right-[33%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
           isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
         }`}
       >
@@ -789,6 +817,90 @@ function Chats({
           style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
+      <div className="absolute hidden md:block top-5 right-[10%] md:right-[10%] lg:right-[30%] ">
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
+      >
+        <Share2 className="w-6 h-6" />
+        
+      </button>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg">
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Share</h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal content */}
+            <div className="p-4 space-y-4">
+              {/* Copy link section */}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex-1 truncate text-sm text-gray-500">
+                  {url}
+                </div>
+                <button
+                  onClick={handleCopyLink}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  {copied ? (
+                    'Copied!'
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Share options */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={shareToWhatsApp}
+                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <WhatsApp className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-medium">WhatsApp</span>
+                </button>
+                <button
+                  onClick={shareToEmail}
+                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium">Email</span>
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 col-span-2"
+                >
+                  <Link2 className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium">Copy Link</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal footer */}
+            <div className="p-4 border-t">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
       <ScrollToBottom className="h-screen overflow-y-auto px-4 ">
         {filteredMessages.messages?.length > 0 &&
           filteredMessages.messages?.map((msg, index) => {
@@ -886,6 +998,7 @@ function Chats({
               <ReactQuill
                 value={textMessage}
                 onChange={handleTextMessageChange}
+                onKeyDown={handleKeyDown}
                 modules={modules}
                 formats={formats}
                 placeholder="Type a message..."

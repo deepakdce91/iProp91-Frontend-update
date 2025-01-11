@@ -63,7 +63,7 @@ function App() {
 
           <Route
             path="/authenticate"
-            element={<Auth setIsLoggedIn={setIsLoggedIn} />}
+            element={<Auth setIsLoggedIn={setIsLoggedIn} authPage = {true} />} 
           />{" "}
           
           <Route path="/name" element={<AskName />} />

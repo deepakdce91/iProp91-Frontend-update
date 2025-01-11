@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import StateLaw from "./components/StateLaw";
@@ -14,6 +14,9 @@ const Law = () => {
     setView("main");
     setLawData([]);
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const breadcrumbItems =
     view === "main"
@@ -79,7 +82,7 @@ const Law = () => {
   return (
     <div className="w-full min-h-screen bg-black p-4">
       <div className="container mx-auto">
-        <Breadcrumb items={breadcrumbItems} onBack={handleBack} />
+        <Breadcrumb items={breadcrumbItems} onBack={handleBack} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
 
         <main className="mt-10 ">
           {view === "main" && (

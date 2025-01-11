@@ -13,6 +13,9 @@ export default function Faq() {
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,7 +49,7 @@ export default function Faq() {
 
   return (
     <div className="flex relative  text-white  py-28 px-6 md:px-8 bg-black min-h-screen  lg:px-32 pt-5 md:pt-10">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-36 mt-2 left-[5%]"} />
       <div className="flex flex-col md:flex-row justify-center h-full items-center lg:items-start mt-32">
         <div className="md:w-1/3 flex flex-col gap-3">
           <h1 className="text-6xl tracking-wide font-bold ">FAQ</h1>

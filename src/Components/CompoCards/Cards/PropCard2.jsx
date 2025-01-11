@@ -21,12 +21,12 @@ export default function PropCard2({props, key}) {
             className=" rounded-xl object-cover "
           />
           <div className=" flex justify-between mt-3 mb-1">
-            <h1 className="text-xl">{props.project}</h1>
-            <p className="text-xs text-gray-500 mt-auto mb-auto">Tower: {props.tower}</p>
+            <h1 className="text-xl responsive-text">{props.project}</h1>
+            <p className="text-xs text-gray-500 mt-auto mb-auto responsive-text">Tower: {props.tower}</p>
           </div>
           <div className="flex justify-between">
-            <h1 className="text-xs">{props.builder}</h1>
-            <p className="text-xs text-gray-500">Unit: {props.unit}</p>
+            <h1 className="text-xs responsive-text">{props.builder}</h1>
+            <p className="text-xs text-gray-500 responsive-text">Unit: {props.unit}</p>
           </div>
           <div className="flex flex-row justify-between mt-4 gap-2">
             <Link to={`/safe/Dealing/${key}/Documents`}>
