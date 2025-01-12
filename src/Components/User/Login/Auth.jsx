@@ -25,6 +25,8 @@ import { Cross, CrossIcon } from "lucide-react";
 import { GrClose } from "react-icons/gr";
 import { ChevronLeft } from "lucide-react";
 
+import { useSearchParams } from "react-router-dom";
+
 async function AddGuestProperty(userId, userToken, data, myCallback) {
   // Handle property submission
   try {
@@ -66,7 +68,8 @@ function Verify({
   setIsLoggedIn,
   handleOtpChange,
   stage1FormData,
-  onBack
+  onBack,
+  authPage
 }) {
   const [otp, setOTP] = useState("");
   const [currentView, setCurrentView] = useState('mobileNumber'); // Example state
@@ -365,7 +368,7 @@ function Verify({
       </Dialog>
       <div
         className={`${
-          stage1FormData ? "h-fit" : "min-h-screen"
+          stage1FormData || authPage ? "h-fit" : "min-h-screen"
         } flex items-center justify-center `}
       >
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
@@ -448,7 +451,11 @@ export default function Login({
   properties,
   stage1FormData,
   goBackToStage1,
+  authPage, 
 }) {
+
+  const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
   const modalRef = useRef(null); // Create a ref for the modal
 
@@ -460,6 +467,8 @@ export default function Login({
   const [verify, setVerify] = useState(false);
   const [otp, setOtp] = useState("");
   const [isOtpScreen, setIsOtpScreen] = useState(false);
+
+  const [mySearchParam, setMySearchParam] = useState();
 
   useEffect(() => initOTPless(callback), []);
 
@@ -620,9 +629,17 @@ export default function Login({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const toPage = searchParams.get("toPage");
+    if(toPage){
+      localStorage.setItem("redirectToPage",`/${toPage}`);
+    }
+  }, [])
+  
+ 
   return (
     <section
-      className={`${stage1FormData ? "" : "absolute"} h-screen w-screen`}
+      className={`${stage1FormData || authPage ? "" : "absolute"} h-screen w-screen`}
     >
       <div className="relative w-full h-full" ref={modalRef}>
         {/* {loading ? (
@@ -632,14 +649,14 @@ export default function Login({
       ) : null} */}
         <div
           className={`shadow-md ${
-            stage1FormData
-              ? "bg-black items-center  flex-col pt-20 h-full"
+            stage1FormData || authPage
+              ? `${authPage ? "bg-white" :"bg-black"} items-center  flex-col ${authPage ? "" : "pt-20"}  h-full`
               : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`
           }     flex justify-center  `}
         >
           <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
-            {!stage1FormData && (
-              <button onClick={onClose} className="absolute right-4 top-5 ">
+            {!(stage1FormData || authPage) && (
+              <button onClick={onClose} className="absolute text-black right-4 top-5 ">
                 <GrClose />
               </button>
             )}
@@ -648,7 +665,7 @@ export default function Login({
             <form
               onKeyDown={handleKeyPress}
               className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${
-                stage1FormData ? "h-fit" : "h-[500px] lg:h-[600px]"
+                stage1FormData || authPage ? "h-fit" : "h-[500px] lg:h-[600px]"
               }`}
             >
               {verify ? (
@@ -773,7 +790,7 @@ export default function Login({
           </div> */}
           </div>
 
-          {stage1FormData && (
+          {stage1FormData  && (
             <button
               onClick={goBackToStage1}
               className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"

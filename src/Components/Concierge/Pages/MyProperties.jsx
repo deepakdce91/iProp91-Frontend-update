@@ -13,6 +13,7 @@ import ApprovedListedProperties from "../ApprovedListedProperties";
 import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
 import BuyForm from "../../forms/rent";
 import SellForm from "../../forms/sell";
+import { useNavigate } from "react-router-dom";
 
 function hasMoreInfoRequired(objectsArray) {
   // Use the `some` method to check if any object meets the condition
@@ -204,6 +205,8 @@ const EmblaCarousel = (props) => {
 };
 
 export default function MyProperties() {
+    const navigate = useNavigate();
+
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [prop, setProp] = useState([]);
   const [SLIDES, setSlides] = useState([]);
@@ -286,6 +289,14 @@ export default function MyProperties() {
       toast.error("Error fetching properties");
     };
     fetchProperties();
+
+    //
+    const redirectToPage = localStorage.getItem("redirectToPage");
+    if(redirectToPage){
+      localStorage.removeItem("redirectToPage");
+      navigate(redirectToPage);
+    }
+
   }, []);
 
   // Function to handle card click

@@ -241,7 +241,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
           }}
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
-          properties={" "}
+          properties={" "} 
           stage1FormData={formdata}
         />
       )}
