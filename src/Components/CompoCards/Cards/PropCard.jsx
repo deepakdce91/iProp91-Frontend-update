@@ -289,7 +289,7 @@ export default function PropCard ({
         </div>
         <div className="flex flex-row justify-between mt-4 gap-2">
           {location.pathname === "/safe" ? (
-            <div className="flex justify-end items-end">
+            <div className="w-full flex justify-between items-center">
               <Link to={`/safe/Dealing/${props._id}/Documents`}>
                 <Goldbutton 
                   btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}

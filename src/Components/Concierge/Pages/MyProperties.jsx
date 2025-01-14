@@ -421,17 +421,14 @@ export default function MyProperties() {
       )}
 
       {isSellModalOpen && selectedPropertyId && (
-        <div className="fixed inset-0  z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={closeSellModal}
-          />
-          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+        <div className=" z-50 flex items-center justify-center ">
+         
+          {/* <div className="relative bg-white rounded-lg shadow-xl w-full "> */}
             <SellForm
               closeSellModal={closeSellModal}
               propertyId={selectedPropertyId}
             />
-          </div>
+          {/* </div> */}
         </div>
       )}
 
