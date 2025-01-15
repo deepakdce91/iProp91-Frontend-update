@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Search, MapPin, Mic, TrendingUp, Calculator, LineChart, FileText } from 'lucide-react'
 import { Carousel } from './components/carousel.jsx'
 import { PropertyCard } from './components/property-card'
 import { Link } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 // Enhanced dummy data
   export const properties = [
@@ -144,6 +147,7 @@ export default function MainListingPage() {
   const [activeTab, setActiveTab] = useState('Buy')
   const [searchCity, setSearchCity] = useState('')
   const [filteredProperties, setFilteredProperties] = useState(properties)
+  const [allFetchedProjects, setAllFetchedProjects] = useState()
 
   // Add search handler
   const handleCitySearch = (e) => {
@@ -159,6 +163,29 @@ export default function MainListingPage() {
       setFilteredProperties(filtered)
     }
   }
+  useEffect(()=>{
+    // fetch projects from the server
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+
+    const fetchProjects = async () => {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects?userId=${decoded.userId}`,{
+        
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        }
+      });
+      if(response.ok){
+        const allProjects = await response.json();
+        setAllFetchedProjects(allProjects);
+        console.log(allProjects);
+        return;
+      }
+      toast.error("Error fetching projects");
+    }
+    fetchProjects();
+  },[])
 
   return (
     <main className="min-h-screen bg-gray-50">

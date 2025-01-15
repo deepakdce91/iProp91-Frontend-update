@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GrClose } from "react-icons/gr";
+import axios from 'axios';
 import { toast } from "react-toastify";
 
 export default function TestimonialForm({ close }) {
@@ -20,21 +21,39 @@ export default function TestimonialForm({ close }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log({ name, review, image });
-    toast({
-      title: "Testimonial Submitted",
-      description: "Thank you for your feedback!",
-    });
-    setName("");
-    setReview("");
-    setImage(null);
-    setPreviewUrl(null);
+
+    const testimonialData = {
+      testimonial: review,
+      userInfo: {
+        name: name,
+        profilePicture: previewUrl || "",
+      },
+    };
+
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/testimonials/addTestimonial`, testimonialData);
+      toast.success("Thank you for your feedback!");
+      setName("");
+      setReview("");
+      setImage(null);
+      setPreviewUrl(null);
+      close()
+    } catch (error) {
+      console.error("Error submitting testimonial:", error);
+      toast.error("Failed to submit testimonial. Please try again.");
+    }
   };
 
   return (
-    <section className="relative">
+    <section className=" absolute top-0 z-50 flex items-center justify-center w-screen left-0">
+      {/* Backdrop */}
+      <div
+        onClick={close}
+        className="absolute w-full h-screen top-0  backdrop-blur-sm "
+      />
       <div className=" mx-auto fixed lg:left-[30%] left-7 top-28 max-w-5xl shadow-lg  shadow-black rounded-3xl lg:top-[25%] py-5 md:py-10 z-50 bg-white border-[1px] border-black/40">
         <div className=" overflow-hidden relative">
           <button
@@ -95,7 +114,7 @@ export default function TestimonialForm({ close }) {
                     required
                     className="w-full border-b border-gray-300 focus:border-gold outline-none pb-2"
                     placeholder="Share your experience with us"
-                    rows={4}
+                    rows={2}
                   />
                 </div>
 

@@ -1,88 +1,30 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import StateLaw from "./components/StateLaw";
 import CentralLaw from "./components/CentralLaw";
 import Breadcrumb from "../Landing/Breadcrumb";
+import { Link } from "react-router-dom";
 
 const Law = () => {
   const [view, setView] = useState("main");
-  const [lawData, setLawData] = useState([]);
 
-  const handleBack = () => {
-    console.log("Back button clicked");
-    setView("main");
-    setLawData([]);
-  };
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const breadcrumbItems =
-    view === "main"
-      ? [{ label: "Knowledge Center", link: "/" }, { label: "Laws" }]
-      : view === "state"
-      ? [
-          { label: "Knowledge Center", link: "/" },
-          { label: "Laws", link: "/laws" },
-          { label: "State Laws" },
-        ]
-      : [
-          { label: "Knowledge Center", link: "/" },
-          { label: "Laws", link: "/laws" },
-          { label: "Central Laws" },
-        ];
+  const breadcrumbItems = [
+    { label: "Knowledge Center", link: "/" },
+    { label: "Laws" }
+  ];
+   
+ 
 
-  // Function to fetch data for central laws
-  const fetchCentralLaws = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchAllActiveCentralLaws`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setLawData(response.data);
-      setView("central");
-      console.log(response.data);
-    } catch (error) {
-      console.error(
-        "Error fetching data:",
-        error.response?.data || error.message
-      );
-    }
-  };
-
-  // Function to fetch data for State laws
-  const fetchStateLaws = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveStates`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setLawData(response.data);
-      setView("state");
-      console.log(response.data);
-    } catch (error) {
-      console.error(
-        "Error fetching data:",
-        error.response?.data || error.message
-      );
-    }
-  };
+ 
 
   return (
     <div className="w-full min-h-screen bg-black p-4">
       <div className="container mx-auto">
-        <Breadcrumb items={breadcrumbItems} onBack={handleBack} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
+        <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
 
         <main className="mt-10 ">
           {view === "main" && (
@@ -102,12 +44,11 @@ const Law = () => {
                       Explore property laws specific to your state, including
                       zoning regulations and local property taxes.
                     </p>
-                    <button
-                      onClick={fetchStateLaws}
-                      className="w-full py-3 px-4 bg-black text-white rounded-lg hover:bg-black/70 transition-colors duration-300 focus:outline-none focus:ring-2  focus:ring-opacity-50"
+                    <Link to={"/laws/statelaw"}
+                      className="w-full flex justify-center items-center py-3 px-4 bg-black text-white rounded-lg hover:bg-black/70 transition-colors duration-300 focus:outline-none focus:ring-2  focus:ring-opacity-50"
                     >
                       View State Laws
-                    </button>
+                    </Link>
                   </div>
                 </div>
 
@@ -121,21 +62,20 @@ const Law = () => {
                       Understand federal real estate regulations that apply
                       across the country, such as fair housing laws.
                     </p>
-                    <button
-                      onClick={fetchCentralLaws}
-                      className="w-full py-3 px-4 bg-black text-white rounded-lg hover:bg-black/70 transition-colors duration-300 focus:outline-none  focus:ring-opacity-50"
+                    <Link to={"/laws/centrallaw"}
+                      className="w-full flex py-3 px-4 justify-center items-center bg-black text-white rounded-lg hover:bg-black/70 transition-colors duration-300 focus:outline-none  focus:ring-opacity-50"
                     >
                       View Central Laws
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {view === "state" && <StateLaw onBack={handleBack} data={lawData} />}
+          {view === "state" && <StateLaw  />}
           {view === "central" && (
-            <CentralLaw onBack={handleBack} data={lawData} />
+            <CentralLaw  />
           )}
         </main>
       </div>

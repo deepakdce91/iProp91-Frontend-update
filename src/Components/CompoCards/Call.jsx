@@ -20,53 +20,29 @@ const ExpertContact = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (visible && window.scrollY > 100) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [visible]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setVisible(entry.isIntersecting);
-      },
-      { threshold: 0.9 } // Adjust this threshold as needed
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (isContactModalOpen || isBookingModalOpen ) {
+      // Disable scrolling when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable scrolling when modal is closed
+      document.body.style.overflow = 'unset';
     }
 
+    // Cleanup function to re-enable scrolling when component unmounts
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
-      }
+      document.body.style.overflow = 'unset';
     };
-  }, []);
+  }, [isContactModalOpen || isBookingModalOpen]);
 
   const handleContactModalClose = () => {
     setContactModalOpen(false);
-    toggleBodyScroll(false); // Enable scrolling when modal closes
   };
 
   const handleBookingModalClose = () => {
     setBookingModalOpen(false);
-    toggleBodyScroll(false); // Enable scrolling when modal closes
   };
 
-  useEffect(() => {
-    // Disable scrolling when either modal is open
-    toggleBodyScroll(isContactModalOpen || isBookingModalOpen);
-  }, [isContactModalOpen, isBookingModalOpen]);
+  
 
   return (
     <>
