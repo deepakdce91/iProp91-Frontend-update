@@ -1,20 +1,39 @@
 import React, { useState } from 'react'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const BookingAppointment = ({ onClose }) => {
     const [formData, setFormData] = useState({
         name: '',
         mobile: '',
         email: '',
-        enquiryType: '',
+        enquiryFor: '',
         date: '',
         timeSlot: ''
       })
+    const [error, setError] = useState(null)
     
-      const handleSubmit = (e) => {
+      const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log('Form submitted:', formData)
-        // Handle form submission here
-        onClose()
+        setError(null)
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/appointments/addAppointment`, formData)
+            if (response.data.success) {
+                console.log('Appointment booked successfully')
+                toast.success("Slot Booked Successfully.")
+                onClose()
+            } else {
+                setError(response.data.message)
+                toast.error(error)
+            }
+        } catch (err) {
+            if (err.response && err.response.data.errors) {
+                setError(err.response.data.errors.map(err => err.msg).join(', '))
+            } else {
+                setError('An error occurred. Please try again.')
+            }
+        }
       }
     
 
@@ -27,7 +46,7 @@ const BookingAppointment = ({ onClose }) => {
         "4:00 PM - 5:00 PM"
       ]
     
-      const enquiryTypes = ["Buy", "Sell", "Rent", "Other"]
+      const enquiryFors = ["Buy", "Sell", "Rent", "Other"]
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -101,18 +120,18 @@ const BookingAppointment = ({ onClose }) => {
 
           {/* Enquiry Type */}
           <div>
-            <label htmlFor="enquiryType" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="enquiryFor" className="block text-sm font-medium text-gray-700 mb-1">
               Enquiry Related To
             </label>
             <select
-              id="enquiryType"
+              id="enquiryFor"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-              value={formData.enquiryType}
-              onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value })}
+              value={formData.enquiryFor}
+              onChange={(e) => setFormData({ ...formData, enquiryFor: e.target.value })}
             >
               <option value="">Select Type</option>
-              {enquiryTypes.map((type) => (
+              {enquiryFors.map((type) => (
                 <option className='' key={type} value={type.toLowerCase()}>
                   {type}
                 </option>
@@ -156,6 +175,8 @@ const BookingAppointment = ({ onClose }) => {
               ))}
             </select>
           </div>
+
+          {error && <div className="text-red-500">{error}</div>}
 
           {/* Submit Button */}
           <button

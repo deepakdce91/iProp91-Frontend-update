@@ -74,7 +74,7 @@ export default function Test() {
 
   return (
     <>
-      <div className="py-16 relative min-h-screen border-y-[1px] border-y-white/40 bg-black">
+      <div className="py-16 relative min-h-screen border-y-[1px] border-y-white/40 bg-black flex flex-col justify-center items-center">
         <div className="my-10">
         <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">Testimonials</h1>
         </div>
@@ -108,7 +108,11 @@ export default function Test() {
           </button>
         </div>
 
-        {isModalOpen && (<TestimonialForm close={closeModal}/>)}
+        {isModalOpen && (
+           <div className=" z-50 flex items-center justify-center ">
+          <TestimonialForm close={closeModal}/>
+          </div>
+          )}
       </div>
     </>
   );

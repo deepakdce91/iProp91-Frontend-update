@@ -11,7 +11,6 @@ import Number from "./Number";
 import Footer from "./Footer";
 import Library from "../Library/library";
 import Faq from "../Faq/faq";
-import Laws from "../Laws/laws";
 import ChatScreen from "../Ownerclub/ChatArea/ChatScreen";
 import { jwtDecode } from "jwt-decode";
 import CaseLaws from "../CaseLaws/caselaws";
@@ -23,8 +22,11 @@ import Lend from "../Lend/Lend";
 import WeDoMore from "./WeDoMore";
 import MobileScreen from "./MobileScreen";
 import JourneyPage from "../getstartedForm/getStartedForm";
-import Call from "../CompoCards/Call"
+import Call from "../CompoCards/Call";
 import Stage1Form from "../Journey/Stage1Form";
+import Law from "../Laws/laws";
+import CentralLaw from "../Laws/components/CentralLaw";
+import StateLaw from "../Laws/components/StateLaw";
 
 function LandingPage() {
   return (
@@ -39,7 +41,7 @@ function LandingPage() {
       <WeDoMore />
       <Insight />
       <Testimonials />
-      <Call/>
+      <Call />
 
       {/* <ContactUs /> */}
     </>
@@ -58,7 +60,7 @@ const TypingLandingPage = () => {
       const currentTime = new Date().getTime();
       const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-      if (hasVisited && visitTime && (currentTime - visitTime < thirtyMinutes)) {
+      if (hasVisited && visitTime && currentTime - visitTime < thirtyMinutes) {
         // Skip animation if user has already visited within 30 minutes
         setShowMessage(false);
         setShowNavbar(true);
@@ -70,7 +72,7 @@ const TypingLandingPage = () => {
         const footerTimeout = setTimeout(() => setShowFooter(true), 5000);
 
         // Wait for the animation to complete
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
 
         // Set 'hasVisited' in localStorage after animation
         localStorage.setItem("hasVisited", "true");
@@ -95,22 +97,24 @@ const TypingLandingPage = () => {
   return (
     <>
       {showNavbar && showFooter && <LandingPage />}
-      {!showNavbar && !showFooter && hasVisited === null && ( // Only show message if hasVisited is null
-        <div className="flex justify-center items-center h-screen bg-black">
-          {showMessage && (
-            <div className="flex flex-col items-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white fade-in-text">
-                {animatedText}
-              </h1>
-            </div>
-          )}
-        </div>
-      )}
+      {!showNavbar &&
+        !showFooter &&
+        hasVisited === null && ( // Only show message if hasVisited is null
+          <div className="flex justify-center items-center h-screen bg-black">
+            {showMessage && (
+              <div className="flex flex-col items-center">
+                <h1 className="text-4xl md:text-6xl font-bold text-white fade-in-text">
+                  {animatedText}
+                </h1>
+              </div>
+            )}
+          </div>
+        )}
     </>
   );
 };
 
-function Landing({setIsLoggedIn }) {
+function Landing({ setIsLoggedIn }) {
   const [userId, setUserId] = useState();
   const [userToken, setUserToken] = useState();
   const location = useLocation(); // Hook to get current route
@@ -129,26 +133,36 @@ function Landing({setIsLoggedIn }) {
   }, []);
 
   return (
-    <> 
+    <>
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
- 
+
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
-        <Route path="/laws" element={<Laws />} />
+
+        <Route path="/laws" element={<Law />} />
+        <Route path="/laws/statelaw" element={<StateLaw />} />
+        <Route path="/laws/centrallaw" element={<CentralLaw />} />
         <Route path="/nri" element={<NRI />} />
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
-        <Route path="/chats" element={<ChatScreen userId={userId} userToken={userToken} />} />
+        <Route
+          path="/chats"
+          element={<ChatScreen userId={userId} userToken={userToken} />}
+        />
         <Route path="/journey" element={<JourneyPage />} />
 
-        <Route path="/stage1Form" element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />} />
-
+        <Route
+          path="/stage1Form"
+          element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />}
+        />
       </Routes>
-      {location.pathname !== "/advice" || location.pathname !== "/journey" || location.pathname !== "/stage1Form"  && <Footer />}
-      <Footer/>
+      {location.pathname !== "/advice" ||
+        location.pathname !== "/journey" ||
+        (location.pathname !== "/stage1Form" && <Footer />)}
+      <Footer />
     </>
   );
 }

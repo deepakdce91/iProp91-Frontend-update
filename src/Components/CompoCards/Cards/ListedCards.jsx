@@ -110,7 +110,7 @@ const ListedPropertyCard = ({
       </div>
       <div className="flex gap-5 p-4">
         {/* Image Gallery */}
-        <div className="relative flex-1">
+        <div className="relative w-[30%]">
           <div className="relative ">
             {media?.length > 0 ? (
               <div className="grid grid-cols-2 gap-0.5 ">
@@ -144,7 +144,7 @@ const ListedPropertyCard = ({
           </div>
         </div>
         {/* Property Details */}
-        <div className="p-4 mt-10 flex-1">
+        <div className=" w-[70%]">
           <div className="  bg-black bg-opacity-85 w-full  rounded-lg ">
             <div className="grid grid-cols-4 gap-4 py-2  border-b text-white text-sm">
               <div className="text-center">
@@ -165,7 +165,7 @@ const ListedPropertyCard = ({
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-4">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 p-4">
             <div>
               <p className="text-sm text-gray-500">Super Built-Up Area</p>
               <p className="font-medium">

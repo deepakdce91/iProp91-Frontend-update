@@ -143,7 +143,7 @@ const ApprovedListedProperties = ({prop}) => {
   };
 
   return (
-    <section className='border-t-[1px] border-t-gray-500 w-full min-h-[50vh]'>
+    <section className='border-t-[1px] border-t-gray-500 w-full '>
       <p className='text-2xl  font-bold text-primary mt-5 mx-5'>My Listings</p>
       <div className='grid grid-cols-1 gap-5 p-5'>
         {listings.map((listing) => (
