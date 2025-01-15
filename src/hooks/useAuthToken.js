@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 const useAuthToken = (navigate) => {
   const location = useLocation();
 
-  useEffect(() => {
+  useEffect(() => { 
     const token = localStorage.getItem("token");
     if (!token) {
       // Only redirect if we're not on the authentication or landing page or knowledge center

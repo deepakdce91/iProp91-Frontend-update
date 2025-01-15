@@ -1,13 +1,38 @@
 import * as React from "react";
 import { motion,  } from "framer-motion";
 import {  Download, X } from "lucide-react";
+import { useEffect } from "react";
+import axios from "axios";
+import { useState } from "react";
 
-const draftAgreements = Array(8).fill({
-  title: "DRAFT AGREEMENTS",
-  subtitle: "iProp 91- Residential lease agreement",
-});
 
-export default function ShowDrafts({  }) {
+
+
+
+export default function ShowDrafts() {
+  const [data, setData] = useState()
+  const [loading, setLoading] = useState()
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/advise/fetchAllActiveAdvise`);
+        setData(response.data);
+        console.log(response.data)
+      } catch (error) {
+        if (error.response) {
+          console.error("Error fetching FAQs:", error.response.data);
+        } else {
+          console.error("Error fetching FAQs:", error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
   return (
     <section
       className="relative bg-white py-20"
@@ -15,7 +40,7 @@ export default function ShowDrafts({  }) {
       
       <h2 className="text-4xl font-bold mb-8 text-center">Download Draft Agreements</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        {draftAgreements.map((agreement, idx) => (
+        {data.map((agreement, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}

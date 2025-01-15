@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import DOMPurify from "dompurify";
 
 const FAQItem = ({ question, answer, index }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-gold py-4">
+    <div className="border-b border-gold py-4 w-full">
       <div
         className="flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
@@ -17,40 +19,43 @@ const FAQItem = ({ question, answer, index }) => {
         </span>
       </div>
       <div
-        className={`overflow-hidden transition-all duration-800 ${
+        className={`overflow-hidden  transition-all duration-800 ${
           isOpen ? "max-h-screen" : "max-h-0"
         }`}
       >
-        <p className="mt-4 text-gray-600">{answer}</p>
+        <p className="mt-4 text-gray-600" dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(answer)
+              }} />
       </div>
     </div>
   );
 };
 
 const FAQ = () => {
-  const faqData = [
-    {
-      question: "Who is NRI?",
-      answer:
-        "Non-Resident Indian (NRI) refers to a person who is a citizen of India but resides outside India.",
-    },
-    {
-      question:
-        "Are there any restrictions on the type of properties NRIs or PIOs can invest in?",
-      answer:
-        "NRIs and PIOs can invest in residential and commercial properties in India, except agricultural land, plantation property, and farmhouse.",
-    },
-    {
-      question: "Are NRI available for loan?",
-      answer:
-        "Yes, NRIs can avail of loans in India for purchasing property, subject to certain conditions.",
-    },
-    {
-      question: "How to pay the quote?",
-      answer:
-        "Payments can be made through regular banking channels, using funds remitted to India through normal banking channels or funds held in NRE/FCNR (B)/NRO account.",
-    },
-  ];
+  const [faqData, setFaqData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllActiveNriFAQs`);
+        setFaqData(response.data);
+        console.log(response.data)
+      } catch (error) {
+        if (error.response) {
+          console.error("Error fetching FAQs:", error.response.data);
+        } else {
+          console.error("Error fetching FAQs:", error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFAQs();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <>
@@ -65,12 +70,12 @@ const FAQ = () => {
           happiness to each and every customer. Our genuine care for customer
           satisfaction is what sets us apart.
         </p>
-        <div className="max-w-4xl mx-auto">
+        <div className="w-[80%] md:w-[50%] mx-auto">
           {faqData.map((faq, index) => (
             <FAQItem
               key={index}
-              question={faq.question}
-              answer={faq.answer}
+              question={faq.title}
+              answer={faq.content}
               index={index}
             />
           ))}

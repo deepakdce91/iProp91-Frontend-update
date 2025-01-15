@@ -27,7 +27,7 @@
     "enquire.js": "^2.1.6",
     "gsap": "^3.12.5",
     "heic2any": "^0.0.4",
-    "html-react-parser": "^5.2.0",
+    "html-react-parser": "^5.2.2",
     "json2mq": "^0.2.0",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",

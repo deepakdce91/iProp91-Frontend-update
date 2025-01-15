@@ -15,22 +15,26 @@ const CompComponent = ({ item }) => {
       </div>
       <div className="h-[250px] bg-gray-100 text-black px-6 py-2">
         <div className="bg-white h-full p-4 shadow-md flex flex-row gap-7">
-          <div className="flex w-[30%] flex-col items-center justify-center">
-            <img
-              src={item.centerImage1?.url}
-              alt={item.centerImage1?.name}
-              className="w-16 h-16 object-contain"
-            />
-            <span className="text-sm font-medium mt-2 text-center">{item.centerImage1Text}</span>
-          </div>
-          <div className="w-[70%] flex flex-col items-center justify-center">
-            <img
-              src={item.centerImage2?.url}
-              alt={item.centerImage2?.name}
-              className="w-16 h-16 object-contain"
-            />
-            <span className="text-sm font-medium mt-2 text-center">{item.centerImage2Text}</span>
-          </div>
+          {item.centerImage1 && (
+            <div className="flex w-[30%] flex-col items-center justify-center">
+              <img
+                src={item.centerImage1.url}
+                alt={item.centerImage1.name}
+                className="w-16 h-16 object-contain"
+              />
+              <span className="text-sm font-medium mt-2 text-center">{item.centerImage1Text}</span>
+            </div>
+          )}
+          {item.centerImage2 && (
+            <div className="w-[70%] flex flex-col items-center justify-center">
+              <img
+                src={item.centerImage2.url}
+                alt={item.centerImage2.name}
+                className="w-16 h-16 object-contain"
+              />
+              <span className="text-sm font-medium mt-2 text-center">{item.centerImage2Text}</span>
+            </div>
+          )}
         </div>
       </div>
       <div className="absolute left-6 top-[330px] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
@@ -60,6 +64,8 @@ export default function Comparison() {
           }
         );
         setData(response.data);
+        console.log(response.data);
+        
       } catch (error) {
         console.error(
           "Error fetching data:",

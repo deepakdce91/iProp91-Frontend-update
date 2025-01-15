@@ -17,14 +17,24 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
     noOfWashrooms: "",
     numberOfFloors: "",
     numberOfParkings: "",
+    numberOfBedrooms: "",
   });
 
-  const [mediaFiles, setMediaFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleMediaChange = async (e) => {
+  const [titleDeeds, setTitleDeeds] = useState([]);
+  const [propertyImages, setPropertyImages] = useState([]);
+  const [propertyVideos, setPropertyVideos] = useState([]);
+
+  const handleMediaChange = async (e, type) => {
     const files = Array.from(e.target.files);
-    setMediaFiles(files);
+    if (type === "titleDeeds") {
+      setTitleDeeds(files);
+    } else if (type === "propertyImages") {
+      setPropertyImages(files);
+    } else if (type === "propertyVideos") {
+      setPropertyVideos(files);
+    }
   };
 
   // Helper function to remove spaces from filename
@@ -83,6 +93,22 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
     }
   };
 
+  const uploadMediaFiles = async () => {
+    const titleDeedLinks = await Promise.all(titleDeeds.map(uploadFileToCloud));
+    const propertyImageLinks = await Promise.all(
+      propertyImages.map(uploadFileToCloud)
+    );
+    const propertyVideoLinks = await Promise.all(
+      propertyVideos.map(uploadFileToCloud)
+    );
+
+    return {
+      titleDeeds: titleDeedLinks,
+      propertyImages: propertyImageLinks,
+      propertyVideos: propertyVideoLinks,
+    };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
@@ -102,9 +128,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
     try {
       // Upload all media files and collect their URLs
-      const mediaPaths = await Promise.all(
-        mediaFiles.map((file) => uploadFileToCloud(file, userId))
-      );
+      const mediaLinks = await uploadMediaFiles();
 
       // First, get the current property details
       const propertyResponse = await axios.get(
@@ -145,7 +169,10 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
           numberOfWashrooms: formData.noOfWashrooms,
           numberOfFloors: formData.numberOfFloors,
           numberOfParkings: formData.numberOfParkings,
-          media: mediaPaths, // Use the uploaded media URLs
+          numberOfBedrooms: formData.numberOfBedrooms,
+          titleDeed: mediaLinks.titleDeeds, // Save title deeds links
+          propertyPhotos: mediaLinks.propertyImages, // Save property images links
+          propertyVideos: mediaLinks.propertyVideos, // Save property videos links
         },
       };
 
@@ -172,13 +199,16 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   };
 
   return (
-    <div className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5 ">
+    <div className="absolute top-0 z-50 flex items-center justify-center w-screen left-0 ">
       {/* Backdrop */}
-      <div onClick={closeSellModal} className="absolute inset-0 " />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn ">
+      <div
+        onClick={closeSellModal}
+        className="absolute w-full h-full bg-black/40 backdrop-blur-sm "
+      />
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto">
         <form
           onSubmit={handleSubmit}
-          className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md "
+          className="relative space-y-6   px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen "
         >
           <span
             onClick={closeSellModal}
@@ -280,31 +310,106 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
               </div>
             </div>
 
-            <div className="flex-1">
-              <label className="text-sm text-gray-800">Number of Parkings</label>
-              <input
-                type="number"
-                placeholder="Enter No of Parkings"
-                className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
-                value={formData.numberOfParkings}
-                onChange={(e) =>
-                  setFormData({ ...formData, numberOfParkings: e.target.value })
-                }
-              />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">
+                  Number of Parkings
+                </label>
+                <input
+                  type="number"
+                  placeholder="Enter No of Parkings"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.numberOfParkings}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      numberOfParkings: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-sm text-gray-800">
+                  Number of Bedrooms
+                </label>
+                <input
+                  type="number"
+                  placeholder="Enter No of Bedrooms"
+                  className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+                  value={formData.numberOfBedrooms}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      numberOfBedrooms: e.target.value,
+                    })
+                  }
+                />
+              </div>
             </div>
           </div>
 
+          {/* Title Deeds Section */}
           <div>
-            <label className="text-sm text-gray-800">Upload Media</label>
+            <label className="text-sm text-gray-800">Upload Title Deeds</label>
             <input
               type="file"
               multiple
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
+              accept="application/pdf,image/*"
+              onChange={(e) => handleMediaChange(e, "titleDeeds")}
               className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
             />
             <div className="grid grid-cols-3 gap-2 mt-2">
-              {mediaFiles.map((file, index) => (
+              {titleDeeds.map((file, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Property Images Section */}
+          <div>
+            <label className="text-sm text-gray-800">
+              Upload Property Images
+            </label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleMediaChange(e, "propertyImages")}
+              className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+            />
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {propertyImages.map((file, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Property Videos Section */}
+          <div>
+            <label className="text-sm text-gray-800">
+              Upload Property Videos
+            </label>
+            <input
+              type="file"
+              multiple
+              accept="video/*"
+              onChange={(e) => handleMediaChange(e, "propertyVideos")}
+              className="mt-1 w-full rounded-md border border-gray-500 p-2 focus:border-gold focus:outline-none"
+            />
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {propertyVideos.map((file, index) => (
                 <div key={index} className="relative">
                   <img
                     src={URL.createObjectURL(file)}

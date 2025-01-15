@@ -51,6 +51,16 @@ const ListedPropertyCard = ({
         }),
   });
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleNext = () => {
+    setActiveIndex((prevIndex) => (prevIndex + 1) % media.length);
+  };
+
+  const handlePrev = () => {
+    setActiveIndex((prevIndex) => (prevIndex - 1 + media.length) % media.length);
+  };
+
   const handleInputChange = (e) => {
     setUpdateFormData({
       ...updateFormData,
@@ -98,22 +108,20 @@ const ListedPropertyCard = ({
           </button>
         </div>
       </div>
-      <div className="flex gap-5 items-center justify-center p-4">
+      <div className="flex gap-5 p-4">
         {/* Image Gallery */}
-        <div className="relative flex-1 ">
+        <div className="relative w-[30%]">
           <div className="relative ">
             {media?.length > 0 ? (
               <div className="grid grid-cols-2 gap-0.5 ">
                 {media.slice(0, 3).map((item, index) => (
-                  <div
-                    key={index}
-                    className={`relative  ${index === 0 ? "row-span-2" : ""}`}
-                  >
+                  <div key={index} className={`relative ${index === 0 ? "row-span-2" : ""}`}>
                     <img
-                      // src={item.url}
-                      src="./images/image.jpg"
+                      // src={item.url || "./images/image.jpg"}
+                      src={"/images/image.jpg"}
                       alt={item.name}
                       className="w-full h-full object-cover "
+                      onClick={() => setShowModal(true)}
                     />
                   </div>
                 ))}
@@ -136,7 +144,7 @@ const ListedPropertyCard = ({
           </div>
         </div>
         {/* Property Details */}
-        <div className="p-4 mt-10 flex-1">
+        <div className=" w-[70%]">
           <div className="  bg-black bg-opacity-85 w-full  rounded-lg ">
             <div className="grid grid-cols-4 gap-4 py-2  border-b text-white text-sm">
               <div className="text-center">
@@ -157,7 +165,7 @@ const ListedPropertyCard = ({
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-4">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 p-4">
             <div>
               <p className="text-sm text-gray-500">Super Built-Up Area</p>
               <p className="font-medium">
@@ -223,15 +231,28 @@ const ListedPropertyCard = ({
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {media.map((item, index) => (
-                  <div key={index} className="relative aspect-video">
-                    <img
-                      src={item.url || "./images/image.jpg"}
-                      alt={item.name}
-                      className="w-full h-full object-cover rounded"
-                    />
-                  </div>
+              <div className="relative">
+                <button onClick={handlePrev} className="absolute left-0 top-1/2 transform -translate-y-1/2">
+                  <X className="w-6 h-6" />
+                </button>
+                <img
+                
+                  // src={media[activeIndex].url}
+                  src={"/images/image.jpg"}
+                  alt={media[activeIndex].name}
+                  className="w-full h-full object-cover rounded"
+                />
+                <button onClick={handleNext} className="absolute right-0 top-1/2 transform -translate-y-1/2">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="flex justify-center mt-4">
+                {media.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-2 h-2 rounded-full mx-1 ${activeIndex === index ? 'bg-blue-500' : 'bg-gray-300'}`}
+                    onClick={() => setActiveIndex(index)}
+                  />
                 ))}
               </div>
             </div>

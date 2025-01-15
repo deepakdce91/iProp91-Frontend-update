@@ -3,6 +3,8 @@ import { ChevronLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
 
+const publicUrls = ["authenticate", "laws", "faqs", "library", "case-laws", "nri", "lend", "advice"]
+
 function modifyUrl(url) {
   try {
       // Create a URL object from the input
@@ -62,11 +64,6 @@ const JourneyForm = () => {
     });
     return maxDepth;
   };
-
-  // Reset scroll position when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   // Initialize history when initialQuestions changes
   useEffect(() => {
@@ -224,9 +221,9 @@ const JourneyForm = () => {
                         }?entryPoint=${encodeURIComponent(
                           JSON.stringify(entryPoint)
                         )}`
-                      : option.redirectionLink.split("/")[
-                          option.redirectionLink.split("/").length - 1
-                        ] === "authenticate"
+                      : publicUrls.includes(option.redirectionLink.split("/")[
+                        option.redirectionLink.split("/").length - 1
+                      ])
                       ? `${option.redirectionLink}`
                       : `${modifyUrl(option.redirectionLink)}?toPage=${
                           option.redirectionLink.split("/")[

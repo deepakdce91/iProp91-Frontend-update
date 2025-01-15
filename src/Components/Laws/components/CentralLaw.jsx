@@ -1,13 +1,42 @@
 import { ArrowLeftIcon } from "@heroicons/react/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiMinus, FiPlus } from "react-icons/fi";
+import DOMPurify from "dompurify";
+import axios from "axios";
+import Breadcrumb from "../../Landing/Breadcrumb";
 
-const CentralLaw = ({ onBack, data }) => {
+const CentralLaw = ({  }) => {
   const [openIndex, setOpenIndex] = useState(null);
+  const [lawData, setLawData] = useState([]);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
+
+  useEffect(() => {
+    const fetchCentralLaws = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchAllActiveCentralLaws`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        setLawData(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+    fetchCentralLaws()
+  }, [])
+  
 
   // Function to parse HTML content and extract the link and text
   const parseContent = (htmlContent) => {
@@ -20,12 +49,46 @@ const CentralLaw = ({ onBack, data }) => {
     };
   };
 
+  const formatContent = (content) => {
+    // Check if content contains HTML
+    const isHTML = /<[^>]+>/.test(content);
+    let sanitizedContent;
+
+    if (isHTML) {
+      // If it's already HTML, just sanitize it
+      sanitizedContent = DOMPurify.sanitize(content);
+    } else {
+      // If it's plain text, replace links and then sanitize
+      sanitizedContent = content.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>'
+      );
+      sanitizedContent = DOMPurify.sanitize(sanitizedContent);
+    }
+
+    // Add styles to existing links if any
+    sanitizedContent = sanitizedContent.replace(
+      /<a /g,
+      '<a class="text-blue-500 underline" '
+    );
+
+    return sanitizedContent;
+  };
+
+  const breadcrumbItems = [
+    { label: "Knowledge Center", link: "/" },
+    { label: "Laws", link: "/laws" },
+    { label: "Central Laws",  }
+  ];
+
   return (
-    <div className="flex flex-col text-white relative gap-10 md:flex-row items-start py-28 px-6 lg:px-32 mt-5 md:mt-10">
+    <div className="flex flex-col  w-full  px-6 lg:px-32 min-h-[100vh] text-white relative gap-5 bg-black py-28 md:py-32">
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base "} />
       
       <div className="w-full">
-        {data.map((item, index) => {
+        {lawData.map((item, index) => {
           const { text, href } = parseContent(item.content); // Parse content
+          const formattedContent = formatContent(item.content); // Format content
 
           // Check if title and content are the same
           const isSameAsTitle = item.title === text;
@@ -33,9 +96,9 @@ const CentralLaw = ({ onBack, data }) => {
           return (
             <div
               key={index}
-              className={`mb-4 transition-all duration-300 ease-in-out ${
-                openIndex === index ? "bg-white text-black border-[1px] border-white" : "border-[1px] border-white"
-              } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl md:max-w-screen-lg max-w-xs lg:min-w-[800px]`}
+              className={`mb-4 transition-all duration-300 ease-in-out w-full ${
+                openIndex === index ? "bg-white/80 text-black border-[1px] border-white" : "border-[1px] border-white"
+              } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl `}
             >
               <div
                 className={`flex justify-between items-center ${
@@ -71,16 +134,10 @@ const CentralLaw = ({ onBack, data }) => {
                 >
                   <hr className="border-t-[2px] border-black mb-4" />
                   {/* Display parsed link and text */}
-                  <p>
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-black underline"
-                    >
-                      {text}
-                    </a>
-                  </p>
+                  <p
+                    dangerouslySetInnerHTML={{ __html: formattedContent }}
+                    className="text-black"
+                  ></p>
                 </div>
               )}
             </div>

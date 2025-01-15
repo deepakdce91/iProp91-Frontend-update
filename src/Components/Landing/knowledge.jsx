@@ -103,7 +103,7 @@ const Knowledge = () => {
   useEffect(() => {
     const savedPosition = localStorage.getItem("scrollPosition");
     if (savedPosition) {
-      window.scrollTo(0, parseInt(savedPosition));
+      window.scrollTo(20, parseInt(savedPosition));
     }
   }, [location]);
 

@@ -4,6 +4,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import Auth from "../User/Login/Auth";
 import StateCityCompo from "../GeneralUi/StateCityCompo";
 import { useSearchParams } from "react-router-dom";
+import CustomDropdown from "../GeneralUi/CustomDropdown";
 
 const Stage1Form = ({ setIsLoggedIn }) => {
   const [searchParams] = useSearchParams();
@@ -159,66 +160,30 @@ const Stage1Form = ({ setIsLoggedIn }) => {
                 setMainState={handleStateChange}
               />
 
-              {/* builder */}
-              <div className="w-full my-2 xl:m-2">
-                <label className="block mb-3 text-sm font-medium text-gray-200">
-                  Select Builder
-                </label>
-                <input
-                  list="builders-list"
-                  id="builder"
-                  name="selectBuilder"
-                  value={formdata.selectBuilder}
-                  onChange={handleChange}
-                  placeholder="Select or type a builder..."
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                />
-                {builders.length > 0 && (
-                  <datalist id="builders-list">
-                    {builders
-                      .filter(
-                        (item, index, self) =>
-                          index ===
-                          self.findIndex((obj) => obj.name === item.name)
-                      )
-                      .map((builder) => (
-                        <option key={builder._id} value={builder.name}>
-                          {builder.name}
-                        </option>
-                      ))}
-                  </datalist>
+              <CustomDropdown
+                label="Select Builder"
+                options={builders.filter(
+                  (item, index, self) =>
+                    index === self.findIndex((obj) => obj.name === item.name)
                 )}
-              </div>
+                value={formdata.selectBuilder}
+                onChange={handleChange}
+                placeholder="Select or type a builder..."
+                name="selectBuilder"
+              />
 
-              {/* Project */}
-              <div className="w-full my-2 xl:m-2">
-                <label className="block mb-3 text-sm font-medium text-gray-200">
-                  Select Project
-                </label>
-                <input
-                  list="projects-list"
-                  id="project"
-                  name="selectProject"
-                  value={formdata.selectProject}
-                  onChange={handleChange}
-                  placeholder="Select or type a project..."
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
-                />
-                {projects.length > 0 && (
-                  <datalist id="projects-list">
-                    {projects.filter(
-                        (item, index, self) =>
-                          index ===
-                          self.findIndex((obj) => obj.name === item.name)
-                      )
-                      .map((project) => (
-                      <option key={project._id} value={project.name}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </datalist>
+              {/* Project Dropdown */}
+              <CustomDropdown
+                label="Select Project"
+                options={projects.filter(
+                  (item, index, self) =>
+                    index === self.findIndex((obj) => obj.name === item.name)
                 )}
-              </div>
+                value={formdata.selectProject}
+                onChange={handleChange}
+                placeholder="Select or type a project..."
+                name="selectProject"
+              />
             </div>
 
             {/* Submit Button */}
@@ -241,7 +206,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
           }}
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
-          properties={" "} 
+          properties={" "}
           stage1FormData={formdata}
         />
       )}

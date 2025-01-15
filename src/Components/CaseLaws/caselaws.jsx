@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { FiFileText } from 'react-icons/fi';
 import Breadcrumb from '../Landing/Breadcrumb';
+import DOMPurify from "dompurify";
 
 export default function CaseLaws() {
   const [openIndex, setOpenIndex] = useState(null);
@@ -61,9 +62,10 @@ export default function CaseLaws() {
   ];
 
   return (
-    <div className="flex flex-col gap-10 md:flex-row items-center  justify-center px-6 lg:px-32  bg-white min-h-screen text-black">
-      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"}  />
-      <div className="w-full mt-40 md:mt-10">
+    <div className={`flex flex-col gap-10   px-6 lg:px-32 bg-white min-h-[150vh] md:min-h-[100vh] text-black `}>
+      
+      <div className="w-full h-full  flex flex-col  pt-28 " >
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 my-3 text-black text-sm lg:text-base  "}  />
         {data && data.map((faq, index) => {
           const pdfLink = extractPdfLink(faq.content);
 
@@ -85,7 +87,7 @@ export default function CaseLaws() {
               </div>
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  openIndex === index ? 'max-h-screen mt-4' : 'max-h-0'
+                  openIndex === index ? 'max-h-[500px] mt-4' : 'max-h-0'
                 }`}
               >
                 <hr className="border-t-[2px] border-black/40 mb-4" />
@@ -97,10 +99,23 @@ export default function CaseLaws() {
                     className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md  transition-colors"
                   >
                     <FiFileText className="text-xl" />
-                    <p>Download PDF to read</p>
+                    <p>Read File</p>
                   </a>
                 ) : (
-                  <p className="mt-7">{faq.content}</p>
+                  <p dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(faq.content),
+                  }} className="mt-7"/>
+                )}
+                {faq.file && (
+                  <a
+                    href={faq.file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md transition-colors"
+                  >
+                    <FiFileText className="text-xl" />
+                    <p>Read File</p>
+                  </a>
                 )}
               </div>
             </div>
