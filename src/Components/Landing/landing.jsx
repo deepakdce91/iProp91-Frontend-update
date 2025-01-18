@@ -28,6 +28,7 @@ import Law from "../Laws/laws";
 import CentralLaw from "../Laws/components/CentralLaw";
 import StateLaw from "../Laws/components/StateLaw";
 import BlogPost from "../Library/BlogPost";
+import SiteFaqs from "../site-faqs/page";
 
 function LandingPage() {
   return (
@@ -149,6 +150,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/nri" element={<NRI />} />
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
+        <Route path="/sitefaqs" element={<SiteFaqs />} />
         <Route
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
