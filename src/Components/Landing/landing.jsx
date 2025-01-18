@@ -27,6 +27,7 @@ import Stage1Form from "../Journey/Stage1Form";
 import Law from "../Laws/laws";
 import CentralLaw from "../Laws/components/CentralLaw";
 import StateLaw from "../Laws/components/StateLaw";
+import BlogPost from "../Library/BlogPost";
 
 function LandingPage() {
   return (
@@ -158,6 +159,8 @@ function Landing({ setIsLoggedIn }) {
           path="/stage1Form"
           element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />}
         />
+
+        <Route path="/library/:title" element={<BlogPost />} />
       </Routes>
       {location.pathname !== "/advice" ||
         location.pathname !== "/journey" ||
