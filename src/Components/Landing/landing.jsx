@@ -27,6 +27,8 @@ import Stage1Form from "../Journey/Stage1Form";
 import Law from "../Laws/laws";
 import CentralLaw from "../Laws/components/CentralLaw";
 import StateLaw from "../Laws/components/StateLaw";
+import BlogPost from "../Library/BlogPost";
+import SiteFaqs from "../site-faqs/page";
 
 function LandingPage() {
   return (
@@ -148,6 +150,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/nri" element={<NRI />} />
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
+        <Route path="/sitefaqs" element={<SiteFaqs />} />
         <Route
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
@@ -158,6 +161,8 @@ function Landing({ setIsLoggedIn }) {
           path="/stage1Form"
           element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />}
         />
+
+        <Route path="/library/:title" element={<BlogPost />} />
       </Routes>
       {location.pathname !== "/advice" ||
         location.pathname !== "/journey" ||

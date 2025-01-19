@@ -1,93 +1,84 @@
-import React, { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+'use client'
 
-// Move registration outside component to avoid re-registration
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
-export default function GsapTextColorChange() {
-  const headingRef = useRef(null);
-  const subheadingRef = useRef(null);
+export default function ScrollAnimatedText() {
+  const containerRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   const splitText = (text) => {
-    return text.split(" ").map((word, index) => (
-      <span key={index} className="inline-block opacity-20">
-        {word}&nbsp;
-      </span>
-    ));
+    return text.split(" ");
   };
 
-  useEffect(() => {
-    // Ensure we're in browser environment
-    if (typeof window === "undefined") return;
+  const AnimatedWord = ({ word, index, totalWords }) => {
+    const start = index / totalWords;
+    const end = (index + 1) / totalWords;
 
-    const animateText = (ref) => {
-      if (!ref.current) return;
-      
-      const words = ref.current.children;
+    const opacity = useTransform(
+      smoothProgress,
+      [start, (start + end) / 2, end],
+      [0.2, 1, 1]
+    );
 
-      gsap.fromTo(
-        words,
-        {
-          opacity: 0.2,
-          y: 10
-        },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.1,
-          duration: 1.0,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ref.current,
-            start: "top 90%",
-            end: "bottom 50%",
-            scrub: 1,
-            onEnter: () => ScrollTrigger.refresh(),
-          },
-        }
-      );
-    };
+    const y = useTransform(
+      smoothProgress,
+      [start, end],
+      [10, 0]
+    );
 
-    // Add a small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      animateText(headingRef);
-      animateText(subheadingRef);
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (typeof window !== "undefined") {
-        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      }
-    };
-  }, []);
+    return (
+      <motion.span
+        className="inline-block mr-2"
+        style={{ opacity, y }}
+      >
+        {word}
+      </motion.span>
+    );
+  };
 
   const headingText = "Curated real estate management solutions for the ones who have arrived";
   const subheadingText =
     "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free.";
 
+  const headingWords = splitText(headingText);
+  const subheadingWords = splitText(subheadingText);
+  const totalWords = headingWords.length + subheadingWords.length;
+
   return (
-    <div className="relative min-h-screen bg-black px-3">
+    <div className="relative min-h-screen bg-black px-3" ref={containerRef}>
       <section className="flex min-h-[110vh] lg:pb-28 items-center justify-center">
-        <div className="flex flex-col gap-8 items-center h-s">
-          <h1
-            ref={headingRef}
-            className="lg:text-6xl font-[500] w-12/12 lg:w-8/12 text-4xl text-white"
-          >
-            {splitText(headingText)}
+        <div className="flex flex-col gap-8 items-center">
+          <h1 className="lg:text-6xl font-[500] w-full lg:w-8/12 text-4xl text-white">
+            {headingWords.map((word, index) => (
+              <AnimatedWord
+                key={index}
+                word={word}
+                index={index}
+                totalWords={totalWords}
+              />
+            ))}
           </h1>
 
-          <p
-            ref={subheadingRef}
-            className="lg:text-5xl font-[300] w-12/12 lg:w-8/12 text-2xl text-white"
-          >
-            {splitText(subheadingText)}
+          <p className="lg:text-5xl font-[300] w-full lg:w-8/12 text-2xl text-white">
+            {subheadingWords.map((word, index) => (
+              <AnimatedWord
+                key={index + headingWords.length}
+                word={word}
+                index={index + headingWords.length}
+                totalWords={totalWords}
+              />
+            ))}
           </p>
         </div>
       </section>
     </div>
   );
 }
+

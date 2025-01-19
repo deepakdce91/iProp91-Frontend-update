@@ -199,7 +199,7 @@ const Footer = () => {
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/sitefaqs" className="hover:text-primary">
                 Site FAQs
               </Link>
             </li>
@@ -252,22 +252,22 @@ const Footer = () => {
           </h3>
           <ul className="text-xs">
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/faqs" className="hover:text-primary">
                 FAQs
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/case-laws" className="hover:text-primary">
                 Case-Laws
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/library" className="hover:text-primary">
                 Library
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/laws" className="hover:text-primary">
                 Laws
               </Link>
             </li>
