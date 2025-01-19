@@ -2,10 +2,10 @@ import React from 'react';
 import JourneyForm from '../Journey/JourneyForm';
 
 
-function JourneyPage() {
+function JourneyPage({setIsLoggedIn}) {
   return (
     <div className='pt-[14vh] min-h-[90vh] bg-black'>
-      <JourneyForm/>
+      <JourneyForm setIsLoggedIn={setIsLoggedIn}/>
     </div>
   )
 }

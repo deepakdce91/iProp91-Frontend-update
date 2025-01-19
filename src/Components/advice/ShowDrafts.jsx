@@ -40,7 +40,7 @@ export default function ShowDrafts() {
       
       <h2 className="text-4xl font-bold mb-8 text-center">Download Draft Agreements</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        {data.map((agreement, idx) => (
+        {data && data.map((agreement, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}

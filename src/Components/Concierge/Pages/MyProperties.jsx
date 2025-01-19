@@ -202,7 +202,7 @@ const EmblaCarousel = (props) => {
       </div>
     </div>
   );
-};
+}; 
 
 export default function MyProperties() {
     const navigate = useNavigate();
