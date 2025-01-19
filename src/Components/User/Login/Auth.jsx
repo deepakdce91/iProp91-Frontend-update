@@ -69,10 +69,12 @@ function Verify({
   handleOtpChange,
   stage1FormData,
   onBack,
-  authPage
+  authPage,
+  onJourneyPage,
+  redirectionUrl,
 }) {
   const [otp, setOTP] = useState("");
-  const [currentView, setCurrentView] = useState('mobileNumber'); // Example state
+  const [currentView, setCurrentView] = useState("mobileNumber"); // Example state
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
   const [askforname, setAskforname] = useState(false);
@@ -160,12 +162,17 @@ function Verify({
                 if (loginresjson.success === true) {
                   localStorage.setItem("token", loginresjson.token);
 
+                  // save redirectionUrl if provided from journey
+                  if (redirectionUrl) {
+                    localStorage.setItem("redirectToPage", redirectionUrl);
+                  }
+ 
                   // Get user details after login
                   const decoded = jwtDecode(loginresjson.token);
                   const userId = decoded.userId; // This should be the correct user ID
                   setIsLoggedIn(true);
                   toast.success("Login Successful");
-                  if (stage1FormData) {
+                  if (stage1FormData && !onJourneyPage) {
                     localStorage.setItem("addPropDetails", "true");
                     const SendToConciPage = () => {
                       setTimeout(() => {
@@ -212,12 +219,12 @@ function Verify({
       }
     }
   };
-  
+
   const handleBackClick = () => {
-    setCurrentView('mobileNumber'); // Update the state to show the mobile number input
+    setCurrentView("mobileNumber"); // Update the state to show the mobile number input
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     if (otp.length === 6) {
       HandleVerifyOTP({ preventDefault: () => {} });
     }
@@ -266,10 +273,15 @@ function Verify({
 
       toast.success("Signup Successfull");
 
+      // save redirectionUrl if provided from journey
+      if (redirectionUrl) {
+        localStorage.setItem("redirectToPage", redirectionUrl);
+      }
+
       const decoded = jwtDecode(token);
       const userId = decoded.userId;
 
-      if (stage1FormData) {
+      if (stage1FormData && !onJourneyPage) {
         localStorage.setItem("addPropDetails", "true");
         const SendToConciPage = () => {
           setTimeout(() => {
@@ -373,12 +385,12 @@ function Verify({
       >
         <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
-          
+
           <div className=" p-8">
             <div
               className="flex items-center mb-4 cursor-pointer"
               onClick={onBack}
-             >
+            >
               <i
                 className="bx bxs-chevron-left "
                 style={{ fontSize: "20px" }}
@@ -386,7 +398,9 @@ function Verify({
 
               <span className="ml-2 text-gray-600">Back</span>
             </div>
-            <h2 className="text-3xl font-semibold mb-4 text-black">Verify Code</h2>
+            <h2 className="text-3xl font-semibold mb-4 text-black">
+              Verify Code
+            </h2>
             <p className="text-gray-500 mb-8">
               An authentication code has been sent to your Phone Number
             </p>
@@ -451,9 +465,10 @@ export default function Login({
   properties,
   stage1FormData,
   goBackToStage1,
-  authPage, 
+  authPage,
+  onJourneyPage,
+  redirectionUrl,
 }) {
-
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
@@ -522,13 +537,18 @@ export default function Login({
         localStorage.setItem("token", loginresjson.token);
         const decoded = jwtDecode(loginresjson.token);
 
+        // save redirectionUrl if provided from journey
+        if (redirectionUrl) {
+          localStorage.setItem("redirectToPage", redirectionUrl);
+        }
+
         // Set login state first
         setIsLoggedIn(true);
         toast.success("Login Successful");
 
         const userId = decoded.userId;
 
-        if (stage1FormData) {
+        if (stage1FormData && !onJourneyPage) {
           localStorage.setItem("addPropDetails", "true");
           const SendToConciPage = () => {
             setTimeout(() => {
@@ -631,15 +651,16 @@ export default function Login({
 
   useEffect(() => {
     const toPage = searchParams.get("toPage");
-    if(toPage){
-      localStorage.setItem("redirectToPage",`/${toPage}`);
+    if (toPage) {
+      localStorage.setItem("redirectToPage", `/${toPage}`);
     }
-  }, [])
-  
- 
+  }, []);
+
   return (
     <section
-      className={`${stage1FormData || authPage ? "" : "absolute"} h-screen w-screen`}
+      className={`${
+        stage1FormData || authPage ? "" : "absolute"
+      } h-screen w-screen`}
     >
       <div className="relative w-full h-full" ref={modalRef}>
         {/* {loading ? (
@@ -650,13 +671,18 @@ export default function Login({
         <div
           className={`shadow-md ${
             stage1FormData || authPage
-              ? `${authPage ? "bg-white" :"bg-black"} items-center  flex-col ${authPage ? "" : "pt-20"}  h-full`
+              ? `${authPage ? "bg-white" : "bg-black"} items-center  flex-col ${
+                  authPage ? "" : "pt-20"
+                }  h-full`
               : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`
           }     flex justify-center  `}
         >
           <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
             {!(stage1FormData || authPage) && (
-              <button onClick={onClose} className="absolute text-black right-4 top-5 ">
+              <button
+                onClick={onClose}
+                className="absolute text-black right-4 top-5 "
+              >
                 <GrClose />
               </button>
             )}
@@ -680,9 +706,7 @@ export default function Login({
               ) : passwordlogin ? (
                 <>
                   <div className="flex items-center mb-2 cursor-pointer">
-                    <span className=" text-gray-600">
-                      Sign in / Sign up
-                    </span>
+                    <span className=" text-gray-600">Sign in / Sign up</span>
                   </div>
                   <h2 className="text-2xl font-semibold mb-2 text-black ">
                     Enter Phone Number
@@ -790,7 +814,7 @@ export default function Login({
           </div> */}
           </div>
 
-          {stage1FormData  && (
+          {stage1FormData && (
             <button
               onClick={goBackToStage1}
               className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"

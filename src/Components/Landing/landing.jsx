@@ -152,7 +152,7 @@ function Landing({ setIsLoggedIn }) {
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
         />
-        <Route path="/journey" element={<JourneyPage />} />
+        <Route path="/journey" element={<JourneyPage setIsLoggedIn={setIsLoggedIn}/>} />
 
         <Route
           path="/stage1Form"

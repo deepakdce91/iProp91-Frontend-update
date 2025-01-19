@@ -109,7 +109,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
     ) {
       return toast.error("Please fill all the fields.");
     }
-
+// console.log(formdata);
     try {
       toast("Please login to continue!");
       openAuthModal();

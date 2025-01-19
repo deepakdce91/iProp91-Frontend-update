@@ -2,23 +2,32 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Auth from "../User/Login/Auth";
 
-const publicUrls = ["authenticate", "laws", "faqs", "library", "case-laws", "nri", "lend", "advice"]
+const publicUrls = [
+  "laws",
+  "faqs",
+  "library",
+  "case-laws",
+  "nri",
+  "lend",
+  "advice",
+];
 
 function modifyUrl(url) {
   try {
-      // Create a URL object from the input
-      const urlObj = new URL(url);
-      
-      // Keep only the origin (protocol + domain)
-      const baseUrl = urlObj.origin;
-      
-      // Append '/authenticate' to the base URL
-      return `${baseUrl}/authenticate`;
+    // Create a URL object from the input
+    const urlObj = new URL(url);
+
+    // Keep only the origin (protocol + domain)
+    const baseUrl = urlObj.origin;
+
+    // Append '/authenticate' to the base URL
+    return `${baseUrl}/authenticate`;
   } catch (error) {
-      // Handle invalid URL input
-      console.error("Invalid URL:", error.message);
-      return null;
+    // Handle invalid URL input
+    console.error("Invalid URL:", error.message);
+    return null;
   }
 }
 
@@ -42,12 +51,25 @@ const Loader = () => (
   </div>
 );
 
-const JourneyForm = () => {
+const JourneyForm = ({ setIsLoggedIn }) => {
   const [initialQuestions, setInitialQuestions] = useState([]);
   const [entryPoint, setEntryPoint] = useState({});
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [redirectionUrl, setRedirectionUrl] = useState();
+
+  const openAuthModal = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  
 
   // Calculate max depth of questions
   const calculateMaxDepth = (question, currentDepth = 0) => {
@@ -188,78 +210,105 @@ const JourneyForm = () => {
   }
 
   return (
-    <div className="w-full min-h-screen px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
-      <div className="relative">
-        <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
-          <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
-          <div
-            className="h-full bg-white rounded-full transition-all duration-300 ease-in-out relative"
-            style={{ width: `${progress}%` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white to-white opacity-50" />
-            <div className="absolute inset-0 bg-white opacity-10" />
+    <>
+      {!isAuthModalOpen && (
+        <div className="w-full min-h-screen px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
+          <div className="relative">
+            <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
+              <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
+              <div
+                className="h-full bg-white rounded-full transition-all duration-300 ease-in-out relative"
+                style={{ width: `${progress}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white to-white opacity-50" />
+                <div className="absolute inset-0 bg-white opacity-10" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black rounded-lg shadow p-6 border border-1 border-gray-300 px-24 py-10">
+            <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
+              {currentState.question.questionText}
+            </h2>
+
+            <div className="space-y-3 mt-6 text-gray-200 hover:text-white">
+              {currentState.question.options.map((option) => (
+                <React.Fragment key={option.id}>
+                  {option.redirectionLink &&
+                  (option.redirectionLink.split("/")[
+                    option.redirectionLink.split("/").length - 1
+                  ] === "stage1Form" ||
+                    publicUrls.includes(
+                      option.redirectionLink.split("/")[
+                        option.redirectionLink.split("/").length - 1
+                      ]
+                    )) ? (
+                    <a
+                      href={option.redirectionLink}
+                      className="w-full block text-center text-sm md:text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
+                    >
+                      {option.text}
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (!option.redirectionLink) {
+                          handleOptionSelect(option);
+                        } else {
+                          if (
+                            option.redirectionLink.split("/")[
+                              option.redirectionLink.split("/").length - 1
+                            ] === "authenticate"
+                          ) {
+                            openAuthModal();
+                          } else {
+                            setRedirectionUrl(
+                              option.redirectionLink.split("/")[
+                                option.redirectionLink.split("/").length - 1
+                              ]
+                            );
+                            openAuthModal();
+                          }
+                        }
+                      }}
+                      className="w-full text-center text-sm md:text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    >
+                      {option.text}
+                    </button>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-sm">
+            {history.length > 1 && (
+              <button
+                onClick={handleBack}
+                className="flex items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>
+            )}
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="bg-black rounded-lg shadow p-6 border border-1 border-gray-300 px-24 py-10">
-        <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
-          {currentState.question.questionText}
-        </h2>
-
-        <div className="space-y-3 mt-6 text-gray-200 hover:text-white">
-          {currentState.question.options.map((option) => (
-            <React.Fragment key={option.id}>
-              {option.redirectionLink ? (
-                <a
-                  href={
-                    option.redirectionLink.split("/")[
-                      option.redirectionLink.split("/").length - 1
-                    ] === "stage1Form"
-                      ? `${
-                          option.redirectionLink
-                        }?entryPoint=${encodeURIComponent(
-                          JSON.stringify(entryPoint)
-                        )}`
-                      : publicUrls.includes(option.redirectionLink.split("/")[
-                        option.redirectionLink.split("/").length - 1
-                      ])
-                      ? `${option.redirectionLink}`
-                      : `${modifyUrl(option.redirectionLink)}?toPage=${
-                          option.redirectionLink.split("/")[
-                            option.redirectionLink.split("/").length - 1
-                          ]
-                        }`
-                  }
-                  className="w-full block text-center text-sm md:text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
-                >
-                  {option.text}
-                </a>
-              ) : (
-                <button
-                  onClick={() => handleOptionSelect(option)}
-                  className="w-full text-center text-sm md:text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                >
-                  {option.text}
-                </button>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2 text-sm">
-        {history.length > 1 && (
-          <button
-            onClick={handleBack}
-            className="flex items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </button>
-        )}
-      </div>
-    </div>
+      {isAuthModalOpen  && (
+        <Auth
+          goBackToStage1={() => {
+            setIsAuthModalOpen(false);
+          }}
+          redirectionUrl = {redirectionUrl}
+          onClose={closeAuthModal}
+          setIsLoggedIn={setIsLoggedIn}
+          properties={" "}
+          stage1FormData={true}
+          onJourneyPage={true}
+        />
+      )}
+    </>
   );
 };
 
