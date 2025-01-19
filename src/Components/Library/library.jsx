@@ -3,10 +3,12 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 import { ArrowLeftIcon } from "@heroicons/react/outline";
 import Breadcrumb from "../Landing/Breadcrumb";
+import { useNavigate } from "react-router-dom";
 
 const Library = () => {
   const [data, setData] = useState([]);
   const [activeBlog, setActiveBlog] = useState(null);
+  const navigate = useNavigate();
 
   const breadcrumbItems = [
     { label: "Knowledge Center", link: "/" },
@@ -47,7 +49,7 @@ const Library = () => {
   };
 
   const handleReadMore = (blog) => {
-    setActiveBlog(blog);
+    navigate(`/library/${blog.title.replace(/\s+/g, '-').toLowerCase()}`, { state: { blog } });
   };
 
   const formatDate = (dateString) => {
@@ -62,7 +64,7 @@ const Library = () => {
   if (activeBlog) {
     return (
       <section className="pt-28 px-4 md:px-10 lg:px-20 text-white bg-black min-h-screen">
-        {/* <Breadcrumb items={breadcrumbItems} /> */}
+        <Breadcrumb items={[...breadcrumbItems, { label: activeBlog.title }]} />
         <button
           onClick={() => setActiveBlog(null)}
           className="mb-6 text-gold hover:font-semibold hover:underline"
