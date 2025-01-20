@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { MoreVertical, Download, ArrowRight, Link } from 'lucide-react'
 import { useParams } from 'react-router-dom';
 import Breadcrumb from '../../Landing/Breadcrumb';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 // Dummy property data
 const propertiesData = [
@@ -101,29 +103,96 @@ const propertiesData = [
 ];
 
 function PropertyDetail() {
-  
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    fetchPropertyDetails();
+  }, [id]);
 
+  const fetchPropertyDetails = async () => {
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchProject/${id}`, {
+        params: {
+          userId: decoded.userId 
+        },
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        }
+      });
+      setProperty(response.data);
+      console.log(response.data);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching property details:', error);
+      setLoading(false);
+    }
+  };
 
-  const { id } = useParams(); // Get the property ID from URL params
-  const property = propertiesData.find(prop => prop.id === id); // Fetch property data based on ID
+  if (loading) return <div>Loading...</div>;
+  if (!property) return <div>Property not found</div>;
 
-  if (!property) return <div>Loading...</div>; // Handle loading state
+  // Map API data to component props
+  const mappedProperty = {
+    price: property.maximumPrice ? `₹${property.maximumPrice}` : 'Price not available',
+    emi: property.minimumPrice ? `₹${property.minimumPrice}` : 'EMI not available',
+    title: property.overview || 'No title available',
+    imgs: property.images?.map(img => img.url) || [],
+    beds: property.bhk || '0',
+    baths: property.bhk || '0', // Using bhk as bathroom count if not available
+    balcony: '0', // Default value as not in API
+    furnishing: 'Unfurnished', // Default value as not in API
+    amenities: property.amenities || [],
+    hotspots: [
+      ...(property.commercialHubs || []),
+      ...(property.educationalInstitutions || []),
+      ...(property.hospitals || []),
+      ...(property.hotels || []),
+      ...(property.shoppingCentres || []),
+      ...(property.transportationHubs || [])
+    ],
+    about: {
+      project: property.project || 'N/A',
+      description: property.builder || 'N/A',
+      priceOnwards: `₹${property.minimumPrice} Onwards` || 'N/A',
+      configuration: `${property.bhk} BHK` || 'N/A',
+      towers: property.type || 'N/A'
+    },
+    moreDetails: {
+      priceBreakup: `₹${property.maximumPrice}` || 'N/A',
+      bookingAmount: 'Contact for details',
+      address: property.address || 'N/A',
+      flooring: 'Standard',
+      ownership: property.availableFor || 'N/A',
+      size: property.area || 'N/A',
+      pricePerSqft: 'Contact for details',
+      developer: property.builder || 'N/A',
+      floors: 'N/A',
+      transactionType: property.availableFor || 'N/A',
+      status: property.status || 'N/A',
+      facing: 'N/A',
+      ageOfConstruction: 'N/A'
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="w-full mx-auto px-4 py-8">
         <div className="grid grid-cols-3 gap-6 w-full">
           <div className="col-span-2 space-y-6 w-full">
-            <PropertyHeader property={property} />
-            <Amenities amenities={property.amenities} />
-            <Hotspots locations={property.hotspots} />
-            <SimilarProperties properties={property.similarProperties} />
-            <AboutProject about={property.about} />
-            <RecentTransactions transactions={property.recentTransactions} />
-            <MoreDetails details={property.moreDetails} />
+            <PropertyHeader property={mappedProperty} />
+            <Amenities amenities={mappedProperty.amenities} />
+            <Hotspots locations={mappedProperty.hotspots} />
+            <SimilarProperties properties={[]} /> {/* Empty array as similar properties not in API */}
+            <AboutProject about={mappedProperty.about} />
+            <RecentTransactions transactions={[]} /> {/* Empty array as transactions not in API */}
+            <MoreDetails details={mappedProperty.moreDetails} />
           </div>
         </div>
       </div>
@@ -164,12 +233,13 @@ function PropertyHeader({ property }) {
         <h2 className="text-lg">{property.title}</h2>
 
         {/* img Gallery */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 my-5">
           {property.imgs && property.imgs.length > 0 ? (
             property.imgs.map((img, index) => (
               <div key={index} className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''}`}>
                 <img 
-                  src={img} 
+                  // src={img} 
+                  src='/images/image.jpg'
                   alt={`Property img ${index + 1}`}
                   className={`object-cover ${index === 0 ? 'rounded-l-lg' : ''} ${index === 2 ? 'rounded-tr-lg' : ''} ${index === 4 ? 'rounded-br-lg' : ''}`}
                 />

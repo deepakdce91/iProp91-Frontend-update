@@ -71,8 +71,8 @@ const StateLaw = ({ onBack }) => {
   ];
 
   return (
-    <div className="flex flex-col w-full px-5 md:px-20 pt-28  min-h-screen bg-black ">
-      <Breadcrumb items={breadcrumbItems}  className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base  my-3"} />
+    <div className="flex flex-col w-full px-5 md:px-20 pt-28  min-h-screen bg-white ">
+      <Breadcrumb items={breadcrumbItems}  className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base  my-3"} />
       <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg rounded-2xl py-3 md:px-10 px-3  ">
         {mockData.map((law) => (
           <button

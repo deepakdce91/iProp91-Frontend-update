@@ -23,8 +23,8 @@ const BlogPost = () => {
   if (!blog) return <div>Loading...</div>; // Fallback in case blog is not found
 
   return (
-    <section className="pt-28 px-4 md:px-10 lg:px-20 text-white bg-black min-h-screen pb-20">
-    <Breadcrumb className={"flex z-50 items-center space-x-2 text-white text-sm   my-3"} items={breadcrumbItems} />
+    <section className="pt-28 px-4 md:px-10 lg:px-20 text-text bg-white min-h-screen pb-20">
+    <Breadcrumb className={"flex z-50 items-center space-x-2 text-black text-sm   my-3"} items={breadcrumbItems} />
     
     {/* Hero Section with Image and Title */}
     <div className="max-w-7xl mx-auto mt-10">
@@ -34,7 +34,7 @@ const BlogPost = () => {
           <h1 className="md:text-5xl text-3xl font-bold mb-4">
             {blog.title}
           </h1>
-          <p className="text-sm text-gray-400 mb-4">
+          <p className="text-sm text-gray-700 mb-4">
             Published on {formatDate(blog.createdAt)}
           </p>
           {/* <div
@@ -58,7 +58,7 @@ const BlogPost = () => {
     <div className="max-w-none mx-auto">
       <div className="border-t border-gray-800 pt-16">
         <div
-          className="prose prose-invert max-w-none mx-auto md:text-lg text-sm text-gray-300 leading-relaxed"
+          className="prose prose-invert max-w-none mx-auto md:text-lg text-sm text-gray-700 leading-relaxed"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(blog.content)
           }}

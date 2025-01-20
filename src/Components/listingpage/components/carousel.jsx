@@ -8,6 +8,10 @@ export function Carousel({ items, renderItem, className  }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const carouselRef = useRef(null)
 
+  if (!items || items.length === 0) {
+    return <div>No items to display</div>;
+  }
+
   const scroll = (direction) => {
     if (carouselRef.current) {
       const scrollAmount = direction === 'left' ? -carouselRef.current.offsetWidth : carouselRef.current.offsetWidth

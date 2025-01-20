@@ -24,12 +24,21 @@ const Navbar = ({setIsLoggedIn}) => {
     '/advice': false,  // false means light background
     '/case-laws': false,
     '/library': false,
+    '/faqs': false,
+    '/laws': false,
+    '/laws/statelaw': false,
+    '/laws/centrallaw': false,
+
     '/': true
   };
+  
 
   // Check if current route should override background detection
   const shouldOverrideBackground = () => {
     const currentPath = location.pathname;
+    if (currentPath.startsWith('/library')) {
+      return false; // All library routes default to light background
+    }
     return currentPath in specificRoutes ? specificRoutes[currentPath] : null;
   };
 

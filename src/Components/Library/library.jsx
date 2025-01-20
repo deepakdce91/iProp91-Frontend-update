@@ -61,60 +61,60 @@ const Library = () => {
     });
   };
 
-  if (activeBlog) {
-    return (
-      <section className="pt-28 px-4 md:px-10 lg:px-20 text-white bg-black min-h-screen">
-        <Breadcrumb items={[...breadcrumbItems, { label: activeBlog.title }]} />
-        <button
-          onClick={() => setActiveBlog(null)}
-          className="mb-6 text-gold hover:font-semibold hover:underline"
-        >
-          <ArrowLeftIcon className="w-5 inline mr-2" />
-          Back to all blogs
-        </button>
+  // if (activeBlog) {
+  //   return (
+  //     <section className="pt-28 px-4 md:px-10 lg:px-20 text-black bg-pink-500 min-h-screen">
+  //       <Breadcrumb items={[...breadcrumbItems, { label: activeBlog.title }]} />
+  //       <button
+  //         onClick={() => setActiveBlog(null)}
+  //         className="mb-6 text-gold hover:font-semibold hover:underline"
+  //       >
+  //         <ArrowLeftIcon className="w-5 inline mr-2" />
+  //         Back to all blogs
+  //       </button>
         
-        {/* Hero Section with Image and Title */}
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-10 mb-16">
+  //       {/* Hero Section with Image and Title */}
+  //       <div className="max-w-7xl mx-auto ">
+  //         <div className="flex flex-col lg:flex-row gap-10 mb-16">
             
-            <div className="lg:w-1/2">
-              <h1 className="md:text-5xl text-3xl font-bold mb-4">
-                {activeBlog.title}
-              </h1>
-              <p className="text-sm text-gray-400 mb-4">
-                Published on {formatDate(activeBlog.createdAt)}
-              </p>
-              {/* <div
-                className="prose prose-invert max-w-none md:text-lg text-sm text-gray-300 leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(activeBlog.content.split(' ').slice(0, 30).join(' ') + '...')
-                }}
-              /> */}
-            </div>
-            <div className="lg:w-1/2">
-              <img
-                src={activeBlog.thumbnail || "images/2.jpg"}
-                alt={activeBlog.title}
-                className="rounded-lg w-full object-cover aspect-video"
-              />
-            </div>
-          </div>
-        </div>
+  //           <div className="lg:w-1/2">
+  //             <h1 className="md:text-5xl text-3xl font-bold mb-4">
+  //               {activeBlog.title}
+  //             </h1>
+  //             <p className="text-sm text-gray-400 mb-4">
+  //               Published on {formatDate(activeBlog.createdAt)}
+  //             </p>
+  //             {/* <div
+  //               className="prose prose-invert max-w-none md:text-lg text-sm text-gray-300 leading-relaxed"
+  //               dangerouslySetInnerHTML={{
+  //                 __html: DOMPurify.sanitize(activeBlog.content.split(' ').slice(0, 30).join(' ') + '...')
+  //               }}
+  //             /> */}
+  //           </div>
+  //           <div className="lg:w-1/2">
+  //             <img
+  //               src={activeBlog.thumbnail || "images/2.jpg"}
+  //               alt={activeBlog.title}
+  //               className="rounded-lg w-full object-cover aspect-video"
+  //             />
+  //           </div>
+  //         </div>
+  //       </div>
 
-        {/* Full Width Content Section */}
-        <div className="max-w-none mx-auto">
-          <div className="border-t border-gray-800 pt-16">
-            <div
-              className="prose prose-invert max-w-none mx-auto md:text-lg text-sm text-gray-300 leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(activeBlog.content)
-              }}
-            />
-          </div>
-        </div>
-      </section>
-    );
-  }
+  //       {/* Full Width Content Section */}
+  //       <div className="max-w-none mx-auto ">
+  //         <div className="border-t border-gray-800 pt-16">
+  //           <div
+  //             className="prose prose-invert max-w-none mx-auto md:text-lg text-sm text-gray-300 leading-relaxed"
+  //             dangerouslySetInnerHTML={{
+  //               __html: DOMPurify.sanitize(activeBlog.content)
+  //             }}
+  //           />
+  //         </div>
+  //       </div>
+  //     </section>
+  //   );
+  // }
 
   return (
     <section className="pt-28 lg:pt-32 px-3 md:px-10 lg:px-20 bg-white text-white min-h-screen">
