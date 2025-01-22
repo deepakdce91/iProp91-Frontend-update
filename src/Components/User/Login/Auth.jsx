@@ -549,7 +549,7 @@ export default function Login({
         const userId = decoded.userId;
 
         if (stage1FormData && !onJourneyPage) {
-          localStorage.setItem("addPropDetails", "true");
+          localStorage.setItem("addPropDetails", "true"); 
           const SendToConciPage = () => {
             setTimeout(() => {
               navigate("/concierge");
@@ -662,7 +662,7 @@ export default function Login({
         stage1FormData || authPage ? "" : "absolute"
       } h-screen w-screen`}
     >
-      <div className="relative w-full h-full" ref={modalRef}>
+      <div className="relative w-full h-fit sm:h-full" ref={modalRef}>
         {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
@@ -672,7 +672,7 @@ export default function Login({
           className={`shadow-md ${
             stage1FormData || authPage
               ? `${authPage ? "bg-white" : "bg-black"} items-center  flex-col ${
-                  authPage ? "" : "pt-20"
+                  authPage ? "" : "pt-5 md:pt-20"
                 }  h-full`
               : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`
           }     flex justify-center  `}
@@ -747,7 +747,7 @@ export default function Login({
               ) : (
                 <>
                   <div
-                    className="flex items-center mb-4 cursor-pointer"
+                    className="flex items-center cursor-pointer"
                     onClick={() => setPasswordLogin(true)}
                   >
                     <i

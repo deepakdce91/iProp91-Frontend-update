@@ -5,7 +5,7 @@ const CustomDropdown = ({
   label, 
   options, 
   value, 
-  onChange, 
+  onChange,  
   placeholder,
   name 
 }) => {

@@ -212,7 +212,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
   return (
     <>
       {!isAuthModalOpen && (
-        <div className="w-full min-h-screen px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
+        <div className="w-full min-h-screen px-6 md:px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
           <div className="relative">
             <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
               <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
@@ -226,7 +226,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
             </div>
           </div>
 
-          <div className="bg-black rounded-lg shadow p-6 border border-1 border-gray-300 px-24 py-10">
+          <div className="bg-black rounded-lg shadow md:p-6 border border-1 border-gray-300 px-8 md:px-24 py-10">
             <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
               {currentState.question.questionText}
             </h2>
@@ -245,7 +245,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
                     )) ? (
                     <a
                       href={option.redirectionLink}
-                      className="w-full block text-center text-sm md:text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
+                      className="w-full block text-center text-lg md:text-xl px-4 py-3 rounded-lg border border-gray-400 hover:border-gray-100 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors my-2"
                     >
                       {option.text}
                     </a>
@@ -271,7 +271,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
                           }
                         }
                       }}
-                      className="w-full text-center text-sm md:text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full text-center text-lg md:text-xl px-4 py-3 my-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:bg-opacity-15 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     >
                       {option.text}
                     </button>
@@ -297,7 +297,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
 
       {isAuthModalOpen  && (
         <Auth
-          goBackToStage1={() => {
+          goBackToStage1={() => { 
             setIsAuthModalOpen(false);
           }}
           redirectionUrl = {redirectionUrl}
