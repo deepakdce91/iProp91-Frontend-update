@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 const uploadFileToCloud = async (myFile, userNumber) => {
   // ... existing upload function ...
 };
-
+ 
 export default function PropCard ({
   props,
   onClickEdit,
