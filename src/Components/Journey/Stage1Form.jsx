@@ -144,7 +144,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
   return (
     <section className="  flex items-center justify-center  ">
       {!isAuthModalOpen && (
-        <div className=" bg-black  h-screen p-8 w-full px-16 md:px-36 lg:px-[25vw] xl:px-[30vw] pt-[17vh] ">
+        <div className=" bg-black  h-screen p-8 w-full px-6 md:px-16  lg:px-[25vw] xl:px-[30vw] pt-[17vh] ">
           <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
             <p className="md:text-3xl text-3xl text-white font-bold mb-5">
               Add Property Details
@@ -169,7 +169,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
                 value={formdata.selectBuilder}
                 onChange={handleChange}
                 placeholder="Select or type a builder..."
-                name="selectBuilder"
+                name="selectBuilder" 
               />
 
               {/* Project Dropdown */}

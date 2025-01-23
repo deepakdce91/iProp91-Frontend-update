@@ -14,12 +14,31 @@ import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
 import BuyForm from "../../forms/rent";
 import SellForm from "../../forms/sell";
 import { useNavigate } from "react-router-dom";
+import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
+
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { client } from "../../../config/s3client";
 
 function hasMoreInfoRequired(objectsArray) {
-  // Use the `some` method to check if any object meets the condition
-  return objectsArray.some(
-    (obj) => obj.applicationStatus === "more-info-required"
-  );
+  // Check if the array is not empty
+  if (objectsArray.length === 0) {
+    return -1;
+  }
+
+  // Get the last object in the array
+  const lastObject = objectsArray[objectsArray.length - 1];
+
+  // Check if the applicationStatus is "more-info-required"
+  if (lastObject.applicationStatus === "more-info-required") {
+    return lastObject._id; // Return the _id of the last object
+  }
+
+  // Return -1 if the condition is not met
+  return -1;
+}
+
+function removeSpaces(str) {
+  return str.replace(/\s+/g, "");
 }
 
 const usePrevNextButtons = (emblaApi, onButtonClick) => {
@@ -202,10 +221,19 @@ const EmblaCarousel = (props) => {
       </div>
     </div>
   );
-}; 
+};
 
 export default function MyProperties() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const documentTypes = [
+    { id: 1, name: "Identity Proof" },
+    { id: 2, name: "Address Proof" },
+    { id: 3, name: "Property Documents" },
+    { id: 4, name: "Other" },
+  ];
+
+  const [changeMade, setChangeMade] = useState(false);
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [prop, setProp] = useState([]);
@@ -216,6 +244,11 @@ export default function MyProperties() {
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
+
+  const [selectedDocType, setSelectedDocType] = useState("");
+  const [uploadFiles, setUploadFiles] = useState([]);
+
+  const [moreInfoId, setMoreInfoId] = useState();
 
   // Add modal control functions
   const onClickEdit = (propertyId) => {
@@ -269,8 +302,11 @@ export default function MyProperties() {
         setProp(properties);
 
         const stillShowModal = localStorage.getItem("addPropDetails");
+        localStorage.removeItem("addPropDetails"); // remove after extracting
         const needMoreInfo = hasMoreInfoRequired(properties);
-        if (stillShowModal && needMoreInfo === true) {
+
+        if (stillShowModal && needMoreInfo !== -1) {
+          setMoreInfoId(needMoreInfo);
           setShowMoreInfoModal(true);
         }
         // Populate slides only for approved properties
@@ -292,12 +328,94 @@ export default function MyProperties() {
 
     //
     const redirectToPage = localStorage.getItem("redirectToPage");
-    if(redirectToPage){
+    if (redirectToPage) {
       localStorage.removeItem("redirectToPage");
       navigate(redirectToPage);
     }
+  }, [changeMade]);
 
-  }, []);
+  const closeModal = () => {
+    setShowMoreInfoModal(false);
+  };
+
+  // Upload the file to Supabase S3
+  const uploadFileToCloud = async (myFile) => {
+    const myFileName = removeSpaces(myFile.name); // removing blank space from name
+    const myPath = `propertyDocs/guestDocuments/${myFileName}`;
+    try {
+      const uploadParams = {
+        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+        Key: myPath,
+        Body: myFile, // The file content
+        ContentType: myFile.type, // The MIME type of the file
+      };
+      const command = new PutObjectCommand(uploadParams);
+      await client.send(command);
+      return myPath; //  return the file path
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
+
+  // New function to handle file upload
+  const handleFileAdding = (e) => {
+    if (e.target.files.length > 0) {
+      setUploadFiles([...uploadFiles, ...e.target.files]);
+    } else {
+      console.error("Please select a file to upload.");
+    }
+  };
+
+  const handleDocumentSubmit = async (myId) => {
+    if (!selectedDocType || uploadFiles.length === 0) {
+      return toast.error("Please select document type and upload files");
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+
+      // First upload files to cloud
+      const uploadedPaths = [];
+      for (const file of uploadFiles) {
+        const cloudPath = await uploadFileToCloud(file);
+        uploadedPaths.push(cloudPath);
+      }
+
+      // Update property with new documents and change status
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/updateproperty/${myId}?userId=${decoded.userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({
+            documents: {
+              type: selectedDocType,
+              files: uploadedPaths,
+            },
+            applicationStatus: "under-review", // Change status to under-review after upload
+          }),
+        }
+      );
+
+      if (response) {
+        toast.success("Documents uploaded successfully");
+        setChangeMade(!changeMade);
+        closeModal();
+        // Optionally refresh the component or update local state
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Error uploading documents");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error uploading documents");
+    }
+  };
 
   // Function to handle card click
 
@@ -357,23 +475,74 @@ export default function MyProperties() {
           <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
             <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
               <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
-                More Info required
+                Upload Required Documents
               </div>
               <div className="relative border-t border-slate-200 py-4 leading-normal text-slate-600 font-light">
-                {
-                  "You need to provide more information to complete the application process. Please upload documents for your property."
-                }
+                {`Property status: more-info-required. Please upload the required documents.`}
+
+                <div className="flex flex-col lg:flex-row w-full items-end mt-5">
+                  <div className="w-full my-2 xl:m-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Select Document Type
+                    </label>
+                    <select
+                      id="doctype"
+                      name="selectedDocType"
+                      value={selectedDocType}
+                      onChange={(e) => setSelectedDocType(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-3xl  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    >
+                      <option value="">Select Document Type</option>
+                      {documentTypes?.map((doctype) => (
+                        <option key={doctype._id} value={doctype.name}>
+                          {doctype.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="w-full  my-2 xl:m-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Upload File
+                    </label>
+                    <input
+                      type="file"
+                      id="file"
+                      name="selectDoc"
+                      onChange={handleFileAdding}
+                      multiple
+                      className="mt-1 block w-full text-gray-500  border-2 rounded-3xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+                    />
+                  </div>
+                </div>
+                {/* <label className="inline-flex items-center mt-3">
+                          <input
+                            type="checkbox"
+                            checked={termsncond}
+                            onChange={(e) => setTermsnCond(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-yellow-600"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            I agree to the terms and conditions.
+                          </span>
+                        </label> */}
               </div>
-              <div className="flex shrink-0 flex-wrap items-center pt-4 justify-end">
-                <button
-                  onClick={() => {
-                    setShowMoreInfoModal(false);
-                  }}
-                  className="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                  type="button"
-                >
-                  Close
-                </button>
+              <div className="flex gap-3 items-center pt-2 justify-end">
+                <Goldbutton
+                  onclick={() => handleDocumentSubmit(moreInfoId)}
+                  btnname={"Submit Documents"}
+                  properties={
+                    " bg-white text-black lg:w-[50%]  hover:bg-slate-100"
+                  }
+                />
+                <Goldbutton
+                  onclick={closeModal}
+                  btnname={"Cancel"}
+                  properties={
+                    " bg-white text-black lg:w-[20%]  hover:bg-slate-100"
+                  }
+                />
               </div>
             </div>
           </div>
@@ -388,7 +557,6 @@ export default function MyProperties() {
         <ApprovedListedProperties propertyData={prop} />
       </div>
       {/* Add modals */}
-      
 
       {isEditModalOpen && selectedPropertyId && (
         <div className="fixed inset-0  z-50 flex items-center justify-center">
@@ -397,10 +565,10 @@ export default function MyProperties() {
             onClick={closeEditModal}
           />
           <div className="relative bg-white rounded-lg shadow-xl w-full ">
-          <PropertyForm
-          closeEditModal={closeEditModal}
-          propertyId={selectedPropertyId}
-        />
+            <PropertyForm
+              closeEditModal={closeEditModal}
+              propertyId={selectedPropertyId}
+            />
           </div>
         </div>
       )}
@@ -422,16 +590,14 @@ export default function MyProperties() {
 
       {isSellModalOpen && selectedPropertyId && (
         <div className=" z-50 flex items-center justify-center ">
-         
           {/* <div className="relative bg-white rounded-lg shadow-xl w-full "> */}
-            <SellForm
-              closeSellModal={closeSellModal}
-              propertyId={selectedPropertyId}
-            />
+          <SellForm
+            closeSellModal={closeSellModal}
+            propertyId={selectedPropertyId}
+          />
           {/* </div> */}
         </div>
       )}
-
     </>
   );
 }
