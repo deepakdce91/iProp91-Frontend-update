@@ -9,6 +9,8 @@ import { X } from "lucide-react";
 function PropertyForm({ closeEditModal, propertyId }) {
   const [isEditing, setIsEditing] = useState(true);
   const [property, setProperty] = useState({});
+  const [towerSelected, setTowerSelected] = useState(false);
+  const [unitSelected, setUnitSelected] = useState(false);
   const [form, setForm] = useState({
     builder: "",
     project: "",
@@ -18,7 +20,7 @@ function PropertyForm({ closeEditModal, propertyId }) {
     houseNumber: "",
     floorNumber: "",
     nature: "",
-    status: "",
+    status: "", 
   });
 
   useEffect(() => {
@@ -40,6 +42,13 @@ function PropertyForm({ closeEditModal, propertyId }) {
       if (response.ok) {
         const property = await response.json();
         setProperty(property);
+
+        if(property.tower !== "") {
+          setTowerSelected(true);
+        }
+        if(property.unit !== "") {
+          setUnitSelected(true);
+        }
         setForm({
           builder: property.builder,
           project: property.project,
@@ -149,14 +158,14 @@ function PropertyForm({ closeEditModal, propertyId }) {
             {/* Tower Input */}
             <label className="font-medium">Tower:</label>
             <input
-              type="text"
+              type="text" 
               name="tower"
               className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : "bg-gray-100"
+                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : !towerSelected ? "bg-gray-100" : "bg-gray-300"
               }`}
               value={form.tower}
               onChange={isEditing ? handleChange : null}
-              disabled={!isEditing}
+              disabled={isEditing === false ? true : !towerSelected ? false : true}
             />
 
             {/* Unit Input */}
@@ -165,11 +174,11 @@ function PropertyForm({ closeEditModal, propertyId }) {
               type="text"
               name="unit"
               className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : "bg-gray-100"
+                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : !unitSelected ? "bg-gray-100" : "bg-gray-300"
               }`}
               value={form.unit}
               onChange={isEditing ? handleChange : null}
-              disabled={!isEditing}
+              disabled={isEditing === false ? true : !unitSelected ? false : true}
             />
 
             {/* Area Input */}
@@ -247,9 +256,10 @@ function PropertyForm({ closeEditModal, propertyId }) {
           <div className="flex justify-between w-full my-3  ">
             {isEditing && (
               <div className="flex justify-between w-full gap-4 ">
+               
                 <GoldButton
                   btnname="Save Changes"
-                  onClick={handleSubmit}
+                  onclick={handleSubmit}
                   properties="rounded-md flex-1 bg-gray-100 py-2 text-black hover:shadow-md hover:shadow-gold "
                 />
                 <button
