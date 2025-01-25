@@ -400,6 +400,7 @@ function Chats({
   userId = "IPP0001",
   userToken,
   currentGroupDetails,
+  onMessageUpdate,
 }) {
   // users/fetchuser/:id
 
@@ -489,6 +490,16 @@ function Chats({
           ...prev,
           messages: [...prev.messages, data.message],
         }));
+        if (typeof onMessageUpdate === 'function') {
+          onMessageUpdate({
+            messageId: data.message._id,
+            text: data.message.text,
+            file: data.message.file,
+            userId: data.message.userId,
+            userName: data.message.userName,
+            createdAt: data.message.createdAt
+          });
+        }
       }
     });
 
@@ -536,7 +547,7 @@ function Chats({
       socket.off(`messageUnflagged-${communityId}`);
       socket.off(`errorMessage-${communityId}`);
     };
-  }, [communityId]);
+  }, [communityId, onMessageUpdate]);
 
   const handleSendMessage = (messageObj, userId, userToken) => {
     socket.emit("sendMessage", {

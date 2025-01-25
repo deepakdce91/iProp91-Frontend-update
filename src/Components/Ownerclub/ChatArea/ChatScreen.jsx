@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useTheme } from "@mui/material";
 import { IoChevronBackSharp } from "react-icons/io5";
-import { BsInfoCircle } from "react-icons/bs";
+import { BsInfoCircle, BsThreeDotsVertical } from "react-icons/bs";
 import { MdOutlineClose } from "react-icons/md";
 import { IoStarOutline, IoStar, IoLockClosed } from "react-icons/io5";
 import axios from "axios";
@@ -10,6 +10,8 @@ import Chats from "./Chat";
 import { jwtDecode } from "jwt-decode";
 import NameHeader from "../../CompoCards/Header/NameHeader";
 import { Link } from "react-router-dom";
+import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
+import { formatDistanceToNow } from 'date-fns';
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -26,16 +28,42 @@ function ChatScreen() {
     useState(defaultCommunityUrl);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [articlesData, setArticlesData] = useState([]);
+  const [pinnedCommunities, setPinnedCommunities] = useState([]);
+  const [menuOpenFor, setMenuOpenFor] = useState(null);
+  const [communityMessages, setCommunityMessages] = useState({});
 
-  // Fetch all communities
-  const fetchAllCommunities = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in local storage.");
-      return;
+  // Move useMemo before any conditional returns
+  const sortedCommunities = useMemo(() => {
+    return filteredGroupNames.sort((a, b) => {
+      const aIsPinned = pinnedCommunities.includes(a._id);
+      const bIsPinned = pinnedCommunities.includes(b._id);
+      if (aIsPinned && !bIsPinned) return -1;
+      if (!aIsPinned && bIsPinned) return 1;
+      return 0;
+    });
+  }, [filteredGroupNames, pinnedCommunities]);
+
+  // Get token and userId at the top level
+  const token = localStorage.getItem("token");
+  const decodedToken = token ? jwtDecode(token) : null;
+  const userId = decodedToken?.userId;
+
+  // Filter the communities based on search query
+  useEffect(() => {
+    if (communitySearchQuery.trim() === "") {
+      setFilteredGroupNames(groupNames);
+    } else {
+      const filtered = groupNames.filter((community) =>
+        community.name.toLowerCase().includes(communitySearchQuery.toLowerCase())
+      );
+      setFilteredGroupNames(filtered);
     }
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.userId;
+  }, [communitySearchQuery, groupNames]);
+
+  // Move fetchAllCommunities outside useEffect and make it a function declaration
+  const fetchAllCommunities = () => {
+    if (!token || !userId) return;
+    
     axios
       .get(
         `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${userId}`,
@@ -47,7 +75,7 @@ function ChatScreen() {
       )
       .then((response) => {
         setGroupNames(response.data.data);
-        setFilteredGroupNames(response.data.data); // Initialize with all communities
+        setFilteredGroupNames(response.data.data);
         setHasGroups(response.data.data.length > 0);
       })
       .catch((error) => {
@@ -55,15 +83,60 @@ function ChatScreen() {
       });
   };
 
+  // Fetch all communities
+  useEffect(() => {
+    if (!token || !userId) return;
+    fetchAllCommunities();
+  }, [token, userId]);
+
+  // Set the first group data as default if available
+  useEffect(() => {
+    if (groupNames.length > 0) {
+      setCurrentGroupData(groupNames[0]);
+    }
+  }, [groupNames]);
+
+  // Fetch articles data
+  useEffect(() => {
+    if (!token || !userId) return;
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/articles/fetchAllArticles`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            params: { userId },
+          }
+        );
+        setArticlesData(response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchData();
+  }, [token, userId]);
+
+  // Early return if no token
+  if (!token || !userId) {
+    console.error("No token found in local storage.");
+    return null; // or return some UI for unauthorized access
+  }
+
   // Toggle admin status
   const toggleAdmin = async (communityId, idOfUser) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token || !userId) {
       console.error("No token found in local storage.");
       return;
     }
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.userId;
+
     axios
       .put(
         `${process.env.REACT_APP_BACKEND_URL}/api/communities/toggleAdmin/${communityId}/${idOfUser}?userId=${userId}`,
@@ -99,80 +172,23 @@ function ChatScreen() {
       });
   };
 
-  // Filter the communities based on search query
-  useEffect(() => {
-    if (communitySearchQuery.trim() === "") {
-      setFilteredGroupNames(groupNames); // Reset to full list if search query is empty
-    } else {
-      const filtered = groupNames.filter((community) =>
-        community.name
-          .toLowerCase()
-          .includes(communitySearchQuery.toLowerCase())
-      );
-      setFilteredGroupNames(filtered);
-    }
-  }, [communitySearchQuery, groupNames]);
-
-  useEffect(() => {
-    fetchAllCommunities();
-  }, []);
-
-  // Set the first group data as default if available
-  useEffect(() => {
-    if (groupNames.length > 0) {
-      setCurrentGroupData(groupNames[0]); // Set the first group as the current group
-    }
-  }, [groupNames]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found in local storage.");
-      return;
-    }
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.userId;
-
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/articles/fetchAllArticles`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-            params: { userId },
-          }
-        );
-
-        setArticlesData(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error(
-          "Error fetching data:",
-          error.response?.data || error.message
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("No token found in local storage.");
-    return;
-  }
-  const decodedToken = jwtDecode(token);
-  const userId = decodedToken.userId;
-
   // Update current group data and thumbnail when a group is selected
   const handleGroupSelect = (item) => {
     setCurrentGroupData(item);
     setCurrentGroupThumbnail(
       item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
-    ); // Set thumbnail
+    );
+  };
+
+  // Function to handle pinning/unpinning
+  const togglePin = (communityId) => {
+    setPinnedCommunities(prev => {
+      if (prev.includes(communityId)) {
+        return prev.filter(id => id !== communityId);
+      }
+      return [...prev, communityId];
+    });
+    setMenuOpenFor(null);
   };
 
   return (
@@ -193,7 +209,7 @@ function ChatScreen() {
         {/* <!-- component --> */}
         <div className="flex w-full  overflow-hidden relative gap-2 ">
 
-          <div className="overflow-hidden  flex rounded-xl w-[70%] bg-white">
+          <div className="overflow-hidden  flex rounded-xl w-[80%] bg-white">
             {/* <!-- Sidebar --> */}
             <div
               className={`relative bg-white text-black h-[95vh] md:w-[40%]  border-r-[1px] border-r-black/20 ${
@@ -201,12 +217,12 @@ function ChatScreen() {
               }`}
             >
               <div className=" p-2 relative top-0 ">
-                <div className="mx-2 my-5">
+                {/* <div className="mx-2 my-5">
                   <NameHeader firstname="Iprop91 Owner's Club" />
-                </div>
-                <div className="my-1  ">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                </div> */}
+                <div className="">
+                  <div className="relative ">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none  ">
                       <svg
                         className="w-4 h-4 text-black"
                         aria-hidden="true"
@@ -230,7 +246,7 @@ function ChatScreen() {
                         setCommunitySearchQuery(e.target.value);
                       }}
                       id="default-search"
-                      className="block w-full p-4 ps-10 text-md text-black border outline-none rounded-lg "
+                      className="block w-full px-4 py-3  ps-10 text-md text-black bg-gray-300 border outline-none rounded-xl placeholder-black/70 "
                       placeholder="Search"
                       required
                     />
@@ -239,11 +255,27 @@ function ChatScreen() {
               </div>
 
               {/* <!-- Contact List --> */}
-              <div className="overflow-y-auto     px-3  ">
-                {filteredGroupNames.map((item, index) => {
+              <div className="overflow-y-auto  mt-3   px-3  ">
+                {sortedCommunities.map((item, index) => {
+                  // Get the last message for this community
+                  const lastMessage = item.messages?.[item.messages?.length - 1];
+                  
+                  // Create message preview text
+                  const messagePreview = lastMessage ? (
+                    <span className="truncate">
+                      {lastMessage.userId === userId 
+                        ? `You: ${lastMessage.text || (lastMessage.file ? 'Shared a file' : '')}`
+                        : `${lastMessage.userName}: ${lastMessage.text || (lastMessage.file ? 'Shared a file' : '')}`}
+                    </span>
+                  ) : "No messages yet";
+
+                  // Calculate time ago
+                  const timeAgo = lastMessage 
+                    ? formatDistanceToNow(new Date(lastMessage.createdAt), { addSuffix: true })
+                    : "";
+
                   return (
                     <div
-                      onClick={() => handleGroupSelect(item)}
                       key={`community-${index}`}
                       className={`flex items-center mb-1 hover:bg-gray-300   cursor-pointer ${
                         currentGroupData &&
@@ -254,21 +286,62 @@ function ChatScreen() {
                         theme.palette.mode === "dark"
                           ? "bg-opacity-20 hover:bg-opacity-20"
                           : null
-                      } px-4 py-1 rounded-xl`}
+                      } px-2 py-2 rounded-xl`}
+                      onClick={() => handleGroupSelect(item)}
                     >
-                      <div className="w-[42px] h-[42px] items-center flex justify-center bg-gray-300 rounded-full mr-3 border-[2px] border-gold">
-                        <img
-                          src={
-                            item.thumbnail !== ""
-                              ? item.thumbnail
-                              : defaultCommunityUrl
-                          }
-                          alt="User Avatar"
-                          className="w-10 h-10 rounded-full"
-                        />
+                      <div className="flex-1 flex items-center">
+                        <div className="bg-gray-300 rounded-xl mr-3 border-2 border-gold">
+                          <img
+                            src={item.thumbnail || defaultCommunityUrl}
+                            alt="Community Avatar"
+                            className="w-12 h-12 rounded-xl"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold">{item.name}</p>
+                          <p className="text-xs text-gray-600 truncate">{messagePreview}</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold">{item.name}</p>
+
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-500">{timeAgo}</span>
+                        {pinnedCommunities.includes(item._id) && (
+                          <BsPinAngleFill className="text-gold w-4 h-4" />
+                        )}
+                        <div className="relative">
+                          <BsThreeDotsVertical
+                            className="w-5 h-5 opacity-0 text-black bg-black group-hover:opacity-100 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuOpenFor(menuOpenFor === item._id ? null : item._id);
+                            }}
+                          />
+                          {menuOpenFor === item._id && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                              <div className="py-1">
+                                <button
+                                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    togglePin(item._id);
+                                  }}
+                                >
+                                  {pinnedCommunities.includes(item._id) ? (
+                                    <>
+                                      <BsPinAngleFill className="mr-2" />
+                                      Unpin Community
+                                    </>
+                                  ) : (
+                                    <>
+                                      <BsPinAngle className="mr-2" />
+                                      Pin Community
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -336,6 +409,15 @@ function ChatScreen() {
                     communityId={currentGroupData._id}
                     userId={userId}
                     userToken={token}
+                    onMessageUpdate={(newMessage) => {
+                      setGroupNames(prev => 
+                        prev.map(group => 
+                          group._id === currentGroupData._id 
+                            ? { ...group, messages: [...(group.messages || []), newMessage] }
+                            : group
+                        )
+                      );
+                    }}
                   />
                 )}
                 {!currentGroupData && (
@@ -347,19 +429,18 @@ function ChatScreen() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-[30%] h-[97vh]  ">
+          <div className="flex flex-col gap-2 w-[20%] h-[97vh]  ">
             {/* ------ members list sidebar  */}
             <div
-              className={` bg-white rounded-xl  ease-in-out  h-[40%]  p-4   border-l shadow-md   `}
+              className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[40%]  p-4   border-l shadow-md   `}
             >
 
-              <h3 className="text-xl font-bold text-center leading-none mb-4">
-                List of users
+              <h3 className="text-xl font-bold text-center leading-none mb-2">
+                List of users ({currentGroupData?.customers?.length || 0})
               </h3>
 
               <ul
-                role="list"
-                className={`divide-y ${
+                className={` ${
                   theme.palette.mode === "dark"
                     ? "divide-gray-600"
                     : "divide-gray-300"
@@ -367,11 +448,11 @@ function ChatScreen() {
               >
                 {currentGroupData?.customers?.map((customer, index) => {
                   return (
-                    <li className="py-3 sm:py-4" key={`user-${index}-list`}>
+                    <li className="py-2" key={`user-${index}-list`}>
                       <div className="flex items-center space-x-4">
                         <div className="flex-shrink-0">
                           <img
-                            className="w-8 h-8 rounded-full"
+                            className="w-12 h-12 rounded-xl"
                             src={
                               customer.profilePicture !== ""
                                 ? customer.profilePicture
@@ -381,7 +462,7 @@ function ChatScreen() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{customer.name}</p>
+                          <p className="text-sm font-medium capitalize">{customer.name}</p>
                         </div>
                         {customer.admin === false ? <IoStar /> : ""}
                         {/* <button onClick={()=>{console.log(customer.admin)}}>hyeeee</button> */}
