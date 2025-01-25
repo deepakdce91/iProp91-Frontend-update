@@ -2,48 +2,120 @@ import { useState } from "react";
 import { GrClose } from "react-icons/gr";
 import axios from 'axios';
 import { toast } from "react-toastify";
+import heic2any from 'heic2any';
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { client } from "../../config/s3client";
 
 export default function TestimonialForm({ close }) {
   const [name, setName] = useState("");
   const [review, setReview] = useState("");
   const [image, setImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileAddedForUpload, setFileAddedForUpload] = useState(false);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
+      setFileAddedForUpload(true);
+      
+      if (file.type === "image/heic") {
+        try {
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+          });
+
+          const convertedFile = new File(
+            [convertedBlob],
+            file.name.replace(/\.heic$/i, ".jpeg"),
+            {
+              type: "image/jpeg",
+            }
+          );
+          setImage(convertedFile);
+          handleFilePreview(convertedFile);
+        } catch (error) {
+          console.error("Error converting HEIC file:", error);
+          toast.error("Error processing image file");
+        }
+      } else {
+        setImage(file);
+        handleFilePreview(file);
+      }
+    }
+  };
+
+  const handleFilePreview = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl({
+        name: file.name,
+        url: reader.result
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function removeSpaces(str) {
+    return str.replace(/\s+/g, '');
+  }
+
+  const uploadFileToCloud = async (myFile) => {
+    const myFileName = removeSpaces(myFile.name); // removing blank space from name
+    const myPath = `testimonialPFP/${myFileName}`;
+    try {
+      const uploadParams = {
+        Bucket: process.env.REACT_APP_TESTOMONIAL_IMAGE_BUCKET,
+        Key: myPath,
+        Body: myFile, // The file content
+        ContentType: myFile.type, // The MIME type of the file
       };
-      reader.readAsDataURL(file);
+      const command = new PutObjectCommand(uploadParams);
+      await client.send(command);
+      return myPath; //  return the file path
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, review, image });
+    
+    if (fileAddedForUpload && !isUploading) {
+      try {
+        let imageData = { name: "", url: "" };
+        
+        if (image) {
+          const uploadedFile = await uploadFileToCloud(image);
+          imageData = uploadedFile;
+        }
 
-    const testimonialData = {
-      testimonial: review,
-      userInfo: {
-        name: name,
-        profilePicture: previewUrl || "",
-      },
-    };
+        const testimonialData = {
+          testimonial: review,
+          userInfo: {
+            name: name,
+            profilePicture: imageData
+          }
+        };
 
-    try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/testimonials/addTestimonial`, testimonialData);
-      toast.success("Thank you for your feedback!");
-      setName("");
-      setReview("");
-      setImage(null);
-      setPreviewUrl(null);
-      close()
-    } catch (error) {
-      console.error("Error submitting testimonial:", error);
-      toast.error("Failed to submit testimonial. Please try again.");
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/testimonials/addTestimonial`, testimonialData);
+        toast.success("Thank you for your feedback!");
+        setName("");
+        setReview("");
+        setImage(null);
+        setPreviewUrl(null);
+        setFileAddedForUpload(false);
+        close();
+      } catch (error) {
+        console.error("Error submitting testimonial:", error);
+        toast.error("Failed to submit testimonial. Please try again.");
+      }
+    } else if (isUploading) {
+      toast.error("Please wait for image upload to complete");
+    } else {
+      toast.error("Please upload an image");
     }
   };
 
@@ -69,8 +141,8 @@ export default function TestimonialForm({ close }) {
                 <div className="md:w-48 md:h-48 w-40 h-40 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                   {previewUrl ? (
                     <img
-                      src={previewUrl}
-                      alt="Preview"
+                      src={previewUrl.url}
+                      alt={previewUrl.name}
                       className="w-full h-full object-cover"
                     />
                   ) : (

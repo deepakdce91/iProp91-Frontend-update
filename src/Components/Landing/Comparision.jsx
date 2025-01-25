@@ -51,6 +51,7 @@ export default function Comparison() {
   const [data, setData] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,8 +65,6 @@ export default function Comparison() {
           }
         );
         setData(response.data);
-        console.log(response.data);
-        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -76,23 +75,31 @@ export default function Comparison() {
     fetchData();
   }, []);
 
-  const handleSlideClick = (index) => {
+  // Symmetrical slide rendering with exact 5-1-5 distribution
+  const processedSlides = (() => {
+    if (data.length <= 11) return data;
+    
+    const totalSlides = 11;
+    const sideSlides = 5;
+    const middleIndex = Math.floor(data.length / 2);
+    
+    // Calculate start index to ensure perfect symmetry
+    const startIndex = Math.max(0, middleIndex - sideSlides);
+    
+    return data.slice(startIndex, startIndex + totalSlides);
+  })();
+
+  const handleSlideClick = (clickedIndex) => {
     if (swiperRef.current) {
       const swiper = swiperRef.current;
+      const centerIndex = Math.floor(processedSlides.length / 2);
       
-      // Get the current real index (considering loop)
-      const currentRealIndex = swiper.realIndex;
+      // Calculate offset from center slide
+      const offset = clickedIndex - centerIndex;
       
-      // Don't do anything if clicking the center slide
-      if (currentRealIndex === index) return;
-      
-      // Calculate the actual slide index considering the loop
-      const realIndex = swiper.params.loop 
-        ? index 
-        : index;
-      
-      swiper.slideTo(realIndex, 300);
-      setActiveIndex(index);
+      // Slide with offset to maintain symmetry
+      swiper.slideToLoop(centerIndex + offset, 300);
+      setActiveIndex(clickedIndex);
     }
   };
 
@@ -111,7 +118,11 @@ export default function Comparison() {
           }
         `}
       </style>
-      <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+      <div 
+        className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
@@ -119,7 +130,7 @@ export default function Comparison() {
           effect={'coverflow'}
           grabCursor={true}
           centeredSlides={true}
-          loop={data.length > 3}
+          loop={true}
           slidesPerView={3}
           spaceBetween={30}
           slidesPerGroup={1}
@@ -127,9 +138,9 @@ export default function Comparison() {
             enabled: true,
           }}
           autoplay={{
-            delay: 2000,
+            delay: 3000,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true,
+            pauseOnMouseEnter: isHovered,
           }}
           coverflowEffect={{
             rotate: 0,
@@ -143,13 +154,13 @@ export default function Comparison() {
           onSlideChange={(swiper) => {
             setActiveIndex(swiper.realIndex);
           }}
-          initialSlide={activeIndex}
+          initialSlide={5}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
             setActiveIndex(swiper.realIndex);
           }}
         >
-          {data.map((item, index) => (
+          {processedSlides.map((item, index) => (
             <SwiperSlide 
               key={index} 
               onClick={() => handleSlideClick(index)}

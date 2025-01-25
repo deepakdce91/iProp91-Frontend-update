@@ -116,7 +116,10 @@ export default function Profile() {
                   <p className="font-semibold text-sm">{user.data.name}</p>
                   <p className="text-xs text-gray-500">
                     {user.data.email ? (
-                      user.data.email.replace(/^.{5}/, "*****")
+                      user.data.email.replace(
+                        /^(.{2}).*(.{2})(@.*)$/,
+                        "$1****$2$3"
+                      )
                     ) : (
                       <span className="flex items-center space-x-1 cursor-pointer text-blue-500 hover:underline">
                         <Edit />

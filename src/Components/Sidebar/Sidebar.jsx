@@ -1,288 +1,149 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { FcLock } from "react-icons/fc";
+import axios from "axios";
 import { toast } from "react-toastify";
+import { 
+  Home, 
+  Shield, 
+  Users, 
+  Lightbulb, 
+  BookOpen, 
+  RefreshCw,
+  ChevronsLeft, 
+  ChevronsRight, 
+  Lock 
+} from "lucide-react";
 
-// Link list for sidebar items
-const Linklist = {
-  Concierge: {
-    icon: "/svgs/concierge.3b98be7e.svg",
-    link: "/concierge",
-  },
-  "iProp91 Safe": {
-    icon: "/svgs/safe.4c0ab81e.svg",
-    link: "/safe",
-  },
-  "Owners' Club": {
-    icon: "/svgs/family.0aba885d.svg",
-    link: "/family",
-  },
-  "Real Insights": {
-    icon: "/svgs/insight.f81afa5c.svg",
-    link: "/realinsight",
-  },
-  // "Buy/Sell": {
-  //   icon: "/svgs/buyselllease.708aab01.svg",
-  //   link: "/buysell",
-  // },
-  Advice: {
-    icon: "/svgs/advice.ad7002e7.svg",
-    link: "/advice",
-  },
-  Lend: {
-    icon: "/svgs/lend.610c2e62.svg",
-    link: "/lend",
-  },
-  NRI: {
-    icon: "/svgs/buyselllease.708aab01.svg",
-    link: "/nri",
-  },
-  listingPage: {
-    icon: "/svgs/buyselllease.708aab01.svg",
-    link: "/property-for-sale",
-  },
-  
-  
+const SidebarIcons = {
+  "Concierge": { icon: Home, link: "/concierge" },
+  "iProp91 Safe": { icon: Shield, link: "/safe" },
+  "Owners' Club": { icon: Users, link: "/family" },
+  "Real Insights": { icon: Lightbulb, link: "/realinsight" },
+  "Advice": { icon: BookOpen, link: "/advice" },
+  "Lend": { icon: RefreshCw, link: "/lend" },
+  "NRI": { icon: Home, link: "/nri" },
+  "listingPage": { icon: Home, link: "/property-for-sale" }
 };
 
-// SmallSidebar component
-const SmallSidebar = ({ onClose }) => {
-  return (
-    <div className="z-50  h-screen w-screen top-0 inset-0  lg:hidden  text-white bg-opacity-75  transform transition-transform duration-300 ease-in-out translate-x-0">
-      <div className="w-full bg-primary h-full flex flex-col z-[100]">
-        <div className="flex justify-end px-3 py-2">
-          <button onClick={onClose} className="p-2">
-            <img
-              alt="close"
-              loading="lazy"
-              width="14"
-              height="14"
-              src="/svgs/cross.c0162762.svg"
-            />
-          </button>
-        </div>
-        <nav className="flex  flex-col justify-evenly text-white">
-          {Object.keys(Linklist).map((key, index) => (
-            <Link
-              key={index}
-              to={Linklist[key].link}
-              className="flex gap-2 px-7 py-4 rounded-xl ml-auto mr-auto"
-              onClick={onClose} // Close sidebar on link click
-            >
-              <p className="mt-auto mb-auto">{key}</p>
-            </Link>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-};
-
-// Main Sidebar component
 const Sidebar = () => {
-  const [activeLink, setActiveLink] = useState("/concierge");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+  const [isSafeLocked, setIsSafeLocked] = useState(true);
+  const [isFamilyLocked, setIsFamilyLocked] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
   const location = useLocation();
 
-  const [isSafeLocked, setIsSafeLocked] = useState(true); // Separate state for Safe
-  const [isFamilyLocked, setIsFamilyLocked] = useState(true); // Separate state for Family
-
-  const addActive = (link) => {
-    setActiveLink(link);
-  };
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
   useEffect(() => {
-    let token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (token) {
       const decoded = jwtDecode(token);
       
-      // Fetch communities for the Family route
-      axios
-        .get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${decoded.userId}`,
-          {
-            headers: {
-              "auth-token": token,
-            },
-          }
-        )
-        .then((response) => {
-          if (response.data.data.length > 0) {
-            setIsFamilyLocked(false); // Unlock Family if communities exist
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${decoded.userId}`,
+        { headers: { "auth-token": token } }
+      )
+      .then(response => {
+        setIsFamilyLocked(response.data.data.length === 0);
+      })
+      .catch(console.error);
 
-      // Fetch properties for the Safe route
-      axios
-        .get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,
-          {
-            headers: {
-              "auth-token": token,
-            },
-          }
-        )
-        .then((response) => {
-          const approvedProperties = response.data.filter(property => property.applicationStatus === "approved");
-          if (approvedProperties.length > 0) {
-            setIsSafeLocked(false); // Unlock Safe if there are approved properties
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,
+        { headers: { "auth-token": token } }
+      )
+      .then(response => {
+        const approvedProperties = response.data.filter(property => property.applicationStatus === "approved");
+        setIsSafeLocked(approvedProperties.length === 0);
+      })
+      .catch(console.error);
     }
   }, []);
 
+  const renderLink = (key) => {
+    const { icon: Icon, link } = SidebarIcons[key];
+    const isLocked = (link === "/safe" && isSafeLocked) || (link === "/family" && isFamilyLocked);
+
+    const linkClass = `
+      flex items-center p-2  rounded-lg 
+      ${location.pathname.includes(link) ? "bg-primary text-white" : "hover:bg-primary"}
+      ${expanded ? "w-full" : "w-10 justify-center"}
+    `;
+
+    if (isLocked) {
+      return (
+        <button 
+          key={key} 
+          className={linkClass} 
+          onClick={() => toast(
+            link === "/safe" 
+              ? "Add a property to unlock this feature." 
+              : "You need to join a community to unlock this feature."
+          )}
+        >
+          <Lock className="h-5 w-5" />
+          {expanded && <span className="ml-3 truncate">{key}</span>}
+        </button>
+      );
+    }
+
+    return (
+      <Link 
+        key={key} 
+        to={link} 
+        className={linkClass}
+      >
+        <Icon className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
+        {expanded && <span className="ml-3 truncate">{key}</span>}
+      </Link>
+    );
+  };
+
   return (
-    <>
-      <div className="sticky top-0  bottom-0  border-r-[1px] border-r-white/20">
-        <div className="hidden lg:!flex h-screen flex-col z-50 w-44 justify-start shadow-xl gap-3 overflow-y-scroll p-2 no-scrollbar">
-          <img
-            alt=""
-            loading="lazy"
-            width="75"
-            height="69"
-            className="h-10 mt-5 w-10 ml-auto mr-auto"
-            src="/svgs/iPropLogo.6ed8e014.svg"
+    <aside 
+      className={`
+        h-screen p-4  relative bg-black
+        ${expanded ? "w-64 bg-white border-r-[1px] border-r-black/50  " : "w-16"}
+        transition-all duration-300 ease-in-out
+      `}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <nav className="h-full flex flex-col">
+        <div className="flex items-center justify-center mb-12 mt-5">
+          <img 
+            src="/svgs/iPropLogo.6ed8e014.svg" 
+            alt="Logo" 
+            className={`
+               
+              ${expanded ? "mr-4 h-14 w-14" : "h-8 w-8"}
+              transition-all duration-300
+            `} 
           />
-          {Object.keys(Linklist).map((key, index) => (
-            <div key={index} className="w-full">
-              {Linklist[key].link === "/safe" ? (
-                isSafeLocked ? (
-                  <button
-                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                      location.pathname.includes(Linklist[key].link)
-                        ? "border-simple "
-                        : ""
-                    } hover:!border-simple`}
-                    onClick={() => toast("Add a property to unlock this feature.")}
-                  >
-                    <FcLock />
-                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-                  </button>
-                ) : (
-                  <Link
-                    to={Linklist[key].link}
-                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                      location.pathname.includes(Linklist[key].link)
-                        ? "border-simple "
-                        : ""
-                    } hover:!border-simple`}
-                    onClick={() => addActive(Linklist[key].link)}
-                  >
-                    <img
-                      alt={key}
-                      loading="lazy"
-                      width="12"
-                      height="13"
-                      className="mt-auto mb-auto ml-auto"
-                      src={Linklist[key].icon}
-                    />
-                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-                  </Link>
-                )
-              ) : Linklist[key].link === "/family" ? (
-                isFamilyLocked ? (
-                  <button
-                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                      location.pathname.includes(Linklist[key].link)
-                        ? "border-simple "
-                        : ""
-                    } hover:!border-simple`}
-                    onClick={() => toast("You need to join a community to unlock this feature.")}
-                  >
-                    <FcLock />
-                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-                  </button>
-                ) : (
-                  <Link
-                    to={Linklist[key].link}
-                    className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                      location.pathname.includes(Linklist[key].link)
-                        ? "border-simple "
-                        : ""
-                    } hover:!border-simple`}
-                    onClick={() => addActive(Linklist[key].link)}
-                  >
-                    <img
-                      alt={key}
-                      loading="lazy"
-                      width="12"
-                      height="13"
-                      className="mt-auto mb-auto ml-auto"
-                      src={Linklist[key].icon}
-                    />
-                    <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-                  </Link>
-                )
-              ) : (
-                <Link
-                  to={Linklist[key].link}
-                  className={` w-full active text-black bg-white grid grid-cols-[10%,90%] gap-4 px-4 py-3 rounded-xl border-b-4 border-[1px] ${
-                    location.pathname.includes(Linklist[key].link)
-                      ? "border-simple "
-                      : ""
-                  } hover:!border-simple bg-black`}
-                  onClick={() => addActive(Linklist[key].link)}
-                >
-                  <img
-                    alt={key}
-                    loading="lazy"
-                    width="12"
-                    height="13"
-                    className="mt-auto mb-auto ml-auto"
-                    src={Linklist[key].icon}
-                  />
-                  <p className="text-sm text-left mb-auto mt-auto">{key}</p>
-                </Link>
-              )}
-            </div>
-          ))}
         </div>
 
-        {/* Small screen sidebar toggle button */}
-        <div className="lg:!hidden h-[10svh] align-middle  sticky top-0 bg-white justify-between !flex px-4 py-2 ">
-          <div>
-            <img
-              alt="logo"
-              loading="lazy"
-              width="47"
-              height="47"
-              style={{ color: "transparent" }}
-              src="/svgs/Logo1.d23bdd41.svg"
-            />
+        <div className="flex-1 space-y-2">
+          {Object.keys(SidebarIcons).map(renderLink)}
+        </div>
+      </nav>
+
+      {/* Expand Button on the Right Border */}
+      <div 
+        className={`
+          absolute top-0 right-0 h-full w-2 
+          cursor-col-resize ${expanded ? "bg-white" : "bg-black"}
+          transition-all duration-300 ease-in-out
+        `}
+        onClick={() => setExpanded(!expanded)}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        {showTooltip && (
+          <div className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black text-white text-sm px-2 py-1 rounded">
+            Resize
           </div>
-          <button
-            className="rounded-md mt-auto mb-auto p-2"
-            onClick={toggleSidebar}
-          >
-            <img
-              alt="hamburger"
-              loading="lazy"
-              width="32"
-              height="32"
-              style={{ color: "transparent" }}
-              src="/svgs/hamburger.8fe0d723.svg"
-            />
-          </button>
-        </div>
-
-        {/* Small sidebar */}
-        {sidebarOpen && (
-          <SmallSidebar isLocked={isFamilyLocked} onClose={toggleSidebar} />
         )}
       </div>
-    </>
+    </aside>
   );
 };
 

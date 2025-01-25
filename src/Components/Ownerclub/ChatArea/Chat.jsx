@@ -794,7 +794,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
   return (
     <>
       <div
-        className={`md:flex absolute top-5 right-[15%] hidden  md:right-[15%] lg:right-[33%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:flex absolute top-5 right-[17%] hidden  md:right-[37%] lg:right-[35%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
           isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
         }`}
       >
@@ -817,7 +817,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
           style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
-      <div className="absolute hidden md:block top-5 right-[10%] md:right-[10%] lg:right-[30%] ">
+      <div className="absolute hidden md:block top-5 right-[12%] md:right-[33%] lg:right-[32%] ">
       <button
         onClick={() => setIsModalOpen(true)}
         className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
