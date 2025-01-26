@@ -643,7 +643,7 @@ export default function Login({
 
   // Function to handle clicks outside the modal
   const handleClickOutside = (event) => {
-    if (
+    if ( 
       modalRef.current && 
       !modalRef.current.contains(event.target) && 
       verify === false  // Add this condition to prevent closing when Verify is active
@@ -670,7 +670,7 @@ export default function Login({
         stage1FormData || authPage ? "" : "absolute"
       } h-screen w-screen`}
     >
-      <div className="relative w-full h-fit sm:h-full" ref={modalRef}>
+      <div className="relative w-full h-full sm:h-full" ref={modalRef}>
         {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
@@ -810,6 +810,17 @@ export default function Login({
                   </div>
                 </>
               )}
+              {stage1FormData && (
+           <div className="w-full ">
+             <button
+              onClick={goBackToStage1}
+              className="flex mt-6 items-center px-3 py-2 rounded-lg text-gray-800 hover:text-black border border-1 border-white hover:border-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back
+            </button>
+           </div>
+          )}
             </form>
 
             {/* Right Side - Image */}
@@ -822,15 +833,7 @@ export default function Login({
           </div> */}
           </div>
 
-          {stage1FormData && (
-            <button
-              onClick={goBackToStage1}
-              className="flex mt-6 items-center px-3 py-2 rounded-lg text-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </button>
-          )}
+          
         </div>
       </div>
     </section>
