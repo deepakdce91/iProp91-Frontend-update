@@ -230,7 +230,7 @@ export default function MyProperties() {
     { id: 1, name: "Identity Proof" },
     { id: 2, name: "Address Proof" },
     { id: 3, name: "Property Documents" },
-    { id: 4, name: "Other" },
+    { id: 4, name: "Other" }, 
   ];
 
   const [changeMade, setChangeMade] = useState(false);
@@ -249,6 +249,12 @@ export default function MyProperties() {
   const [uploadFiles, setUploadFiles] = useState([]);
 
   const [moreInfoId, setMoreInfoId] = useState();
+
+  const [userPhone, setUserPhone] = useState();
+
+  const handleChangeMade = ()=>{
+    setChangeMade(!changeMade);
+  }
 
   // Add modal control functions
   const onClickEdit = (propertyId) => {
@@ -324,7 +330,32 @@ export default function MyProperties() {
       }
       toast.error("Error fetching properties");
     };
+
+    const fetchUser = async () => {
+      // Fetch user data from the server
+      let token = localStorage.getItem("token");
+      let tokenid = jwtDecode(token);
+      // console.log(tokenid);
+      // console.log(token);
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        });
+        const data = await response.json();
+        setUserPhone(data.data.phone);
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+
     fetchProperties();
+
+    fetchUser();
 
     //
     const redirectToPage = localStorage.getItem("redirectToPage");
@@ -417,6 +448,8 @@ export default function MyProperties() {
     }
   };
 
+  
+
   // Function to handle card click
 
   return (
@@ -430,6 +463,9 @@ export default function MyProperties() {
               onClickEdit={() => onClickEdit(property._id)}
               onClickBuy={() => onClickBuy(property._id)}
               onClickSell={() => onClickSell(property._id)}
+              userPhone={userPhone}
+              reFetchProperties={handleChangeMade}
+
             />
           ))}
           <Link

@@ -93,10 +93,6 @@ function EditUser() {
     const fetchUser = async () => {
       // Fetch user data from the server
       let token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/");
-        return;
-      }
       let tokenid = jwtDecode(token);
       // console.log(tokenid);
       // console.log(token);

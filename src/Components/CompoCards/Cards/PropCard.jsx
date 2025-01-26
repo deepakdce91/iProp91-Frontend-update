@@ -2,18 +2,44 @@ import { Edit } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Goldbutton from "../GoldButton/Goldbutton"
 import { useState } from "react";
-import {jwtDecode} from "jwt-decode";
-import { toast } from "react-hot-toast";
+import {jwtDecode} from "jwt-decode"; 
+import { toast } from "react-hot-toast"; 
 
-const uploadFileToCloud = async (myFile, userNumber) => {
-  // ... existing upload function ...
-};
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { client } from "../../../config/s3client";
+
+function removeSpaces(str) {
+  return str.replace(/\s+/g, "");
+}
+
+
+  // Upload the file to Supabase S3
+  const uploadFileToCloud = async (myFile, userNumber) => {
+    const myFileName = removeSpaces(myFile.name); // removing blank space from name
+    const myPath = `propertyDocs/${userNumber}/${myFileName}`;
+    try {
+      const uploadParams = {
+        Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+        Key: myPath,
+        Body: myFile, // The file content
+        ContentType: myFile.type, // The MIME type of the file
+      };
+      const command = new PutObjectCommand(uploadParams);
+      await client.send(command);
+      return myPath; //  return the file path
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
  
 export default function PropCard ({
   props,
   onClickEdit,
   onClickBuy,
-  onClickSell
+  onClickSell,
+  userPhone,
+  reFetchProperties,
 }) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -23,7 +49,7 @@ export default function PropCard ({
   const [editFormData, setEditFormData] = useState({
     tower: props.tower || '',
     unit: props.unit || '',
-    size: props.size || '',
+    size: props.size || '', 
     houseNumber: props.houseNumber || '',
     floorNumber: props.floorNumber || '',
     nature: props.nature || 'residential',
@@ -45,27 +71,25 @@ export default function PropCard ({
   const handleFileAdding = (e) => {
     if (e.target.files.length > 0) {
       setUploadFiles([...uploadFiles, ...e.target.files]);
-      handleFileUpload(e.target.files);
     } else {
       console.error("Please select a file to upload.");
     }
   };
 
-  const handleFileUpload = async (files) => {
-    if (files.length === 0) {
-      return console.error("Please select a file to upload.");
-    }
+  // const handleFileUpload = async (files) => {
+  //   if (files.length === 0) {
+  //     return console.error("Please select a file to upload.");
+  //   }
 
-    try {
-      for (const item of files) {
-        let cloudFilePath = await uploadFileToCloud(item, props.userNumber); // Assuming userNumber is available in props
-        // Handle the uploaded file path as needed
-      }
-      console.log("Files Uploaded!");
-    } catch (error) {
-      console.error("Some error occurred while uploading.");
-    }
-  };
+  //   try {
+  //     for (const item of files) {
+  //       await uploadFileToCloud(item, userPhone); 
+  //     }
+  //     console.log("Files Uploaded!");
+  //   } catch (error) {
+  //     console.error("Some error occurred while uploading.");
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -134,8 +158,8 @@ export default function PropCard ({
       
       // First upload files to cloud
       const uploadedPaths = [];
-      for (const file of uploadFiles) {
-        const cloudPath = await uploadFileToCloud(file, props.customerNumber);
+      for (const file of uploadFiles) { 
+        const cloudPath = await uploadFileToCloud(file, userPhone);
         uploadedPaths.push(cloudPath);
       }
 
@@ -160,7 +184,9 @@ export default function PropCard ({
 
       if (response.ok) {
         toast.success("Documents uploaded successfully");
+        reFetchProperties(); // Refetch properties after successful upload
         closeModal();
+
         // Optionally refresh the component or update local state
       } else {
         const errorData = await response.json();

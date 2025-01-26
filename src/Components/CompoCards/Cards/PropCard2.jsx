@@ -6,7 +6,7 @@ export default function PropCard2({ props, key }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onClickEdit = () => {
-    isModalOpen(true);
+    isModalOpen(true);   
   };
 
   const closeEditModal = () => {

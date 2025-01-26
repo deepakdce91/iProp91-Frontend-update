@@ -531,6 +531,10 @@ export default function Login({
         }
       );
       const loginresjson = await response.json();
+      if (loginresjson.success === false){
+        toast.error(loginresjson.message);
+        return;
+      }
       if (loginresjson.success === true) {
         console.log(loginresjson);
         // First store the token
@@ -639,8 +643,12 @@ export default function Login({
 
   // Function to handle clicks outside the modal
   const handleClickOutside = (event) => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
-      onClose(); // Close the modal
+    if (
+      modalRef.current && 
+      !modalRef.current.contains(event.target) && 
+      verify === false  // Add this condition to prevent closing when Verify is active
+    ) {
+      // onClose(); // Close the modal only if Verify is not open
     }
   };
 
