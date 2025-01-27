@@ -7,7 +7,7 @@ export default function Safe() {
   
   return (
     <>
-      <div className="h-screen overflow-y-scroll no-scrollbar bg-white ">
+      <div className="h-screen overflow-y-scroll no-scrollbar  rounded-xl ">
         <Routes>
           <Route path="*" element={<FirstSafe />} />
           <Route path="/Dealing/:propid/*" element={<Dealing location={location} />} />

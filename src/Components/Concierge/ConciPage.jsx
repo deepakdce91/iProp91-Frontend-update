@@ -10,7 +10,7 @@ import FinanceAssitance from "./Pages/FinanceAssistance";
 export default function Conci() {
   return (
     <>
-      <div className="flex flex-col lg:min-h-screen bg-white text-black overflow-y-auto  ">
+      <div className="flex flex-col lg:min-h-screen bg-white  rounded-xl text-black overflow-y-auto  ">
         <div className="border-b-[1px] pb-5 border-b-black/20">
           <NameHeader />
           {/* <div className="py-3 flex items-center justify-between pr-5">

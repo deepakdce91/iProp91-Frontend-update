@@ -89,9 +89,12 @@ export default function TestimonialForm({ close }) {
         
         if (image) {
           const uploadedFile = await uploadFileToCloud(image);
-          imageData = uploadedFile;
+          imageData = {
+            name: image.name,
+            url: uploadedFile
+          };
         }
-
+  
         const testimonialData = {
           testimonial: review,
           userInfo: {
@@ -99,7 +102,7 @@ export default function TestimonialForm({ close }) {
             profilePicture: imageData
           }
         };
-
+  
         await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/testimonials/addTestimonial`, testimonialData);
         toast.success("Thank you for your feedback!");
         setName("");
@@ -118,7 +121,6 @@ export default function TestimonialForm({ close }) {
       toast.error("Please upload an image");
     }
   };
-
   return (
     <section className=" absolute top-0 z-50 flex items-center justify-center w-screen left-0">
       {/* Backdrop */}

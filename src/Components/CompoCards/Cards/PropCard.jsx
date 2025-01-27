@@ -322,14 +322,14 @@ export default function PropCard ({
                   properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg"
                 />
               </Link>
-              <div className="relative group">
+              {/* <div className="relative group">
                 <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
                   <Edit />
                 </button>
                 <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-1 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   Edit
                 </span>
-              </div>
+              </div> */}
             </div>
           ) : location.pathname === "/concierge" ? (
             <>

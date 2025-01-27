@@ -11,7 +11,8 @@ import { jwtDecode } from "jwt-decode";
 import NameHeader from "../../CompoCards/Header/NameHeader";
 import { Link } from "react-router-dom";
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
+import { ChevronDown, X, Image, FileIcon, Mic, Music, Video, File, Link2 } from "lucide-react";
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -31,6 +32,8 @@ function ChatScreen() {
   const [pinnedCommunities, setPinnedCommunities] = useState([]);
   const [menuOpenFor, setMenuOpenFor] = useState(null);
   const [communityMessages, setCommunityMessages] = useState({});
+  const [unreadMessages, setUnreadMessages] = useState({});
+  const [allMessages, setAllMessages] = useState({});
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -54,7 +57,9 @@ function ChatScreen() {
       setFilteredGroupNames(groupNames);
     } else {
       const filtered = groupNames.filter((community) =>
-        community.name.toLowerCase().includes(communitySearchQuery.toLowerCase())
+        community.name
+          .toLowerCase()
+          .includes(communitySearchQuery.toLowerCase())
       );
       setFilteredGroupNames(filtered);
     }
@@ -63,7 +68,7 @@ function ChatScreen() {
   // Move fetchAllCommunities outside useEffect and make it a function declaration
   const fetchAllCommunities = () => {
     if (!token || !userId) return;
-    
+
     axios
       .get(
         `${process.env.REACT_APP_BACKEND_URL}/api/communities/getAllCommunitiesForCustomers?userId=${userId}`,
@@ -182,13 +187,204 @@ function ChatScreen() {
 
   // Function to handle pinning/unpinning
   const togglePin = (communityId) => {
-    setPinnedCommunities(prev => {
+    setPinnedCommunities((prev) => {
       if (prev.includes(communityId)) {
-        return prev.filter(id => id !== communityId);
+        return prev.filter((id) => id !== communityId);
       }
       return [...prev, communityId];
     });
     setMenuOpenFor(null);
+  };
+
+  // Function to count media by type
+  const getMediaCounts = (messages) => {
+    if (!Array.isArray(messages)) return {};
+    
+    return messages.reduce((acc, msg) => {
+      if (msg.file) {
+        // Get the file extension from the file type or name
+        const fileType = msg.file.type.toLowerCase();
+        
+        // Categorize files
+        if (fileType.includes('png') || fileType.includes('jpg') || fileType.includes('jpeg') || fileType.includes('gif')) {
+          acc.image = (acc.image || 0) + 1;
+        } else if (fileType.includes('mp4') || fileType.includes('mov') || fileType.includes('webm')) {
+          acc.video = (acc.video || 0) + 1;
+        } else if (fileType.includes('pdf') || fileType.includes('doc') || fileType.includes('xls') || 
+                   fileType.includes('ppt') || fileType.includes('txt')) {
+          acc.application = (acc.application || 0) + 1;
+        }
+      }
+      return acc;
+    }, {});
+  };
+
+  // Function to filter media by type
+  const getMediaByType = (messages, type) => {
+    if (!Array.isArray(messages)) return [];
+    
+    return messages.filter((msg) => {
+      if (!msg.file) return false;
+      
+      const fileType = msg.file.type.toLowerCase();
+      switch (type) {
+        case 'image':
+          return fileType.includes('png') || fileType.includes('jpg') || 
+                 fileType.includes('jpeg') || fileType.includes('gif');
+        case 'video':
+          return fileType.includes('mp4') || fileType.includes('mov') || 
+                 fileType.includes('webm');
+        case 'application':
+          return fileType.includes('pdf') || fileType.includes('doc') || 
+                 fileType.includes('xls') || fileType.includes('ppt') || 
+                 fileType.includes('txt');
+        default:
+          return false;
+      }
+    });
+  };
+
+  // Add function to handle message updates from Chat component
+  const handleMessageUpdate = (data) => {
+    const { communityId, messages, type } = data;
+    
+    // Update messages for the specific community
+    setAllMessages(prev => ({
+      ...prev,
+      [communityId]: messages
+    }));
+
+    // Keep existing unread message logic
+    if (type === 'new' && messages.userId !== userId) {
+      setUnreadMessages((prev) => ({
+        ...prev,
+        [communityId]: [...(prev[communityId] || []), messages._id],
+      }));
+    }
+  };
+
+  // Handle message seen status
+  const handleMessageSeen = (messageId) => {
+    setUnreadMessages((prev) => {
+      const newUnread = { ...prev };
+      Object.keys(newUnread).forEach((communityId) => {
+        newUnread[communityId] = newUnread[communityId].filter(
+          (id) => id !== messageId
+        );
+      });
+      return newUnread;
+    });
+  };
+
+  // Render media panel
+  const MediaPanel = ({ messages }) => {
+    // Ensure we're working with the messages array from the community data
+    const messagesList = messages?.messages || messages || [];
+    const mediaCounts = getMediaCounts(messagesList);
+
+    return (
+      <div className="max-w-md">
+      <div className="flex justify-between items-center my-4">
+        <h3 className="text-base font-medium">Files</h3>
+      </div>
+
+      <div className="space">
+        {/* Photos Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <Image className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.image || 0} photos</span>
+          </div>
+          <div className="overflow-x-scroll ">
+            <div className="flex gap-2 p-2 min-w-min">
+              {getMediaByType(messagesList, "image").map((msg, idx) => (
+                <img
+                  key={idx}
+                  src={msg.file.url || "/placeholder.svg"}
+                  alt=""
+                  className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Videos Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <Video className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.video || 0} videos</span>
+          </div>
+          <div className="overflow-x-auto ">
+            <div className="flex gap-2 p-2 min-w-min">
+              {getMediaByType(messagesList, "video").map((msg, idx) => (
+                <div key={idx} className="w-48 flex-shrink-0">
+                  <video src={msg.file.url} className="w-full rounded-lg" controls />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <File className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.application || 0} files</span>
+          </div>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 p-2 min-w-min">
+              {getMediaByType(messagesList, "application").map((msg, idx) => (
+                <a
+                  key={idx}
+                  href={msg.file.url}
+                  className="min-w-[200px] flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FileIcon className="w-4 h-4 mr-2 text-gray-500" />
+                  <span className="text-sm truncate">{msg.file.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Audio Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <Music className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.audio || 0} audio files</span>
+          </div>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 p-2 min-w-min">{/* Audio content would go here */}</div>
+          </div>
+        </div>
+
+        {/* Links Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <Link2 className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.link || 0} shared links</span>
+          </div>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 p-2 min-w-min">{/* Links content would go here */}</div>
+          </div>
+        </div>
+
+        {/* Voice Messages Section */}
+        <div>
+          <div className="flex items-center gap-3 p-3">
+            <Mic className="w-4 h-4 " />
+            <span className="text-sm">{mediaCounts.voice || 0} voice messages</span>
+          </div>
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 p-2 min-w-min">{/* Voice messages content would go here */}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    );
   };
 
   return (
@@ -208,7 +404,6 @@ function ChatScreen() {
       <div className={` w-full ${!hasGroups ? "blur-sm" : ""}`}>
         {/* <!-- component --> */}
         <div className="flex w-full  overflow-hidden relative gap-2 ">
-
           <div className="overflow-hidden  flex rounded-xl w-[80%] bg-white">
             {/* <!-- Sidebar --> */}
             <div
@@ -217,10 +412,13 @@ function ChatScreen() {
               }`}
             >
               <div className=" p-2 relative top-0 ">
-                {/* <div className="mx-2 my-5">
-                  <NameHeader firstname="Iprop91 Owner's Club" />
-                </div> */}
-                <div className="">
+                <div className="mx-2 my-5">
+                  <NameHeader
+                    firstname="iProp91 "
+                    secondname={"Owner's Club"}
+                  />
+                </div>
+                {/* <div className="">
                   <div className="relative ">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none  ">
                       <svg
@@ -251,27 +449,38 @@ function ChatScreen() {
                       required
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* <!-- Contact List --> */}
               <div className="overflow-y-auto  mt-3   px-3  ">
                 {sortedCommunities.map((item, index) => {
                   // Get the last message for this community
-                  const lastMessage = item.messages?.[item.messages?.length - 1];
-                  
+                  const lastMessage =
+                    item.messages?.[item.messages?.length - 1];
+
                   // Create message preview text
                   const messagePreview = lastMessage ? (
                     <span className="truncate">
-                      {lastMessage.userId === userId 
-                        ? `You: ${lastMessage.text || (lastMessage.file ? 'Shared a file' : '')}`
-                        : `${lastMessage.userName}: ${lastMessage.text || (lastMessage.file ? 'Shared a file' : '')}`}
+                      {lastMessage.userId === userId
+                        ? `You: ${
+                            lastMessage.text ||
+                            (lastMessage.file ? "Shared a file" : "")
+                          }`
+                        : `${lastMessage.userName}: ${
+                            lastMessage.text ||
+                            (lastMessage.file ? "Shared a file" : "")
+                          }`}
                     </span>
-                  ) : "No messages yet";
+                  ) : (
+                    "No messages yet"
+                  );
 
                   // Calculate time ago
-                  const timeAgo = lastMessage 
-                    ? formatDistanceToNow(new Date(lastMessage.createdAt), { addSuffix: true })
+                  const timeAgo = lastMessage
+                    ? formatDistanceToNow(new Date(lastMessage.createdAt), {
+                        addSuffix: true,
+                      })
                     : "";
 
                   return (
@@ -280,7 +489,7 @@ function ChatScreen() {
                       className={`flex items-center mb-1 hover:bg-gray-300   cursor-pointer ${
                         currentGroupData &&
                         (currentGroupData._id === item._id
-                          ? "bg-gray-200 text-black border-2 border-b-[2px] border-b-gold "
+                          ? "bg-gradient-to-r from-gray-300 to-gray-50 text-black border-2 border-b-[2px] border-b-gold "
                           : null)
                       } hover:bg-gray-100  ${
                         theme.palette.mode === "dark"
@@ -299,7 +508,9 @@ function ChatScreen() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold">{item.name}</p>
-                          <p className="text-xs text-gray-600 truncate">{messagePreview}</p>
+                          <p className="text-xs text-gray-600 truncate">
+                            {messagePreview}
+                          </p>
                         </div>
                       </div>
 
@@ -310,10 +521,12 @@ function ChatScreen() {
                         )}
                         <div className="relative">
                           <BsThreeDotsVertical
-                            className="w-5 h-5 opacity-0 text-black bg-black group-hover:opacity-100 cursor-pointer"
+                            className="w-5 h-5  text-black  cursor-pointer hidden"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setMenuOpenFor(menuOpenFor === item._id ? null : item._id);
+                              setMenuOpenFor(
+                                menuOpenFor === item._id ? null : item._id
+                              );
                             }}
                           />
                           {menuOpenFor === item._id && (
@@ -343,6 +556,11 @@ function ChatScreen() {
                           )}
                         </div>
                       </div>
+
+                      {/* Add unread message indicator */}
+                      {unreadMessages[item._id]?.length > 0 && (
+                        <div className="w-3 h-3 bg-green-500 rounded-full" />
+                      )}
                     </div>
                   );
                 })}
@@ -375,21 +593,24 @@ function ChatScreen() {
                   className={`${
                     theme.palette.mode === "dark"
                       ? "bg-white text-black"
-                      : "text-black bg-gray-200 "
+                      : "text-black bg-gradient-to-r from-gray-300 to-gray-50 "
                   }  p-4  `}
                 >
                   {currentGroupData && (
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center">
+                      <div className="flex flex-col ">
                         <button
-                          className="text-black hover:scale-110 hover:text-black/90"
+                          className="text-black hover:scale-110 hover:text-black/90 lg:hidden flex"
                           onClick={() => setCurrentGroupData()}
                         >
                           <IoChevronBackSharp className="w-6 h-6 mr-3  " />
                         </button>
-                        <h1 className="text-2xl font-semibold capitalize">
+                        <h1 className="text-3xl font-semibold capitalize">
                           {currentGroupData.name}
                         </h1>
+                        <p className="text-sm text-black/80 ">
+                          {currentGroupData?.customers?.length || 0} Members
+                        </p>
                       </div>
                     </div>
                   )}
@@ -409,15 +630,9 @@ function ChatScreen() {
                     communityId={currentGroupData._id}
                     userId={userId}
                     userToken={token}
-                    onMessageUpdate={(newMessage) => {
-                      setGroupNames(prev => 
-                        prev.map(group => 
-                          group._id === currentGroupData._id 
-                            ? { ...group, messages: [...(group.messages || []), newMessage] }
-                            : group
-                        )
-                      );
-                    }}
+                    onMessageUpdate={handleMessageUpdate}
+                    onSeenMessage={handleMessageSeen}
+                    messages={allMessages[currentGroupData._id] || []}
                   />
                 )}
                 {!currentGroupData && (
@@ -432,11 +647,10 @@ function ChatScreen() {
           <div className="flex flex-col gap-2 w-[20%] h-[97vh]  ">
             {/* ------ members list sidebar  */}
             <div
-              className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[40%]  p-4   border-l shadow-md   `}
+              className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-4   border-l shadow-md   `}
             >
-
               <h3 className="text-xl font-bold text-center leading-none mb-2">
-                List of users ({currentGroupData?.customers?.length || 0})
+                Group Info
               </h3>
 
               <ul
@@ -462,7 +676,9 @@ function ChatScreen() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium capitalize">{customer.name}</p>
+                          <p className="text-sm font-medium capitalize">
+                            {customer.name}
+                          </p>
                         </div>
                         {customer.admin === false ? <IoStar /> : ""}
                         {/* <button onClick={()=>{console.log(customer.admin)}}>hyeeee</button> */}
@@ -471,10 +687,15 @@ function ChatScreen() {
                   );
                 })}
               </ul>
+
+              {/* Media Panel */}
+              <MediaPanel 
+                messages={allMessages[currentGroupData?._id] || []}
+              />
             </div>
 
             {/* article section */}
-            <div
+            {/* <div
               className={` h-[60%] overflow-y-scroll bg-white border-[1px] border-black/20 lg:flex hidden lg:flex-col py-5 px-4 gap-5  rounded-xl`}
             >
               <p className="text-center text-2xl font-semibold text-black">
@@ -495,7 +716,7 @@ function ChatScreen() {
                   </Link>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -599,7 +820,7 @@ function ChatScreen() {
                 className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
                 onClick={() => setShowGuidelines(false)}
               >
-                Close
+                Agree & Close
               </button>
             </div>
           </div>

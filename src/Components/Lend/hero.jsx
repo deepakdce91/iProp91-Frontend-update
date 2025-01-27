@@ -67,7 +67,7 @@ const closeDisclaimerModal = ()=>{
           
         </div>
           <div className="text-center flex items-center  w-full mt-12">
-            <Goldbutton properties="border-[1px] border-gold bg-gray-100 w-[20%]  text-black px-8 py-3 rounded-lg font-medium  transition-colors text-lg font-bold" btnname={"GET STARTED"} onclick={showDisclaimerModal} />
+            <Goldbutton properties="border-[1px] border-gold bg-gray-100 w-full lg:w-[20%]  text-black px-8 py-3 rounded-lg font-medium  transition-colors text-lg font-bold" btnname={"GET STARTED"} onclick={showDisclaimerModal} />
           </div>
       </div>
 

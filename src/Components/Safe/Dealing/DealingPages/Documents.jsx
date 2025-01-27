@@ -134,8 +134,8 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   }
 
   return (
-    <div className="flex flex-col  text-black ">
-      <h1 className="text-2xl font-bold p-4   flex justify-between items-center">
+    <div className="flex flex-col h-[80vh]  text-black ">
+      <h1 className="text-2xl font-bold   flex justify-between items-center">
         {isMobile && (activeSection || activeDocument) && (
           <button onClick={handleBack} className="text-black/20">
             <ChevronLeft size={24} />
@@ -148,10 +148,10 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
         )}
       </h1>
 
-      <div className="flex flex-grow overflow-hidden  ">
+      <div className="flex flex-grow overflow-hidden  p-4 border-[2px] border-black/70 rounded-xl shadow-md">
         {/* First Layer */}
         <div
-          className={`w-full md:w-1/3 lg:w-[15%] bg-[#fdfbfb] border-r-[1px] border-r-black px-1 overflow-y-auto transition-transform duration-300 ease-in-out ${
+          className={`w-full md:w-1/3 lg:w-[20%] bg-[#fdfbfb] mr-2 border-r-[2px] border-r-black px-1 overflow-y-auto transition-transform duration-300 ease-in-out ${
             isMobile && !showFirstLayer ? '-translate-x-full z-0' : 'translate-x-0 z-0'
           } 
           ${isMobile ? 'absolute h-full z-0' : 'z-0 '}
@@ -160,35 +160,40 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
           {Object.keys(Data).map((section) => (
             <div
               key={section}
-              className={`flex items-center justify-between px-4 py-1.5  rounded-xl  cursor-pointer  ${
-                activeSection === section ? "border-b-[5px] bg-[#f3f3f3] border-b-gold border-[1px] border-gold shadow-gold  text-black z-0 " : " hover:bg-gray-100 transition-all "
-              }`}
+             className=" border-b-[1px] border-b-black/70"
               onClick={() => handleSectionClick(section)}
             >
+              <div  className={`flex items-center justify-between px-4 py-[18px]  cursor-pointer  ${
+                activeSection === section ? "border-b-[5px] bg-[#e9e6e6]   text-black z-0 " : " hover:bg-gray-100 transition-all "
+              }`}>
               {section}
               <img src="/images/greater-than.png" className="w-7 scale-125" alt="img" />
+              </div>
             </div>
           ))}
         </div>
 
+        <div className="p-2 border-[2px] border-black/70 rounded-xl shadow-md flex w-full">
         {/* Second Layer */}
         {(!isMobile || (isMobile && !showFirstLayer)) && activeSection && Data[activeSection].hasSecondLayer && (
-          <div className="w-full md:w-1/3 lg:w-1/5 bg-[#fdfbfb]   overflow-y-auto">
+          <div className="w-full md:w-1/3 lg:w-[28%] bg-[#fdfbfb]   overflow-y-auto border-r-[2px] border-r-black/70">
             <div className="">
               {Data[activeSection].content.map((doc) => (
                 <div
                   key={doc.name}
-                  className={`px-4 py-2  cursor-pointer flex  items-center gap-3 text-sm ${
-                    activeDocument?.name === doc.name
-                      ? "border-b-[4px] border-b-gold bg-[#f3f3f3]  shadow-gold  text-black z-0 "
-                      : "hover:bg-gray-100 transition-all"
-                  }`}
+                  className="py-1 border-b-[1px] border-b-black/70"
                   onClick={() => handleDocumentClick(doc)}
                 >
-                  <Folder size={15}/> 
+                  <div className={`px-4 py-[14px] no-scrollbar  cursor-pointer flex  items-center gap-3 text-sm ${
+                    activeDocument?.name === doc.name
+                      ? " bg-[#e5e2e2]  shadow-gold  text-black z-0 "
+                      : "hover:bg-gray-100 transition-all"
+                  }`}>
+                  <Folder className="w-4 h-4 mr-2"/> 
                   <p>
                   {doc.name}
                   </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -206,6 +211,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
             />
           </div>
         )}
+        </div>
       </div>
     </div>
   )

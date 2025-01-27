@@ -401,6 +401,8 @@ function Chats({
   userToken,
   currentGroupDetails,
   onMessageUpdate,
+  onSeenMessage,
+  messages: parentMessages
 }) {
   // users/fetchuser/:id
 
@@ -482,24 +484,35 @@ function Chats({
 
     socket.on(`existingMessages-${communityId}`, (existingMessages) => {
       setMessages(existingMessages);
+      // Notify parent of all existing messages
+      if (typeof onMessageUpdate === 'function') {
+        onMessageUpdate({
+          communityId,
+          messages: existingMessages.messages,
+          type: 'existing'
+        });
+      }
     });
 
     socket.on(`newMessage-${communityId}`, (data) => {
       if (data.communityId === communityId) {
-        setMessages((prev) => ({
-          ...prev,
-          messages: [...prev.messages, data.message],
-        }));
-        if (typeof onMessageUpdate === 'function') {
-          onMessageUpdate({
-            messageId: data.message._id,
-            text: data.message.text,
-            file: data.message.file,
-            userId: data.message.userId,
-            userName: data.message.userName,
-            createdAt: data.message.createdAt
-          });
-        }
+        setMessages((prev) => {
+          const updatedMessages = {
+            ...prev,
+            messages: [...prev.messages, data.message],
+          };
+          
+          // Notify parent of updated messages
+          if (typeof onMessageUpdate === 'function') {
+            onMessageUpdate({
+              communityId,
+              messages: updatedMessages.messages,
+              type: 'new'
+            });
+          }
+          
+          return updatedMessages;
+        });
       }
     });
 
@@ -539,6 +552,13 @@ function Chats({
       toast.error(data.error);
     });
 
+    // Add seen message handler
+    if (typeof onSeenMessage === 'function') {
+      socket.on(`messageSeen-${communityId}`, (data) => {
+        onSeenMessage(data.messageId);
+      });
+    }
+
     return () => {
       socket.off(`existingMessages-${communityId}`);
       socket.off(`newMessage-${communityId}`);
@@ -546,8 +566,9 @@ function Chats({
       socket.off(`messageFlagged-${communityId}`);
       socket.off(`messageUnflagged-${communityId}`);
       socket.off(`errorMessage-${communityId}`);
+      socket.off(`messageSeen-${communityId}`);
     };
-  }, [communityId, onMessageUpdate]);
+  }, [communityId, onMessageUpdate, onSeenMessage]);
 
   const handleSendMessage = (messageObj, userId, userToken) => {
     socket.emit("sendMessage", {
@@ -805,7 +826,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
   return (
     <>
       <div
-        className={`md:flex absolute top-5 right-[17%] hidden  md:right-[37%] lg:right-[35%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:flex absolute top-5 right-[17%] hidden  md:right-[37%] lg:right-[26%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
           isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
         }`}
       >
@@ -828,7 +849,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
           style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
-      <div className="absolute hidden md:block top-5 right-[12%] md:right-[33%] lg:right-[32%] ">
+      <div className="absolute hidden md:block top-5 right-[12%] md:right-[33%] lg:right-[23%] ">
       <button
         onClick={() => setIsModalOpen(true)}
         className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
@@ -1029,8 +1050,8 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   <TbPaperclip
                     className={
                       theme.palette.mode === "dark"
-                        ? "h-6 w-6 text-gray-500 hover:scale-110 hover:text-black"
-                        : "h-6 w-6 text-gray-500 hover:scale-110 hover:text-gray-900"
+                        ? "h-6 w-6 text-black hover:scale-110 "
+                        : "h-6 w-6 text-gray-500 hover:scale-110"
                     }
                   />
                 </button>
@@ -1038,23 +1059,23 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   className="mr-1"
                   onClick={() => setShowPicker(!showPicker)}
                 >
-                  <FaSmile
+                  {/* <FaSmile
                     className={
                       theme.palette.mode === "dark"
-                        ? "text-gray-500 hover:scale-110 hover:text-black"
-                        : "text-gray-500 hover:scale-110 hover:text-gray-900"
+                        ? "text-gold hover:scale-110 "
+                        : "text-gold hover:scale-110 "
                     }
                     style={{
                       fontSize: "24px",
                       cursor: "pointer",
                       marginLeft: "8px",
                     }}
-                  />
+                  /> */}<p className="text-2xl ml-3">😊</p>
                 </button>
               </div>
               <button
                 disabled={textMessage === "" ? true : false}
-                className={`bg-gray-200 text-black px-4 py-2 rounded-md ml-2`}
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer`}
                 onClick={(e) => {
                   e.preventDefault();
                   addMessage();
@@ -1068,7 +1089,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                 style={{
                   position: "absolute",
                   bottom: "100px",
-                  right: "0px",
+                  right: "50%",
                   zIndex: 1000,
                 }}
               >
@@ -1097,7 +1118,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
               </p>
             </div>
             <button
-              className="bg-gold hover:bg-gold/60 text-black px-4 py-2 rounded-md ml-2"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2"
               onClick={addFile}
             >
               Send

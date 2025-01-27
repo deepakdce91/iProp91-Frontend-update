@@ -165,7 +165,7 @@ const ListedPropertyCard = ({
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 p-4">
+          <div className="grid grid-cols-4 gap-x-8 gap-y-4 p-4">
             <div>
               <p className="text-sm text-gray-500">Super Built-Up Area</p>
               <p className="font-medium">

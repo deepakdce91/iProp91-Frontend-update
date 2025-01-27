@@ -41,10 +41,10 @@ export default function Advice() {
   }, []);
 
   return (
-    <section ref={containerRef} className=" ">
+    <section ref={containerRef} className="bg-white md:rounded-t-xl md:overflow-hidden ">
       {/* Profile Header */}
       {hasToken && (
-        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
+        <div className="fixed z-50 top-4 right-4  p-2 hidden lg:flex">
           <Profile/>
         </div>
       )}
@@ -75,7 +75,7 @@ export default function Advice() {
           </p>
         </div>
       </div>  */}
-        <div className={`backdrop-blur-md relative ${scrollY > 100 ? "" : ""}`}>
+        <div className={``}>
           <AdviceCards />
           <DraftAgreementsList/>
           {/* <Que /> */}

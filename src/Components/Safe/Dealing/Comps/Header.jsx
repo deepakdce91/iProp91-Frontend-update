@@ -41,7 +41,7 @@ export default function NameHeader({ activeDocument }) {
   , []);
   return (
     <>
-      <div className="hidden lg:!block ">
+      <div className="hidden lg:!block bg-white rounded-xl pb-4">
         <div className="lg:pt-5 px-7 ">
           <div className="flex justify-between">
             <div className="mb-">

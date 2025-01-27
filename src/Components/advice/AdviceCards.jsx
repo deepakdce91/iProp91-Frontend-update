@@ -71,8 +71,6 @@ export default function AdviceCards() {
     }
   }, [isPaused]);
 
-  
-
   const prevSlide = () => {
     setCurrentIndex(
       (prevIndex) => (prevIndex - 1 + carouselData.length) % carouselData.length
@@ -95,7 +93,7 @@ export default function AdviceCards() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent text-white p-4 md:p-8 overflow-hidden">
+    <div className="w-full min-h-screen bg-transparent text-white p-2 md:p-8 overflow-hidden">
       <div className="mx-auto min-h-screen flex flex-col justify-center">
         <AnimatePresence mode="wait">
           {!showAgreements ? (
@@ -106,28 +104,28 @@ export default function AdviceCards() {
               className="flex flex-col lg:flex-row items-center lg:gap-8 justify-center"
             >
               {/* Text content */}
-              <div className="w-full lg:w-1/3 mb-8  md:mb-0 lg:ml-14 space-y-6 mt-20 lg:mt-0">
+              <div className="w-full lg:w-1/3 lg:ml-14 space-y-6  lg:mt-0">
                 <p className="lg:text-7xl text-5xl text-primary font-bold text-start">
                   Advice
                 </p>
                 <div className="space-y-1  ">
-                <p className="lg:text-2xl max-w-2xl lg:w-full text-start text-xl text-black font-semibold">
-                  Understand the law, legal positions and the key terms of your
-                  documents. Happy ownership!
-                </p>
-                <ul className="md:text-lg space-y-2 text-gray-700 md:px-2">
-                  <li className="flex items-center">
-                    <span>Foundational principles and regulations</span>
-                  </li>
-                  <li className="flex items-center ">
-                    <span>Relevant laws for your situation</span>
-                  </li>
-                  <li className="flex items-center ">
-                    <span>Your rights and responsibilities</span>
-                  </li>
-                  <li className="flex items-center ">
-                    <span>Compliance for smooth ownership</span>
-                  </li>
+                  <p className="lg:text-2xl max-w-2xl lg:w-full text-start text-xl text-black font-semibold">
+                    Understand the law, legal positions and the key terms of
+                    your documents. Happy ownership!
+                  </p>
+                  <ul className="md:text-lg space-y-2 text-gray-700 md:px-2">
+                    <li className="flex items-center">
+                      <span>Foundational principles and regulations</span>
+                    </li>
+                    <li className="flex items-center ">
+                      <span>Relevant laws for your situation</span>
+                    </li>
+                    <li className="flex items-center ">
+                      <span>Your rights and responsibilities</span>
+                    </li>
+                    <li className="flex items-center ">
+                      <span>Compliance for smooth ownership</span>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -214,80 +212,87 @@ export default function AdviceCards() {
                   </button>
                 </div>
 
-                 {/* Horizontal Carousel for smaller screens */}
-            <div className="md:hidden flex justify-center items-center h-[80vh] overflow-hidden ">
-              {[-1, 0, 1].map((offset) => {
-                const slideIndex =
-                  (currentIndex + offset + carouselData.length) %
-                  carouselData.length;
-                const item = carouselData[slideIndex];
-                return (
-                  <motion.div
-                    key={item.id}
-                    className={`absolute w-[80%] py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
-                      offset === 0 ? "z-20" : "z-10 hover:scale-110"
-                    }`}
-                    initial={{
-                      scale: offset === 0 ? 0.9 : 0.7,
-                      x: `${offset * 60}%`,
-                      opacity: offset === 0 ? 0.9 : 0.5,
-                    }}
-                    animate={{
-                      scale: offset === 0 ? 1 : 0.8,
-                      x: `${offset * 50}%`,
-                      opacity: offset === 0 ? 1 : 0.7,
-                    }}
-                    whileHover={{ scale: offset === 0 ? 1.05 : 0.85 }}
-                    transition={{ duration: 0.5 }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => handleCardClick(offset, slideIndex)}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                    style={{
-                      backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
+                {/* Horizontal Carousel for smaller screens */}
+                <div className="md:hidden relative flex justify-center items-center h-[80vh] overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={carouselData[currentIndex].id}
+                      className="w-[90%] h-[500px] bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 flex flex-col"
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      {/* Header section with fixed height */}
+                      <div className="mb-4">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white truncate">
+                          {carouselData[currentIndex].title}
+                        </h3>
+                      </div>
+
+                      {/* Content section with scrollable area if needed */}
+                      <div className="flex-1 overflow-y-auto scrollbar-hide">
+                        <ul className="space-y-3">
+                          {carouselData[currentIndex].features.map(
+                            (feature, idx) => (
+                              <motion.li
+                                key={idx}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="flex items-start gap-2"
+                              >
+                                <span className="text-base text-gray-300 shrink-0">
+                                  •
+                                </span>
+                                <span className="text-sm md:text-base text-gray-300 break-words">
+                                  {feature}
+                                </span>
+                              </motion.li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Navigation Buttons */}
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                    aria-label="Previous slide"
                   >
-                    <h3 className="text-3xl  font-bold mb-4 text-white">
-                      {item.title}
-                    </h3>
-                    <ul className="space-y-3">
-                      {item.features.map((feature, idx) => (
-                        <motion.li
-                          key={idx}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="flex items-start gap-2"
-                        >
-                          <span className="text-base text-gray-300">•</span>
-                          <span className="text-base text-gray-300">
-                            {feature}
-                          </span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                );
-              })}
-              {/* <button
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button> */}
-            </div>
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+
+                  {/* Navigation Dots */}
+                  <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {carouselData.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          currentIndex === idx
+                            ? "bg-black w-4"
+                            : "bg-black hover:bg-white/75"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : (

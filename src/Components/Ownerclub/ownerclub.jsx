@@ -19,8 +19,8 @@ export default function OwnerClub(){
       }, []);
     return (
         <>
-        <div className="min-h-screen w-full bg-white">
-            <div className="flex h-full w-full px-5 py-2 bg-black" >
+        <div className="min-h-screen w-full ">
+            <div className="flex h-full w-full  bg-black" >
                 <ChatScreen userId={userId} userToken={userToken} />
             </div>
         </div>

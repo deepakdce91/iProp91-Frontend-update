@@ -18,6 +18,7 @@ import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from "../../../config/s3client";
+import { ProfileCompletionBanner } from "../../ProfileCompletionBanner/ProfileCompletionBanner";
 
 function hasMoreInfoRequired(objectsArray) {
   // Check if the array is not empty
@@ -455,6 +456,9 @@ export default function MyProperties() {
   return (
     <>
       <div className="flex flex-col z-10">
+        <div className="px-5">
+        <ProfileCompletionBanner/>
+        </div>
         <div className="hidden lg:!flex flex-wrap gap-4 mx-2">
           {prop.map((property, index) => (
             <PropCard
