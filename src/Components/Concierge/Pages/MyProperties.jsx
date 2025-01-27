@@ -512,8 +512,8 @@ export default function MyProperties() {
         </div>
 
         {showMoreInfoModal === true && (
-          <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
-            <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+          <div className="fixed inset-0 z-50 grid h-screen w-screen  place-items-center backdrop-blur-sm transition-opacity duration-300">
+            <div className="relative m-4 p-4  w-[90%] sm:min-w-[40%] sm:max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
               <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
                 Upload Required Documents
               </div>

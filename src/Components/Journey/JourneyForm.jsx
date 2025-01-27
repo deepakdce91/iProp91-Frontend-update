@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Auth from "../User/Login/Auth";
+import { useNavigate } from "react-router-dom";
 
 const publicUrls = [
   "laws",
@@ -52,6 +53,7 @@ const Loader = () => (
 );
 
 const JourneyForm = ({ setIsLoggedIn }) => {
+  const navigate = useNavigate(); 
   const [initialQuestions, setInitialQuestions] = useState([]);
   const [entryPoint, setEntryPoint] = useState({});
   const [history, setHistory] = useState([]);
@@ -213,6 +215,14 @@ const JourneyForm = ({ setIsLoggedIn }) => {
     <>
       {!isAuthModalOpen && (
         <div className="w-full min-h-screen px-6 md:px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
+           <div  className="w-full flex justify-end items-end">
+           <button 
+            onClick={() => navigate('/')} 
+            className=" z-10 p-2 rounded-full hover:bg-gray-700 transition-colors"
+          >
+            <X className="w-6 h-6 text-white" strokeWidth={2} />
+          </button>
+           </div>
           <div className="relative">
             <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
               <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />

@@ -180,7 +180,7 @@ export default function PropCard ({
             applicationStatus: "under-review", // Change status to under-review after upload
           }),
         }
-      );
+      ); 
 
       if (response.ok) {
         toast.success("Documents uploaded successfully");
