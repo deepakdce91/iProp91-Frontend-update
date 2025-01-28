@@ -29,6 +29,7 @@ import CentralLaw from "../Laws/components/CentralLaw";
 import StateLaw from "../Laws/components/StateLaw";
 import BlogPost from "../Library/BlogPost";
 import SiteFaqs from "../site-faqs/page";
+import Stage2Form from "../Journey/Stage2Form";
 
 function LandingPage() {
   return (
@@ -161,12 +162,16 @@ function Landing({ setIsLoggedIn }) {
           path="/stage1Form"
           element={<Stage1Form setIsLoggedIn={setIsLoggedIn} />}
         />
+        <Route
+          path="/stage2Form"
+          element={<Stage2Form setIsLoggedIn={setIsLoggedIn} />}
+        />
 
         <Route path="/library/:title" element={<BlogPost />} />
       </Routes>
-      {location.pathname !== "/advice" ||
+      {(location.pathname !== "/advice" ||
         location.pathname !== "/journey" ||
-        (location.pathname !== "/stage1Form" && <Footer />)}
+        location.pathname !== "/stage1Form"  || location.pathname !== "/stage2Form") && <Footer />}
       <Footer />
     </>
   );
