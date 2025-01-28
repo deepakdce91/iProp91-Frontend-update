@@ -247,7 +247,9 @@ const JourneyForm = ({ setIsLoggedIn }) => {
                   {option.redirectionLink &&
                   (option.redirectionLink.split("/")[
                     option.redirectionLink.split("/").length - 1
-                  ] === "stage1Form" ||
+                  ] === "stage1Form" || option.redirectionLink.split("/")[
+                    option.redirectionLink.split("/").length - 1
+                  ] === "stage2Form"  ||
                     publicUrls.includes(
                       option.redirectionLink.split("/")[
                         option.redirectionLink.split("/").length - 1
