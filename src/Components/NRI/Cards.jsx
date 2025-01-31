@@ -94,7 +94,7 @@ export default function Cards() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black">
+    <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black mt-24 lg:mt-0">
       <div className="p-4 w-full md:p-8 flex flex-col lg:flex-row items-center justify-center">
         <div className="flex flex-col w-full lg:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}

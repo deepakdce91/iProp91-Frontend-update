@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Profile from "../User/Profile/profile";
 
+import { motion } from "framer-motion";
+
 const SidebarIcons = {
   Concierge: { icon: Home, link: "/concierge" },
   "iProp91 Safe": { icon: Key, link: "/safe" },
@@ -32,9 +34,15 @@ const SidebarIcons = {
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <div className="z-[100] h-screen w-screen top-0 inset-0 lg:hidden text-white transform transition-transform duration-300 ease-in-out translate-x-0">
+    <motion.div 
+      initial={{ opacity: 0, y: "-100%" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: "-100%" }}
+      transition={{ type: "tween", duration: 0.3 }}
+      className="z-[100] fixed h-screen w-screen top-0 inset-0 lg:hidden text-white transform transition-transform duration-300 ease-in-out"
+    >
       <div
-        className="w-full h-full flex flex-col z-[100] "
+        className="w-full h-full flex flex-col z-[100]"
         style={{
           backgroundImage: `url(/images/sidebarbg.png)`,
           backgroundSize: "cover",
@@ -55,20 +63,20 @@ const SmallSidebar = ({ onClose }) => {
             />
           </button>
         </div>
-        <nav className="flex flex-col justify-evenly text-white z-[110] ">
+        <nav className="flex flex-col justify-evenly text-white z-[110]">
           {Object.keys(SidebarIcons).map((key, index) => (
             <Link
               key={index}
               to={SidebarIcons[key].link}
               className="flex gap-2 px-7 py-4 rounded-xl ml-auto mr-auto"
-              onClick={onClose} // Close sidebar on link click
+              onClick={onClose}
             >
               <p className="text-xl my-3 md:my-5">{key}</p>
             </Link>
           ))}
         </nav>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -226,7 +234,7 @@ const Sidebar = () => {
       </aside>
 
       {/* Small screen sidebar toggle button */}
-      <div className="lg:!hidden h-[10svh] align-middle z-[100] sticky top-0 bg-white justify-between !flex px-4 py-2 ">
+      <div className="lg:!hidden w-full h-[10svh] align-middle z-[100] sticky top-0 bg-white justify-between !flex px-4 py-2 ">
         <div>
           <img
             alt="logo"

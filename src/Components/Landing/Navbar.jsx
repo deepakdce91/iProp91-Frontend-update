@@ -258,7 +258,7 @@ useEffect(() => {
               <Link
                 to="/services"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  hover:text-black"
               >
                 Services
               </Link>
@@ -268,7 +268,7 @@ useEffect(() => {
               <Link
                 to="/nri"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 NRI
               </Link>
@@ -278,7 +278,7 @@ useEffect(() => {
               <Link
                 to="/advice"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 Advice
               </Link>
@@ -288,7 +288,7 @@ useEffect(() => {
               <Link
                 to="/lend"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 Lend
               </Link>

@@ -151,7 +151,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/nri" element={<NRI />} />
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
-        <Route path="/sitefaqs" element={<SiteFaqs />} />
+        <Route path="/site-faqs" element={<SiteFaqs />} />
         <Route
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
@@ -172,7 +172,7 @@ function Landing({ setIsLoggedIn }) {
       {(location.pathname !== "/advice" ||
         location.pathname !== "/journey" ||
         location.pathname !== "/stage1Form"  || location.pathname !== "/stage2Form") && <Footer />}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

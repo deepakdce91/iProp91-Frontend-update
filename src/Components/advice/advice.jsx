@@ -41,13 +41,9 @@ export default function Advice() {
   }, []);
 
   return (
-    <section ref={containerRef} className="bg-white md:rounded-t-xl md:overflow-hidden ">
+    <section ref={containerRef} className="bg-white md:rounded-t-xl md:overflow-hidden mt-24 lg:mt-0">
       {/* Profile Header */}
-      {hasToken && (
-        <div className="fixed z-50 top-4 right-4  p-2 hidden lg:flex">
-          <Profile/>
-        </div>
-      )}
+      
 
       {/* Background Section */}
       {/* <motion.div

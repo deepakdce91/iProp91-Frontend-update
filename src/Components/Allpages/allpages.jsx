@@ -15,6 +15,7 @@ import JourneyPage from "../getstartedForm/getStartedForm.jsx";
 import MainListingPage from "../listingpage/page.jsx";
 import PropertyDetail from "../listingpage/id/page.jsx";
 import Footer from "../Landing/Footer.jsx";
+import SiteFaqs from "../site-faqs/page.jsx";
 
 export default function AllPage() {
   const location = useLocation();
@@ -41,6 +42,7 @@ export default function AllPage() {
             <Route path="/journey" element={<JourneyPage />} />
             <Route path="/addproperty" element={<AddProperty />} />
             <Route path="/profile" element={<UpdateUser />} />
+            <Route path="/site-faqs" element={<SiteFaqs />} />
 
             <Route path="/property-for-sale" element={<MainListingPage />} />
             <Route path="/property-for-sale/:id" element={<PropertyDetail />} />

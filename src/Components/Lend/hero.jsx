@@ -19,9 +19,9 @@ const closeDisclaimerModal = ()=>{
 
 
   return (
-    <section className="relative  text-black h-screen"  >
+    <section className="relative  text-black h-screen mt-10"  >
       <div className="container mx-auto px-4 py-20 ">
-        <div className="grid lg:grid-cols-1 gap-12 items-center mt-16">
+        <div className="grid lg:grid-cols-1 gap-12 items-center ">
           <div className="space-y-8">
             <h1 className="text-4xl lg:text-6xl font-bold w-full leading-tight">
               The Home Loan Process, <br /> Now Online

@@ -21,12 +21,7 @@ export default function NRI() {
 
   return (
     <section className="bg-white md:rounded-t-xl md:overflow-hidden">
-      {/* Profile Header */}
-      {hasToken && (
-        <div className="fixed z-50 top-4 right-4 hidden lg;flex p-2 ">
-          <Profile />
-        </div>
-      )}
+      
       <Cards />
       <Que />
       <Call />

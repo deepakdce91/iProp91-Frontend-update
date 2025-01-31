@@ -24,11 +24,6 @@ const Lend = () => {
   return (
     <main className="min-h-screen bg-white">
       {/* Profile Header */}
-      {hasToken && (
-        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
-          <Profile  />
-        </div>
-      )}
     <Hero />
     <Calculator />
     <Features />
