@@ -1,25 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Camera, User, Mail, X, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 
 export function ProfileCompletionBanner() {
-  const [profileItems] = useState([
-    {
-      name: "Profile Picture",
-      completed: false,
-      icon: <Camera className="w-4 h-4" />,
-    },
-    { name: "Full Name", completed: true, icon: <User className="w-4 h-4" /> },
-    {
-      name: "Email Address",
-      completed: true,
-      icon: <Mail className="w-4 h-4" />,
-    },
-  ]);
-
+  const [profileItems, setProfileItems] = useState([]);
   const [isVisible, setIsVisible] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      let token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+      let tokenid = jwtDecode(token);
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        
+        setUser(data);
+        setProfileItems([
+          {
+            name: "Profile Picture",
+            completed: data.data?.profilePicture !== "",
+            icon: <Camera className="w-4 h-4" />,
+          },
+          {
+            name: "Full Name",
+            completed: data.data?.name !== "",
+            icon: <User className="w-4 h-4" />,
+          },
+          {
+            name: "Email Address",
+            completed: data.data?.email !== "",
+            icon: <Mail className="w-4 h-4" />,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const completedCount = profileItems.filter((item) => item.completed).length;
   const completionPercentage = Math.round(

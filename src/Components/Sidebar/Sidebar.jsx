@@ -32,7 +32,7 @@ const SidebarIcons = {
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <div className="z-50 h-screen w-screen top-0 inset-0 lg:hidden text-white transform transition-transform duration-300 ease-in-out translate-x-0">
+    <div className="z-[100] h-screen w-screen top-0 inset-0 lg:hidden text-white transform transition-transform duration-300 ease-in-out translate-x-0">
       <div
         className="w-full h-full flex flex-col z-[100] "
         style={{
@@ -143,7 +143,7 @@ const Sidebar = () => {
             )
           }
         >
-          <Lock className="h-5 w-5" />
+          <Lock className={`"h-5 w-5"  ${expanded ? "text-black" : "text-gold"}`} />
           {expanded ? (
             <span className="ml-3 truncate">{key}</span>
           ) : (
@@ -226,7 +226,7 @@ const Sidebar = () => {
       </aside>
 
       {/* Small screen sidebar toggle button */}
-      <div className="lg:!hidden h-[10svh] align-middle  sticky top-0 bg-white justify-between !flex px-4 py-2 ">
+      <div className="lg:!hidden h-[10svh] align-middle z-[100] sticky top-0 bg-white justify-between !flex px-4 py-2 ">
         <div>
           <img
             alt="logo"

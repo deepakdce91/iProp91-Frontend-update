@@ -391,7 +391,7 @@ function ChatScreen() {
     <div className="h-[98vh] w-full ">
       {/* Lock modal when no groups are available */}
       {!hasGroups && (
-        <div className="fixed lg:ml-44 inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50 pointer-events-auto">
+        <div className="fixed lg:ml-64 inset-0 flex items-center justify-center  bg-opacity-75 z-50 pointer-events-auto">
           <div className="text-center flex flex-col items-center justify-center">
             <IoLockClosed className="w-32 h-32 text-gray-700" />
             <p className="text-gray-700 mt-4">
@@ -404,10 +404,10 @@ function ChatScreen() {
       <div className={` w-full ${!hasGroups ? "blur-sm" : ""}`}>
         {/* <!-- component --> */}
         <div className="flex w-full  overflow-hidden relative gap-2 ">
-          <div className="overflow-hidden  flex rounded-xl w-[80%] bg-white">
+          <div className="overflow-hidden w-full flex md:rounded-xl md:w-[80%] bg-white">
             {/* <!-- Sidebar --> */}
             <div
-              className={`relative bg-white text-black h-[95vh] md:w-[40%]  border-r-[1px] border-r-black/20 ${
+              className={`relative bg-white text-black md:h-[95vh] h-screen md:w-[40%] w-full border-r-[1px] border-r-black/20 ${
                 currentGroupData ? "hidden md:block  " : "w-[30%]"
               }`}
             >
@@ -587,7 +587,7 @@ function ChatScreen() {
               } custom-scrollbar`}
               // style={{ backgroundImage: `url(${currentGroupThumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity:50,  }}
             >
-              <div className="flex flex-col h-[97vh]">
+              <div className="flex flex-col h-screen md:h-[97vh]">
                 {/* <!-- Chat Header --> */}
                 <header
                   className={`${
@@ -644,7 +644,7 @@ function ChatScreen() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 w-[20%] h-[97vh]  ">
+          <div className="md:flex flex-col gap-2 w-[20%] h-[97vh] hidden  ">
             {/* ------ members list sidebar  */}
             <div
               className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-4   border-l shadow-md   `}

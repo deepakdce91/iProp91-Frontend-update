@@ -65,7 +65,7 @@ export default function CaseLaws() {
     <div className={`flex flex-col gap-10   px-6 lg:px-32 bg-white min-h-[150vh] md:min-h-[100vh] text-black `}>
       
       <div className="w-full h-full  flex flex-col  pt-28 " >
-      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 my-3 text-black text-sm lg:text-base  "}  />
+      <Breadcrumb items={breadcrumbItems} className={"flex  items-center space-x-2 my-3 text-black text-sm lg:text-base  "}  />
         {data && data.map((faq, index) => {
           const pdfLink = extractPdfLink(faq.content);
 

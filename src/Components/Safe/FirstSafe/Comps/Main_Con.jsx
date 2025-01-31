@@ -227,8 +227,8 @@ export default function MyProperties() {
 
   return (
     <>
-      <div className=" flex  flex-col pt-5 bg-white rounded-xl h-full">
-        <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 ">
+      <div className=" flex  flex-col pt-5 bg-white lg:rounded-xl h-full">
+        <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 items-center justify-center">
          {prop.map((property) => (
           // <Link to={`/safe/Dealing/${property._id}/Documents`}>
             <PropCard props={property}/>
@@ -236,7 +236,7 @@ export default function MyProperties() {
          ))}
         </div>
 
-        <div className="lg:!hidden  pb-5 mt-10">
+        <div className="lg:!hidden  pb-5 mt-20 flex justify-center items-center ">
           <EmblaCarousel slides={SLIDES} options={OPTIONS} />
         </div>
       </div>

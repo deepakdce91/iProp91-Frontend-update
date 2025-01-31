@@ -47,13 +47,13 @@ export default function PropCard ({
   const [termsncond, setTermsnCond] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState("");
   const [editFormData, setEditFormData] = useState({
-    tower: props.tower || '',
-    unit: props.unit || '',
-    size: props.size || '', 
-    houseNumber: props.houseNumber || '',
-    floorNumber: props.floorNumber || '',
-    nature: props.nature || 'residential',
-    status: props.status || 'under-construction'
+    tower: props?.tower || '',
+    unit: props?.unit || '',
+    size: props?.size || '', 
+    houseNumber: props?.houseNumber || '',
+    floorNumber: props?.floorNumber || '',
+    nature: props?.nature || 'residential',
+    status: props?.status || 'under-construction'
   });
 
   const documentTypes = [
@@ -91,11 +91,7 @@ export default function PropCard ({
   //   }
   // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Update application status to "under-review" after file upload
-    // ... existing submit logic ...
-  };
+  
 
   const handleCardClick = () => {
     console.log("Property ID:", props._id);
@@ -120,7 +116,7 @@ export default function PropCard ({
 
   // Add new function for classification tag
   const renderClassificationTag = () => {
-    const classification = props.classification.toLowerCase();
+    const classification = props?.classification.toLowerCase();
     switch (classification) {
       case "rent":
         return (
@@ -306,19 +302,19 @@ export default function PropCard ({
           className="rounded-xl object-cover"
         />
         <div className="flex justify-between mt-3 mb-1">
-          <h1 className="text-xl text-black">{props.project}</h1>
-          <p className="text-xs text-black mt-auto mb-auto">Tower: {props.tower}</p>
+          <h1 className="text-xl text-black">{props?.project}</h1>
+          <p className="text-xs text-black mt-auto mb-auto">Tower: {props?.tower}</p>
         </div>
         <div className="flex justify-between">
-          <h1 className="text-xs text-black">{props.builder}</h1>
-          <p className="text-xs text-black">Unit: {props.unit}</p>
+          <h1 className="text-xs text-black">{props?.builder}</h1>
+          <p className="text-xs text-black">Unit: {props?.unit}</p>
         </div>
         <div className="flex flex-row justify-between mt-4 gap-2">
           {location.pathname === "/safe" ? (
             <div className="w-full flex justify-between items-center">
               <Link to={`/safe/Dealing/${props._id}/Documents`}>
                 <Goldbutton 
-                  btnname={props.applicationStatus === "approved" ? "View Details" : props.applicationStatus}
+                  btnname={props?.applicationStatus === "approved" ? "View Details" : props?.applicationStatus}
                   properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg"
                 />
               </Link>
@@ -333,9 +329,9 @@ export default function PropCard ({
             </div>
           ) : location.pathname === "/concierge" ? (
             <>
-              {props.applicationStatus === "approved" ? (
+              {props?.applicationStatus === "approved" ? (
                 <>
-                  {props.classification === "rent" ? (
+                  {props?.classification === "rent" ? (
                     <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Sell" onclick={onClickSell} />
                   ) : props.classification === "sell" ? (
                     <Goldbutton properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg" btnname="Rent" onclick={onClickBuy} />
@@ -357,7 +353,7 @@ export default function PropCard ({
                   </div>
                 </>
               ) : (<>
-                <Goldbutton onclick={handleCardClick} btnname={props.applicationStatus} properties="w-[80%] text-black bg-slate-100 py-2 px-4 rounded-lg" />
+                <Goldbutton onclick={handleCardClick} btnname={props?.applicationStatus} properties="w-[80%] text-black bg-slate-100 py-2 px-4 rounded-lg" />
                 <div className="relative group">
                 <button onClick={onClickEdit} className="w-full text-sm px-2 bg-slate-100 py-2 text-center rounded-lg">
                   <Edit />

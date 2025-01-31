@@ -6,10 +6,11 @@ import Breadcrumb from "../Landing/Breadcrumb";
 const BlogPost = () => {
   const location = useLocation();
   const { blog } = location.state; // Get the blog data from the state
+  const trimmedTitle = blog.title.split(" ").slice(0, 10).join(" ");
   const breadcrumbItems = [
     { label: "Knowledge Center", link: "/" },
     { label: "Library", link: "/library" },
-    { label: blog.title } // Use the blog title for breadcrumb
+    { label: trimmedTitle } // Use the blog title for breadcrumb
   ];
   const formatDate = (dateString) => {
     const date = new Date(dateString);

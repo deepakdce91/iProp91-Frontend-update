@@ -441,7 +441,7 @@ function Chats({
       }));
     } else {
       setFilteredMessages(messages);
-      console.log(messages);
+      // console.log(messages);
     }
   }, [searchTerm, messages]);
 
@@ -802,9 +802,10 @@ function Chats({
 
   const baseUrl = window.location.href;
 const url = baseUrl.split('/').slice(0, 3).join('/');
+const inviteUrl = `${url}/invite/${communityId}`;
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(inviteUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -813,13 +814,15 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
   }
 
   const shareToWhatsApp = () => {
-    const whatsappUrl = ``
-    window.open(whatsappUrl, '_blank')
+    const inviteUrl = `${url}/invite/${communityId}`;
+    const whatsappUrl = `https://wa.me/?text=Join our community on iProp91! ${inviteUrl}`;
+    window.open(whatsappUrl, '_blank');
   }
 
   const shareToEmail = () => {
-    const emailUrl = ``
-    window.location.href = emailUrl
+    const inviteUrl = `${url}/invite/${communityId}`;
+    const emailUrl = `mailto:?subject=Join our iProp91 Community&body=Join our community on iProp91! ${inviteUrl}`;
+    window.location.href = emailUrl;
   }
 
 
@@ -877,7 +880,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
               {/* Copy link section */}
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <div className="flex-1 truncate text-sm text-gray-500">
-                  {url}
+                  {inviteUrl}
                 </div>
                 <button
                   onClick={handleCopyLink}
@@ -910,24 +913,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   <Mail className="w-5 h-5 text-blue-600" />
                   <span className="text-sm font-medium">Email</span>
                 </button>
-                <button
-                  onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 col-span-2"
-                >
-                  <Link2 className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm font-medium">Copy Link</span>
-                </button>
               </div>
-            </div>
-
-            {/* Modal footer */}
-            <div className="p-4 border-t">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>

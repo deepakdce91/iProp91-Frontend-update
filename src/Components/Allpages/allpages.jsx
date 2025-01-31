@@ -26,9 +26,9 @@ export default function AllPage() {
   const shouldRenderFooter = !noFooterPaths.includes(location.pathname);
   return (
     <>
-      <div className="flex flex-col w-full bg-black lg:h-screen lg:!flex-row h-sv lg:overflow-y-scroll no-scrollbar">
+      <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />
-        <div className="w-full  md:p-3 ">
+        <div className="w-full  lg:p-3 ">
           <Routes>
             <Route path="/*" element={<Conci />} />
             <Route path="/safe/*" element={<Safe />} />
