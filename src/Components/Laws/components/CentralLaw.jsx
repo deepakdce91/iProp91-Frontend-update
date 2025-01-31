@@ -82,8 +82,8 @@ const CentralLaw = ({  }) => {
   ];
 
   return (
-    <div className="flex flex-col  w-full  px-6 lg:px-32 min-h-[100vh] text-white relative gap-5 bg-black py-28 md:py-32">
-      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base "} />
+    <div className="flex flex-col  w-full  px-6 lg:px-32 min-h-[100vh] text-black relative gap-5 bg-white py-28 md:py-32">
+      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base "} />
       
       <div className="w-full">
         {lawData.map((item, index) => {
@@ -97,7 +97,7 @@ const CentralLaw = ({  }) => {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out w-full ${
-                openIndex === index ? "bg-white/80 text-black border-[1px] border-white" : "border-[1px] border-white"
+                openIndex === index ? "bg-white/80 text-black border-[1px] border-black" : "border-[1px] border-black"
               } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl `}
             >
               <div
@@ -112,7 +112,7 @@ const CentralLaw = ({  }) => {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white underline"
+                      className="text-blue-500 underline"
                     >
                       {item.title}
                     </a>

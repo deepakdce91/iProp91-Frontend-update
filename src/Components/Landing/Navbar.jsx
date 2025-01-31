@@ -24,12 +24,21 @@ const Navbar = ({setIsLoggedIn}) => {
     '/advice': false,  // false means light background
     '/case-laws': false,
     '/library': false,
+    '/faqs': false,
+    '/laws': false,
+    '/laws/statelaw': false,
+    '/laws/centrallaw': false,
+
     '/': true
   };
+  
 
   // Check if current route should override background detection
   const shouldOverrideBackground = () => {
     const currentPath = location.pathname;
+    if (currentPath.startsWith('/library')) {
+      return false; // All library routes default to light background
+    }
     return currentPath in specificRoutes ? specificRoutes[currentPath] : null;
   };
 
@@ -168,6 +177,13 @@ useEffect(() => {
     return () => window.removeEventListener("scroll", handleScroll);
 }, [scrollPos]);
 
+useEffect(() => {
+    if (isAuthModalOpen) {
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
+    } else {
+      document.body.style.overflow = 'unset'; // Restore scrolling
+    }
+  }, [isAuthModalOpen]);
 
   return (
     <nav
@@ -175,7 +191,7 @@ useEffect(() => {
       isDarkBg 
         ? "bg-white bg-opacity-10 text-white" 
         : "bg-black bg-opacity-10 text-black"
-    } backdrop-blur-sm fixed top-0 w-11/12 m-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
+    } backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
       isDarkBg ? "border-white" : "border-black"
     } ${
       isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
@@ -216,7 +232,7 @@ useEffect(() => {
       </div>
 
       {/* Mobile Menu Icon */}
-      <div className="md:hidden flex items-center">
+      <div className="md:hidden flex items-center z-[100]">
         <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -224,7 +240,7 @@ useEffect(() => {
 
       {/* Mobile Menu Modal */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-10 flex justify-center items-start rounded-xl">
+        <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg  flex justify-center items-start rounded-xl z-[100]">
           <div
             ref={modalRef}
             className="bg-white rounded-lg w-full border border-gold p-6 shadow-lg pb-10"
@@ -242,7 +258,7 @@ useEffect(() => {
               <Link
                 to="/services"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  hover:text-black"
               >
                 Services
               </Link>
@@ -252,7 +268,7 @@ useEffect(() => {
               <Link
                 to="/nri"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 NRI
               </Link>
@@ -262,7 +278,7 @@ useEffect(() => {
               <Link
                 to="/advice"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 Advice
               </Link>
@@ -272,7 +288,7 @@ useEffect(() => {
               <Link
                 to="/lend"
                 onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-white/80"
+                className="flex justify-between items-center text-lg font-semibold  "
               >
                 Lend
               </Link>
@@ -282,7 +298,7 @@ useEffect(() => {
             {user ? (
           <Profile />
         ) : (
-          <button onClick={openAuthModal} className="text-black">
+          <button onClick={openAuthModal} className="text-black text-lg font-semibold ">
             Member login
           </button>
         )}
@@ -293,7 +309,13 @@ useEffect(() => {
       )}
 
       {/* Auth Modal */}
-      {isAuthModalOpen && <Auth onClose={closeAuthModal} setIsLoggedIn={setIsLoggedIn} properties={"lg:mt-[1%] top-[55%] right-20 md:right-24 lg:right-44"}/>}
+      {isAuthModalOpen && (
+        <Auth 
+          onClose={closeAuthModal} 
+          setIsLoggedIn={setIsLoggedIn} 
+          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 transition-transform transform ${isAuthModalOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        />
+      )}
     </nav>
   ); 
 }; 

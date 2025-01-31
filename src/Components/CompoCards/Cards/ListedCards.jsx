@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, X, Edit } from "lucide-react";
+import { Plus, X, Edit, Trash, Pen } from "lucide-react";
 
 const ListedPropertyCard = ({
   propertyType,
@@ -58,7 +58,9 @@ const ListedPropertyCard = ({
   };
 
   const handlePrev = () => {
-    setActiveIndex((prevIndex) => (prevIndex - 1 + media.length) % media.length);
+    setActiveIndex(
+      (prevIndex) => (prevIndex - 1 + media.length) % media.length
+    );
   };
 
   const handleInputChange = (e) => {
@@ -79,43 +81,51 @@ const ListedPropertyCard = ({
   };
 
   return (
-    <div className="bg-white  rounded-lg overflow-hidden shadow-md border-[1px] border-gray-400 ">
+    <div className="bg-white   overflow-hidden   ">
       {/* Header Section */}
-      <div className="px-4 py-2 border-b">
-        <div className="flex justify-between items-start">
+      <div className="px-2 md:px-4 py-2 border-[2px] border-gray-400 rounded-lg bg-gradient-to-r from-gray-300 to-gray-50">
+        <div className="flex flex-col md:flex-row justify-between items-start">
           <div>
             <div className="mt-2">
-              <h2 className="text-2xl font-medium">
-                 For {listingType} in {propertyType}
+              <h2 className="text-2xl font-medium capitalize">
+                For {listingType} / {propertyType}
               </h2>
               <p className="text-gray-600">{location}</p>
             </div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-              />
-            </svg>
-          </button>
+          <div className=" flex gap-4 ">
+            <div>
+              <button
+                onClick={() => onDelete(listingId)}
+                className=" text-sm  flex gap-2 text-black p-2 items-center border-b-[2px] border-b-black "
+              >
+                <Trash className="w-4 h-4" />
+                Remove Listing
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={() => setShowUpdateModal(true)}
+                className="text-sm  flex gap-2 text-black p-2 items-center border-b-[2px] border-b-black"
+              >
+                <Pen className="w-4 h-4"/>
+                Edit Listing
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex gap-5 p-4">
+      <div className="flex md:flex-row flex-col gap-5 p-4">
         {/* Image Gallery */}
-        <div className="relative w-[30%]">
+        <div className="relative md:w-[30%] w-full rounded-xl overflow-hidden">
           <div className="relative ">
             {media?.length > 0 ? (
               <div className="grid grid-cols-2 gap-0.5 ">
                 {media.slice(0, 3).map((item, index) => (
-                  <div key={index} className={`relative ${index === 0 ? "row-span-2" : ""}`}>
+                  <div
+                    key={index}
+                    className={`relative ${index === 0 ? "row-span-2" : ""}`}
+                  >
                     <img
                       // src={item.url || "./images/image.jpg"}
                       src={"/images/image.jpg"}
@@ -137,35 +147,15 @@ const ListedPropertyCard = ({
                 )}
               </div>
             ) : (
-              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <div className="w-full h-[200px] bg-gray-100 flex items-center justify-center">
                 <span className="text-gray-400">No images available</span>
               </div>
             )}
           </div>
         </div>
         {/* Property Details */}
-        <div className=" w-[70%]">
-          <div className="  bg-black bg-opacity-85 w-full  rounded-lg ">
-            <div className="grid grid-cols-4 gap-4 py-2  border-b text-white text-sm">
-              <div className="text-center">
-                <p className="text-xs text-gray-500">Beds</p>
-                <p className="font-medium">{beds}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500">Baths</p>
-                <p className="font-medium">{baths}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500">Balcony</p>
-                <p className="font-medium">{balcony}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500">Furnished</p>
-                <p className="font-medium">{furnished}</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 p-4">
+        <div className=" md:w-[70%] w-full">
+          <div className="grid md:grid-cols-4 grid-cols-3 gap-x-8 gap-y-4 p-4">
             <div>
               <p className="text-sm text-gray-500">Super Built-Up Area</p>
               <p className="font-medium">
@@ -179,6 +169,22 @@ const ListedPropertyCard = ({
               <p className="text-sm text-gray-500">Developer</p>
               <p className="font-medium">{developer}</p>
             </div>
+            <div className="">
+                <p className="text-xs text-gray-500">Beds</p>
+                <p className="font-medium">{beds}</p>
+              </div>
+              <div className="">
+                <p className="text-xs text-gray-500">Baths</p>
+                <p className="font-medium">{baths}</p>
+              </div>
+              <div className="">
+                <p className="text-xs text-gray-500">Balcony</p>
+                <p className="font-medium">{balcony}</p>
+              </div>
+              <div className="">
+                <p className="text-xs text-gray-500">Furnished</p>
+                <p className="font-medium">{furnished}</p>
+              </div>
             <div>
               <p className="text-sm text-gray-500">Project</p>
               <p className="font-medium">{project}</p>
@@ -205,20 +211,6 @@ const ListedPropertyCard = ({
             </div>
           </div>
 
-          <div className="w-full flex gap-4">
-            <button
-              onClick={() => onDelete(listingId)}
-              className="w-full mt-4 py-2 px-4 bg-black text-white rounded hover:bg-black/80 transition-colors"
-            >
-              Delete Listing
-            </button>
-            <button
-              onClick={() => setShowUpdateModal(true)}
-              className="w-full mt-4 py-2 px-4 bg- text-black rounded bg-white border-[1px] border-black/40 transition-colors"
-            >
-              Update Listing
-            </button>
-          </div>
         </div>
 
         {/* Media Modal */}
@@ -232,17 +224,22 @@ const ListedPropertyCard = ({
                 </button>
               </div>
               <div className="relative">
-                <button onClick={handlePrev} className="absolute left-0 top-1/2 transform -translate-y-1/2">
+                <button
+                  onClick={handlePrev}
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2"
+                >
                   <X className="w-6 h-6" />
                 </button>
                 <img
-                
                   // src={media[activeIndex].url}
                   src={"/images/image.jpg"}
                   alt={media[activeIndex].name}
                   className="w-full h-full object-cover rounded"
                 />
-                <button onClick={handleNext} className="absolute right-0 top-1/2 transform -translate-y-1/2">
+                <button
+                  onClick={handleNext}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2"
+                >
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -250,7 +247,9 @@ const ListedPropertyCard = ({
                 {media.map((_, index) => (
                   <button
                     key={index}
-                    className={`w-2 h-2 rounded-full mx-1 ${activeIndex === index ? 'bg-blue-500' : 'bg-gray-300'}`}
+                    className={`w-2 h-2 rounded-full mx-1 ${
+                      activeIndex === index ? "bg-blue-500" : "bg-gray-300"
+                    }`}
                     onClick={() => setActiveIndex(index)}
                   />
                 ))}

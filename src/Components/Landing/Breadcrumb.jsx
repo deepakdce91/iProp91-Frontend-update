@@ -10,7 +10,15 @@ const Breadcrumb = ({ items, onBack, className }) => {
           {index > 0 && (
             <ChevronRightIcon className="h-4 w-4 " />
           )}
-          {item.link ? (
+          {item.link === '/' ? (
+            <Link 
+              to={item.link}
+              className="hover:underline transition-all"
+              state={{ fromKnowledgeCenter: true }}
+            >
+              {item.label}
+            </Link>
+          ) : (
             <Link 
               to={item.link}
               className="hover:underline transition-all"
@@ -18,8 +26,6 @@ const Breadcrumb = ({ items, onBack, className }) => {
             >
               {item.label}
             </Link>
-          ) : (
-            <span className="">{item.label}</span>
           )}
         </React.Fragment>
       ))}

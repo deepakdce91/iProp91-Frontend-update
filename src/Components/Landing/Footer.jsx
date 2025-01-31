@@ -199,7 +199,7 @@ const Footer = () => {
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/sitefaqs" className="hover:text-primary">
+              <Link to="/site-faqs" className="hover:text-primary">
                 Site FAQs
               </Link>
             </li>

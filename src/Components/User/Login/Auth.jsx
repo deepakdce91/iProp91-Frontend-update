@@ -381,12 +381,12 @@ function Verify({
       <div
         className={`${
           stage1FormData || authPage ? "h-fit" : "min-h-screen"
-        } flex items-center justify-center `}
+        } flex items-center justify-center  `}
       >
-        <div className="flex bg-white rounded-lg  max-w-7xl overflow-hidden justify-center">
+        <div className="flex bg-white rounded-lg   md:max-w-7xl overflow-hidden justify-center">
           {/* Left Side - Form */}
 
-          <div className=" p-8">
+          <div className=" md:p-8 p-5">
             <div
               className="flex items-center mb-4 cursor-pointer"
               onClick={onBack}
@@ -679,7 +679,7 @@ export default function Login({
         <div
           className={`shadow-md ${
             stage1FormData || authPage
-              ? `${authPage ? "bg-white" : "bg-black"} items-center  flex-col ${
+              ? `${authPage ? "bg-white " : "bg-black"} items-center  flex-col ${
                   authPage ? "" : "pt-5 md:pt-20"
                 }  h-full`
               : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`

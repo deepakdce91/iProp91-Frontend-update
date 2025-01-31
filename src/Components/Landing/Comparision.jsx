@@ -1,19 +1,27 @@
 import React, { useEffect, useState, useRef } from "react";
-import { EffectCoverflow, Navigation, Autoplay } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/effect-coverflow';
+import {
+  EffectCoverflow,
+  Navigation,
+  Autoplay,
+  Pagination,
+} from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/effect-coverflow";
 import axios from "axios";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 const CompComponent = ({ item }) => {
   return (
-    <div className="rounded-3xl w-[600px] h-[450px] border-2 border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500">
+    <div className="rounded-2xl max-w-[90vw] md:w-[600px] md:h-[450px] h-[350px]   border-2 border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500">
       <div className="h-[80px] bg-gray-100 text-black px-4 py-2 flex flex-col items-center justify-center">
-        <p className="text-lg text-start font-semibold" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.topText) }}></p>
+        <p
+          className="md:text-lg text-sm text-start font-semibold"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.topText) }}
+        ></p>
       </div>
-      <div className="h-[250px] bg-gray-100 text-black px-6 py-2">
+      <div className="md:h-[250px] h-[200px] bg-gray-100 text-black px-6 py-2">
         <div className="bg-white h-full p-4 shadow-md flex flex-row gap-7">
           {item.centerImage1 && (
             <div className="flex w-[30%] flex-col items-center justify-center">
@@ -22,7 +30,9 @@ const CompComponent = ({ item }) => {
                 alt={item.centerImage1.name}
                 className="w-16 h-16 object-contain"
               />
-              <span className="text-sm font-medium mt-2 text-center">{item.centerImage1Text}</span>
+              <span className="text-sm font-medium mt-2 text-center">
+                {item.centerImage1Text}
+              </span>
             </div>
           )}
           {item.centerImage2 && (
@@ -32,16 +42,24 @@ const CompComponent = ({ item }) => {
                 alt={item.centerImage2.name}
                 className="w-16 h-16 object-contain"
               />
-              <span className="text-sm font-medium mt-2 text-center">{item.centerImage2Text}</span>
+              <span className="text-sm font-medium mt-2 text-center">
+                {item.centerImage2Text}
+              </span>
             </div>
           )}
         </div>
       </div>
-      <div className="absolute left-6 top-[330px] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
+      
+      <div className="flex-1 py-4 bg-gray-200 border-t-[2px] border-t-gold text-black px-4 flex flex-col items-center justify-center relative">
+      <div className="absolute left-6 md:top-0 top-[1%] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
         VS
       </div>
-      <div className="flex-1 bg-gray-200 border-t-[2px] border-t-gold text-black px-4 flex flex-col items-center justify-center">
-        <p className="text-black text-sm mt-2 text-start" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.bottomText) }}></p>
+        <p
+          className="text-black text-xs md:text-sm md:mt-2 text-start"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(item.bottomText),
+          }}
+        ></p>
       </div>
     </div>
   );
@@ -51,6 +69,7 @@ export default function Comparison() {
   const [data, setData] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,8 +83,6 @@ export default function Comparison() {
           }
         );
         setData(response.data);
-        console.log(response.data);
-        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -76,23 +93,31 @@ export default function Comparison() {
     fetchData();
   }, []);
 
-  const handleSlideClick = (index) => {
+  // Symmetrical slide rendering with exact 5-1-5 distribution
+  const processedSlides = (() => {
+    if (data.length <= 11) return data;
+
+    const totalSlides = 11;
+    const sideSlides = 5;
+    const middleIndex = Math.floor(data.length / 2);
+
+    // Calculate start index to ensure perfect symmetry
+    const startIndex = Math.max(0, middleIndex - sideSlides);
+
+    return data.slice(startIndex, startIndex + totalSlides);
+  })();
+
+  const handleSlideClick = (clickedIndex) => {
     if (swiperRef.current) {
       const swiper = swiperRef.current;
-      
-      // Get the current real index (considering loop)
-      const currentRealIndex = swiper.realIndex;
-      
-      // Don't do anything if clicking the center slide
-      if (currentRealIndex === index) return;
-      
-      // Calculate the actual slide index considering the loop
-      const realIndex = swiper.params.loop 
-        ? index 
-        : index;
-      
-      swiper.slideTo(realIndex, 300);
-      setActiveIndex(index);
+      const centerIndex = Math.floor(processedSlides.length / 2);
+
+      // Calculate offset from center slide
+      const offset = clickedIndex - centerIndex;
+
+      // Slide with offset to maintain symmetry
+      swiper.slideToLoop(centerIndex + offset, 300);
+      setActiveIndex(clickedIndex);
     }
   };
 
@@ -111,15 +136,20 @@ export default function Comparison() {
           }
         `}
       </style>
-      <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+      <div
+        className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
+        {/* <div className="md:relative  "> */}
         <Swiper
-          effect={'coverflow'}
+          effect={"coverflow"}
           grabCursor={true}
           centeredSlides={true}
-          loop={data.length > 3}
+          loop={true}
           slidesPerView={3}
           spaceBetween={30}
           slidesPerGroup={1}
@@ -127,9 +157,9 @@ export default function Comparison() {
             enabled: true,
           }}
           autoplay={{
-            delay: 2000,
+            delay: 3000,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true,
+            pauseOnMouseEnter: isHovered,
           }}
           coverflowEffect={{
             rotate: 0,
@@ -139,27 +169,50 @@ export default function Comparison() {
             slideShadows: true,
           }}
           modules={[EffectCoverflow, Navigation, Autoplay]}
-          className="relative"
+          className="relative  hidden"
           onSlideChange={(swiper) => {
             setActiveIndex(swiper.realIndex);
           }}
-          initialSlide={activeIndex}
+          initialSlide={5}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
             setActiveIndex(swiper.realIndex);
           }}
         >
-          {data.map((item, index) => (
-            <SwiperSlide 
-              key={index} 
-              onClick={() => handleSlideClick(index)}
-            >
-              <div className="swiper-slide-wrapper py-10">
+          {processedSlides.map((item, index) => (
+            <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+              <div className="swiper-slide-wrapper py-10 hidden md:block">
                 <CompComponent item={item} />
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
+        {/* </div> */}
+
+        {/* <div className="block md:hidden"> */}
+          {/* for smaller screens */}
+          <Swiper
+            spaceBetween={30}
+            centeredSlides={true}
+            autoplay={{
+              delay: 2500,
+              disableOnInteraction: false,
+            }}
+            pagination={{
+              clickable: true,
+            }}
+            modules={[Autoplay, Pagination]}
+            className=""
+          >
+            {processedSlides.map((item, index) => (
+              <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+                <div className=" py-10 px-3 z-50 block md:hidden">
+                  <CompComponent item={item} />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        {/* </div> */}
       </div>
     </>
   );

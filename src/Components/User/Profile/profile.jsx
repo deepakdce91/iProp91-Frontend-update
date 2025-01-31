@@ -98,7 +98,7 @@ export default function Profile() {
           <div className="px-4 py-2">
             <p className=" text-bold my-3">Account</p>
             {dataloaded && (
-              <div className="flex gap-2 items-center justify-center ">
+              <div className="flex gap-3 items-center  ">
                 <span className="flex h-14 w-14 border-2 border-gold overflow-hidden rounded-full">
                   <img
                     className="h-full w-full object-cover"
@@ -112,14 +112,17 @@ export default function Profile() {
                     }
                   />
                 </span>
-                <div className="">
+                <div className="space-y-1">
                   <p className="font-semibold text-sm">{user.data.name}</p>
                   <p className="text-xs text-gray-500">
                     {user.data.email ? (
-                      user.data.email.replace(/^.{5}/, "*****")
+                      user.data.email.replace(
+                        /^(.{2}).*(.{2})(@.*)$/,
+                        "$1****$2$3"
+                      )
                     ) : (
-                      <span className="flex items-center space-x-1 cursor-pointer text-blue-500 hover:underline">
-                        <Edit />
+                      <span className="flex items-center text-xs space-x-1 cursor-pointer text-blue-500 hover:underline">
+                        <Edit className="w-4 h-4" />
                         <span>Update</span>
                       </span>
                     )}

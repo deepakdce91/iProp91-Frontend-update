@@ -70,8 +70,8 @@ export default function Conci() {
             </button>
           </Link> */}
         {/* </div>  */}
-        <div className="w-full text-black pt-3">
-          <Routes>
+        <div className="w-full text-black  bg-white  rounded-xl">
+          <Routes> 
             {/* <Route path="/*" element={<PropDetails />} /> */}
             <Route path="/Documents" element={<Documents PropId={PropId} PropName={properyname} />} />
             {/* <Route path="/Handbook" element={<Handbook />} />

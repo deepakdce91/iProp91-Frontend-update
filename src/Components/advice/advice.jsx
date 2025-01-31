@@ -41,13 +41,9 @@ export default function Advice() {
   }, []);
 
   return (
-    <section ref={containerRef} className=" ">
+    <section ref={containerRef} className="bg-white md:rounded-t-xl md:overflow-hidden mt-24 lg:mt-0">
       {/* Profile Header */}
-      {hasToken && (
-        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
-          <Profile/>
-        </div>
-      )}
+      
 
       {/* Background Section */}
       {/* <motion.div
@@ -75,7 +71,7 @@ export default function Advice() {
           </p>
         </div>
       </div>  */}
-        <div className={`backdrop-blur-md relative ${scrollY > 100 ? "" : ""}`}>
+        <div className={``}>
           <AdviceCards />
           <DraftAgreementsList/>
           {/* <Que /> */}

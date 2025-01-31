@@ -1,46 +1,57 @@
 import * as React from "react";
-import { motion,  } from "framer-motion";
-import {  Download, X } from "lucide-react";
-import { useEffect } from "react";
+import { motion } from "framer-motion";
+import { Download } from "lucide-react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useState } from "react";
-
-
-
-
 
 export default function ShowDrafts() {
-  const [data, setData] = useState()
-  const [loading, setLoading] = useState()
-  
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/advise/fetchAllActiveAdvise`);
         setData(response.data);
-        console.log(response.data)
+        setLoading(false);
       } catch (error) {
-        if (error.response) {
-          console.error("Error fetching FAQs:", error.response.data);
-        } else {
-          console.error("Error fetching FAQs:", error.message);
-        }
-      } finally {
+        console.error("Error fetching drafts:", error);
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, []);
 
+  const handleDownload = async (fileUrl, fileName) => {
+    try {
+      const response = await axios({
+        url: fileUrl,
+        method: 'GET',
+        responseType: 'blob'
+      });
+
+      const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center">Loading...</div>;
+  }
+
   return (
-    <section
-      className="relative bg-white py-20"
-    >
-      
+    <section className="relative bg-white py-20 px-3">
       <h2 className="text-4xl font-bold mb-8 text-center">Download Draft Agreements</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        {data && data.map((agreement, idx) => (
+        {data.map((agreement, idx) => (
           <motion.div
             key={idx}
             initial={{ opacity: 0, y: 20 }}
@@ -53,7 +64,10 @@ export default function ShowDrafts() {
           >
             <h3 className="text-sm font-semibold mb-2">{agreement.title}</h3>
             <p className="text-xs text-black mb-4">{agreement.subtitle}</p>
-            <button className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors">
+            <button 
+              onClick={() => handleDownload(agreement.file.url, agreement.file.name)}
+              className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors"
+            >
               <Download className="h-5 w-5" />
             </button>
           </motion.div>

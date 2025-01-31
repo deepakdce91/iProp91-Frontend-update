@@ -88,33 +88,50 @@ const Knowledge = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Store scroll position when leaving the page
     const handleScroll = () => {
-      localStorage.setItem("scrollPosition", window.scrollY);
+      if (location.pathname === '/') {
+        localStorage.setItem("knowledgeSectionScroll", window.scrollY.toString());
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
 
+    // If coming back to home page from a knowledge center route, scroll to knowledge section
+    if (location.pathname === '/' && location.state?.fromKnowledgeCenter) {
+      const savedPosition = localStorage.getItem("knowledgeSectionScroll");
+      if (savedPosition) {
+        window.scrollTo({
+          top: parseInt(savedPosition),
+          behavior: 'smooth'
+        });
+      } else {
+        // If no saved position, find and scroll to knowledge section element
+        const knowledgeSection = document.querySelector('#knowledge-section');
+        if (knowledgeSection) {
+          knowledgeSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      localStorage.setItem("scrollPosition", window.scrollY);
     };
-  }, []);
-
-  useEffect(() => {
-    const savedPosition = localStorage.getItem("scrollPosition");
-    if (savedPosition) {
-      window.scrollTo(20, parseInt(savedPosition));
-    }
   }, [location]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-black">
+    <div id="knowledge-section" className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-black">
       <h1 className="text-3xl text-center md:text-6xl font-semibold text-white py-6 ">
         Empowering your ownership <br /> experience with knowledge
       </h1>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
         {links.map((link, index) => (
-          <Link to={link.to} key={index} className="group">
+          <Link 
+            to={link.to} 
+            key={index} 
+            className="group"
+            state={{ fromKnowledgeCenter: true }}
+          >
             <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold ">
               <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-black/80 transition-all duration-300 group-hover:scale-[10]"></span>
               <div className="relative z-10 mx-auto max-w-md ">

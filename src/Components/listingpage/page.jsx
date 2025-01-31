@@ -10,80 +10,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 // Enhanced dummy data
-  export const properties = [
-  {
-    id: 1,
-    title: "Serene Heights",
-    location: "Sarjapur Road, Bangalore",
-    price: {
-      amount: "₹ 1.30 Cr",
-      type: "onwards"
-    },
-    image: "/images/propcat.jpg",
-    developer: "Modern Spaces",
-    specifications: {
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "1800 sq.ft"
-    },
-    tags: ["OFFER", "Ready To Move"],
-    marketedBy: "Modern Spaces Realty"
-  },
-  {
-    id: 2,
-    title: "Binary Temple Tree",
-    location: "Whitefield, Bangalore",
-    price: {
-      amount: "₹ 1.20 Cr",
-      type: "onwards"
-    },
-    image: "/images/propcat.jpg",
-    developer: "Binary Realty",
-    specifications: {
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "1650 sq.ft"
-    },
-    tags: ["New Launch"],
-    marketedBy: "Binary Realty"
-  },
-  {
-    id: 3,
-    title: "DSR Green Waters",
-    location: "Electronic City, Bangalore",
-    price: {
-      amount: "₹ 84.3 Lac",
-      type: "onwards"
-    },
-    image: "/images/propcat.jpg",
-    developer: "DSR Infrastructure",
-    specifications: {
-      bedrooms: 2,
-      bathrooms: 2,
-      area: "1200 sq.ft"
-    },
-    tags: ["Ready To Move"],
-    marketedBy: "DSR Infrastructure Pvt Ltd"
-  },
-  {
-    id: 4,
-    title: "Palm Paradise",
-    location: "Hennur Road, Bangalore",
-    price: {
-      amount: "₹ 62.6 Lac",
-      type: "onwards"
-    },
-    image: "/images/propcat.jpg",
-    developer: "Westbury Hospitality",
-    specifications: {
-      bedrooms: 2,
-      bathrooms: 2,
-      area: "1100 sq.ft"
-    },
-    tags: ["OFFER"],
-    marketedBy: "Westbury Hospitality Pvt Ltd"
-  }
-]
+
 
 const categories = [
   {
@@ -146,8 +73,8 @@ const tools = [
 export default function MainListingPage() {
   const [activeTab, setActiveTab] = useState('Buy')
   const [searchCity, setSearchCity] = useState('')
-  const [filteredProperties, setFilteredProperties] = useState(properties)
   const [allFetchedProjects, setAllFetchedProjects] = useState()
+  const [filteredProperties, setFilteredProperties] = useState(allFetchedProjects)
 
   // Add search handler
   const handleCitySearch = (e) => {
@@ -155,9 +82,9 @@ export default function MainListingPage() {
     setSearchCity(searchTerm)
     
     if (searchTerm === '') {
-      setFilteredProperties(properties)
+      setFilteredProperties(allFetchedProjects)
     } else {
-      const filtered = properties.filter(property => 
+      const filtered = allFetchedProjects.filter(property => 
         property.location.toLowerCase().includes(searchTerm)
       )
       setFilteredProperties(filtered)
@@ -176,9 +103,10 @@ export default function MainListingPage() {
           "auth-token": token,
         }
       });
-      if(response.ok){
-        const allProjects = await response.json();
+      if(response){
+        const allProjects = await response.data;
         setAllFetchedProjects(allProjects);
+        // toast.success("projects fetched successfully")
         console.log(allProjects);
         return;
       }
@@ -301,8 +229,8 @@ export default function MainListingPage() {
           </Link>
         </div>
         <Carousel
-          items={filteredProperties}
-          renderItem={(property) => <PropertyCard property={property} />}
+          items={allFetchedProjects}
+          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
           className="pb-4"
         />
       </section>
@@ -319,8 +247,8 @@ export default function MainListingPage() {
           </Link>
         </div>
         <Carousel
-          items={properties}
-          renderItem={(property) => <PropertyCard property={property} />}
+          items={allFetchedProjects}
+          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
           className="pb-4"
         />
       </section>
@@ -337,8 +265,8 @@ export default function MainListingPage() {
           </Link>
         </div>
         <Carousel
-          items={properties}
-          renderItem={(property) => <PropertyCard property={property} />}
+          items={allFetchedProjects}
+          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
           className="pb-4"
         />
       </section>

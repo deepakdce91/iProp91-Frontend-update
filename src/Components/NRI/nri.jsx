@@ -20,16 +20,11 @@ export default function NRI() {
   }, []);
 
   return (
-    <>
-      {/* Profile Header */}
-      {hasToken && (
-        <div className="fixed z-50 top-4 right-4 bg-white p-2 rounded shadow">
-          <Profile />
-        </div>
-      )}
+    <section className="bg-white md:rounded-t-xl md:overflow-hidden">
+      
       <Cards />
       <Que />
       <Call />
-    </>
+    </section>
   );
 }
