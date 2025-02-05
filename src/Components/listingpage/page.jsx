@@ -98,10 +98,10 @@ export default function MainListingPage() {
     const fetchProjects = async () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects?userId=${decoded.userId}`,{
         
-        // headers: {
-        //   "Content-Type": "application/json",
-        //   "auth-token": token,
-        // }
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        }
       });
       if(response){
         const allProjects = await response.data;
@@ -116,7 +116,7 @@ export default function MainListingPage() {
   },[])
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 rounded-xl overflow-hidden">
       {/* Hero Section with Enhanced Search */}
       <div className="relative h-[600px]">
         <img

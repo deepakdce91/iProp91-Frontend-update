@@ -679,7 +679,7 @@ function ChatScreen() {
             </div>
           </div>
 
-          <div className="md:flex flex-col gap-2 w-[20%] h-[97vh] hidden  ">
+          <div className="md:flex flex-col gap-2 w-[20%] h-[99vh] hidden  ">
             {/* ------ members list sidebar  */}
             <div
               className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-4   border-l shadow-md   `}

@@ -38,6 +38,9 @@ function InvitationPage() {
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [otpInputs, setOtpInputs] = useState(['', '', '', '', '', '']);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [nextRoute, setNextRoute] = useState("");
 
   useEffect(() => {
     const validateToken = async () => {
@@ -283,17 +286,36 @@ function InvitationPage() {
                 const propertyMatch = await checkExistingProperties(userId);
                 
                 if (propertyMatch) {
-                  toast.success("Property already exists in your account");
-                  setTimeout(() => {
-                    navigate("/family");
-                  }, 2000);
+                  // Handle applicationStatus
+                  switch (propertyMatch.applicationStatus) {
+                    case "more-info-required":
+                    case "under-review":
+                      setModalMessage(`Your property is ${propertyMatch.applicationStatus}. Please wait for further updates.`);
+                      setShowModal(true);
+                      setNextRoute("/family");
+                      break;
+                    case "approved":
+                      setModalMessage("Your property is already approved.");
+                      setShowModal(true);
+                      setNextRoute("/family");
+                      break;
+                    case "rejected":
+                      await addProperty(userId);
+                      toast.success("New property added to your account");
+                      setModalMessage("New property added to your account.");
+                      setShowModal(true);
+                      setNextRoute("/concierge");
+                      break;
+                    default:
+                      break;
+                  }
                 } else {
                   // Add new property for existing user
                   await addProperty(userId);
                   toast.success("New property added to your account");
-                  setTimeout(() => {
-                    navigate("/family");
-                  }, 2000);
+                  setModalMessage("New property added to your account.");
+                  setShowModal(true);
+                  setNextRoute("/concierge");
                 }
                 return;
               }
@@ -336,9 +358,9 @@ function InvitationPage() {
               await addProperty(userId); // Pass userId to addProperty
 
               toast.success("Signup Successful");
-              setTimeout(() => {
-                navigate("/concierge");
-              }, 1000);
+              setModalMessage("Signup Successful. New property added to your account.");
+              setShowModal(true);
+              setNextRoute("/concierge");
               setOtpLoading(false);
             } catch (err) {
               toast.error("Something went wrong");
@@ -384,7 +406,7 @@ function InvitationPage() {
       );
 
       // Compare each property with invitation details
-      return properties.some(property => {
+      return properties.find(property => {
         return (
           property.state === inviteDetails.selectedState &&
           property.city === inviteDetails.selectedCity &&
@@ -687,6 +709,25 @@ function InvitationPage() {
           </div>
         )}
       </div>
+
+      {/* Modal for application status messages */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Property Status</h3>
+            <p className="mb-4">{modalMessage}</p>
+            <button
+              onClick={() => {
+                setShowModal(false);
+                navigate(nextRoute);
+              }}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
