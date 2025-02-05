@@ -52,7 +52,7 @@ export default function ScrollAnimatedText() {
   const totalWords = headingWords.length + subheadingWords.length*1.3;
 
   return (
-    <div className="relative min-h-screen bg-black px-3" ref={containerRef}>
+    <div className="relative min-h-screen bg-black px-3 py-10" ref={containerRef}>
       <section className="flex min-h-[110vh] lg:pb-28 items-center justify-center">
         <div className="flex flex-col gap-8 items-center">
           <h1 className="lg:text-6xl font-semibold w-full lg:w-8/12 text-4xl text-white">

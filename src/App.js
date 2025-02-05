@@ -11,6 +11,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useAuthToken from "./hooks/useAuthToken.js";
 import { ToastContainer } from "react-toastify";
 import InvitationPage from "./Components/Invitation/InvitationPage.jsx";
+import WelcomePage from "./Components/Welcome/WelcomePage.jsx";
 
 // import { FcLock } from "react-icons/fc";
 
@@ -61,7 +62,8 @@ function App() {
         {/* <Footer /> */}{" "}
         <Routes>
           {/* Public routes accessible to all */}
-          <Route path="/invite/:communityId" element={<InvitationPage />} />
+          <Route path="/welcome/:token" element={<WelcomePage />} />
+          <Route path="/invite/:token" element={<InvitationPage />} />
           
           {/* Unauthenticated routes */}
           {isLoggedIn === false && (

@@ -94,9 +94,9 @@ export default function Faq() {
                   key={index}
                   className={`my-4 transition-all duration-300 ease-in-out  ${
                     openIndex === index
-                      ? "border-[1px] border-gold bg-white/20 max-h-[300px] overflow-y-scroll"
-                      : "border-[1px] border-gold"
-                  } p-4 rounded-2xl hover:scale-105 transition-all`}
+                      ? "border-[1px] border-black/20 bg-gray-200 max-h-[300px] overflow-y-scroll"
+                      : "border-[1px] border-black/30"
+                  } p-4  hover:scale-105 transition-all`}
                 >
                   <div
                     className="flex justify-between items-center cursor-pointer"
@@ -114,7 +114,7 @@ export default function Faq() {
                       openIndex === index ? " mt-4" : "max-h-0"
                     }`}
                   >
-                    <hr className="border-t-[2px] border-gold mb-4" />
+                    <hr className="border-t-[2px] border-black mb-4" />
                     <p
                       className="mt-7"
                       dangerouslySetInnerHTML={{

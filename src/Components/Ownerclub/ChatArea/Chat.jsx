@@ -402,7 +402,8 @@ function Chats({
   currentGroupDetails,
   onMessageUpdate,
   onSeenMessage,
-  messages: parentMessages
+  messages: parentMessages,
+  inviteUrl
 }) {
   // users/fetchuser/:id
 
@@ -424,6 +425,24 @@ function Chats({
   const [filteredMessages, setFilteredMessages] = useState([]);
   // for message filtering
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = inviteUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      const result = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(result);
+    }
+  };
 
   useEffect(() => {
     if (!(searchTerm.trim() === "")) {
@@ -798,33 +817,17 @@ function Chats({
     "link",
   ];
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  const baseUrl = window.location.href;
-const url = baseUrl.split('/').slice(0, 3).join('/');
-const inviteUrl = `${url}/invite/${communityId}`;
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(inviteUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
+  
 
   const shareToWhatsApp = () => {
-    const inviteUrl = `${url}/invite/${communityId}`;
-    const whatsappUrl = `https://wa.me/?text=Join our community on iProp91! ${inviteUrl}`;
-    window.open(whatsappUrl, '_blank');
+    const whatsappUrl = ``
+    window.open(whatsappUrl, '_blank')
   }
 
   const shareToEmail = () => {
-    const inviteUrl = `${url}/invite/${communityId}`;
-    const emailUrl = `mailto:?subject=Join our iProp91 Community&body=Join our community on iProp91! ${inviteUrl}`;
-    window.location.href = emailUrl;
+    const emailUrl = ``
+    window.location.href = emailUrl
   }
-
 
   return (
     <>
@@ -883,7 +886,7 @@ const inviteUrl = `${url}/invite/${communityId}`;
                   {inviteUrl}
                 </div>
                 <button
-                  onClick={handleCopyLink}
+                  onClick={copyToClipboard}
                   className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   {copied ? (

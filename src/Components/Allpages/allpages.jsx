@@ -29,7 +29,7 @@ export default function AllPage() {
     <>
       <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />
-        <div className="w-full  lg:p-3 ">
+        <div className="w-full  lg:p-1 ">
           <Routes>
             <Route path="/*" element={<Conci />} />
             <Route path="/safe/*" element={<Safe />} />

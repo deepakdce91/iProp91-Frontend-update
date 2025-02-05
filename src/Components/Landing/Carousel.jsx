@@ -83,13 +83,13 @@ export default function Component({data}) {
         zIndex = 1000
         opacity = 1
       } else if (index === prevIndex) {
-        scale = 0.7  // Smaller side scales
-        x = -150     // Reduced gap
+        scale = 1.1 // Smaller side scales
+        x = -80    // Reduced gap
         zIndex = 500
         opacity = 0.8
       } else if (index === nextIndex) {
-        scale = 0.7  // Smaller side scales
-        x = 150      // Reduced gap
+        scale = 1.1  // Smaller side scales
+        x = 80      // Reduced gap
         zIndex = 500
         opacity = 0.8
       }

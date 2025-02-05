@@ -34,6 +34,7 @@ function ChatScreen() {
   const [communityMessages, setCommunityMessages] = useState({});
   const [unreadMessages, setUnreadMessages] = useState({});
   const [allMessages, setAllMessages] = useState({});
+  const [inviteUrl, setInviteUrl] = useState("");
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -80,6 +81,7 @@ function ChatScreen() {
       )
       .then((response) => {
         setGroupNames(response.data.data);
+        console.log(response.data.data)
         setFilteredGroupNames(response.data.data);
         setHasGroups(response.data.data.length > 0);
       })
@@ -177,12 +179,44 @@ function ChatScreen() {
       });
   };
 
+  // Function to generate invite link for a specific community
+  const generateInviteLink = async (community) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/testimonials/generate`,
+        {
+          communityId: community._id,
+          name: community.name,
+          state: community.state,
+          builder: community.builder,
+          city: community.city
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token
+          }
+        }
+      );
+
+      if (response.data.success) {
+        // Construct the full URL
+        const inviteUrl = `${window.location.origin}/welcome/${response.data.token}`;
+        setInviteUrl(inviteUrl);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Error generating invitation link');
+      console.error('Error:', error);
+    }
+  };
+
   // Update current group data and thumbnail when a group is selected
   const handleGroupSelect = (item) => {
     setCurrentGroupData(item);
     setCurrentGroupThumbnail(
       item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
     );
+    generateInviteLink(item); // Generate invite link for the selected community
   };
 
   // Function to handle pinning/unpinning
@@ -633,6 +667,7 @@ function ChatScreen() {
                     onMessageUpdate={handleMessageUpdate}
                     onSeenMessage={handleMessageSeen}
                     messages={allMessages[currentGroupData._id] || []}
+                    inviteUrl={inviteUrl}
                   />
                 )}
                 {!currentGroupData && (

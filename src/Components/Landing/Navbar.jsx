@@ -6,6 +6,20 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import Auth from "../User/Login/Auth";
 import useAuthToken from "../../hooks/useAuthToken";
+import {
+  Home,
+  Shield,
+  Users,
+  Lightbulb,
+  BookOpen,
+  RefreshCw,
+  ChevronsLeft,
+  ChevronsRight,
+  Lock,
+  LogOut,
+  Key, // Add LogOut icon
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 const Navbar = ({setIsLoggedIn}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,6 +46,16 @@ const Navbar = ({setIsLoggedIn}) => {
     '/': true
   };
   
+  const SidebarIcons = {
+    Concierge: { icon: Home, link: "/concierge" },
+    "iProp91 Safe": { icon: Key, link: "/safe" },
+    "Owners' Club": { icon: Users, link: "/family" },
+    "Real Insights": { icon: Lightbulb, link: "/realinsight" },
+    "Advice": { icon: BookOpen, link: "/advice" },
+    "Lend": { icon: RefreshCw, link: "/lend" },
+    "NRI": { icon: Home, link: "/nri" },
+    "Listing Page": { icon: Home, link: "/property-for-sale" },
+  };
 
   // Check if current route should override background detection
   const shouldOverrideBackground = () => {
@@ -240,72 +264,49 @@ useEffect(() => {
 
       {/* Mobile Menu Modal */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 w-full bg-black bg-opacity-60 backdrop-blur-lg  flex justify-center items-start rounded-xl z-[100]">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-lg w-full border border-gold p-6 shadow-lg pb-10"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-2xl font-bold text-primary">iProp91</span>
-              <button
-                onClick={toggleMobileMenu}
-                className="text-xl text-gray-600 hover:bg-gray-100 font-[500] rounded-lg p-1 px-2"
-              >
-                &#10005;
-              </button>
-            </div>
-            <div className="space-y-4 text-black">
-              <Link
-                to="/services"
-                onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  hover:text-black"
-              >
-                Services
-              </Link>
-              
-            </div>
-            <div className="space-y-4 text-black">
-              <Link
-                to="/nri"
-                onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  "
-              >
-                NRI
-              </Link>
-              
-            </div>
-            <div className="space-y-4 text-black">
-              <Link
-                to="/advice"
-                onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  "
-              >
-                Advice
-              </Link>
-              
-            </div>
-            <div className="space-y-4 text-black">
-              <Link
-                to="/lend"
-                onClick={toggleMobileMenu}
-                className="flex justify-between items-center text-lg font-semibold  "
-              >
-                Lend
-              </Link>
-              
-            </div>
-            <div className="space-y-4 text-black">
-            {user ? (
-          <Profile />
-        ) : (
-          <button onClick={openAuthModal} className="text-black text-lg font-semibold ">
-            Member login
-          </button>
-        )}
-              
-            </div>
+        <motion.div 
+        initial={{ opacity: 0, y: "-100%" }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: "-100%" }}
+        transition={{ type: "tween", duration: 0.3 }}
+        className="z-[100] fixed  h-screen w-screen -top-4 -left-5  lg:hidden text-white transform transition-transform duration-300 ease-in-out"
+      >
+        <div
+          className="w-full h-full flex flex-col z-[100]"
+          style={{
+            backgroundImage: `url(/images/sidebarbg.png)`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black bg-opacity-75"></div>
+          <div className="flex justify-end px-3 py-2 z-[110]">
+            <button onClick={toggleMobileMenu} className="p-2 bg-gold rounded-full mt-4">
+              <img
+                alt="close"
+                loading="lazy"
+                width="14"
+                height="14"
+                src="/svgs/cross.c0162762.svg"
+              />
+            </button>
           </div>
+          <nav className="flex flex-col justify-evenly text-white z-[110]">
+            {Object.keys(SidebarIcons).map((key, index) => (
+              <Link
+                key={index}
+                to={SidebarIcons[key].link}
+                className="flex gap-2 px-7 py-4 rounded-xl ml-auto mr-auto"
+                onClick={toggleMobileMenu}
+              >
+                <p className="text-xl my-3 md:my-5">{key}</p>
+              </Link>
+            ))}
+          </nav>
         </div>
+      </motion.div>
       )}
 
       {/* Auth Modal */}

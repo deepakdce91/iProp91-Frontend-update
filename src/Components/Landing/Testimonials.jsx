@@ -46,7 +46,7 @@ function Testimonials() {
     >
       {testimonials.map((testimonial) => (
         <SwiperSlide key={testimonial._id}>
-          <div className="flex flex-col md:flex-row w-11/12 md:w-4/5 lg:w-3/5 mx-auto px-6 md:px-10 lg:px-14 py-10 md:py-14 lg:py-16 bg-white rounded-2xl md:rounded-[40px] border border-gray-200 hover:bg-white/90">
+          <div className="flex flex-col md:flex-row w-11/12 md:w-4/5 lg:w-3/5 mx-auto px-6 md:px-10 lg:px-14 py-10 md:py-14 lg:py-16 bg-white rounded-2xl md:rounded-[40px] border border-gray-200 hover:bg-white/90 h-[600px] lg:h-full">
             <div className="w-40 h-40 md:flex-shrink-0 md:mt-14 overflow-hidden mx-auto md:mx-0">
               <img 
                 src={testimonial.userInfo.profilePicture.url} // Use the URL from the fetched data
