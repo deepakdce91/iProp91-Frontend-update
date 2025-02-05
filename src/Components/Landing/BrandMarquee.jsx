@@ -41,7 +41,7 @@ const BrandMarquee = () => {
           {[...data, ...data].map((item, index) => (
             
             <div key={index} className="h-full px-2.5">
-              <div className="w-[7rem]">
+              <div className="w-[7rem] lg:w-[9rem]">
                 <img src={item.url} alt="img" className="md:w-36 md:h-36 w-24 h-24" />
               </div>
             </div>

@@ -97,8 +97,8 @@ const CentralLaw = ({  }) => {
             <div
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out w-full ${
-                openIndex === index ? "bg-white/80 text-black border-[1px] border-black" : "border-[1px] border-black"
-              } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl `}
+                openIndex === index ? "bg-gray-200 text-black border-[1px] border-black/30" : "border-[1px] border-black/30 bg-white"
+              } p-4  hover:scale-105 transition-all hover:shadow-xl `}
             >
               <div
                 className={`flex justify-between items-center ${

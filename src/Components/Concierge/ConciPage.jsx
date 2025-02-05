@@ -10,7 +10,7 @@ import FinanceAssitance from "./Pages/FinanceAssistance";
 export default function Conci() {
   return (
     <>
-      <div className="flex flex-col lg:gap-3   lg:rounded-xl text-black   ">
+      <div className="flex flex-col lg:gap-1   lg:rounded-xl text-black   ">
         {/* <div className=""> */}
           <NameHeader name={"Concierge"} pageName={"My Properties"} />
           {/* <div className="py-3 flex items-center justify-between pr-5">

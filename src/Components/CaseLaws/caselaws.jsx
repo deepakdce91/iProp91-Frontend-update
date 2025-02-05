@@ -74,7 +74,7 @@ export default function CaseLaws() {
               key={index}
               className={`mb-4 transition-all duration-300 ease-in-out ${
                 openIndex === index ? 'border-[1px] border-black/20 bg-gray-200' : 'border-[1px] border-black/20'
-              } p-4 rounded-3xl hover:scale-105 transition-all hover:shadow-xl`}
+              } p-4  hover:scale-105 transition-all hover:shadow-xl`}
             >
               <div
                 className="flex justify-between items-center cursor-pointer"

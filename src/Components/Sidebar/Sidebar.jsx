@@ -16,7 +16,6 @@ import {
   LogOut,
   Key, // Add LogOut icon
 } from "lucide-react";
-import Profile from "../User/Profile/profile";
 
 import { motion } from "framer-motion";
 
@@ -185,7 +184,7 @@ const Sidebar = () => {
     <>
      <aside
         className={`
-        h-[98%]  rounded-xl  my-3 ml-3 top-0 bottom-0 sticky bg-black
+        h-[99%]  rounded-xl  my-1 ml-1 top-0 bottom-0 sticky bg-black
         ${expanded ? "w-64 bg-white border-r-[1px] border-r-black/50 p-4" : "w-20"}
         transition-all duration-300 ease-in-out hidden lg:!flex
       `}
