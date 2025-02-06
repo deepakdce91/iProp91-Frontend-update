@@ -48,8 +48,8 @@ export default function Faq() {
   ];
 
   return (
-    <div className="flex relative  text-white  py-28 px-6 md:px-8 bg-black min-h-screen  lg:px-32 pt-5 md:pt-10">
-      <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-36 mt-2 left-[5%]"} />
+    <div className="flex relative  text-black  py-28 px-3 md:px-8 bg-white min-h-screen  lg:px-32 pt-5 md:pt-10">
+      <Breadcrumb items={breadcrumbItems} className={"flex  items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-32 mt-2 left-[5%]"} />
       <div className="flex flex-col md:flex-row justify-center h-full  lg:items-start mt-32">
         <div className="md:w-1/3 flex flex-col gap-3">
           <h1 className="text-6xl tracking-wide font-bold ">FAQ</h1>
@@ -94,9 +94,9 @@ export default function Faq() {
                   key={index}
                   className={`my-4 transition-all duration-300 ease-in-out  ${
                     openIndex === index
-                      ? "border-[1px] border-gold bg-white/20 max-h-[300px] overflow-y-scroll"
-                      : "border-[1px] border-gold"
-                  } p-4 rounded-2xl hover:scale-105 transition-all`}
+                      ? "border-[1px] border-black/20 bg-gray-200 max-h-[300px] overflow-y-scroll"
+                      : "border-[1px] border-black/30"
+                  } p-4  hover:scale-105 transition-all`}
                 >
                   <div
                     className="flex justify-between items-center cursor-pointer"
@@ -114,7 +114,7 @@ export default function Faq() {
                       openIndex === index ? " mt-4" : "max-h-0"
                     }`}
                   >
-                    <hr className="border-t-[2px] border-gold mb-4" />
+                    <hr className="border-t-[2px] border-black mb-4" />
                     <p
                       className="mt-7"
                       dangerouslySetInnerHTML={{

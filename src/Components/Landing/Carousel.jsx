@@ -41,8 +41,6 @@ export default function Component({data}) {
     fetchData();
   }, []);
   
-  
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + direction + slides.length) % slides.length)
@@ -62,57 +60,99 @@ export default function Component({data}) {
   }
 
   const getSlideStyles = (index) => {
-    const totalSlides = slides.length
-    const angleStep = 180 / (totalSlides - 1)
-    const angle = (index - currentIndex + totalSlides) % totalSlides
-    const adjustedAngle = (angle <= totalSlides / 2 ? angle : angle - totalSlides) * angleStep
-
-    // Responsive radius
-    const radius = {
-      sm: 150,
-      md: 250,
-      lg: 380
-    }
-
-    // Use window.innerWidth to determine the current screen size
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024
-    let currentRadius = radius.lg
+    const isMobile = screenWidth < 768 // md breakpoint
 
-    if (screenWidth < 640) {
-      currentRadius = radius.sm
-    } else if (screenWidth < 1024) {
-      currentRadius = radius.md
-    }
+    if (isMobile) {
+      // For mobile, we'll only show 3 slides
+      const totalVisibleSlides = 3
+      const centerIndex = currentIndex
+      const prevIndex = (currentIndex - 1 + slides.length) % slides.length
+      const nextIndex = (currentIndex + 1) % slides.length
 
-    const x = Math.sin((adjustedAngle * Math.PI) / 180) * currentRadius
-    const y = -Math.cos((adjustedAngle * Math.PI) / 180) * currentRadius * 0.3 + currentRadius * 0.3
+      // Default styles for non-visible slides
+      let scale = 0
+      let x = 0
+      let zIndex = 0
+      let opacity = 0
 
-    let scale = 1 - Math.abs(adjustedAngle) / 180 * 0.2
-    let zIndex = 100 - Math.abs(adjustedAngle)
+      // Adjusted scales and positions for mobile
+      if (index === centerIndex) {
+        scale = 1.6  // Increased center scale
+        x = 0
+        zIndex = 1000
+        opacity = 1
+      } else if (index === prevIndex) {
+        scale = 1.1 // Smaller side scales
+        x = -80    // Reduced gap
+        zIndex = 500
+        opacity = 0.8
+      } else if (index === nextIndex) {
+        scale = 1.1  // Smaller side scales
+        x = 80      // Reduced gap
+        zIndex = 500
+        opacity = 0.8
+      }
 
-    if (index === currentIndex) {
-      scale = 1.3
-      zIndex = 1000
-    } else if (Math.abs(index - currentIndex) === 1 || Math.abs(index - currentIndex) === slides.length - 1) {
-      scale = 1.1
-      zIndex = 500
-    }
+      return {
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        transform: `translate(-50%, -50%) translate(${x}px, 0px) scale(${scale})`,
+        zIndex,
+        opacity,
+        transition: "all 0.5s ease-out",
+      }
+    } else {
+      // Original desktop layout logic
+      const totalSlides = slides.length
+      const angleStep = 180 / (totalSlides - 1)
+      const angle = (index - currentIndex + totalSlides) % totalSlides
+      const adjustedAngle = (angle <= totalSlides / 2 ? angle : angle - totalSlides) * angleStep
 
-    return {
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      transform: `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`,
-      zIndex,
-      opacity: 1,
-      transition: "all 0.5s ease-out",
+      const radius = {
+        sm: 150,
+        md: 250,
+        lg: 380
+      }
+
+      let currentRadius = radius.lg
+
+      if (screenWidth < 640) {
+        currentRadius = radius.sm
+      } else if (screenWidth < 1024) {
+        currentRadius = radius.md
+      }
+
+      const x = Math.sin((adjustedAngle * Math.PI) / 180) * currentRadius
+      const y = -Math.cos((adjustedAngle * Math.PI) / 180) * currentRadius * 0.3 + currentRadius * 0.3
+
+      let scale = 1 - Math.abs(adjustedAngle) / 180 * 0.2
+      let zIndex = 100 - Math.abs(adjustedAngle)
+
+      if (index === currentIndex) {
+        scale = 1.3
+        zIndex = 1000
+      } else if (Math.abs(index - currentIndex) === 1 || Math.abs(index - currentIndex) === slides.length - 1) {
+        scale = 1.1
+        zIndex = 500
+      }
+
+      return {
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        transform: `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`,
+        zIndex,
+        opacity: 1,
+        transition: "all 0.5s ease-out",
+      }
     }
   }
+
   const handleDrag = (event, info) => {
     const dragOffset = info.offset.x;
-  
-    // Calculate how many indexes the user has dragged based on the card width
-    const cardWidth = 150; // Adjust based on actual width
+    const cardWidth = 150;
     const draggedIndexes = Math.round(dragOffset / cardWidth);
   
     if (draggedIndexes !== 0) {
@@ -122,35 +162,32 @@ export default function Component({data}) {
   };
 
   return (
-    <section to className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[110vh] w-full overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[600px]">
+    <section className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[110vh] w-full mb-32 md:mb-24">
+      <div className="absolute top-0 left-0 right-0 h-[100%] sm:h-[400px] md:h-[450px] lg:h-[600px]">
         <div className="relative h-full w-full mt-5">
           {slides.map((slide, index) => (
             <motion.div
               key={index}
-              className="absolute w-[100px] h-[200px] sm:w-[120px] sm:h-[240px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px]  shadow-2xl"
+              className="absolute w-[120px] h-[260px] sm:w-[160px] sm:h-[320px] md:w-[150px] md:h-[300px] lg:w-[200px] lg:h-[400px] rounded-[20px] shadow-2xl"
               style={getSlideStyles(index)}
               animate={controls}
               onClick={() => setCurrentIndex(index)}
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={handleDrag}
-            
             >
               <a className="cursor-pointer" href={slide.redirectionLink} target="_blank" rel="noopener noreferrer">
-              <img
-              
-              src={slide.image.url}
-              alt={`Slide ${index + 1}`}
-              className="w-full h-full object-cover hover:scale-110 duration-300"
-            /></a>
-             
+                <img
+                  src={slide.image.url}
+                  alt={`Slide ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-110 duration-300"
+                />
+              </a>
             </motion.div>
           ))}
         </div>
       </div>
       
-      {/* Navigation Controls */}
-      <div className="absolute -bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute -bottom-32 md:-bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
           className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handlePrevious}

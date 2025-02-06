@@ -11,7 +11,7 @@ export default function ScrollAnimatedText() {
     offset: ["start end", "end start"]
   });
 
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 10, restDelta: 0.001 });
 
   const splitText = (text) => {
     return text.split(" ");
@@ -49,13 +49,13 @@ export default function ScrollAnimatedText() {
 
   const headingWords = splitText(headingText);
   const subheadingWords = splitText(subheadingText);
-  const totalWords = headingWords.length + subheadingWords.length;
+  const totalWords = headingWords.length + subheadingWords.length*1.3;
 
   return (
-    <div className="relative min-h-screen bg-black px-3" ref={containerRef}>
+    <div className="relative min-h-screen bg-black px-3 py-10" ref={containerRef}>
       <section className="flex min-h-[110vh] lg:pb-28 items-center justify-center">
         <div className="flex flex-col gap-8 items-center">
-          <h1 className="lg:text-6xl font-[500] w-full lg:w-8/12 text-4xl text-white">
+          <h1 className="lg:text-6xl font-semibold w-full lg:w-8/12 text-4xl text-white">
             {headingWords.map((word, index) => (
               <AnimatedWord
                 key={index}
@@ -66,7 +66,7 @@ export default function ScrollAnimatedText() {
             ))}
           </h1>
 
-          <p className="lg:text-5xl font-[300] w-full lg:w-8/12 text-2xl text-white">
+          <p className="lg:text-5xl  w-full lg:w-8/12 text-2xl text-white">
             {subheadingWords.map((word, index) => (
               <AnimatedWord
                 key={index + headingWords.length}

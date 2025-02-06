@@ -9,12 +9,13 @@ const countries = [
   // Add more countries as needed
 ];
 
-const PhoneInput = ({selectedCountry,setSelectedCountry,phone,setPhone}) => {
+const PhoneInput = ({ selectedCountry, setSelectedCountry, phone, setPhone }) => {
   const handleCountryChange = (e) => {
     setSelectedCountry(e.target.value);
   };
 
   const handlePhoneChange = (e) => {
+    e.preventDefault();
     setPhone(e.target.value);
   };
 

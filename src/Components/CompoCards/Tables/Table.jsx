@@ -215,9 +215,9 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
           <Spinner size={40} className="animate-spin" />
         </div>
       ) : (
-        <div className={`${!isExpanded ? 'border-2 rounded-xl border-gray-600 ' : ''} w-full`}>
+        <div className={`${!isExpanded ? 'border-2 rounded-xl border-black ' : ''} w-full`}>
           <div
-            className={`${!isExpanded ? '' : 'bg-white text-black border-[1px] border-black/20 '} p-4 rounded-t-lg flex text-black  justify-between items-center w-full cursor-pointer px-10 py-6`}
+            className={`${!isExpanded ? '' : 'bg-[#e0e0e0] text-black border-[1px] border-black '} p-4 rounded-t-lg flex text-black  justify-between items-center w-full cursor-pointer px-10 py-6`}
             
           >
             <h2 className={`${isExpanded ? 'text-black font-semibold' : ''} text-sm md:text-2xl font-semibold text-center w-full`}>
@@ -236,7 +236,7 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
             className="overflow-hidden transition-all duration-500 ease-in-out"
             style={{ maxHeight: `${maxHeight}` }}
           >
-            <div className="bg-white border-[1px] border-black/20 shadow-md rounded-b-lg w-full overflow-x-scroll no-scrollbar text-sm lg:text-lg">
+            <div className=" border-[1px] border-black shadow-md rounded-b-lg w-full overflow-x-scroll no-scrollbar text-sm lg:text-lg">
               <table className="w-full  text-left border-collapse">
                 <thead>
                   <tr className="bg-[#f3f3f3] text-black">
@@ -286,10 +286,10 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
                   className="flex flex-col items-center justify-center w-full h-40 cursor-pointer"
                 >
                   <div className="flex flex-col items-center justify-center">
-                    <button className="flex items-center text-black/40 border border-black/30 rounded-full p-2">
+                    <button className="flex items-center text-black border border-black rounded-full p-2">
                       <i className="fas fa-upload"></i>
                     </button>
-                    <p className="text-black/40 mt-2">Click to Upload or drag and drop</p>
+                    <p className="text-black   mt-2">Click to Upload or drag and drop</p>
                     {/* <p className="text-xs text-gray-500 dark:text-gray-400">(Max. File size: 25 MB)</p> */}
                   </div>
                 </label>

@@ -49,7 +49,7 @@ export default function Conci() {
 
   return (
     <>
-      <div className="flex flex-col text-white z-50 ">
+      <div className="flex flex-col text-white z-0 ">
         {/* <div className="w-full flex justify-between items-center border-b-[1px] py-3 pr-5  border-b-black/20">
           {/* <Links /> */}
           
@@ -70,8 +70,8 @@ export default function Conci() {
             </button>
           </Link> */}
         {/* </div>  */}
-        <div className="w-full text-black pt-3">
-          <Routes>
+        <div className="w-full text-black  bg-white  rounded-xl">
+          <Routes> 
             {/* <Route path="/*" element={<PropDetails />} /> */}
             <Route path="/Documents" element={<Documents PropId={PropId} PropName={properyname} />} />
             {/* <Route path="/Handbook" element={<Handbook />} />

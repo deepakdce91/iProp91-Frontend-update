@@ -92,7 +92,7 @@ const numberWithinRange = (number, min, max) =>
 const OPTIONS = { loop: true };
 // SLIDES should be PropCard2 list
 
-const EmblaCarousel = (props) => {
+export const EmblaCarousel = (props) => {
   const { slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
   const tweenFactor = useRef(0);
@@ -227,7 +227,7 @@ export default function MyProperties() {
 
   return (
     <>
-      <div className=" flex  flex-col pt-5">
+      <div className=" flex  flex-col pt-5 bg-white lg:rounded-xl h-full">
         <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 ">
          {prop.map((property) => (
           // <Link to={`/safe/Dealing/${property._id}/Documents`}>
@@ -236,7 +236,7 @@ export default function MyProperties() {
          ))}
         </div>
 
-        <div className="lg:!hidden  pb-5 mt-10">
+        <div className="lg:!hidden  pb-5 mt-20 flex justify-center items-center ">
           <EmblaCarousel slides={SLIDES} options={OPTIONS} />
         </div>
       </div>

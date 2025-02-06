@@ -94,11 +94,11 @@ export default function Cards() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black">
+    <div className="w-full min-h-screen bg-transparent backdrop-blur-md text-black mt-24 lg:mt-0">
       <div className="p-4 w-full md:p-8 flex flex-col lg:flex-row items-center justify-center">
         <div className="flex flex-col w-full lg:flex-row items-center md:gap-8 justify-center">
           {/* Text content */}
-          <div className="w-full lg:w-1/3 mb-8  md:mb-0 lg:ml-14 space-y-6 mt-20 lg:mt-0">
+          <div className="w-full lg:w-1/3  lg:ml-14 space-y-6  lg:mt-0">
                 <p className="lg:text-7xl text-5xl text-primary font-bold text-start">
                   NRI
                 </p>
@@ -185,63 +185,86 @@ export default function Cards() {
             </div>
 
             {/* Horizontal Carousel for smaller screens */}
-            <div className="md:hidden flex justify-center items-center h-[80vh] overflow-hidden">
-              {[-1, 0, 1].map((offset) => {
-                const slideIndex = (currentIndex + offset + carouselData.length) % carouselData.length;
-                const item = carouselData[slideIndex];
-                return (
-                  <motion.div
-                    key={item.id}
-                    className={`absolute w-[80%] cursor-pointer py-10 bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 ${
-                      offset === 0 ? "z-20" : "z-10 hover:scale-110"
-                    }`}
-                    initial={{
-                      scale: offset === 0 ? 0.9 : 0.7,
-                      x: `${offset * 60}%`,
-                      opacity: offset === 0 ? 0.9 : 0.5,
-                    }}
-                    animate={{
-                      scale: offset === 0 ? 1 : 0.8,
-                      x: `${offset * 50}%`,
-                      opacity: offset === 0 ? 1 : 0.7,
-                    }}
-                    transition={{ duration: 0.5 }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    whileHover={{ scale: offset === 0 ? 1.05 : 0.85 }}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => handleCardClick(offset, slideIndex)}
-                    style={{
-                      backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
+                <div className="md:hidden relative flex justify-center items-center h-[80vh] overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={carouselData[currentIndex].id}
+                      className="w-[90%] h-[500px] bg-black/40 backdrop-blur-lg border border-gray-800 rounded-lg p-6 flex flex-col"
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/2.jpg')`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      {/* Header section with fixed height */}
+                      <div className="mb-4">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white truncate">
+                          {carouselData[currentIndex].title}
+                        </h3>
+                      </div>
+
+                      {/* Content section with scrollable area if needed */}
+                      <div className="flex-1 overflow-y-auto scrollbar-hide">
+                        <ul className="space-y-3">
+                          {carouselData[currentIndex].features.map(
+                            (feature, idx) => (
+                              <motion.li
+                                key={idx}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="flex items-start gap-2"
+                              >
+                                <span className="text-base text-gray-300 shrink-0">
+                                  •
+                                </span>
+                                <span className="text-sm md:text-base text-gray-300 break-words">
+                                  {feature}
+                                </span>
+                              </motion.li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Navigation Buttons */}
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                    aria-label="Previous slide"
                   >
-                    <h3 className="text-3xl font-bold mb-4 text-white">
-                      {item.title}
-                    </h3>
-                    <ul className="space-y-3">
-                      {item.features.map((feature, idx) => (
-                        <motion.li
-                          key={idx}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="flex items-start gap-2"
-                        >
-                          <span className="text-base text-gray-300">•</span>
-                          <span className="text-base text-gray-300">
-                            {feature}
-                          </span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+
+                  {/* Navigation Dots */}
+                  <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {carouselData.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          currentIndex === idx
+                            ? "bg-black w-4"
+                            : "bg-black hover:bg-white/75"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
           </div>
         </div>
       </div>

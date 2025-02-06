@@ -22,14 +22,14 @@ const Law = () => {
  
 
   return (
-    <div className="w-full min-h-screen bg-black p-4">
+    <div className="w-full min-h-screen bg-white p-4">
       <div className="container mx-auto">
-        <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
+        <Breadcrumb items={breadcrumbItems} className={"flex  items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-24 left-[5%]"} />
 
         <main className="mt-10 ">
           {view === "main" && (
             <div className=" h-screen flex-col flex gap-6 items-center justify-center">
-              <p className="lg:text-2xl text-xl font-semibold text-white">
+              <p className="lg:text-2xl text-xl font-semibold text-black">
                 Learn the essentials of real estate laws to navigate property
                 transactions with confidence.
               </p>

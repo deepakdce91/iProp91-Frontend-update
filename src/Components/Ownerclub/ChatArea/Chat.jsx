@@ -400,6 +400,10 @@ function Chats({
   userId = "IPP0001",
   userToken,
   currentGroupDetails,
+  onMessageUpdate,
+  onSeenMessage,
+  messages: parentMessages,
+  inviteUrl
 }) {
   // users/fetchuser/:id
 
@@ -422,6 +426,24 @@ function Chats({
   // for message filtering
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = inviteUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      const result = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(result);
+    }
+  };
+
   useEffect(() => {
     if (!(searchTerm.trim() === "")) {
       // Function to filter messages based on the search term
@@ -438,7 +460,7 @@ function Chats({
       }));
     } else {
       setFilteredMessages(messages);
-      console.log(messages);
+      // console.log(messages);
     }
   }, [searchTerm, messages]);
 
@@ -481,14 +503,35 @@ function Chats({
 
     socket.on(`existingMessages-${communityId}`, (existingMessages) => {
       setMessages(existingMessages);
+      // Notify parent of all existing messages
+      if (typeof onMessageUpdate === 'function') {
+        onMessageUpdate({
+          communityId,
+          messages: existingMessages.messages,
+          type: 'existing'
+        });
+      }
     });
 
     socket.on(`newMessage-${communityId}`, (data) => {
       if (data.communityId === communityId) {
-        setMessages((prev) => ({
-          ...prev,
-          messages: [...prev.messages, data.message],
-        }));
+        setMessages((prev) => {
+          const updatedMessages = {
+            ...prev,
+            messages: [...prev.messages, data.message],
+          };
+          
+          // Notify parent of updated messages
+          if (typeof onMessageUpdate === 'function') {
+            onMessageUpdate({
+              communityId,
+              messages: updatedMessages.messages,
+              type: 'new'
+            });
+          }
+          
+          return updatedMessages;
+        });
       }
     });
 
@@ -528,6 +571,13 @@ function Chats({
       toast.error(data.error);
     });
 
+    // Add seen message handler
+    if (typeof onSeenMessage === 'function') {
+      socket.on(`messageSeen-${communityId}`, (data) => {
+        onSeenMessage(data.messageId);
+      });
+    }
+
     return () => {
       socket.off(`existingMessages-${communityId}`);
       socket.off(`newMessage-${communityId}`);
@@ -535,8 +585,9 @@ function Chats({
       socket.off(`messageFlagged-${communityId}`);
       socket.off(`messageUnflagged-${communityId}`);
       socket.off(`errorMessage-${communityId}`);
+      socket.off(`messageSeen-${communityId}`);
     };
-  }, [communityId]);
+  }, [communityId, onMessageUpdate, onSeenMessage]);
 
   const handleSendMessage = (messageObj, userId, userToken) => {
     socket.emit("sendMessage", {
@@ -766,19 +817,7 @@ function Chats({
     "link",
   ];
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  const baseUrl = window.location.href;
-const url = baseUrl.split('/').slice(0, 3).join('/');
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
+  
 
   const shareToWhatsApp = () => {
     const whatsappUrl = ``
@@ -790,11 +829,10 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
     window.location.href = emailUrl
   }
 
-
   return (
     <>
       <div
-        className={`md:flex absolute top-5 right-[15%] hidden  md:right-[15%] lg:right-[33%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:flex absolute top-5 right-[17%] hidden  md:right-[37%] lg:right-[26%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
           isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
         }`}
       >
@@ -817,7 +855,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
           style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
-      <div className="absolute hidden md:block top-5 right-[10%] md:right-[10%] lg:right-[30%] ">
+      <div className="absolute hidden md:block top-5 right-[12%] md:right-[33%] lg:right-[23%] ">
       <button
         onClick={() => setIsModalOpen(true)}
         className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
@@ -845,10 +883,10 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
               {/* Copy link section */}
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <div className="flex-1 truncate text-sm text-gray-500">
-                  {url}
+                  {inviteUrl}
                 </div>
                 <button
-                  onClick={handleCopyLink}
+                  onClick={copyToClipboard}
                   className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   {copied ? (
@@ -878,24 +916,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   <Mail className="w-5 h-5 text-blue-600" />
                   <span className="text-sm font-medium">Email</span>
                 </button>
-                <button
-                  onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 col-span-2"
-                >
-                  <Link2 className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm font-medium">Copy Link</span>
-                </button>
               </div>
-            </div>
-
-            {/* Modal footer */}
-            <div className="p-4 border-t">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
@@ -1018,8 +1039,8 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   <TbPaperclip
                     className={
                       theme.palette.mode === "dark"
-                        ? "h-6 w-6 text-gray-500 hover:scale-110 hover:text-black"
-                        : "h-6 w-6 text-gray-500 hover:scale-110 hover:text-gray-900"
+                        ? "h-6 w-6 text-black hover:scale-110 "
+                        : "h-6 w-6 text-gray-500 hover:scale-110"
                     }
                   />
                 </button>
@@ -1027,23 +1048,23 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                   className="mr-1"
                   onClick={() => setShowPicker(!showPicker)}
                 >
-                  <FaSmile
+                  {/* <FaSmile
                     className={
                       theme.palette.mode === "dark"
-                        ? "text-gray-500 hover:scale-110 hover:text-black"
-                        : "text-gray-500 hover:scale-110 hover:text-gray-900"
+                        ? "text-gold hover:scale-110 "
+                        : "text-gold hover:scale-110 "
                     }
                     style={{
                       fontSize: "24px",
                       cursor: "pointer",
                       marginLeft: "8px",
                     }}
-                  />
+                  /> */}<p className="text-2xl ml-3">😊</p>
                 </button>
               </div>
               <button
                 disabled={textMessage === "" ? true : false}
-                className={`bg-gray-200 text-black px-4 py-2 rounded-md ml-2`}
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer`}
                 onClick={(e) => {
                   e.preventDefault();
                   addMessage();
@@ -1057,7 +1078,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
                 style={{
                   position: "absolute",
                   bottom: "100px",
-                  right: "0px",
+                  right: "50%",
                   zIndex: 1000,
                 }}
               >
@@ -1086,7 +1107,7 @@ const url = baseUrl.split('/').slice(0, 3).join('/');
               </p>
             </div>
             <button
-              className="bg-gold hover:bg-gold/60 text-black px-4 py-2 rounded-md ml-2"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2"
               onClick={addFile}
             >
               Send

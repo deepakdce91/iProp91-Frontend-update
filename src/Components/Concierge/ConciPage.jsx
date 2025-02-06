@@ -10,9 +10,9 @@ import FinanceAssitance from "./Pages/FinanceAssistance";
 export default function Conci() {
   return (
     <>
-      <div className="flex flex-col lg:min-h-screen bg-white text-black overflow-y-auto  ">
-        <div className="border-b-[1px] pb-5 border-b-black/20">
-          <NameHeader />
+      <div className="flex flex-col lg:gap-1   lg:rounded-xl text-black   ">
+        {/* <div className=""> */}
+          <NameHeader name={"Concierge"} pageName={"My Properties"} />
           {/* <div className="py-3 flex items-center justify-between pr-5">
             <Links />
 
@@ -33,19 +33,19 @@ export default function Conci() {
               </button>
             </Link>
           </div> */}
-        </div>
+        {/* </div> */}
         {/* <div className="mt-5 w-full"> */}
-        <div className="w-full pt-3">
+        <div className="w-full pt-3 bg-white lg:rounded-xl">
           {/* Nested Routes */}
           <Routes>
             <Route path="/concierge" element={<MyProperties />} />
-            <Route
+            {/* <Route
               path="/concierge/relations"
               element={<RelationshipManager />}
             />
             <Route path="/concierge/property" element={<PropertyMangement />} />
             <Route path="/concierge/legal" element={<Legalsupport />} />
-            <Route path="/concierge/finance" element={<FinanceAssitance />} />
+            <Route path="/concierge/finance" element={<FinanceAssitance />} /> */}
           </Routes>
         </div>
         {/* </div> */}

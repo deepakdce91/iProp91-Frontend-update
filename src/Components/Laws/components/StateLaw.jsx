@@ -71,9 +71,9 @@ const StateLaw = ({ onBack }) => {
   ];
 
   return (
-    <div className="flex flex-col w-full px-5 md:px-20 pt-28  min-h-screen bg-black ">
-      <Breadcrumb items={breadcrumbItems}  className={"flex z-50 items-center space-x-2 text-white text-sm lg:text-base  my-3"} />
-      <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg rounded-2xl py-3 md:px-10 px-3  ">
+    <div className="flex flex-col w-full px-5 md:px-20 pt-28  min-h-screen bg-white ">
+      <Breadcrumb items={breadcrumbItems}  className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base  my-3"} />
+      <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg  py-3 md:px-10 px-3  ">
         {mockData.map((law) => (
           <button
             key={law.id}
@@ -91,22 +91,22 @@ const StateLaw = ({ onBack }) => {
             >
               <img src={law.icon} alt="img" className="w-8 h-8" />
             </div>
-            <span className="text-xs text-center">{law.title}</span>
+            <span className="text-xs text-center text-black">{law.title}</span>
           </button>
         ))}
       </div>
 
       {selectedLaw ? (
-        <div className="mt-2 animate-fade-in px-5 md:px-10 py-3 rounded-2xl">
+        <div className="mt-2 animate-fade-in px-5 md:px-10 py-3 ">
           <div className="">
             {stateLaws.map((law, index) => (
               <div
                 key={index}
                 className={`mb-4 transition-all duration-300 ease-in-out ${
                   openIndex === index
-                    ? "bg-black text-white border-[1px] border-white "
-                    : "border-[1px] bg-white text-black border-black"
-                } p-4 rounded-3xl hover:scale-105 transition-all`}
+                    ? "bg-gray-200 text-black border-[1px] border-black/30 "
+                    : "border-[1px] bg-white text-black border-black/30"
+                } p-4  hover:scale-105 transition-all`}
               >
                 <div
                   className="flex justify-between items-center cursor-pointer"
@@ -122,7 +122,7 @@ const StateLaw = ({ onBack }) => {
                     openIndex === index ? "max-h-screen mt-4" : "max-h-0"
                   }`}
                 >
-                  <hr className="border-t-[2px] border-white mb-4" />
+                  <hr className="border-t-[2px] border-black mb-4" />
                   <p dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(law.content),
                   }} className="mt-7"/>
