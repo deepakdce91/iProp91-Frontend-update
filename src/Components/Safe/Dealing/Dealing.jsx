@@ -7,7 +7,7 @@ export default function Dealing() {
 
   return (
     <>
-      <div className="w-full flex flex-col gap-2">
+      <div className="w-full flex flex-col gap-1">
         <Header activeDocument={activeDocument} />
         <Main_Con onDocumentSelect={setActiveDocument} />
       </div>

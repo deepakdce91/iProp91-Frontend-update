@@ -134,7 +134,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   }
 
   return (
-    <div className="flex flex-col h-[80vh]  text-black ">
+    <div className="flex flex-col h-[85vh]  text-black ">
       <h1 className="text-2xl font-bold   flex justify-between items-center">
         {isMobile && (activeSection || activeDocument) && (
           <button onClick={handleBack} className="text-black/20">

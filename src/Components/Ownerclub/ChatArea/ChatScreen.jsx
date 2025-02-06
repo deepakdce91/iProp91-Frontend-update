@@ -384,38 +384,7 @@ function ChatScreen() {
           </div>
         </div>
 
-        {/* Audio Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <Music className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.audio || 0} audio files</span>
-          </div>
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-2 p-2 min-w-min">{/* Audio content would go here */}</div>
-          </div>
-        </div>
-
-        {/* Links Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <Link2 className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.link || 0} shared links</span>
-          </div>
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-2 p-2 min-w-min">{/* Links content would go here */}</div>
-          </div>
-        </div>
-
-        {/* Voice Messages Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <Mic className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.voice || 0} voice messages</span>
-          </div>
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-2 p-2 min-w-min">{/* Voice messages content would go here */}</div>
-          </div>
-        </div>
+        
       </div>
     </div>
     );
