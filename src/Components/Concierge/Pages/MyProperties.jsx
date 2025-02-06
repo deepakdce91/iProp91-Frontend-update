@@ -469,8 +469,8 @@ export default function MyProperties() {
       </div>
       {/* for smaller screens */}
       <div className="relative w-full md:hidden bg-white">
-        <div className="flex flex-col items-center w-full pb-20">
-          <div className="relative w-full h-[400px]">
+        <div className="flex flex-col items-center w-full pb-20 px-5">
+          <div className="relative w-full h-[500px] ">
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={currentIndex}
@@ -497,7 +497,7 @@ export default function MyProperties() {
                 }}
                 className="absolute w-full h-full flex items-center justify-center"
               >
-                <div className="w-full max-w-md px-4 flex justify-center items-center">
+                <div className="w-full max-w-xl px-4 flex justify-center items-center">
                   <PropCard
                     props={prop[currentIndex]}
                     onClickEdit={() => onClickEdit(prop[currentIndex]._id)}
@@ -510,7 +510,7 @@ export default function MyProperties() {
               </motion.div>
             </AnimatePresence>
           </div>
-          <div className="w-64 mt-10 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
+          <div className="w-full  max-w-96 mt-10 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
             <Link
               to="/addproperty"
               className=""
@@ -568,7 +568,7 @@ export default function MyProperties() {
         </div>
 
         {/* Pagination Dots */}
-        <div className="absolute top-[45%] left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+        <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
           {prop.map((_, index) => (
             <button
               key={index}

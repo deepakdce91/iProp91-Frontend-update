@@ -166,7 +166,7 @@ const Sidebar = () => {
         {expanded ? (
           <span className="ml-3 truncate">{key}</span>
         ) : (
-          <span className="text-[10px] mt-1 text-center text-white w-12 truncate">{key}</span>
+          <span className="text-[10px] mt-1 text-center text-white w-12 whitespace-normal break-words leading-3">{key}</span>
         )}
       </Link>
     );

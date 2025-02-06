@@ -17,8 +17,9 @@ import WelcomePage from "./Components/Welcome/WelcomePage.jsx";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -41,19 +42,25 @@ function App() {
             const user = await response.json();
             localStorage.setItem("userPhone", user.phone);
             localStorage.setItem("userId", user._id);
-
-            return;
           }
         } catch (error) {
           console.error(error.message);
+        } finally {
+          setIsLoading(false);
         }
       };
       fetchUser();
+    } else {
+      setIsLoading(false);
     }
-  }, [isLoggedIn]);
+  }, [location.pathname]);
 
   // Custom hook to manage JWT token
   useAuthToken(navigate);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
 
   return (
     <div className="app">
