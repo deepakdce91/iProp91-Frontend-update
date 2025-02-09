@@ -781,7 +781,7 @@ function InvitationPage() {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForGuest?userId=${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/property/addpropertyForInvitedUser?userId=${userId}`,
         {
           method: "POST",
           headers: {
