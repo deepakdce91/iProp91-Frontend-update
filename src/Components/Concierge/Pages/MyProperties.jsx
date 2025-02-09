@@ -126,6 +126,8 @@ export default function MyProperties() {
       if (response) {
         const properties = await response.json();
         setProp(properties);
+        console.log(properties);
+        
 
         const stillShowModal = localStorage.getItem("addPropDetails");
         localStorage.removeItem("addPropDetails"); // remove after extracting
@@ -581,7 +583,7 @@ export default function MyProperties() {
         </div>
       </div>
 
-      <div className="mt-5 ">
+      <div className="mt-5">
         <ApprovedListedProperties propertyData={prop} />
       </div>
       {/* Add modals */}
