@@ -3,8 +3,10 @@ import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import ListedPropertyCard from '../CompoCards/Cards/ListedCards';
 
-const ApprovedListedProperties = ({prop}) => {
+const ApprovedListedProperties = ({ propertyData }) => {
   const [listings, setListings] = useState([]);
+  const [filteredListings, setFilteredListings] = useState([]);
+  
 
   const fetchListings = async () => {
     try {
@@ -19,16 +21,27 @@ const ApprovedListedProperties = ({prop}) => {
         params: { userId }
       });
       setListings(response.data);
-      console.log(response.data);
       
+      // Filter listings based on propertyData
+      if (propertyData && propertyData.length > 0) {
+        const userPropertyIds = propertyData.map(property => property._id);
+        console.log("User Property IDs:", userPropertyIds);
+        
+        const matchedListings = response.data.filter(listing => 
+          userPropertyIds.includes(listing.propertyId)
+        );
+        
+        console.log("Matched Listings:", matchedListings);
+        setFilteredListings(matchedListings);
+      }
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
   };
 
   useEffect(() => {
-    fetchListings(); // Fetch listings when the component mounts
-  }, []); // Empty dependency array means this runs once on mount
+    fetchListings();
+  }, [propertyData]); // Re-fetch when propertyData changes
 
   const handleUpdate = async (listingId, updatedDetails) => {
     const token = localStorage.getItem('token');
@@ -146,7 +159,7 @@ const ApprovedListedProperties = ({prop}) => {
     <section className='border-t-[1px] border-t-gray-500 w-full '>
       <p className='text-2xl  font-bold text-primary mt-5 mx-5'>My Listings</p>
       <div className='grid grid-cols-1 gap-5 md:p-5 p-3'>
-        {listings.map((listing) => (
+        {filteredListings.map((listing) => (
           <ListedPropertyCard
             key={listing._id}
             propertyType={listing.sellDetails?.type || listing.rentDetails?.type }
