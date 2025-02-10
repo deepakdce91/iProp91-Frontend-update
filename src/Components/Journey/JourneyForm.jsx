@@ -215,14 +215,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
     <>
       {!isAuthModalOpen && (
         <div className="w-full min-h-screen px-6 md:px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
-           <div  className="w-full flex justify-end items-end">
-           <button 
-            onClick={() => navigate('/')} 
-            className=" z-10 p-2 rounded-full hover:bg-gray-700 transition-colors"
-          >
-            <X className="w-6 h-6 text-white" strokeWidth={2} />
-          </button>
-           </div>
+           
           <div className="relative">
             <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
               <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
@@ -236,7 +229,15 @@ const JourneyForm = ({ setIsLoggedIn }) => {
             </div>
           </div>
 
-          <div className="bg-black rounded-lg shadow md:p-6 border border-1 border-gray-300 px-8 md:px-24 py-10">
+          <div className="bg-black rounded-lg shadow md:p-6 border border-1 relative border-gray-300 px-8 md:px-24 py-10">
+          <div  className="absolute top-0 right-0 -mt-2 -mr-2">
+           <button 
+            onClick={() => navigate('/')} 
+            className=" z-10 p-2 rounded-full text-gray-200 bg-gray-700 hover:bg-gray-200 hover:text-black group transition-colors"
+          >
+            <X className="w-6 h-6 text-white group-hover:text-black" strokeWidth={2} />
+          </button>
+           </div>
             <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
               {currentState.question.questionText}
             </h2>
