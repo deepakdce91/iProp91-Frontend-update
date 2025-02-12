@@ -38,12 +38,19 @@ import { GrDocumentExcel } from "react-icons/gr";
 import { FaRegFilePowerpoint } from "react-icons/fa";
 import { supabase } from "../../../config/supabase.js";
 import { client } from "../../../config/s3client.js";
-import { Search } from "lucide-react";
+import { Mic, Plus, Search, SendHorizonal } from "lucide-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import DOMPurify from "dompurify";
 
-import { Share2, Copy, X, Mail, Link2, PhoneIcon as WhatsApp } from 'lucide-react'
+import {
+  Share2,
+  Copy,
+  X,
+  Mail,
+  Link2,
+  PhoneIcon as WhatsApp,
+} from "lucide-react";
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transportOptions: ["websocket"],
@@ -286,9 +293,7 @@ function OutgoingMessage({
           )}
         </div>
         <div className="flex flex-col items-start max-w-[80%]">
-          <p className="ml-3 text-sm text-black">
-            {"You"}
-          </p>
+          <p className="ml-3 text-sm text-black">{"You"}</p>
           <div
             className={`relative flex w-full rounded-lg px-3 ${
               file || isValidURL(text) ? "bg-[#3f3f3f] ml-2 text-white p-2" : ""
@@ -403,7 +408,7 @@ function Chats({
   onMessageUpdate,
   onSeenMessage,
   messages: parentMessages,
-  inviteUrl
+  inviteUrl,
 }) {
   // users/fetchuser/:id
 
@@ -434,11 +439,11 @@ function Chats({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = inviteUrl;
       document.body.appendChild(textArea);
       textArea.select();
-      const result = document.execCommand('copy');
+      const result = document.execCommand("copy");
       document.body.removeChild(textArea);
       setCopied(result);
     }
@@ -504,11 +509,11 @@ function Chats({
     socket.on(`existingMessages-${communityId}`, (existingMessages) => {
       setMessages(existingMessages);
       // Notify parent of all existing messages
-      if (typeof onMessageUpdate === 'function') {
+      if (typeof onMessageUpdate === "function") {
         onMessageUpdate({
           communityId,
           messages: existingMessages.messages,
-          type: 'existing'
+          type: "existing",
         });
       }
     });
@@ -520,16 +525,16 @@ function Chats({
             ...prev,
             messages: [...prev.messages, data.message],
           };
-          
+
           // Notify parent of updated messages
-          if (typeof onMessageUpdate === 'function') {
+          if (typeof onMessageUpdate === "function") {
             onMessageUpdate({
               communityId,
               messages: updatedMessages.messages,
-              type: 'new'
+              type: "new",
             });
           }
-          
+
           return updatedMessages;
         });
       }
@@ -572,7 +577,7 @@ function Chats({
     });
 
     // Add seen message handler
-    if (typeof onSeenMessage === 'function') {
+    if (typeof onSeenMessage === "function") {
       socket.on(`messageSeen-${communityId}`, (data) => {
         onSeenMessage(data.messageId);
       });
@@ -816,18 +821,17 @@ function Chats({
     "bullet",
     "link",
   ];
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const shareToWhatsApp = () => {
-    const whatsappUrl = ``
-    window.open(whatsappUrl, '_blank')
-  }
+    const whatsappUrl = ``;
+    window.open(whatsappUrl, "_blank");
+  };
 
   const shareToEmail = () => {
-    const emailUrl = ``
-    window.location.href = emailUrl
-  }
+    const emailUrl = ``;
+    window.location.href = emailUrl;
+  };
 
   return (
     <>
@@ -855,73 +859,72 @@ function Chats({
           style={{ pointerEvents: isExpanded ? "auto" : "none" }}
         />
       </div>
-      <div className="absolute hidden md:block top-5 right-[12%] md:right-[33%] lg:right-[23%] ">
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
-      >
-        <Share2 className="w-6 h-6" />
-        
-      </button>
+      <div className="absolute block lg:top-5 top-[12%] right-[10%]  lg:right-[23%] ">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
+        >
+          <Share2 className="w-6 h-6" />
+        </button>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg">
-            {/* Modal header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Share</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal content */}
-            <div className="p-4 space-y-4">
-              {/* Copy link section */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="flex-1 truncate text-sm text-gray-500">
-                  {inviteUrl}
-                </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg">
+              {/* Modal header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">Share</h3>
                 <button
-                  onClick={copyToClipboard}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
                 >
-                  {copied ? (
-                    'Copied!'
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy
-                    </>
-                  )}
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Share options */}
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={shareToWhatsApp}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  <WhatsApp className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium">WhatsApp</span>
-                </button>
-                <button
-                  onClick={shareToEmail}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium">Email</span>
-                </button>
+              {/* Modal content */}
+              <div className="p-4 space-y-4">
+                {/* Copy link section */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1 truncate text-sm text-gray-500">
+                    {inviteUrl}
+                  </div>
+                  <button
+                    onClick={copyToClipboard}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    {copied ? (
+                      "Copied!"
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Share options */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={shareToWhatsApp}
+                    className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    <WhatsApp className="w-5 h-5 text-green-600" />
+                    <span className="text-sm font-medium">WhatsApp</span>
+                  </button>
+                  <button
+                    onClick={shareToEmail}
+                    className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <Mail className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-medium">Email</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
       <ScrollToBottom className="h-screen overflow-y-auto px-4 ">
         {filteredMessages.messages?.length > 0 &&
           filteredMessages.messages?.map((msg, index) => {
@@ -1012,77 +1015,71 @@ function Chats({
           })}
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
-      <footer className="border-t-[1px]  border-t-black/20 p-4  w-full">
+      <footer className="border-t-[1px]  border-t-black/20   w-full">
         {!fileToUpload && (
           <div className="flex flex-col">
-            <div className="bg-gray-200 rounded-md mb-2">
-              <ReactQuill
-                value={textMessage}
-                onChange={handleTextMessageChange}
-                onKeyDown={handleKeyDown}
-                modules={modules}
-                formats={formats}
-                placeholder="Type a message..."
-                theme="snow"
-                className="bg-white text-black rounded-lg"
-              />
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <div className="flex items-center">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  onChange={handleFileAdding}
-                />
-                <button className="ml-3" onClick={handleButtonClick}>
-                  <TbPaperclip
-                    className={
-                      theme.palette.mode === "dark"
-                        ? "h-6 w-6 text-black hover:scale-110 "
-                        : "h-6 w-6 text-gray-500 hover:scale-110"
-                    }
+            <div className="bg-gradient-to-r from-gray-500 to-gray-100  ">
+              <div className="flex items-center gap-4 px-2 py-2">
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleFileAdding}
                   />
-                </button>
+                  <button className="ml-3" onClick={handleButtonClick}>
+                    <Plus className="w-6 h-6 text-gray-300" />
+                  </button>
+                </div>
+
+                <div className="flex-1 relative">
+                <style>
+            {`
+              .quill {
+                border: none;
+              }
+              .ql-container.ql-snow {
+                border: none;
+                font-size: 15px;
+                color: #282828;
+              }
+            `}
+          </style>
+                  <ReactQuill
+                    value={textMessage}
+                    onChange={handleTextMessageChange}
+                    onKeyDown={handleKeyDown}
+                    modules={{ toolbar: false }}
+                    formats={formats}
+                    placeholder="Type a message..."
+                    theme="snow"
+                    className="w-full text-black  bg-gradient-to-r from-gray-200 to-gray-50 text-gray-200 rounded-lg pl-10 outline-none placeholder-gray-500"
+                  />
+                  <button
+                    className="absolute -left-1 top-[6px]"
+                    onClick={() => setShowPicker(!showPicker)}
+                  >
+                    <p className="text-2xl ml-3">😊</p>
+                  </button>
+                </div>
+
                 <button
-                  className="mr-1"
-                  onClick={() => setShowPicker(!showPicker)}
+                  type="button"
+                  className="text-gray-500 hover:text-gray-300 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addMessage();
+                  }}
+                  disabled={textMessage === "" ? true : false}
                 >
-                  {/* <FaSmile
-                    className={
-                      theme.palette.mode === "dark"
-                        ? "text-gold hover:scale-110 "
-                        : "text-gold hover:scale-110 "
-                    }
-                    style={{
-                      fontSize: "24px",
-                      cursor: "pointer",
-                      marginLeft: "8px",
-                    }}
-                  /> */}<p className="text-2xl ml-3">😊</p>
+                  <SendHorizonal className="w-6 h-6" />
                 </button>
               </div>
-              <button
-                disabled={textMessage === "" ? true : false}
-                className={`bg-blue-500 text-white px-4 py-2 rounded-md ml-2 cursor-pointer`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  addMessage();
-                }}
-              >
-                Send
-              </button>
             </div>
             {showPicker && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "100px",
-                  right: "50%",
-                  zIndex: 1000,
-                }}
+              <div className="absolute bottom-[100px] right-[10%] md:right-[50%] "
               >
-                <EmojiPicker
+                <EmojiPicker 
                   pickerStyle={{ width: "70%" }}
                   onEmojiClick={onEmojiClick}
                   emojiStyle="native"

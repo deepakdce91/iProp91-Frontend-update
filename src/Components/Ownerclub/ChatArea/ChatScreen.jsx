@@ -12,7 +12,18 @@ import NameHeader from "../../CompoCards/Header/NameHeader";
 import { Link } from "react-router-dom";
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronDown, X, Image, FileIcon, Mic, Music, Video, File, Link2 } from "lucide-react";
+import {
+  ChevronDown,
+  X,
+  Image,
+  FileIcon,
+  Mic,
+  Music,
+  Video,
+  File,
+  Link2,
+  Share2,
+} from "lucide-react";
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -35,6 +46,8 @@ function ChatScreen() {
   const [unreadMessages, setUnreadMessages] = useState({});
   const [allMessages, setAllMessages] = useState({});
   const [inviteUrl, setInviteUrl] = useState("");
+  const [isMobileInfoOpen, setIsMobileInfoOpen] = useState(false);
+  const [showAllMembers, setShowAllMembers] = useState(false);
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -81,7 +94,7 @@ function ChatScreen() {
       )
       .then((response) => {
         setGroupNames(response.data.data);
-        console.log(response.data.data)
+        console.log(response.data.data);
         setFilteredGroupNames(response.data.data);
         setHasGroups(response.data.data.length > 0);
       })
@@ -189,13 +202,13 @@ function ChatScreen() {
           name: community.name,
           state: community.state,
           builder: community.builder,
-          city: community.city
+          city: community.city,
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'auth-token': token
-          }
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
         }
       );
 
@@ -205,8 +218,10 @@ function ChatScreen() {
         setInviteUrl(inviteUrl);
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error generating invitation link');
-      console.error('Error:', error);
+      toast.error(
+        error.response?.data?.error || "Error generating invitation link"
+      );
+      console.error("Error:", error);
     }
   };
 
@@ -233,19 +248,33 @@ function ChatScreen() {
   // Function to count media by type
   const getMediaCounts = (messages) => {
     if (!Array.isArray(messages)) return {};
-    
+
     return messages.reduce((acc, msg) => {
       if (msg.file) {
         // Get the file extension from the file type or name
         const fileType = msg.file.type.toLowerCase();
-        
+
         // Categorize files
-        if (fileType.includes('png') || fileType.includes('jpg') || fileType.includes('jpeg') || fileType.includes('gif')) {
+        if (
+          fileType.includes("png") ||
+          fileType.includes("jpg") ||
+          fileType.includes("jpeg") ||
+          fileType.includes("gif")
+        ) {
           acc.image = (acc.image || 0) + 1;
-        } else if (fileType.includes('mp4') || fileType.includes('mov') || fileType.includes('webm')) {
+        } else if (
+          fileType.includes("mp4") ||
+          fileType.includes("mov") ||
+          fileType.includes("webm")
+        ) {
           acc.video = (acc.video || 0) + 1;
-        } else if (fileType.includes('pdf') || fileType.includes('doc') || fileType.includes('xls') || 
-                   fileType.includes('ppt') || fileType.includes('txt')) {
+        } else if (
+          fileType.includes("pdf") ||
+          fileType.includes("doc") ||
+          fileType.includes("xls") ||
+          fileType.includes("ppt") ||
+          fileType.includes("txt")
+        ) {
           acc.application = (acc.application || 0) + 1;
         }
       }
@@ -256,22 +285,33 @@ function ChatScreen() {
   // Function to filter media by type
   const getMediaByType = (messages, type) => {
     if (!Array.isArray(messages)) return [];
-    
+
     return messages.filter((msg) => {
       if (!msg.file) return false;
-      
+
       const fileType = msg.file.type.toLowerCase();
       switch (type) {
-        case 'image':
-          return fileType.includes('png') || fileType.includes('jpg') || 
-                 fileType.includes('jpeg') || fileType.includes('gif');
-        case 'video':
-          return fileType.includes('mp4') || fileType.includes('mov') || 
-                 fileType.includes('webm');
-        case 'application':
-          return fileType.includes('pdf') || fileType.includes('doc') || 
-                 fileType.includes('xls') || fileType.includes('ppt') || 
-                 fileType.includes('txt');
+        case "image":
+          return (
+            fileType.includes("png") ||
+            fileType.includes("jpg") ||
+            fileType.includes("jpeg") ||
+            fileType.includes("gif")
+          );
+        case "video":
+          return (
+            fileType.includes("mp4") ||
+            fileType.includes("mov") ||
+            fileType.includes("webm")
+          );
+        case "application":
+          return (
+            fileType.includes("pdf") ||
+            fileType.includes("doc") ||
+            fileType.includes("xls") ||
+            fileType.includes("ppt") ||
+            fileType.includes("txt")
+          );
         default:
           return false;
       }
@@ -281,15 +321,15 @@ function ChatScreen() {
   // Add function to handle message updates from Chat component
   const handleMessageUpdate = (data) => {
     const { communityId, messages, type } = data;
-    
+
     // Update messages for the specific community
-    setAllMessages(prev => ({
+    setAllMessages((prev) => ({
       ...prev,
-      [communityId]: messages
+      [communityId]: messages,
     }));
 
     // Keep existing unread message logic
-    if (type === 'new' && messages.userId !== userId) {
+    if (type === "new" && messages.userId !== userId) {
       setUnreadMessages((prev) => ({
         ...prev,
         [communityId]: [...(prev[communityId] || []), messages._id],
@@ -318,80 +358,178 @@ function ChatScreen() {
 
     return (
       <div className="max-w-md">
-      <div className="flex justify-between items-center my-4">
-        <h3 className="text-base font-medium">Files</h3>
-      </div>
+        <div className="flex justify-between items-center ">
+          <h3 className="text-base font-medium">Files</h3>
+        </div>
 
-      <div className="space">
-        {/* Photos Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <Image className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.image || 0} photos</span>
+        <div className="space">
+          {/* Photos Section */}
+          <div>
+            <div className="flex items-center gap-3 p-3">
+              <Image className="w-4 h-4 " />
+              <span className="text-sm">{mediaCounts.image || 0} photos</span>
+            </div>
+            <div className="overflow-x-scroll custom-scrollbar">
+              <div className="flex gap-2  min-w-min">
+                {getMediaByType(messagesList, "image").map((msg, idx) => (
+                  <img
+                    key={idx}
+                    src={msg.file.url || "/placeholder.svg"}
+                    alt=""
+                    className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="overflow-x-scroll ">
-            <div className="flex gap-2 p-2 min-w-min">
-              {getMediaByType(messagesList, "image").map((msg, idx) => (
-                <img
-                  key={idx}
-                  src={msg.file.url || "/placeholder.svg"}
-                  alt=""
-                  className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
-                />
-              ))}
+
+          {/* Videos Section */}
+          <div>
+            <div className="flex items-center gap-3 p-3">
+              <Video className="w-4 h-4 " />
+              <span className="text-sm">{mediaCounts.video || 0} videos</span>
+            </div>
+            <div className="overflow-x-auto ">
+              <div className="flex gap-2 p-2 min-w-min">
+                {getMediaByType(messagesList, "video").map((msg, idx) => (
+                  <div key={idx} className="w-48 flex-shrink-0">
+                    <video
+                      src={msg.file.url}
+                      className="w-full rounded-lg"
+                      controls
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Documents Section */}
+          <div>
+            <div className="flex items-center gap-3 p-3">
+              <File className="w-4 h-4 " />
+              <span className="text-sm">
+                {mediaCounts.application || 0} files
+              </span>
+            </div>
+            <div className="overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 p-2 min-w-min">
+                {getMediaByType(messagesList, "application").map((msg, idx) => (
+                  <a
+                    key={idx}
+                    href={msg.file.url}
+                    className="min-w-[200px] flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FileIcon className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm truncate">{msg.file.name}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    );
+  };
 
-        {/* Videos Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <Video className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.video || 0} videos</span>
+  const InfoPanel = ({ currentGroupData, messages }) => {
+    return (
+      <div
+        className={`fixed inset-y-0 right-0 w-[80%] mt-[68px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+          isMobileInfoOpen ? "translate-x-0" : "translate-x-full"
+        } lg:hidden z-50`}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="text-lg font-semibold">Group Info</h2>
+          <button onClick={() => setIsMobileInfoOpen(false)}>
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="overflow-y-auto h-full pb-20">
+          {/* Media Panel */}
+          <div className="p-4 border-b">
+            <MediaPanel messages={messages} />
           </div>
-          <div className="overflow-x-auto ">
-            <div className="flex gap-2 p-2 min-w-min">
-              {getMediaByType(messagesList, "video").map((msg, idx) => (
-                <div key={idx} className="w-48 flex-shrink-0">
-                  <video src={msg.file.url} className="w-full rounded-lg" controls />
+
+          {/* Group Members */}
+          <div className="p-4 border-b">
+            <h3 className="text-lg font-semibold mb-3">Group Members</h3>
+            <div
+              className={`space-y-3 ${
+                !showAllMembers && currentGroupData?.customers?.length > 2
+                  ? "max-h-[150px]"
+                  : "max-h-[300px]"
+              } overflow-y-auto`}
+            >
+              {currentGroupData?.customers
+                ?.slice(0, showAllMembers ? undefined : 2)
+                .map((customer, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <img
+                      src={
+                        customer.profilePicture ||
+                        process.env.REACT_APP_DEFAULT_PROFILE_URL
+                      }
+                      alt={customer.name}
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div>
+                      <p className="font-medium capitalize">{customer.name}</p>
+                      {customer.admin === "true" && (
+                        <span className="text-xs text-gold">Admin</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
+            {currentGroupData?.customers?.length > 2 && (
+              <button
+                onClick={() => setShowAllMembers(!showAllMembers)}
+                className="text-gold text-sm mt-2"
+              >
+                {showAllMembers
+                  ? "Show Less"
+                  : `Show All Members (${currentGroupData.customers.length})`}
+              </button>
+            )}
+          </div>
+
+          {/* Important Links */}
+          <div className="p-2 space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Project Documents</h4>
+                  <a
+                    href="/"
+                    className="text-gold flex  gap-3"
+                  >
+                    <FileIcon className="w-6 h-6" />
+                    <p className="text-xs">Show RERA documents of this project</p>
+                  </a>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Documents Section */}
-        <div>
-          <div className="flex items-center gap-3 p-3">
-            <File className="w-4 h-4 " />
-            <span className="text-sm">{mediaCounts.application || 0} files</span>
-          </div>
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-2 p-2 min-w-min">
-              {getMediaByType(messagesList, "application").map((msg, idx) => (
-                <a
-                  key={idx}
-                  href={msg.file.url}
-                  className="min-w-[200px] flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FileIcon className="w-4 h-4 mr-2 text-gray-500" />
-                  <span className="text-sm truncate">{msg.file.name}</span>
-                </a>
-              ))}
-            </div>
-          </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Official Website</h4>
+                  <a
+                    href="https://iprop91.com/"
+                    className="text-gold flex items-center space-x-2"
+                  >
+                    <Link2 className="w-6 h-6" />
+                    <p className="text-xs">Visit our official website</p>
+                  </a>
+                </div>
+              </div>
         </div>
-
-        
       </div>
-    </div>
     );
   };
 
   return (
-    <div className="h-[98vh] w-full ">
+    <div className="h-screen w-full">
       {/* Lock modal when no groups are available */}
       {!hasGroups && (
         <div className="fixed lg:ml-64 inset-0 flex items-center justify-center  bg-opacity-75 z-50 pointer-events-auto">
@@ -407,14 +545,14 @@ function ChatScreen() {
       <div className={` w-full ${!hasGroups ? "blur-sm" : ""}`}>
         {/* <!-- component --> */}
         <div className="flex w-full  overflow-hidden relative gap-2 ">
-          <div className="overflow-hidden w-full flex md:rounded-xl md:w-[80%] bg-white">
+          <div className="overflow-hidden w-full flex lg:rounded-xl lg:w-[80%] bg-white">
             {/* <!-- Sidebar --> */}
             <div
-              className={`relative bg-white text-black md:h-[95vh] h-screen md:w-[40%] w-full border-r-[1px] border-r-black/20 ${
+              className={`relative bg-white text-black lg:h-[99vh] h-screen md:w-[40%] w-full border-r-[1px] border-r-black/20  ${
                 currentGroupData ? "hidden md:block  " : "w-[30%]"
               }`}
             >
-              <div className=" p-2 relative top-0 ">
+              <div className=" p-2 relative  mt-14 lg:mt-0">
                 <div className="mx-2 my-5">
                   <NameHeader
                     firstname="iProp91 "
@@ -590,30 +728,42 @@ function ChatScreen() {
               } custom-scrollbar`}
               // style={{ backgroundImage: `url(${currentGroupThumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity:50,  }}
             >
-              <div className="flex flex-col h-screen md:h-[97vh]">
+              <div className="flex flex-col h-screen lg:h-[99vh]">
                 {/* <!-- Chat Header --> */}
                 <header
                   className={`${
                     theme.palette.mode === "dark"
                       ? "bg-white text-black"
                       : "text-black bg-gradient-to-r from-gray-300 to-gray-50 "
-                  }  p-4  `}
+                  }  px-4 py-2  `}
                 >
                   {currentGroupData && (
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-col ">
+                    <div className="flex justify-between items-center mt-20 lg:mt-0">
+                      <div className="flex  justify-center">
                         <button
                           className="text-black hover:scale-110 hover:text-black/90 lg:hidden flex"
                           onClick={() => setCurrentGroupData()}
                         >
-                          <IoChevronBackSharp className="w-6 h-6 mr-3  " />
+                          <IoChevronBackSharp className="w-6 h-6 mr-3 mt-2  " />
                         </button>
-                        <h1 className="text-3xl font-semibold capitalize">
-                          {currentGroupData.name}
-                        </h1>
-                        <p className="text-sm text-black/80 ">
-                          {currentGroupData?.customers?.length || 0} Members
-                        </p>
+                        <div className="flex flex-col justify-center ">
+                          <h1 className="text-3xl font-semibold capitalize">
+                            {currentGroupData.name}
+                          </h1>
+                          <p className="text-sm text-black/80 ">
+                            {currentGroupData?.customers?.length || 0} Members
+                          </p>
+                        </div>
+                      </div>
+                      <div className="absolute block lg:top-5 top-[12%] right-[2%] lg:right-[23%]">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={() => setIsMobileInfoOpen(true)}
+                            className="lg:hidden inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-900"
+                          >
+                            <BsInfoCircle className="w-6 h-6" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -648,54 +798,85 @@ function ChatScreen() {
             </div>
           </div>
 
-          <div className="md:flex flex-col gap-2 w-[20%] h-[99vh] hidden  ">
+          <div className="lg:flex flex-col gap-2 w-[20%] h-[99vh] hidden  mt-16 lg:mt-0">
             {/* ------ members list sidebar  */}
-            <div
-              className={` bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-4   border-l shadow-md   `}
-            >
-              <h3 className="text-xl font-bold text-center leading-none mb-2">
-                Group Info
-              </h3>
+            <div className="bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-2   border-l shadow-md  ">
+              {/* Media Panel */}
+              <div className="p-4 border-b">
+                <MediaPanel
+                  messages={allMessages[currentGroupData?._id] || []}
+                />
+              </div>
 
-              <ul
-                className={` ${
-                  theme.palette.mode === "dark"
-                    ? "divide-gray-600"
-                    : "divide-gray-300"
-                }`}
-              >
-                {currentGroupData?.customers?.map((customer, index) => {
-                  return (
-                    <li className="py-2" key={`user-${index}-list`}>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex-shrink-0">
-                          <img
-                            className="w-12 h-12 rounded-xl"
-                            src={
-                              customer.profilePicture !== ""
-                                ? customer.profilePicture
-                                : process.env.REACT_APP_DEFAULT_PROFILE_URL
-                            }
-                            alt="user image"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium capitalize">
+              {/* Group Members */}
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-semibold mb-3">Group Members</h3>
+                <div
+                  className={`space-y-3 ${
+                    !showAllMembers && currentGroupData?.customers?.length > 2
+                      ? "max-h-[150px]"
+                      : "max-h-[300px]"
+                  } overflow-y-auto`}
+                >
+                  {currentGroupData?.customers
+                    ?.slice(0, showAllMembers ? undefined : 2)
+                    .map((customer, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <img
+                          src={
+                            customer.profilePicture ||
+                            process.env.REACT_APP_DEFAULT_PROFILE_URL
+                          }
+                          alt={customer.name}
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div>
+                          <p className="font-medium capitalize">
                             {customer.name}
                           </p>
+                          {customer.admin === "true" && (
+                            <span className="text-xs text-gold">Admin</span>
+                          )}
                         </div>
-                        {customer.admin === false ? <IoStar /> : ""}
-                        {/* <button onClick={()=>{console.log(customer.admin)}}>hyeeee</button> */}
                       </div>
-                    </li>
-                  );
-                })}
-              </ul>
+                    ))}
+                </div>
+                {currentGroupData?.customers?.length > 2 && (
+                  <button
+                    onClick={() => setShowAllMembers(!showAllMembers)}
+                    className="text-gold text-sm mt-2"
+                  >
+                    {showAllMembers
+                      ? "Show Less"
+                      : `Show All Members (${currentGroupData.customers.length})`}
+                  </button>
+                )}
+              </div>
 
-              {/* Media Panel */}
-              <MediaPanel 
-                messages={allMessages[currentGroupData?._id] || []}
-              />
+              {/* Important Links */}
+              <div className="p-2 space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Project Documents</h4>
+                  <a
+                    href="#"
+                    className="text-gold flex  gap-3"
+                  >
+                    <FileIcon className="w-6 h-6" />
+                    <p className="text-xs">Show RERA documents of this project</p>
+                  </a>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Official Website</h4>
+                  <a
+                    href="https://iprop91.com/"
+                    className="text-gold flex items-center space-x-2"
+                  >
+                    <Link2 className="w-6 h-6" />
+                    <p className="text-xs">Visit our official website</p>
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* article section */}
@@ -830,6 +1011,12 @@ function ChatScreen() {
           </div>
         </div>
       )}
+
+      {/* Add the InfoPanel */}
+      <InfoPanel
+        currentGroupData={currentGroupData}
+        messages={allMessages[currentGroupData?._id] || []}
+      />
     </div>
   );
 }

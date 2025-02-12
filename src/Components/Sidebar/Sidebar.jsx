@@ -233,7 +233,7 @@ const Sidebar = () => {
       </aside>
 
       {/* Small screen sidebar toggle button */}
-      <div className="lg:!hidden w-full h-[10svh] align-middle z-[100] sticky top-0 bg-white justify-between !flex px-4 py-2 ">
+      <div className="lg:!hidden w-full h-[10svh] align-middle z-[100] fixed top-0 bg-white justify-between !flex px-4 py-2 ">
         <div>
           <img
             alt="logo"

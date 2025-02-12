@@ -119,13 +119,14 @@ function PropertyForm({ closeEditModal, propertyId }) {
   };
 
   return (
-    <section className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5  ">
+    <section className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center mt-10 lg:my-5  ">
       {/* Backdrop */}
       <div onClick={closeEditModal}
         className="absolute inset-0 "
       />
-      <section className="  relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn    ">
+      <section className="  relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn    ">
         <div className="px-10 py-5 h-full lg:min-w-[40%] border-[1px] border-black bg-white rounded-lg relative shadow-md ">
+          <p className="mb-4 text-xl lg:text-4xl font-semibold">Edit property Details</p>
           <div className="flex flex-col gap-1">
             {/* <div className="flex gap-2"> */}
             {/* Developer Input */}
@@ -255,16 +256,16 @@ function PropertyForm({ closeEditModal, propertyId }) {
 
           <div className="flex justify-between w-full my-3  ">
             {isEditing && (
-              <div className="flex justify-between w-full gap-4 ">
+              <div className="flex justify-between w-full gap-4 flex-col md:flex-row">
                
                 <GoldButton
                   btnname="Save Changes"
                   onclick={handleSubmit}
-                  properties="rounded-md flex-1 bg-gray-100 py-2 text-black hover:shadow-md hover:shadow-gold "
+                  properties="rounded-md flex-1 bg-gray-100 py-2 text-black hover:shadow-md  "
                 />
                 <button
                   onClick={closeEditModal}
-                  className={`px-4 py-2 flex-1 rounded-md text-xs bg-white text-black border-[1px] border-black/20 hover:shadow-md hover:shadow-gold`}
+                  className={`px-4 py-2 flex-1 rounded-md text-xs bg-black text-white border-[2px] border-black/80 hover:shadow-md hover:bg-white`}
                 >
                   Cancel
                 </button>
