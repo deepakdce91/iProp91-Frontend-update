@@ -304,7 +304,7 @@ useEffect(() => {
                 <p className="text-xl my-3 md:my-5">{key}</p>
               </Link>
             ))}
-          </nav>
+          </nav> 
         </div>
       </motion.div>
       )}
@@ -314,7 +314,7 @@ useEffect(() => {
         <Auth 
           onClose={closeAuthModal} 
           setIsLoggedIn={setIsLoggedIn} 
-          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 transition-transform transform ${isAuthModalOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 z-50 transition-transform transform ${isAuthModalOpen ? 'translate-x-0' : 'translate-x-full'}`}
         />
       )}
     </nav>

@@ -383,7 +383,7 @@ function Verify({
           stage1FormData || authPage ? "h-fit" : "min-h-screen"
         } flex items-center justify-center  `}
       >
-        <div className="flex bg-white rounded-lg   md:max-w-7xl overflow-hidden justify-center">
+        <div className="flex bg-white rounded-lg md:max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
           {/* Left Side - Form */}
 
           <div className=" md:p-8 p-5">
@@ -666,7 +666,7 @@ export default function Login({
 
   return (
     <section
-      className={`${
+      className={` ${
         stage1FormData || authPage ? "" : "absolute"
       } h-screen w-screen`}
     >
@@ -677,15 +677,15 @@ export default function Login({
         </div>
       ) : null} */}
         <div
-          className={`shadow-md ${
+          className={`shadow-md  ${
             stage1FormData || authPage
-              ? `${authPage ? "bg-white " : "bg-black"} items-center  flex-col ${
+              ? `${authPage ? "bg-white " : "bg-black p-4 sm:p-0"} items-center  flex-col ${
                   authPage ? "" : "pt-5 md:pt-20"
                 }  h-full`
-              : `rounded-xl bg-gray-100 absolute items-start h-fit ${properties}`
+              : `rounded-xl bg-transparent absolute items-start h-fit ${properties}`
           }     flex justify-center  `}
         >
-          <div className="flex bg-white relative  rounded-lg max-w-7xl overflow-hidden justify-center">
+          <div className="flex bg-transparent relative rounded-lg max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
             {!(stage1FormData || authPage) && (
               <button
                 onClick={onClose}
@@ -698,7 +698,7 @@ export default function Login({
             {/* Left Side - Form */}
             <form
               onKeyDown={handleKeyPress}
-              className={`md:p-16  p-8 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white/80 lg:w-[400px] w-full md:w-[450px]  ${
+              className={`w-full md:p-16 p-6 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
                 stage1FormData || authPage ? "h-fit" : "h-[500px] lg:h-[600px]"
               }`}
             >
@@ -722,7 +722,7 @@ export default function Login({
                   <p className="text-gray-500 text-sm mb-3" onClick={onclick}>
                     Enter your mobile number to get an OTP
                   </p>
-                  <div className="w-72">
+                  <div className="w-full md:w-72">
                     <PhoneInput
                       selectedCountry={selectedCountry}
                       setSelectedCountry={setSelectedCountry}
@@ -730,7 +730,7 @@ export default function Login({
                       setPhone={setPhone}
                     />
                   </div>
-                  <div className="w-72  mt-1">
+                  <div className="w-full md:w-72 mt-1">
                     <Goldbutton
                       btnname={"Send OTP"}
                       properties={
@@ -755,7 +755,7 @@ export default function Login({
               ) : (
                 <>
                   <div
-                    className="flex items-center cursor-pointer"
+                    className="flex items-center cursor-pointer p-3"
                     onClick={() => setPasswordLogin(true)}
                   >
                     <i
@@ -771,7 +771,7 @@ export default function Login({
                     Enter your mobile number and password to continue with login
                     and password.
                   </p>
-                  <div className="w-72 ">
+                  <div className="w-full md:w-72">
                     <PhoneInput
                       selectedCountry={selectedCountry}
                       setSelectedCountry={setSelectedCountry}
@@ -779,7 +779,7 @@ export default function Login({
                       setPhone={setPhone}
                     />
                   </div>
-                  <div className="w-72">
+                  <div className="w-full md:w-72">
                     <SimpleInputPass
                       type={"password"}
                       placeholder={"Password"}
@@ -787,7 +787,7 @@ export default function Login({
                       setValue={setPassword}
                     />
                   </div>
-                  <div className="w-72 ">
+                  <div className="w-full md:w-72">
                     <Goldbutton
                       btnname={"Submit"}
                       properties={

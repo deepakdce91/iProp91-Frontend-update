@@ -32,8 +32,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [formType, setFormType] = useState();
+ 
   const [formdata, setFormData] = useState({
-    city: "",
+    city: "", 
     officeLocation: "",
     kidsSchoolLocation: "",
     medicalAssistanceRequired: "no",
@@ -84,7 +86,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/buyQueries/addBuyQuery`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/queries/add${formType === "buy" ? "Buy" : "Rent"}Query`, {
         city: formdata.city,
         officeLocation: formdata.officeLocation,
         kidsSchoolLocation: formdata.kidsSchoolLocation,
@@ -95,7 +97,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
       });
 
       if (response.data) {
-        toast.success("Buy query submitted successfully!");
+        toast.success("Query submitted successfully!");
         // Reset form after successful submission
         setFormData({
           city: "",
@@ -142,12 +144,21 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const type = searchParams.get("type");
+
+      if (type) {
+        setFormType(type);
+      }
+  }, [])
+  
+
   return (
     <section className="flex items-center justify-center">
       <div className="bg-black min-h-screen h-[100vh] p-8 w-full px-6 md:px-16 lg:px-[25vw] xl:px-[30vw] pt-[17vh] overflow-y-auto">
         <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
           <p className="md:text-3xl text-2xl text-white font-bold mb-5">
-            Add Buy Query Details
+            Add {formType === "buy" ? "Buy" : "Rent"} Query Details
           </p>
 
           {/* Form Fields */}
