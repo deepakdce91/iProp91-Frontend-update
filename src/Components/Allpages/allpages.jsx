@@ -21,7 +21,7 @@ export default function AllPage() {
   const location = useLocation();
 
   // Define the paths where you do NOT want to render the Footer
-  const noFooterPaths = ["/family"]; // Add paths as needed
+  const noFooterPaths = ["/family", "/safe", "/safe/*"]; // Add paths as needed
 
   // Check if the current path is in the noFooterPaths array
   const shouldRenderFooter = !noFooterPaths.includes(location.pathname);

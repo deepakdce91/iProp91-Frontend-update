@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import ListedPropertyCard from '../CompoCards/Cards/ListedCards';
+import { Link } from 'react-router-dom';
 
 const ApprovedListedProperties = ({ propertyData }) => {
   const [listings, setListings] = useState([]);
@@ -20,6 +21,8 @@ const ApprovedListedProperties = ({ propertyData }) => {
         },
         params: { userId }
       });
+      console.log(response.data);
+      
       setListings(response.data);
       
       // Filter listings based on propertyData
@@ -157,26 +160,35 @@ const ApprovedListedProperties = ({ propertyData }) => {
 
   return (
     <section className='border-t-[1px] border-t-gray-500 w-full '>
-      <p className='text-2xl  font-bold text-primary mt-5 mx-5'>My Listings</p>
+      <p className='text-2xl font-bold text-primary mt-5 mx-5'>My Listings</p>
       <div className='grid grid-cols-1 gap-5 md:p-5 p-3'>
-        {filteredListings.map((listing) => (
-          <ListedPropertyCard
-            key={listing._id}
-            propertyType={listing.sellDetails?.type || listing.rentDetails?.type }
-            unitNo={listing.sellDetails?.unitNumber || listing.rentDetails?.unitNumber}
-            size={listing.sellDetails?.size || listing.rentDetails?.size}
-            price={listing.sellDetails?.expectedPrice || listing.rentDetails?.expectedRent}
-            washrooms={listing.sellDetails?.numberOfWashrooms || listing.rentDetails?.numberOfWashrooms}
-            floors={listing.sellDetails?.numberOfFloors || listing.rentDetails?.numberOfFloors}
-            parkings={listing.sellDetails?.numberOfParkings || listing.rentDetails?.numberOfParkings}
-            media={listing.sellDetails?.media || listing.rentDetails?.media}
-            listingType={listing.sellDetails ? "sell" : "rent"}
-            details={listing.sellDetails ? listing.sellDetails : listing.rentDetails}
-            listingId={listing._id}
-            onDelete={() => handleDelete(listing._id)}
-            onUpdate={handleUpdate}
-          />
-        ))}
+        {filteredListings.length === 0 ? (
+          <div className="flex  items-center p-5 border border-dashed border-gray-300 rounded-lg">
+            <span className="text-lg text-gray-600 flex flex-col gap-2 md:flex-row">No approved listings available. <p className="text-blue-500 underline">Add listings to render here.</p></span>
+          </div>
+        ) : (
+          filteredListings.map((listing) => (
+            <ListedPropertyCard
+              key={listing._id}
+              availableFrom={listing.rentDetails?.availableFrom}
+              propertyType={listing.sellDetails?.type || listing.rentDetails?.type }
+              unitNo={listing.sellDetails?.unitNumber || listing.rentDetails?.unitNumber}
+              size={listing.sellDetails?.size || listing.rentDetails?.size}
+              price={listing.sellDetails?.expectedPrice || listing.rentDetails?.expectedRent}
+              washrooms={listing.sellDetails?.numberOfWashrooms || listing.rentDetails?.numberOfWashrooms}
+              beds={listing.sellDetails?.numberOfBedrooms || listing.rentDetails?.numberOfBedrooms}
+              furnished={listing.sellDetails?.furnishedStatus || listing.rentDetails?.furnishedStatus}
+              floors={listing.sellDetails?.numberOfFloors || listing.rentDetails?.numberOfFloors}
+              parkings={listing.sellDetails?.numberOfParkings || listing.rentDetails?.numberOfParkings}
+              media={listing.sellDetails?.media || listing.rentDetails?.media}
+              listingType={listing.sellDetails ? "sell" : "rent"}
+              details={listing.sellDetails ? listing.sellDetails : listing.rentDetails}
+              listingId={listing._id}
+              onDelete={() => handleDelete(listing._id)}
+              onUpdate={handleUpdate}
+            />
+          ))
+        )}
       </div>
     </section>
   );

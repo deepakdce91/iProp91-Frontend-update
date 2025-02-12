@@ -165,20 +165,20 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
   };
 
   return (
-    <div className=" fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center my-5">
+    <div className=" absolute top-0 z-50 flex items-center justify-center w-full left-0 ">
       {/* Backdrop */}
       <div onClick={closeBuyModal}
-        className="absolute inset-0 "
+        className="absolute w-full h-full bg-black/40 backdrop-blur-sm"
       />
       
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[80%] lg:max-w-[50%] mx-4 animate-fadeIn">
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar">
         <form
           onSubmit={handleSubmit}
-          className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md "
+          className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen"
         >
           <span
             onClick={closeBuyModal}
-            className="cursor-pointer absolute right-3 mt-5"
+            className="cursor-pointer absolute right-3"
           >
             <X />
           </span>
@@ -217,7 +217,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-col md:flex-row">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">Expected Rent</label>
                 <input
@@ -244,7 +244,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-col md:flex-row">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">Type</label>
                 <select
@@ -303,7 +303,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-col md:flex-row">
               <div className="flex-1">
                 <label className="text-sm text-gray-800">
                   Security Deposit (in Rs)
@@ -323,7 +323,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               </div>
 
               {/* Furnished or Non-Furnished */}
-              <div  className="space-y-2 flex-1">
+              <div  className="space-y-2 flex-1 ">
                 <label className="text-sm text-gray-800">
                   Furnished Status
                 </label>
@@ -376,11 +376,17 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
           <button
             type="submit"
             disabled={isUploading}
-            className={`w-full bg-white border-b-[5px] border-b-gray-300 border-[2px] border-gray-500 hover:border-gold hover:border-b-gold px-4 py-2 text-black rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 ${
+            className={`w-full bg-white border-[2px] border-black  px-4 py-2 text-black rounded-xl  ${
               isUploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {isUploading ? "Uploading..." : "Submit"}
+          </button>
+          <button onClick={closeBuyModal}
+            className={`w-full bg-black hover:border-black hover:bg-white px-4 py-2 text-white rounded-xl 
+            `}
+          >
+            Cancel
           </button>
         </form>
       </div>
