@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { IoIosArrowRoundForward } from "react-icons/io";
+import { IoIosArrowRoundForward, IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Auth from "../User/Login/Auth";
 import StateCityCompo from "../GeneralUi/StateCityCompo";
-import { useSearchParams } from "react-router-dom";
 import CustomDropdown from "../GeneralUi/CustomDropdown";
 
+const STORAGE_KEY = 'journey_progress';
+
 const Stage1Form = ({ setIsLoggedIn }) => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [formdata, setFormData] = useState({
     selectedState: "",
     selectedCity: "",
@@ -30,25 +33,29 @@ const Stage1Form = ({ setIsLoggedIn }) => {
   };
 
   const handleStateChange = (newState) => {
-    // Accept the new state
-    setFormData((prevFormData) => {
-      const updatedFormData = {
-        ...prevFormData,
-        selectedState: newState,
-      };
-      return updatedFormData;
-    });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      selectedState: newState,
+    }));
   };
 
   const handleCityChange = (newCity) => {
-    // Accept the new city as a parameter
-    setFormData((prevFormData) => {
-      const updatedFormData = {
-        ...prevFormData,
-        selectedCity: newCity,
-      };
-      return updatedFormData;
-    });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      selectedCity: newCity,
+    }));
+  };
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  const clearProgress = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing progress:', error);
+    }
   };
 
   // Fetch builders based on selected city
@@ -100,7 +107,6 @@ const Stage1Form = ({ setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Form validation
     if (
       !formdata.selectedState ||
       !formdata.selectedCity ||
@@ -109,9 +115,10 @@ const Stage1Form = ({ setIsLoggedIn }) => {
     ) {
       return toast.error("Please fill all the fields.");
     }
-// console.log(formdata);
+
     try {
       toast("Please login to continue!");
+      clearProgress();
       openAuthModal();
     } catch (error) {
       console.error(error.message);
@@ -119,7 +126,6 @@ const Stage1Form = ({ setIsLoggedIn }) => {
     }
   };
 
-  // Fetch and projects projects
   useEffect(() => {
     fetchBuilders();
     fetchProjects();
@@ -127,9 +133,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
 
   useEffect(() => {
     try {
-      // Get the entryPoint parameter from URL
       const entryPointParam = searchParams.get("entryPoint");
-
       if (entryPointParam) {
         setFormData((prevData) => ({
           ...prevData,
@@ -142,16 +146,16 @@ const Stage1Form = ({ setIsLoggedIn }) => {
   }, [searchParams]);
 
   return (
-    <section className="  flex items-center justify-center  ">
+    <section className="flex items-center justify-center bg-black pb-10">
       {!isAuthModalOpen && (
-        <div className=" bg-black  h-screen p-8 w-full px-6 md:px-16  lg:px-[25vw] xl:px-[30vw] pt-[17vh] ">
+        <div className="bg-black h-screen p-8 w-full px-6 md:px-16 lg:px-[25vw] xl:px-[30vw] pt-[17vh]">
+          
           <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
             <p className="md:text-3xl text-2xl text-white font-bold mb-5">
-              Add Property Details 
+              Add Property Details
             </p>
 
-            {/* Form Fields */}
-            <div className="flex flex-col  w-full">
+            <div className="flex flex-col w-full">
               <StateCityCompo
                 initialCity={formdata.selectedCity}
                 initialState={formdata.selectedState}
@@ -169,10 +173,9 @@ const Stage1Form = ({ setIsLoggedIn }) => {
                 value={formdata.selectBuilder}
                 onChange={handleChange}
                 placeholder="Select or type a builder..."
-                name="selectBuilder" 
+                name="selectBuilder"
               />
 
-              {/* Project Dropdown */}
               <CustomDropdown
                 label="Select Project"
                 options={projects.filter(
@@ -186,11 +189,18 @@ const Stage1Form = ({ setIsLoggedIn }) => {
               />
             </div>
 
-            {/* Submit Button */}
             <div className="w-full md:w-1/2 flex items-end justify-center mt-10 md:px-2">
+            <button
+                onClick={handleGoBack}
+                className="bg-gray-100 mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+              >
+                <IoIosArrowRoundBack className="h-7 w-7 mr-1" />
+                Back
+              </button>
+
               <button
                 onClick={handleSubmit}
-                className="bg-gray-100  hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+                className="bg-gray-100 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
               >
                 Continue <IoIosArrowRoundForward className="h-7 w-7 ml-1" />
               </button>
@@ -198,7 +208,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
           </div>
         </div>
       )}
-      {/* Auth Modal */}
+      
       {isAuthModalOpen && (
         <Auth
           goBackToStage1={() => {
