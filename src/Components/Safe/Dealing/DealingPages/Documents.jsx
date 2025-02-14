@@ -83,48 +83,48 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   const [activeSection, setActiveSection] = useState(Object.keys(Data)[0])
   const [activeDocument, setActiveDocument] = useState(Data[Object.keys(Data)[0]].content[0])
   const [isMobile, setIsMobile] = useState(false)
-  const [showFirstLayer, setShowFirstLayer] = useState(false)
+  const [currentLayer, setCurrentLayer] = useState(1); // 1: first, 2: second, 3: third
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSectionClick = (section) => {
-    setActiveSection(section)
-    setActiveDocument(null)
-    if (!Data[section].hasSecondLayer) {
-      setActiveDocument({ name: section, category: Data[section].category })
+    setActiveSection(section);
+    setActiveDocument(null);
+    if (isMobile) {
+      setCurrentLayer(2);
     }
-    if (isMobile) setShowFirstLayer(false)
-  }
+    if (!Data[section].hasSecondLayer) {
+      setActiveDocument({ name: section, category: Data[section].category });
+      setCurrentLayer(3);
+    }
+  };
+
 
   const handleDocumentClick = (document) => {
-    setActiveDocument(document)
-    setLoading(true)
-    if (onDocumentSelect) {
-      onDocumentSelect(`${activeSection} / ${document.name}`)
+    setActiveDocument(document);
+    if (isMobile) {
+      setCurrentLayer(3);
     }
-    if (isMobile) setShowFirstLayer(false)
-    
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
-  }
+    if (onDocumentSelect) {
+      onDocumentSelect(`${activeSection} / ${document.name}`);
+    }
+  };
 
   const handleBack = () => {
-    if (activeDocument) {
-      setActiveDocument(null)
-    } else if (activeSection) {
-      setActiveSection(null)
+    if (currentLayer === 3) {
+      setActiveDocument(null);
+      setCurrentLayer(2);
+    } else if (currentLayer === 2) {
+      setActiveSection(null);
+      setCurrentLayer(1);
     }
-    if (isMobile && !activeDocument && !activeSection) {
-      setShowFirstLayer(true)
-    }
-  }
+  };
 
   const handleFileChange = async (e) => {
     setLoading(true)
@@ -134,85 +134,106 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   }
 
   return (
-    <div className="flex flex-col h-[85vh]  text-black ">
-      <h1 className="text-2xl font-bold   flex justify-between items-center">
-        {isMobile && (activeSection || activeDocument) && (
-          <button onClick={handleBack} className="text-black/20">
-            <ChevronLeft size={24} />
+    <div className="flex flex-col md:h-[85vh] h-screen   text-black ">
+       {/* Header with back button */}
+       {isMobile && currentLayer > 1 && (
+        <div className="flex items-center p-4 border-b border-gray-200">
+          <button onClick={handleBack} className="flex items-center text-gray-600">
+            <ChevronLeft className="w-6 h-6 mr-2" />
+            {currentLayer === 2 ? 'Back to Categories' : 'Back to Documents'}
           </button>
-        )}
-        {isMobile && !showFirstLayer && (
-          <button onClick={() => setShowFirstLayer(true)} className="text-black/20">
-            <Menu size={24} />
-          </button>
-        )}
-      </h1>
+        </div>
+      )}
 
-      <div className="flex flex-grow overflow-hidden  p-4 border-[2px] border-black/70 rounded-xl shadow-md">
+      <div className="flex flex-grow overflow-hidden  p-4  lg:rounded-xl shadow-md">
         {/* First Layer */}
         <div
-          className={`w-full md:w-1/3 lg:w-[20%] bg-[#fdfbfb] mr-2 border-r-[2px] border-r-black px-1 overflow-y-auto transition-transform duration-300 ease-in-out ${
-            isMobile && !showFirstLayer ? '-translate-x-full z-0' : 'translate-x-0 z-0'
-          } 
-          ${isMobile ? 'absolute h-full z-0' : 'z-0 '}
-          `}
+          className={`w-full transition-all duration-300 ease-in-out ${
+            isMobile
+              ? currentLayer === 1
+                ? 'block'
+                : 'hidden'
+              : 'w-full lg:w-[20%]'
+          }`}
         >
-          {Object.keys(Data).map((section) => (
-            <div
-              key={section}
-             className=" border-b-[1px] border-b-black/70"
-              onClick={() => handleSectionClick(section)}
-            >
-              <div  className={`flex items-center justify-between px-4 py-[18px]  cursor-pointer  ${
-                activeSection === section ? "border-b-[5px] bg-[#e9e6e6]   text-black z-0 " : " hover:bg-gray-100 transition-all "
-              }`}>
-              {section}
-              <img src="/images/greater-than.png" className="w-7 scale-125" alt="img" />
+          <div className="bg-[#fdfbfb] h-full overflow-y-auto border-r-[2px] border-r-black/70">
+            {Object.keys(Data).map((section) => (
+              <div
+                key={section}
+                className="border-b-[1px] border-b-black/70"
+                onClick={() => handleSectionClick(section)}
+              >
+                <div className={`flex items-center justify-between px-4 py-[18px] cursor-pointer ${
+                  activeSection === section ? "border-b-[5px] bg-[#e9e6e6] text-black" : "hover:bg-gray-100"
+                }`}>
+                  {section}
+                  <img src="/images/greater-than.png" className="w-7 scale-125" alt="img" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="p-2 border-[2px] border-black/70 rounded-xl shadow-md flex w-full">
+        {/* <div className="p-2 lg:border-[2px] lg:border-black/70 rounded-xl shadow-md flex w-full"> */}
         {/* Second Layer */}
-        {(!isMobile || (isMobile && !showFirstLayer)) && activeSection && Data[activeSection].hasSecondLayer && (
-          <div className="w-full md:w-1/3 lg:w-[28%] bg-[#fdfbfb]   overflow-y-auto border-r-[2px] border-r-black/70">
-            <div className="">
+        <div
+          className={`w-full transition-all duration-300 ease-in-out ${
+            isMobile
+              ? currentLayer === 2
+                ? 'block'
+                : 'hidden'
+              : activeSection
+              ? 'w-3/3 lg:w-[28%]'
+              : 'hidden'
+          }`}
+        >
+          {activeSection && Data[activeSection].hasSecondLayer && (
+            <div className="bg-[#fdfbfb] h-full overflow-y-auto border-r-[2px] border-r-black/70">
               {Data[activeSection].content.map((doc) => (
                 <div
                   key={doc.name}
                   className="py-1 border-b-[1px] border-b-black/70"
                   onClick={() => handleDocumentClick(doc)}
                 >
-                  <div className={`px-4 py-[14px] no-scrollbar  cursor-pointer flex  items-center gap-3 text-sm ${
+                  <div className={`px-4 py-[14px] cursor-pointer flex items-center gap-3 text-sm ${
                     activeDocument?.name === doc.name
-                      ? " bg-[#e5e2e2]  shadow-gold  text-black z-0 "
-                      : "hover:bg-gray-100 transition-all"
+                      ? "bg-[#e5e2e2] text-black"
+                      : "hover:bg-gray-100"
                   }`}>
-                  <Folder className="w-4 h-4 mr-2"/> 
-                  <p>
-                  {doc.name}
-                  </p>
+                    <Folder className="w-4 h-4 mr-2" />
+                    <p>{doc.name}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
 
         {/* Third Layer */}
-        {(!isMobile || (isMobile && !showFirstLayer)) && activeDocument && (
-          <div className="flex-grow px-3 overflow-y-auto lg:w-[60%]">
-            <Table
-              category={activeDocument?.category}
-              tablename={activeDocument?.name}
-              tableopen={true}
-              loading={loading}
-            />
-          </div>
-        )}
+        <div
+          className={`w-full transition-all duration-300 ease-in-out ${
+            isMobile
+              ? currentLayer === 3
+                ? 'block'
+                : 'hidden'
+              : activeDocument
+              ? 'flex-grow lg:w-[60%]'
+              : 'hidden'
+          }`}
+        >
+          {activeDocument && (
+            <div className="px-3 h-full overflow-y-auto">
+              <Table
+                category={activeDocument?.category}
+                tablename={activeDocument?.name}
+                tableopen={true}
+              />
+            </div>
+          )}
+        </div>
         </div>
       </div>
-    </div>
+    // </div>
   )
 }

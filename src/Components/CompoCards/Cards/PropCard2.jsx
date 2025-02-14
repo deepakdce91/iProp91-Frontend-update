@@ -14,7 +14,7 @@ export default function PropCard2({ props, key }) {
   };
   return (
     <>
-      <div className="min-h-52 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
+      <div className="min-h-52 border-transparent border-b-4 border-[1px] border-simple hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
         <img
           src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="home"

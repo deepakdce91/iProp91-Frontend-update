@@ -44,7 +44,6 @@ export default function PropCard ({
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [uploadFiles, setUploadFiles] = useState([]);
-  const [termsncond, setTermsnCond] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState("");
   const [editFormData, setEditFormData] = useState({
     tower: props?.tower || '',
@@ -198,7 +197,7 @@ export default function PropCard ({
       <>
       {modalIsOpen && props.applicationStatus === "more-info-required" ? (
         <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
-          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+          <div className="relative m-4 p-4 lg:w-2/5 lg:min-w-[40%] lg:max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
             <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
               Upload Required Documents
             </div>
@@ -253,17 +252,17 @@ export default function PropCard ({
                 </span>
               </label> */}
             </div>
-            <div className="flex gap-3 items-center pt-2 justify-end">
+            <div className="flex gap-3 md:flex-row flex-col items-center pt-2 justify-end">
               <Goldbutton
                 onclick={handleDocumentSubmit}
                 btnname={"Submit Documents"}
-                properties={" bg-white text-black lg:w-[50%]  hover:bg-slate-100"}
+                properties={" bg-white text-black lg:w-[50%]  "}
                 
               />
               <Goldbutton
                 onclick={closeModal}
                 btnname={"Cancel"}
-                properties={" bg-white text-black lg:w-[20%]  hover:bg-slate-100"}
+                properties={" bg-white text-black lg:w-[20%]  "}
                 
               />
               
@@ -273,8 +272,8 @@ export default function PropCard ({
       ) : null}
 
       {modalIsOpen && props.applicationStatus === "under-review" ? (
-        <div className="fixed inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
-          <div className="relative m-4 p-4 w-2/5 min-w-[40%] max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
+        <div onClick={closeModal} className="fixed  inset-0 z-50 grid h-screen w-screen place-items-center backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative m-4 p-4 lg:w-2/5 lg:min-w-[40%] lg:max-w-[40%] rounded-lg bg-white border-[2px] border-black/20 shadow-lg">
             <div className="flex shrink-0 items-center pb-4 text-xl font-medium text-slate-800">
               Application Under Review
             </div>

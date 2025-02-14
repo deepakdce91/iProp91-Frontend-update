@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Modal from "react-modal";
 import { ChevronLeft, ChevronRight, CrossIcon } from "lucide-react";
 import ApprovedListedProperties from "../ApprovedListedProperties";
 import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
@@ -72,6 +71,8 @@ export default function MyProperties() {
 
   const [userPhone, setUserPhone] = useState();
 
+  const [isPaused, setIsPaused] = useState(false);
+
   const handleChangeMade = () => {
     setChangeMade(!changeMade);
   };
@@ -127,7 +128,6 @@ export default function MyProperties() {
         const properties = await response.json();
         setProp(properties);
         console.log(properties);
-        
 
         const stillShowModal = localStorage.getItem("addPropDetails");
         localStorage.removeItem("addPropDetails"); // remove after extracting
@@ -278,14 +278,14 @@ export default function MyProperties() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (!isDragging) {
+      if (!isDragging && !isPaused) {
         setDirection(1);
         setCurrentIndex((prev) => (prev + 1) % prop.length);
       }
     }, 2500);
 
     return () => clearInterval(timer);
-  }, [isDragging, prop.length]);
+  }, [isDragging, prop.length, isPaused]);
 
   const handleDragEnd = (e, { offset, velocity }) => {
     setIsDragging(false);
@@ -301,6 +301,7 @@ export default function MyProperties() {
       }
     }
   };
+  
 
   const handleNext = () => {
     setDirection(1);
@@ -332,6 +333,20 @@ export default function MyProperties() {
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset, velocity) => {
     return Math.abs(offset) * velocity;
+  };
+
+  // Add handlers for mouse events and interactions
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsPaused(false);
+  };
+
+  const handleInteraction = (index) => {
+    setCurrentIndex(index);
+    setIsPaused(true);
   };
 
   return (
@@ -471,8 +486,12 @@ export default function MyProperties() {
       </div>
       {/* for smaller screens */}
       <div className="relative w-full md:hidden bg-white">
-        <div className="flex flex-col items-center w-full pb-20 px-5">
-          <div className="relative w-full h-[500px] ">
+        <div className="flex flex-col items-center w-full  px-5">
+          <div 
+            className="relative w-full h-[300px]"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={currentIndex}
@@ -497,26 +516,60 @@ export default function MyProperties() {
                     handlePrev();
                   }
                 }}
-                className="absolute w-full h-full flex items-center justify-center"
+                className="absolute w-full h-full flex items-center justify-center "
               >
-                <div className="w-full max-w-xl px-4 flex justify-center items-center">
+                <div className="w-full max-w-72 px-4 flex justify-center items-center ">
                   <PropCard
                     props={prop[currentIndex]}
-                    onClickEdit={() => onClickEdit(prop[currentIndex]._id)}
-                    onClickBuy={() => onClickBuy(prop[currentIndex]._id)}
-                    onClickSell={() => onClickSell(prop[currentIndex]._id)}
+                    onClickEdit={() => {
+                      handleInteraction(currentIndex);
+                      onClickEdit(prop[currentIndex]._id);
+                    }}
+                    onClickBuy={() => {
+                      handleInteraction(currentIndex);
+                      onClickBuy(prop[currentIndex]._id);
+                    }}
+                    onClickSell={() => {
+                      handleInteraction(currentIndex);
+                      onClickSell(prop[currentIndex]._id);
+                    }}
                     userPhone={userPhone}
                     reFetchProperties={handleChangeMade}
                   />
                 </div>
               </motion.div>
+              
             </AnimatePresence>
+            {/* Navigation Buttons */}
+            <div className="absolute top-2/4 -left-2 -right-2 flex justify-between  -translate-y-1/2 pointer-events-none z-10 ">
+                <button
+                  onClick={handlePrev}
+                  className="p-2 rounded-full bg-white shadow-md pointer-events-auto hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="p-2 rounded-full bg-white shadow-md pointer-events-auto hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+              {/* Pagination Dots */}
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 ">
+                {prop.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleInteraction(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      currentIndex === index ? "bg-gold w-4" : "bg-[#282828]"
+                    }`}
+                  />
+                ))}
+              </div>
           </div>
-          <div className="w-full  max-w-96 mt-10 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
-            <Link
-              to="/addproperty"
-              className=""
-            >
+          <div className="w-full  max-w-64 my-16 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
+            <Link to="/addproperty" className="">
               <div className="flex flex-col items-center justify-between h-full gap-4">
                 <img
                   className="w-[80%]  "
@@ -552,35 +605,6 @@ export default function MyProperties() {
             </Link>
           </div>
         </div>
-
-        {/* Navigation Buttons */}
-        <div className="absolute top-1/4 left-0 right-0 flex justify-between px-4 -translate-y-1/2 pointer-events-none z-10">
-          <button
-            onClick={handlePrev}
-            className="p-2 rounded-full bg-white shadow-md pointer-events-auto hover:bg-gray-50 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={handleNext}
-            className="p-2 rounded-full bg-white shadow-md pointer-events-auto hover:bg-gray-50 transition-colors"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Pagination Dots */}
-        <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
-          {prop.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                currentIndex === index ? "bg-blue-500 w-4" : "bg-gray-300"
-              }`}
-            />
-          ))}
-        </div>
       </div>
 
       <div className="mt-5">
@@ -604,22 +628,19 @@ export default function MyProperties() {
       )}
 
       {isBuyModalOpen && selectedPropertyId && (
-        <div className="fixed inset-0  z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={closeBuyModal}
-          />
-          <div className="relative bg-white rounded-lg shadow-xl w-full ">
+        <div className="z-50 flex items-center justify-center w-full">
+          
+          {/* <div className="relative bg-white rounded-lg shadow-xl w-full "> */}
             <BuyForm
               closeBuyModal={closeBuyModal}
               propertyId={selectedPropertyId}
             />
-          </div>
+          {/* </div> */}
         </div>
       )}
 
       {isSellModalOpen && selectedPropertyId && (
-        <div className=" z-50 flex items-center justify-center ">
+        <div className=" z-50 flex items-center justify-center w-full">
           {/* <div className="relative bg-white rounded-lg shadow-xl w-full "> */}
           <SellForm
             closeSellModal={closeSellModal}
