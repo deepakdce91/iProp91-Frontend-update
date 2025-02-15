@@ -26,6 +26,7 @@ import { GrClose } from "react-icons/gr";
 import { ChevronLeft } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
+import axios from 'axios';
 
 async function AddGuestProperty(userId, userToken, data, myCallback) {
   // Handle property submission
@@ -61,8 +62,8 @@ async function AddGuestProperty(userId, userToken, data, myCallback) {
   }
 }
 
-function Verify({
-  onclick,
+
+const Verify = ({
   phone,
   countryCode,
   setIsLoggedIn,
@@ -72,27 +73,85 @@ function Verify({
   authPage,
   onJourneyPage,
   redirectionUrl,
-}) {
-  const [otp, setOTP] = useState("");
-  const [currentView, setCurrentView] = useState("mobileNumber"); // Example state
+}) => {
+  const navigate = useNavigate();
+  const [otp, setOTP] = useState('');
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
   const [askforname, setAskforname] = useState(false);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [token, setToken] = useState('');
+  
+  // Profile update states
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const HandleResendOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     await Authenticate({
-      channel: "PHONE",
+      channel: 'PHONE',
       phone: phone,
       countryCode: countryCode,
     });
     setTimer(5);
     setLoading(false);
     setShowtimer(false);
-    toast.success("OTP Sent");
+    toast.success('OTP Sent');
+  };
+
+  const createNewUser = async () => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`, {
+        phone: phone,
+      });
+
+      if (response.data.success) {
+        const { token, userInfo } = response.data;
+        localStorage.setItem('token', token);
+        setToken(token);
+        setUserId(userInfo._id);
+        return { token, userId: userInfo._id };
+      } else {
+        throw new Error('User creation failed');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast.error('Failed to create account');
+      throw error;
+    }
+  };
+
+  const updateUserDetails = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
+        {
+          name: name || 'iProp91 User',
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success('Profile updated successfully');
+        return true;
+      } else {
+        throw new Error('Profile update failed');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+      throw error;
+    }
   };
 
   const HandleVerifyOTP = async (e) => {
@@ -110,118 +169,78 @@ function Verify({
     }, 30000);
 
     if (isNaN(otp)) {
-      toast.error("Invalid OTP");
+      toast.error('Invalid OTP');
       setLoading(false);
       return;
-    } else {
-      const verifyresponse = await verifyOTP({
-        channel: "PHONE",
+    }
+
+    try {
+      const verifyResponse = await verifyOTP({
+        channel: 'PHONE',
         otp: otp,
         phone: phone,
         countryCode: countryCode,
       });
-      setOTP("");
 
-      if (verifyresponse) {
-        console.log("Response:", verifyresponse);
-        if (verifyresponse.response.verification === "FAILED") {
-          toast.error(verifyresponse.response.errorMessage.split(":")[1]);
-          setTimer(30);
-          setLoading(false);
-          return;
-        } else {
-          try {
-            let userexits = await fetch(
-              `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuserbyphone/${phone}`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-            let userexitsjson = await userexits.json();
-            if (userexitsjson.success === true) {
-              // user exists
-              try {
-                let loginres = await fetch(
-                  `${process.env.REACT_APP_BACKEND_URL}/api/users/login/${phone}`,
-                  {
-                    method: "GET",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  }
-                );
-                if (loginres.status === 500) {
-                  toast.error("Something went wrong");
-                  setLoading(false);
-                  return;
-                }
-                let loginresjson = await loginres.json();
-                if (loginresjson.success === true) {
-                  localStorage.setItem("token", loginresjson.token);
+      setOTP('');
 
-                  // save redirectionUrl if provided from journey
-                  if (redirectionUrl) {
-                    localStorage.setItem("redirectToPage", redirectionUrl);
-                  }
- 
-                  // Get user details after login
-                  const decoded = jwtDecode(loginresjson.token);
-                  const userId = decoded.userId; // This should be the correct user ID
-                  setIsLoggedIn(true);
-                  toast.success("Login Successful");
-                  if (stage1FormData && !onJourneyPage) {
-                    localStorage.setItem("addPropDetails", "true");
-                    const SendToConciPage = () => {
-                      setTimeout(() => {
-                        navigate("/concierge");
-                      }, 2000);
-                    };
-                    AddGuestProperty(
-                      userId,
-                      loginresjson.token,
-                      stage1FormData,
-                      SendToConciPage
-                    );
-                  }
-
-                  return;
-                } else {
-                  setTimeout(() => {
-                    navigate("/concierge");
-                  }, 2000);
-                  return;
-                }
-              } catch (error) {
-                console.error(error.message);
-                toast.error("Something went wrong");
-                setLoading(false);
-                return;
-              }
-            }
-            setAskforname(true); // user doesnot exist
-            setLoading(false);
-          } catch (err) {
-            toast.error("Something went wrong");
-            console.log(process.env.REACT_APP_BACKEND_URL);
-            setTimeout(() => {
-              navigate("/");
-            }, 2000);
-            setLoading(false);
-          }
-        }
-      } else {
-        toast.error("Verification Failed");
+      if (verifyResponse?.response?.verification === 'FAILED') {
+        toast.error(verifyResponse.response.errorMessage.split(':')[1]);
+        setTimer(30);
         setLoading(false);
         return;
       }
+
+      // Create new user after OTP verification
+      const { token, userId } = await createNewUser();
+      
+      if (redirectionUrl) {
+        localStorage.setItem('redirectToPage', redirectionUrl);
+      }
+
+      toast.success('Account created successfully');
+      
+      // Show the update modal after account creation
+      setAskforname(true);
+      setLoading(false);
+
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Something went wrong');
+      setLoading(false);
     }
   };
 
-  const handleBackClick = () => {
-    setCurrentView("mobileNumber"); // Update the state to show the mobile number input
+  const handleDialogClose = async () => {
+    setLoading(true);
+    try {
+      if (name || email || password) {
+        await updateUserDetails();
+      }
+      
+      setAskforname(false);
+      // Set login status after modal interaction is complete
+      setIsLoggedIn(true);
+      
+      // Handle property data and navigation after modal interaction
+      if (stage1FormData && !onJourneyPage) {
+        localStorage.setItem('addPropDetails', 'true');
+        await AddGuestProperty(userId, token, stage1FormData, () => {
+          setTimeout(() => {
+            navigate('/concierge');
+          }, 1000);
+        });
+      } else {
+        setTimeout(() => {
+          navigate('/concierge');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Error in dialog close:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -230,116 +249,39 @@ function Verify({
     }
   }, [otp]);
 
-  // for askname
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSignup = async () => {
-    setLoading(true);
-    try {
-      let response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: name || "iProp91 User",
-            phone: phone,
-            password: password,
-            email: email,
-          }),
-        }
-      );
-      if (response.status === 500) {
-        toast.error("Something went wrong");
-        setLoading(false);
-        return;
-      }
-      if (response.success === false) {
-        toast.error("Something went wrong");
-        setLoading(false);
-        return;
-      }
-      let data = await response.json();
-      let token = data.token;
-      // console.log("Token = "+token);
-      localStorage.setItem("token", token);
-      setTimeout(() => {
-        localStorage.removeItem("token");
-      }, 3600000); // 1 hour in milliseconds
-
-      toast.success("Signup Successfull");
-
-      // save redirectionUrl if provided from journey
-      if (redirectionUrl) {
-        localStorage.setItem("redirectToPage", redirectionUrl);
-      }
-
-      const decoded = jwtDecode(token);
-      const userId = decoded.userId;
-
-      if (stage1FormData && !onJourneyPage) {
-        localStorage.setItem("addPropDetails", "true");
-        const SendToConciPage = () => {
-          setTimeout(() => {
-            navigate("/concierge");
-          }, 2000);
-        };
-        AddGuestProperty(userId, token, stage1FormData, SendToConciPage);
-      } else {
-        setTimeout(() => {
-          navigate("/concierge");
-        }, 1000);
-        // set is login === true
-        setIsLoggedIn(true);
-        setLoading(false);
-      }
-    } catch (err) {
-      toast.error("Something went wrong");
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-      setLoading(false);
-    }
-  };
-
-  const handleOpen = () => {
-    setAskforname(!askforname);
-    handleSignup();
-  };
-
   return (
     <section className="relative">
-      {loading ? (
+      {loading && (
         <div className="h-screen w-full right-0 absolute flex justify-center items-center">
           <Spinner color="amber" className="h-12 w-16" />
         </div>
-      ) : null}
-      <Dialog size="sm" open={askforname} handler={handleOpen} className="p-4">
-        <p
-          onClick={handleOpen}
-          className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20"
-        >
+      )}
+      
+      <Dialog 
+        size="sm" 
+        open={askforname} 
+        handler={() => {}} // Prevent closing by clicking outside
+        className="p-4"
+        dismissible={false} // Prevent closing using escape key
+      >
+        <p onClick={handleDialogClose} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20">
           Skip for now
         </p>
         <DialogHeader className="relative m-0 block">
-          {/* <Typography variant="h4" color="blue-gray">
-            Enter Your Details
-          </Typography> */}
           <Typography className="mt-1 font-bold text-lg text-gray-800">
             Helping you manage your real estate assets brick by brick
           </Typography>
         </DialogHeader>
         <DialogBody className="space-y-4 pb-6">
           <div>
+            <Typography variant="small" color="gray" className="mb-1">
+              User ID: {userId}
+            </Typography>
             <div className="w-full">
               <LableInput
-                label={"Name"}
-                placeholder={"iProp91-User"}
-                type={"text"}
+                label="Name"
+                placeholder="iProp91-User"
+                type="text"
                 setValue={setName}
                 value={name}
               />
@@ -348,20 +290,20 @@ function Verify({
           <div>
             <div className="w-full">
               <LableInput
-                label={"Email"}
-                placeholder={"xyz@gmail.com"}
-                type={"text"}
+                label="Email"
+                placeholder="xyz@gmail.com"
+                type="text"
                 setValue={setEmail}
                 value={email}
               />
             </div>
           </div>
-          <div className="flex gap-4">
+          <div>
             <div className="w-full">
               <LableInput
-                label={"Password"}
-                placeholder={"Set Password"}
-                type={"password"}
+                label="Password"
+                placeholder="Set Password"
+                type="password"
                 setValue={setPassword}
                 value={password}
               />
@@ -370,69 +312,41 @@ function Verify({
         </DialogBody>
         <DialogFooter>
           <Goldbutton
-            btnname={"Sign Up"}
-            properties={
-              "bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl  ml-2"
-            }
-            onclick={handleOpen}
+            btnname="Complete Profile"
+            properties="bg-white/20 text-black hover:shadow-gold hover:shadow-md rounded-xl ml-2"
+            onclick={handleDialogClose}
           />
         </DialogFooter>
       </Dialog>
-      <div
-        className={`${
-          stage1FormData || authPage ? "h-fit" : "min-h-screen"
-        } flex items-center justify-center  `}
-      >
+
+      <div className={`${stage1FormData || authPage ? 'h-fit' : 'min-h-screen'} flex items-center justify-center`}>
         <div className="flex bg-white rounded-lg md:max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
-          {/* Left Side - Form */}
-
-          <div className=" md:p-8 p-5">
-            <div
-              className="flex items-center mb-4 cursor-pointer"
-              onClick={onBack}
-            >
-              <i
-                className="bx bxs-chevron-left "
-                style={{ fontSize: "20px" }}
-              ></i>
-
+          <div className="md:p-8 p-5">
+            <div className="flex items-center mb-4 cursor-pointer" onClick={onBack}>
+              <i className="bx bxs-chevron-left" style={{ fontSize: '20px' }}></i>
               <span className="ml-2 text-gray-600">Back</span>
             </div>
-            <h2 className="text-3xl font-semibold mb-4 text-black">
-              Verify Code
-            </h2>
+            
+            <h2 className="text-3xl font-semibold mb-4 text-black">Verify Code</h2>
             <p className="text-gray-500 mb-8">
               An authentication code has been sent to your Phone Number
             </p>
 
             <div className="w-72 mb-4 max-lg:m-auto">
               <SimpleInput
-                type={"text"}
-                placeholder={"Enter OTP"}
+                type="text"
+                placeholder="Enter OTP"
                 value={otp}
                 setValue={setOTP}
                 onChange={handleOtpChange}
               />
             </div>
 
-            {/* <div className="w-72 max-lg:m-auto">
-              {otp.length === 6 ? null : (
-                <Goldbutton
-                  btnname={"Verify OTP"}
-                  properties={"bg-white/20 ml-2 text-black hover:shadow-gold hover:shadow-md rounded-xl"}
-                  onclick={HandleVerifyOTP}
-                />
-              )}
-            </div> */}
-
             {!showtimer ? (
               <div className="w-72 max-lg:m-auto mt-2">
                 <p className="text-gray-500 text-center">
-                  Didn't receive the code?{" "}
-                  <span
-                    className="cursor-pointer text-gold"
-                    onClick={HandleResendOTP}
-                  >
+                  Didn't receive the code?{' '}
+                  <span className="cursor-pointer text-gold" onClick={HandleResendOTP}>
                     Resend
                   </span>
                 </p>
@@ -445,19 +359,12 @@ function Verify({
               </div>
             )}
           </div>
-
-          {/* <div className="w-3/6 hidden lg:block">
-            <img
-              src="images/login.png"
-              alt="Building"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div> */}
         </div>
       </div>
     </section>
   );
-}
+};
+
 
 export default function Login({
   setIsLoggedIn,

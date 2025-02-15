@@ -464,7 +464,7 @@ export default function MyProperties() {
                           </span>
                         </label> */}
               </div>
-              <div className="flex gap-3 items-center pt-2 justify-end">
+              <div className="flex flex-col sm:flex-row  gap-3 items-center pt-2 justify-center">
                 <Goldbutton
                   onclick={() => handleDocumentSubmit(moreInfoId)}
                   btnname={"Submit Documents"}
@@ -476,7 +476,7 @@ export default function MyProperties() {
                   onclick={closeModal}
                   btnname={"Cancel"}
                   properties={
-                    " bg-white text-black lg:w-[20%]  hover:bg-slate-100"
+                    " bg-white px-4 text-black lg:w-[20%]  hover:bg-slate-100"
                   }
                 />
               </div>
