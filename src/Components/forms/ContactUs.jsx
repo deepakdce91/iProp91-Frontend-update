@@ -82,9 +82,9 @@ const ContactUsForm = ({onClose}) => {
 
   return (
     <div className="min-h-[60vh] max-w-[80vh] rounded-lg min-w-[60vw] bg-[#111] text-white p-8">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <div className="max-w-6xl mx-auto flex  flex-col-reverse md:flex-row gap-12 items-center">
         {/* Form Section */}
-        <div className="space-y-8">
+        <div className="space-y-8 flex-1">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <input

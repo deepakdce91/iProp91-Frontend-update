@@ -351,7 +351,7 @@ export default function MyProperties() {
 
   return (
     <>
-      <div className="flex flex-col  ">
+      <div className="flex flex-col mt-10 lg:mt-0 ">
         <div className="px-5">
           <ProfileCompletionBanner />
         </div>

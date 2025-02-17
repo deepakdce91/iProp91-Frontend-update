@@ -21,7 +21,7 @@ const BookingAppointment = ({ onClose }) => {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/appointments/addAppointment`, formData)
             if (response.data.success) {
                 console.log('Appointment booked successfully')
-                toast.success("Slot Booked Successfully.")
+                toast.success("Your appointment has been booked and our representative will contact you shortly.")
                 onClose()
             } else {
                 setError(response.data.message)
