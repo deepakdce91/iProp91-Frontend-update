@@ -17,22 +17,15 @@ const publicUrls = [
 
 function modifyUrl(url) {
   try {
-    // Create a URL object from the input
     const urlObj = new URL(url);
-
-    // Keep only the origin (protocol + domain)
     const baseUrl = urlObj.origin;
-
-    // Append '/authenticate' to the base URL
     return `${baseUrl}/authenticate`;
   } catch (error) {
-    // Handle invalid URL input
     console.error("Invalid URL:", error.message);
     return null;
   }
 }
 
-// Loader Component
 const Loader = () => (
   <div className="w-full h-screen bg-black flex flex-col items-center justify-center space-y-6">
     <div className="relative w-24 h-24">
@@ -52,14 +45,15 @@ const Loader = () => (
   </div>
 );
 
+const STORAGE_KEY = 'journey_progress';
+
 const JourneyForm = ({ setIsLoggedIn }) => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [initialQuestions, setInitialQuestions] = useState([]);
   const [entryPoint, setEntryPoint] = useState({});
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [redirectionUrl, setRedirectionUrl] = useState();
 
@@ -71,9 +65,6 @@ const JourneyForm = ({ setIsLoggedIn }) => {
     setIsAuthModalOpen(false);
   };
 
-  
-
-  // Calculate max depth of questions
   const calculateMaxDepth = (question, currentDepth = 0) => {
     if (!question.options) return currentDepth;
     let maxDepth = currentDepth;
@@ -89,29 +80,64 @@ const JourneyForm = ({ setIsLoggedIn }) => {
     return maxDepth;
   };
 
-  // Initialize history when initialQuestions changes
+  // Load progress from localStorage
+  const loadProgress = () => {
+    try {
+      const savedProgress = localStorage.getItem(STORAGE_KEY);
+      if (savedProgress) {
+        const parsedProgress = JSON.parse(savedProgress);
+        if (parsedProgress.history && parsedProgress.history.length > 0) {
+          setHistory(parsedProgress.history);
+          setEntryPoint(parsedProgress.entryPoint || {});
+          setIsInitialized(true);
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Error loading progress:', error);
+      return false;
+    }
+  };
+
+  // Save progress to localStorage
+  const saveProgress = (newHistory, newEntryPoint) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        history: newHistory,
+        entryPoint: newEntryPoint
+      }));
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  // Clear progress from localStorage
+  const clearProgress = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing progress:', error);
+    }
+  };
+
   useEffect(() => {
     if (initialQuestions.length > 0 && !isInitialized) {
-      setHistory([
-        {
-          question: initialQuestions[0],
-          path: [],
-          selections: {},
-        },
-      ]);
-      setIsInitialized(true);
+      const progressLoaded = loadProgress();
+      if (!progressLoaded) {
+        setHistory([
+          {
+            question: initialQuestions[0],
+            path: [],
+            selections: {},
+          },
+        ]);
+        setIsInitialized(true);
+      }
       setIsLoading(false);
     }
   }, [initialQuestions, isInitialized]);
 
-  // Calculate progress only if we have questions
-  const maxDepth =
-    initialQuestions.length > 0 ? calculateMaxDepth(initialQuestions[0]) : 0;
-  const progress = Math.min(((history.length - 1) / maxDepth) * 95, 95);
-
-  const currentState = history[history.length - 1];
-
-  // Update entryPoint whenever history changes
   useEffect(() => {
     if (history.length > 0) {
       const newEntryPoint = {};
@@ -121,6 +147,8 @@ const JourneyForm = ({ setIsLoggedIn }) => {
         }
       });
       setEntryPoint(newEntryPoint);
+      // Save progress whenever history changes
+      saveProgress(history, newEntryPoint);
     }
   }, [history]);
 
@@ -147,7 +175,6 @@ const JourneyForm = ({ setIsLoggedIn }) => {
         return newHistory;
       });
 
-      // Smooth scroll to top after option selection
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -155,12 +182,15 @@ const JourneyForm = ({ setIsLoggedIn }) => {
   const handleBack = () => {
     if (history.length > 1) {
       setHistory((prevHistory) => prevHistory.slice(0, -1));
-      // Smooth scroll to top after going back
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Fetch questions with error handling and retry logic
+  const handleExit = () => {
+    clearProgress(); // Clear progress when user explicitly exits
+    navigate('/');
+  };
+
   useEffect(() => {
     const fetchQuestions = async () => {
       const maxRetries = 3;
@@ -196,26 +226,21 @@ const JourneyForm = ({ setIsLoggedIn }) => {
     };
 
     fetchQuestions();
-
-    // Smooth scroll to top on load
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Guards against rendering with incomplete data
-  if (
-    isLoading ||
-    !initialQuestions.length ||
-    !history.length ||
-    !currentState
-  ) {
+  const maxDepth = initialQuestions.length > 0 ? calculateMaxDepth(initialQuestions[0]) : 0;
+  const progress = Math.min(((history.length - 1) / maxDepth) * 95, 95);
+  const currentState = history[history.length - 1];
+
+  if (isLoading || !initialQuestions.length || !history.length || !currentState) {
     return <Loader />;
   }
 
   return (
     <>
       {!isAuthModalOpen && (
-        <div className="w-full min-h-screen px-6 md:px-16 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
-           
+        <div className="w-full min-h-screen px-6 sm:px-16 lg:px-28 bg-black max-w-4xl mx-auto p-6 pt-12 space-y-6">
           <div className="relative">
             <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-lg">
               <div className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
@@ -230,14 +255,14 @@ const JourneyForm = ({ setIsLoggedIn }) => {
           </div>
 
           <div className="bg-black rounded-lg shadow md:p-6 border border-1 relative border-gray-300 px-8 md:px-24 py-10">
-          <div  className="absolute top-0 right-0 -mt-2 -mr-2">
-           <button 
-            onClick={() => navigate('/')} 
-            className=" z-10 p-2 rounded-full text-gray-200 bg-gray-700 hover:bg-gray-200 hover:text-black group transition-colors"
-          >
-            <X className="w-6 h-6 text-white group-hover:text-black" strokeWidth={2} />
-          </button>
-           </div>
+            <div className="absolute top-0 right-0 -mt-2 -mr-2">
+              <button 
+                onClick={handleExit}
+                className="z-10 p-2 rounded-full text-gray-200 bg-gray-700 hover:bg-gray-200 hover:text-black group transition-colors"
+              >
+                <X className="w-6 h-6 text-white group-hover:text-black" strokeWidth={2} />
+              </button>
+            </div>
             <h2 className="text-xl md:text-3xl text-center font-semibold text-white mb-6">
               {currentState.question.questionText}
             </h2>
@@ -250,7 +275,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
                     option.redirectionLink.split("/").length - 1
                   ] === "stage1Form" || option.redirectionLink.split("/")[
                     option.redirectionLink.split("/").length - 1
-                  ] === "stage2Form"  ||
+                  ].includes("stage2Form") ||
                     publicUrls.includes(
                       option.redirectionLink.split("/")[
                         option.redirectionLink.split("/").length - 1
@@ -294,7 +319,7 @@ const JourneyForm = ({ setIsLoggedIn }) => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="flex items-center justify-between space-x-2 text-sm">
             {history.length > 1 && (
               <button
                 onClick={handleBack}
@@ -304,16 +329,17 @@ const JourneyForm = ({ setIsLoggedIn }) => {
                 Back
               </button>
             )}
+           
           </div>
         </div>
       )}
 
-      {isAuthModalOpen  && (
+      {isAuthModalOpen && (
         <Auth
-          goBackToStage1={() => { 
+          goBackToStage1={() => {
             setIsAuthModalOpen(false);
           }}
-          redirectionUrl = {redirectionUrl}
+          redirectionUrl={redirectionUrl}
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
           properties={" "}

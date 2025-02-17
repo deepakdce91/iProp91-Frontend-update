@@ -97,7 +97,7 @@ export default function Profile() {
         >
           <div className="px-4 py-2">
             <p className=" text-bold my-3">Account</p>
-            {dataloaded && (
+            {dataloaded && user.data && (
               <div className="flex gap-3 items-center  ">
                 <span className="flex h-14 w-14 border-2 border-gold overflow-hidden rounded-full">
                   <img

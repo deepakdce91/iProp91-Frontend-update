@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { IoIosArrowRoundForward } from "react-icons/io";
+import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
 import Auth from "../User/Login/Auth";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const CustomDropdown = ({ label, options, value, onChange, placeholder, name }) => {
+const STORAGE_KEY = 'journey_progress';
+
+const CustomDropdown = ({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder,
+  name,
+}) => {
   return (
     <div className="mb-4">
       {label && <label className="text-white">{label}</label>}
@@ -33,9 +42,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formType, setFormType] = useState();
- 
+  const navigate = useNavigate();
+
   const [formdata, setFormData] = useState({
-    city: "", 
+    city: "",
     officeLocation: "",
     kidsSchoolLocation: "",
     medicalAssistanceRequired: "no",
@@ -68,6 +78,17 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     }));
   };
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+  const clearProgress = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error("Error clearing progress:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -86,18 +107,24 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/queries/add${formType === "buy" ? "Buy" : "Rent"}Query`, {
-        city: formdata.city,
-        officeLocation: formdata.officeLocation,
-        kidsSchoolLocation: formdata.kidsSchoolLocation,
-        medicalAssistanceRequired: formdata.medicalAssistanceRequired,
-        budget: formdata.budget,
-        type: formdata.type,
-        constructionStatus: formdata.constructionStatus,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/queries/add${
+          formType === "buy" ? "Buy" : "Rent"
+        }Query`,
+        {
+          city: formdata.city,
+          officeLocation: formdata.officeLocation,
+          kidsSchoolLocation: formdata.kidsSchoolLocation,
+          medicalAssistanceRequired: formdata.medicalAssistanceRequired,
+          budget: formdata.budget,
+          type: formdata.type,
+          constructionStatus: formdata.constructionStatus,
+        }
+      );
 
       if (response.data) {
         toast.success("Query submitted successfully!");
+        clearProgress();
         // Reset form after successful submission
         setFormData({
           city: "",
@@ -115,8 +142,8 @@ const Stage2Form = ({ setIsLoggedIn }) => {
       if (error.response?.data?.errors) {
         // Handle validation errors from backend
         const errorMessage = error.response.data.errors
-          .map(err => err.msg)
-          .join(', ');
+          .map((err) => err.msg)
+          .join(", ");
         toast.error(errorMessage);
       } else {
         toast.error("Failed to submit buy query. Please try again.");
@@ -147,11 +174,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   useEffect(() => {
     const type = searchParams.get("type");
 
-      if (type) {
-        setFormType(type);
-      }
-  }, [])
-  
+    if (type) {
+      setFormType(type);
+    }
+  }, []);
 
   return (
     <section className="flex items-center justify-center">
@@ -257,14 +283,23 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           {/* Submit Button */}
           <div className="w-full md:w-1/2 flex items-end justify-center mt-10 md:px-2">
             <button
+              onClick={handleGoBack}
+              className="bg-gray-100 mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+            >
+              <IoIosArrowRoundBack className="h-7 w-7 mr-1" />
+              Back
+            </button>
+            <button
               onClick={handleSubmit}
               disabled={isSubmitting}
               className={`bg-gray-100 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
-                isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isSubmitting ? 'Submitting...' : 'Continue'}{' '}
-              {!isSubmitting && <IoIosArrowRoundForward className="h-7 w-7 ml-1" />}
+              {isSubmitting ? "Submitting..." : "Continue"}{" "}
+              {!isSubmitting && (
+                <IoIosArrowRoundForward className="h-7 w-7 ml-1" />
+              )}
             </button>
           </div>
         </div>
