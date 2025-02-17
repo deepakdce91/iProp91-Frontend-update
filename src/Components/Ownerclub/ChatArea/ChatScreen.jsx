@@ -45,7 +45,6 @@ function ChatScreen() {
   const [communityMessages, setCommunityMessages] = useState({});
   const [unreadMessages, setUnreadMessages] = useState({});
   const [allMessages, setAllMessages] = useState({});
-  const [inviteUrl, setInviteUrl] = useState("");
   const [isMobileInfoOpen, setIsMobileInfoOpen] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
@@ -192,48 +191,6 @@ function ChatScreen() {
       });
   };
 
-  // Function to generate invite link for a specific community
-  const generateInviteLink = async (community) => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/testimonials/generate`,
-        {
-          communityId: community._id,
-          name: community.name,
-          state: community.state,
-          builder: community.builder,
-          city: community.city,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": token,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        // Construct the full URL
-        const inviteUrl = `${window.location.origin}/welcome/${response.data.token}`;
-        setInviteUrl(inviteUrl);
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.error || "Error generating invitation link"
-      );
-      console.error("Error:", error);
-    }
-  };
-
-  // Update current group data and thumbnail when a group is selected
-  const handleGroupSelect = (item) => {
-    setCurrentGroupData(item);
-    setCurrentGroupThumbnail(
-      item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
-    );
-    generateInviteLink(item); // Generate invite link for the selected community
-  };
-
   // Function to handle pinning/unpinning
   const togglePin = (communityId) => {
     setPinnedCommunities((prev) => {
@@ -350,6 +307,14 @@ function ChatScreen() {
     });
   };
 
+  // Add back the handleGroupSelect function
+  const handleGroupSelect = (item) => {
+    setCurrentGroupData(item);
+    setCurrentGroupThumbnail(
+      item.thumbnail !== "" ? item.thumbnail : defaultCommunityUrl
+    );
+  };
+
   // Render media panel
   const MediaPanel = ({ messages }) => {
     // Ensure we're working with the messages array from the community data
@@ -437,7 +402,7 @@ function ChatScreen() {
   const InfoPanel = ({ currentGroupData, messages }) => {
     return (
       <div
-        className={`fixed inset-y-0 right-0 w-[80%] mt-[68px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 right-0 w-[80%] mt-[68px]  bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
           isMobileInfoOpen ? "translate-x-0" : "translate-x-full"
         } lg:hidden z-50`}
       >
@@ -627,12 +592,12 @@ function ChatScreen() {
                   return (
                     <div
                       key={`community-${index}`}
-                      className={`flex items-center mb-1 hover:bg-gray-300   cursor-pointer ${
+                      className={`flex items-center mb-1 hover:bg-gray-300 cursor-pointer ${
                         currentGroupData &&
                         (currentGroupData._id === item._id
                           ? "bg-gradient-to-r from-gray-300 to-gray-50 text-black border-2 border-b-[2px] border-b-gold "
                           : null)
-                      } hover:bg-gray-100  ${
+                      } hover:bg-gray-100 ${
                         theme.palette.mode === "dark"
                           ? "bg-opacity-20 hover:bg-opacity-20"
                           : null
@@ -786,7 +751,6 @@ function ChatScreen() {
                     onMessageUpdate={handleMessageUpdate}
                     onSeenMessage={handleMessageSeen}
                     messages={allMessages[currentGroupData._id] || []}
-                    inviteUrl={inviteUrl}
                   />
                 )}
                 {!currentGroupData && (

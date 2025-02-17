@@ -7,53 +7,45 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Loader2, Check } from 'lucide-react'
 import "react-toastify/dist/ReactToastify.css"
 import { useTypewriter } from "./typeWriter"
+import { useInView } from "react-intersection-observer"
 
 const Footer = () => {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState('idle')
-  const [isAnimating, setIsAnimating] = useState(true)
-  const [isUserActive, setIsUserActive] = useState(false)
-  const dummyEmail = "example@iprop91.com"
-  const { displayText, startTyping } = useTypewriter(dummyEmail, 100, 1000)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const [currentEmail, setCurrentEmail] = useState("example@iprop91.com")
+  const { displayText, startTyping } = useTypewriter(currentEmail, 100, 1000)
+  
+  const [inViewRef, inView] = useInView({
+    threshold: 0.2,
+    triggerOnce: true,
+  })
 
   useEffect(() => {
-    if (!isAnimating || isUserActive) return
+    if (inView && !hasAnimated) {
+      const runInitialAnimation = async () => {
+        setStatus('typing')
+        startTyping()
+        
+        await new Promise(resolve => setTimeout(resolve, currentEmail.length * 100 + 1500))
+        
+        setStatus('idle')
+        setEmail('')
+        setHasAnimated(true)
+      }
 
-    const animate = async () => {
-      setStatus('typing')
-      startTyping()
-
-      await new Promise(resolve => setTimeout(resolve, dummyEmail.length * 100 + 1500))
-
-      setStatus('idle')
-      setEmail('')
-      
-      setTimeout(() => {
-        animate()
-      }, 1000)
+      runInitialAnimation()
     }
-
-    animate()
-  }, [isAnimating, isUserActive])
-
-  const handleInputFocus = () => {
-    setIsAnimating(false)
-    setIsUserActive(true)
-    setStatus('idle')
-  }
+  }, [inView, hasAnimated, startTyping, currentEmail.length])
 
   const handleInputChange = (e) => {
     setEmail(e.target.value)
-    setIsUserActive(true)
-    setIsAnimating(false)
   }
 
   const handleSubscribe = async () => {
     if (!email) return
 
-    setIsAnimating(true)
     setStatus('sending')
-    setIsUserActive(false)
 
     if (validateEmail(email)) {
       await new Promise(resolve => setTimeout(resolve, 1500))
@@ -62,11 +54,16 @@ const Footer = () => {
         position: "top-right",
         autoClose: 3000,
       })
+      
+      const submittedEmail = email
       await new Promise(resolve => setTimeout(resolve, 2000))
-      setStatus('idle')
+      
+      setCurrentEmail(submittedEmail)
+      setStatus('typing')
       setEmail("")
       
-      setIsAnimating(false)
+      await new Promise(resolve => setTimeout(resolve, submittedEmail.length * 100 + 1500))
+      setStatus('idle')
     } else {
       setStatus('idle')
       toast.error("Please enter a valid email address.", {
@@ -81,13 +78,15 @@ const Footer = () => {
     return regex.test(email)
   }
 
-  const handleInputBlur = () => {
-    setIsUserActive(false)
+  // Helper function to determine what to display in the input
+  const getInputDisplay = () => {
+    if (status === 'typing') return displayText
+    if (status === 'sending' || status === 'done') return ''
+    return email
   }
 
   return (
-    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-black shadow-lg">
-      {/* First section remains the same */}
+    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-black shadow-lg" ref={inViewRef}>
       <div className="flex flex-col lg:flex-row justify-between mb-4 w-full px-4 mx-auto">
         <div className="flex justify-center my-1">
           <h1 className="font-semibold text-primary text-2xl">iProp91</h1>
@@ -112,23 +111,21 @@ const Footer = () => {
       </div>
 
       <div className="mx-auto flex flex-col lg:flex-row">
-        {/* Left Section with animated subscription */}
         <div className="w-full lg:w-2/5 my-2 lg:px-4">
           <h2 className="text-3xl font-semibold mb-4">
             Exclusive Opportunities, Exclusive Access, Exclusive You!
           </h2>
-          <p className="text-gray-600 text-sm mb-4">
+          <p className="text-gray-100 text-sm mb-4">
             Subscribe to our newsletter
           </p>
-          <div className="relative flex items-center text-xs rounded-full overflow-hidden w-full bg-white lg:w-72">
+          <div className="relative flex items-center text-xs  overflow-hidden w-full border-b-[2px] border-b-white bg-black lg:w-72">
+            <p>🎉</p>
             <input
               type="email"
               placeholder={status === 'idle' ? "Email address" : ""}
-              value={status === 'typing' ? displayText : email}
+              value={getInputDisplay()}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
-              onBlur={handleInputBlur}
-              className="text-black px-3 py-2 w-full outline-none placeholder-gray-800"
+              className="text-white bg-black px-3 py-2 w-full outline-none placeholder-gray-800"
               disabled={status === 'sending' || status === 'done'}
             />
             
@@ -138,7 +135,7 @@ const Footer = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute left-1/2 -translate-x-1/2 text-black"
+                  className="absolute left-[30%] -translate-x-1/2 text-white"
                 >
                   <div className="flex items-start gap-2">
                     Sending...
@@ -152,7 +149,7 @@ const Footer = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute left-1/2 -translate-x-1/2 text-black"
+                  className="absolute left-[30%] -translate-x-1/2 text-white"
                 >
                   <div className="flex items-center gap-2">
                     Thanks for subscribing!
@@ -163,7 +160,7 @@ const Footer = () => {
             </AnimatePresence>
 
             <button
-              className="bg-gold text-black px-3 py-2 font-[400] rounded-full disabled:opacity-50"
+              className=" text-white px-3 py-2 font-[400]  disabled:opacity-50 hover:bg-white hover:text-black"
               onClick={handleSubscribe}
               disabled={status === 'sending' || status === 'done' || !email}
             >
@@ -172,7 +169,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Middle Section */}
+        {/* Rest of the footer sections */}
         <div className="w-full lg:w-1/5 my-2">
           <h3 className="font-semibold mb-2 text-gray-600 text-sm">
             Quick Links
@@ -206,7 +203,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Services Section */}
         <div className="w-full lg:w-1/5 my-2">
           <h3 className="font-semibold mb-2 text-gray-600 text-sm">
             Our Services
@@ -245,7 +241,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Knowledge Center Section */}
         <div className="w-full lg:w-1/5 my-2">
           <h3 className="font-semibold mb-2 text-gray-600 text-sm">
             Knowledge Center
@@ -279,4 +274,3 @@ const Footer = () => {
 }
 
 export default Footer
-
