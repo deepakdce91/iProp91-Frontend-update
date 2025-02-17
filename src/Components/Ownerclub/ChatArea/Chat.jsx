@@ -408,7 +408,6 @@ function Chats({
   onMessageUpdate,
   onSeenMessage,
   messages: parentMessages,
-  inviteUrl,
 }) {
   // users/fetchuser/:id
 
@@ -433,20 +432,14 @@ function Chats({
 
   const [copied, setCopied] = useState(false);
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(inviteUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      const textArea = document.createElement("textarea");
-      textArea.value = inviteUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      const result = document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setCopied(result);
-    }
+  const [communityInviteLinks, setCommunityInviteLinks] = useState({});
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(getCurrentInviteUrl());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   useEffect(() => {
@@ -821,15 +814,90 @@ function Chats({
     "bullet",
     "link",
   ];
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Function to generate invite link
+  const generateInviteLink = async () => {
+    try {
+      const currentTime = new Date();
+      const existingLinkData = communityInviteLinks[communityId];
+
+      // Check if we have a valid unexpired link for this community
+      if (
+        existingLinkData &&
+        existingLinkData.expiration &&
+        currentTime < new Date(existingLinkData.expiration)
+      ) {
+        return existingLinkData.url;
+      }
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/testimonials/generate`,
+        {
+          communityId: currentGroupDetails._id,
+          name: currentGroupDetails.name,
+          state: currentGroupDetails.state,
+          builder: currentGroupDetails.builder,
+          city: currentGroupDetails.city,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": userToken,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        // Construct the full URL
+        const newInviteUrl = `${window.location.origin}/welcome/${response.data.token}`;
+        
+        // Set expiration time to 1 hour from now
+        const expirationTime = new Date();
+        expirationTime.setHours(expirationTime.getHours() + 1);
+        
+        // Store the new link data for this community
+        setCommunityInviteLinks(prev => ({
+          ...prev,
+          [communityId]: {
+            url: newInviteUrl,
+            expiration: expirationTime
+          }
+        }));
+        
+        return newInviteUrl;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error generating invitation link");
+      console.error("Error:", error);
+      return null;
+    }
+  };
+
+  // Update the handleShareClick function
+  const handleShareClick = async () => {
+    const inviteUrl = await generateInviteLink();
+    if (inviteUrl) {
+      setIsModalOpen(true);
+    }
+  };
+
+  // Function to get current community's invite URL
+  const getCurrentInviteUrl = () => {
+    return communityInviteLinks[communityId]?.url || '';
+  };
+
+  // Update share functions to use current community's URL
   const shareToWhatsApp = () => {
-    const whatsappUrl = ``;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      `Join our community! ${getCurrentInviteUrl()}`
+    )}`;
     window.open(whatsappUrl, "_blank");
   };
 
   const shareToEmail = () => {
-    const emailUrl = ``;
+    const emailUrl = `mailto:?subject=Join%20our%20community&body=${encodeURIComponent(
+      `Join our community! ${getCurrentInviteUrl()}`
+    )}`;
     window.location.href = emailUrl;
   };
 
@@ -861,8 +929,8 @@ function Chats({
       </div>
       <div className="absolute block lg:top-5 top-[12%] right-[10%]  lg:right-[23%] ">
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center  text-sm font-medium text-gray-900   hover:text-gray-900 "
+          onClick={handleShareClick}
+          className="inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-900"
         >
           <Share2 className="w-6 h-6" />
         </button>
@@ -886,11 +954,11 @@ function Chats({
                 {/* Copy link section */}
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1 truncate text-sm text-gray-500">
-                    {inviteUrl}
+                    {getCurrentInviteUrl()}
                   </div>
                   <button
                     onClick={copyToClipboard}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50"
                   >
                     {copied ? (
                       "Copied!"
