@@ -49,11 +49,11 @@ const CompComponent = ({ item }) => {
           )}
         </div>
       </div>
-      
+
       <div className="flex-1 py-4 bg-gray-200 border-t-[2px] border-t-gold text-black px-4 flex flex-col items-center justify-center relative">
-      <div className="absolute left-6 md:top-0 top-[1%] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
-        VS
-      </div>
+        <div className="absolute left-6 md:top-0 top-[1%] transform -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold rounded-full p-2 z-10">
+          VS
+        </div>
         <p
           className="text-black text-xs md:text-sm md:mt-2 text-start"
           dangerouslySetInnerHTML={{
@@ -95,16 +95,18 @@ export default function Comparison() {
 
   // Symmetrical slide rendering with exact 5-1-5 distribution
   const processedSlides = (() => {
-    if (data.length <= 11) return data;
-
+    if (data.length >= 11) return data;
+  
+    // If there are fewer than 11 slides, duplicate the existing slides to meet the minimum requirement
     const totalSlides = 11;
-    const sideSlides = 5;
-    const middleIndex = Math.floor(data.length / 2);
-
-    // Calculate start index to ensure perfect symmetry
-    const startIndex = Math.max(0, middleIndex - sideSlides);
-
-    return data.slice(startIndex, startIndex + totalSlides);
+    const duplicatesNeeded = totalSlides - data.length;
+    const duplicatedSlides = [];
+  
+    for (let i = 0; i < duplicatesNeeded; i++) {
+      duplicatedSlides.push(data[i % data.length]);
+    }
+  
+    return [...data, ...duplicatedSlides];
   })();
 
   const handleSlideClick = (clickedIndex) => {
@@ -169,7 +171,7 @@ export default function Comparison() {
             slideShadows: true,
           }}
           modules={[EffectCoverflow, Navigation, Autoplay]}
-          className="relative  hidden"
+          className="relative hidden"
           onSlideChange={(swiper) => {
             setActiveIndex(swiper.realIndex);
           }}
@@ -190,28 +192,28 @@ export default function Comparison() {
         {/* </div> */}
 
         {/* <div className="block md:hidden"> */}
-          {/* for smaller screens */}
-          <Swiper
-            spaceBetween={30}
-            centeredSlides={true}
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-            }}
-            pagination={{
-              clickable: true,
-            }}
-            modules={[Autoplay, Pagination]}
-            className=""
-          >
-            {processedSlides.map((item, index) => (
-              <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
-                <div className=" py-10 px-3 z-50 block md:hidden">
-                  <CompComponent item={item} />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        {/* for smaller screens */}
+        <Swiper
+          spaceBetween={30}
+          centeredSlides={true}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Autoplay, Pagination]}
+          className=""
+        >
+          {processedSlides.map((item, index) => (
+            <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+              <div className=" py-10 px-3 z-50 block md:hidden">
+                <CompComponent item={item} />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
         {/* </div> */}
       </div>
     </>
