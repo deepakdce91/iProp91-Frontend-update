@@ -99,35 +99,33 @@ export default function Comparison() {
     fetchData();
   }, []);
 
-  // Symmetrical slide rendering with exact 5-1-5 distribution
-  // Symmetrical slide rendering with exact 5-1-5 distribution
+  // Ensure we have enough slides for looping based on slidesPerView
   const processedSlides = (() => {
     if (data.length === 0) return []; // Return empty array if data is not yet loaded
+    
+    // For loop mode with slidesPerView=3, we need at least 6 slides
+    const minSlidesForLoop = 6;
+    
+    if (data.length >= minSlidesForLoop) return data;
 
-    if (data.length >= 11) return data;
-
-    // If there are fewer than 11 slides, duplicate the existing slides to meet the minimum requirement
-    const totalSlides = 11;
-    const duplicatesNeeded = totalSlides - data.length;
+    // If there are fewer than minSlidesForLoop slides, duplicate the existing slides
+    const duplicatesNeeded = minSlidesForLoop - data.length;
     const duplicatedSlides = [];
 
     for (let i = 0; i < duplicatesNeeded; i++) {
-      duplicatedSlides.push(data[i % data.length]);
+      duplicatedSlides.push({...data[i % data.length], id: `dup-${i}`});
     }
 
     return [...data, ...duplicatedSlides];
   })();
 
+  // Determine if we should enable the loop mode
+  const enableLoop = processedSlides.length >= 6;
+
   const handleSlideClick = (clickedIndex) => {
     if (swiperRef.current) {
       const swiper = swiperRef.current;
-      const centerIndex = Math.floor(processedSlides.length / 2);
-
-      // Calculate offset from center slide
-      const offset = clickedIndex - centerIndex;
-
-      // Slide with offset to maintain symmetry
-      swiper.slideToLoop(centerIndex + offset, 300);
+      swiper.slideToLoop(clickedIndex, 300);
       setActiveIndex(clickedIndex);
     }
   };
@@ -155,12 +153,11 @@ export default function Comparison() {
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
-        {/* <div className="md:relative  "> */}
         <Swiper
           effect={"coverflow"}
           grabCursor={true}
           centeredSlides={true}
-          loop={true}
+          loop={enableLoop}
           slidesPerView={3}
           spaceBetween={30}
           slidesPerGroup={1}
@@ -184,7 +181,6 @@ export default function Comparison() {
           onSlideChange={(swiper) => {
             setActiveIndex(swiper.realIndex);
           }}
-          initialSlide={5}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
             setActiveIndex(swiper.realIndex);
@@ -199,10 +195,8 @@ export default function Comparison() {
               </SwiperSlide>
             ))}
         </Swiper>
-        {/* </div> */}
 
-        {/* <div className="block md:hidden"> */}
-        {/* for smaller screens */}
+        {/* For smaller screens */}
         <Swiper
           spaceBetween={30}
           centeredSlides={true}
@@ -214,17 +208,15 @@ export default function Comparison() {
             clickable: true,
           }}
           modules={[Autoplay, Pagination]}
-          className=""
         >
           {processedSlides.map((item, index) => (
             <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
-              <div className=" py-10 px-3 z-50 block md:hidden">
+              <div className="py-10 px-3 z-50 block md:hidden">
                 <CompComponent item={item} />
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
-        {/* </div> */}
       </div>
     </>
   );
