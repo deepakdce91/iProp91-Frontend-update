@@ -144,11 +144,11 @@ const Stage1Form = ({ setIsLoggedIn }) => {
       console.error("Error parsing entry point data:", error);
     }
   }, [searchParams]);
-
+ 
   return (
     <section className="flex items-center justify-center bg-black pb-10">
       {!isAuthModalOpen && (
-        <div className="bg-black h-screen p-8 w-full px-6 md:px-16 lg:px-[25vw] xl:px-[30vw] pt-[17vh]">
+        <div className="bg-black h-screen p-8 w-full px-6 sm:px-32  lg:px-[25vw] xl:px-[30vw] pt-[17vh]">
           
           <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
             <p className="md:text-3xl text-2xl text-white font-bold mb-5">
@@ -189,10 +189,10 @@ const Stage1Form = ({ setIsLoggedIn }) => {
               />
             </div>
 
-            <div className="w-full md:w-1/2 flex items-end justify-center mt-10 md:px-2">
+            <div className="w-full flex-col-reverse flex md:flex-row items-center  justify-center mt-10 md:px-2">
             <button
                 onClick={handleGoBack}
-                className="bg-gray-100 mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+                className="bg-gray-100 w-full md:w-[48%] mt-2 md:mt-0  md:mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
               >
                 <IoIosArrowRoundBack className="h-7 w-7 mr-1" />
                 Back
@@ -200,7 +200,7 @@ const Stage1Form = ({ setIsLoggedIn }) => {
 
               <button
                 onClick={handleSubmit}
-                className="bg-gray-100 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+                className="bg-gray-100 w-full  md:w-[48%]  hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
               >
                 Continue <IoIosArrowRoundForward className="h-7 w-7 ml-1" />
               </button>

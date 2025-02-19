@@ -102,6 +102,42 @@ const Verify = ({
     toast.success('OTP Sent');
   };
 
+  const checkUserExists = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuserbyphone/${phone}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error checking user existence:', error);
+      toast.error('Failed to check user existence');
+      throw error;
+    }
+  };
+
+  const loginUser = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/login/${phone}`);
+      
+      if (response.data.success) {
+        const { token } = response.data;
+        localStorage.setItem('token', token);
+        setToken(token);
+        
+        // Extract user ID from token
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        setUserId(tokenData.userId);
+        
+        return { token, userId: tokenData.userId };
+      } else {
+        toast.error(response.data.message || 'Login failed');
+        throw new Error(response.data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+      toast.error('Failed to login');
+      throw error;
+    }
+  };
+
   const createNewUser = async () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`, {
@@ -126,10 +162,13 @@ const Verify = ({
 
   const updateUserDetails = async () => {
     try {
+      // Use userId as the name if no name is provided
+      const nameToUse = name || userId || 'iProp91 User';
+      
       const response = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
         {
-          name: name || 'iProp91 User',
+          name: nameToUse,
           email,
           password,
         },
@@ -151,6 +190,25 @@ const Verify = ({
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
       throw error;
+    }
+  };
+
+  const handlePostLoginActions = async (userId, token) => {
+    if (redirectionUrl) {
+      localStorage.setItem('redirectToPage', redirectionUrl);
+    }
+    
+    if (stage1FormData && !onJourneyPage) {
+      localStorage.setItem('addPropDetails', 'true');
+      await AddGuestProperty(userId, token, stage1FormData, () => {
+        setTimeout(() => {
+          navigate('/concierge');
+        }, 1000);
+      });
+    } else {
+      setTimeout(() => {
+        navigate('/concierge');
+      }, 1000);
     }
   };
 
@@ -191,17 +249,25 @@ const Verify = ({
         return;
       }
 
-      // Create new user after OTP verification
-      const { token, userId } = await createNewUser();
-      
-      if (redirectionUrl) {
-        localStorage.setItem('redirectToPage', redirectionUrl);
-      }
+      // Check if user exists
+      const userExistsResponse = await checkUserExists();
+      let userData;
 
-      toast.success('Account created successfully');
+      if (userExistsResponse.success) {
+        // User exists, login
+        userData = await loginUser();
+        toast.success('Logged in successfully');
+        setIsLoggedIn(true);
+        await handlePostLoginActions(userData.userId, userData.token);
+      } else {
+        // User doesn't exist, create new user
+        userData = await createNewUser();
+        toast.success('Account created successfully');
+        
+        // Show the update modal after account creation
+        setAskforname(true);
+      }
       
-      // Show the update modal after account creation
-      setAskforname(true);
       setLoading(false);
 
     } catch (error) {
@@ -214,27 +280,17 @@ const Verify = ({
   const handleDialogClose = async () => {
     setLoading(true);
     try {
-      if (name || email || password) {
-        await updateUserDetails();
-      }
+      // Always update user details, using userId as the name if none provided
+      await updateUserDetails();
       
-      setAskforname(false);
       // Set login status after modal interaction is complete
       setIsLoggedIn(true);
       
+      // Close modal
+      setAskforname(false);
+      
       // Handle property data and navigation after modal interaction
-      if (stage1FormData && !onJourneyPage) {
-        localStorage.setItem('addPropDetails', 'true');
-        await AddGuestProperty(userId, token, stage1FormData, () => {
-          setTimeout(() => {
-            navigate('/concierge');
-          }, 1000);
-        });
-      } else {
-        setTimeout(() => {
-          navigate('/concierge');
-        }, 1000);
-      }
+      await handlePostLoginActions(userId, token);
     } catch (error) {
       console.error('Error in dialog close:', error);
       toast.error('Something went wrong');
@@ -280,7 +336,7 @@ const Verify = ({
             <div className="w-full">
               <LableInput
                 label="Name"
-                placeholder="iProp91-User"
+                placeholder={userId || "iProp91-User"}
                 type="text"
                 setValue={setName}
                 value={name}

@@ -14,14 +14,14 @@ const LableInput = ({ label, placeholder, type, setValue, value }) => {
 
     return (
         <div className="w-full my-2 font-sm relative">
-            <label className="text-gray-900 font-[500] my-2 dark:text-white">
+            <label className="text-gray-900 font-[500] my-2">
                 {label}
             </label>
             <div className="relative">
                 <input
                     type={isPasswordVisible && type === "password" ? "text" : type}
                     name={label}
-                    className="bg-white border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full p-2.5 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-yellow-500 dark:focus:border-blue-500 rounded-xl font-sm"
+                    className="bg-white border border-yellow-600 text-gray-900 text-sm focus:ring-blue-500 focus:border-yellow-500 block w-full p-2.5 pr-10 rounded-xl font-sm"
                     placeholder={placeholder}
                     value={value}
                     onChange={handleChange}
