@@ -21,16 +21,15 @@ const ContactUsForm = ({onClose}) => {
       newErrors.name = 'Name is required';
     }
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    // Email is optional, but validate format if provided
+    if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
     
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
-    } else if (!/^\d{10}$/.test(formData.mobile.replace(/\D/g, ''))) {
-      newErrors.mobile = 'Invalid mobile number';
+    } else if (formData.mobile.length !== 10) {
+      newErrors.mobile = 'Mobile number must be 10 digits';
     }
     
     if (!formData.message.trim()) {
@@ -39,6 +38,14 @@ const ContactUsForm = ({onClose}) => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle mobile number input
+  const handleMobileChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and limit to 10 digits
+    const numericValue = value.replace(/\D/g, '').slice(0, 10);
+    setFormData({ ...formData, mobile: numericValue });
   };
 
   const handleSubmit = async (e) => {
@@ -82,14 +89,14 @@ const ContactUsForm = ({onClose}) => {
 
   return (
     <div className="min-h-[60vh] max-w-[80vh] rounded-lg min-w-[60vw] bg-[#111] text-white p-8">
-      <div className="max-w-6xl mx-auto flex  flex-col-reverse md:flex-row gap-12 items-center">
+      <div className="max-w-6xl mx-auto flex flex-col-reverse md:flex-row gap-12 items-center">
         {/* Form Section */}
         <div className="space-y-8 flex-1">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <input
                 type="text"
-                placeholder="Your Name"
+                placeholder="Your Name *"
                 className={`w-full bg-transparent border-b ${
                   errors.name ? 'border-red-500' : 'border-white/20'
                 } py-2 focus:outline-none focus:border-white/40 transition-colors`}
@@ -104,7 +111,7 @@ const ContactUsForm = ({onClose}) => {
             <div>
               <input
                 type="email"
-                placeholder="Your Email"
+                placeholder="Your Email (Optional)"
                 className={`w-full bg-transparent border-b ${
                   errors.email ? 'border-red-500' : 'border-white/20'
                 } py-2 focus:outline-none focus:border-white/40 transition-colors`}
@@ -119,12 +126,21 @@ const ContactUsForm = ({onClose}) => {
             <div>
               <input
                 type="tel"
-                placeholder="Your Mobile Number"
+                placeholder="Your Mobile Number * (10 digits)"
+                pattern="[0-9]*"
+                inputMode="numeric"
+                maxLength="10"
                 className={`w-full bg-transparent border-b ${
                   errors.mobile ? 'border-red-500' : 'border-white/20'
                 } py-2 focus:outline-none focus:border-white/40 transition-colors`}
                 value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                onChange={handleMobileChange}
+                onKeyPress={(e) => {
+                  // Prevent non-numeric key presses
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
               {errors.mobile && (
                 <p className="mt-1 text-xs text-red-500">{errors.mobile}</p>
@@ -133,7 +149,7 @@ const ContactUsForm = ({onClose}) => {
 
             <div>
               <textarea
-                placeholder="Share your Query"
+                placeholder="Share your Query *"
                 rows={4}
                 className={`w-full bg-transparent border-b ${
                   errors.message ? 'border-red-500' : 'border-white/20'
@@ -154,7 +170,7 @@ const ContactUsForm = ({onClose}) => {
                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span className="relative z-10">
-                {isSubmitting ? 'Sending...' : 'Share your feedback'}
+                {isSubmitting ? 'Sending...' : 'Submit'}
               </span>
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-orange-500/20 blur-xl" />

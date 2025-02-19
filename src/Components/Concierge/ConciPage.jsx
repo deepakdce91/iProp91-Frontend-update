@@ -10,7 +10,7 @@ import FinanceAssitance from "./Pages/FinanceAssistance";
 export default function Conci() {
   return (
     <>
-      <div className="flex flex-col lg:gap-1   lg:rounded-xl text-black   ">
+      <div className="flex flex-col lg:gap-1   lg:rounded-xl text-black md:h-screen lg:h-[99vh]  ">
         {/* <div className=""> */}
           <NameHeader name={"Concierge"} pageName={"My Properties"} />
           {/* <div className="py-3 flex items-center justify-between pr-5">
@@ -35,7 +35,7 @@ export default function Conci() {
           </div> */}
         {/* </div> */}
         {/* <div className="mt-5 w-full"> */}
-        <div className="w-full pt-3 bg-white lg:rounded-xl">
+        <div className="w-full pt-3 bg-white lg:rounded-xl h-full overflow-y-scroll">
           {/* Nested Routes */}
           <Routes>
             <Route path="/concierge" element={<MyProperties />} />
