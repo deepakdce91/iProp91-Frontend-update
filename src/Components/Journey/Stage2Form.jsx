@@ -281,10 +281,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           </div>
 
           {/* Submit Button */}
-          <div className="w-full  flex items-end justify-center mt-10 md:px-2">
+          <div className="w-full flex-col-reverse flex md:flex-row items-center  justify-center mt-10 md:px-2">
             <button
               onClick={handleGoBack}
-              className="bg-gray-100 w-1/2 mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+              className="bg-gray-100 w-full md:w-[48%] mt-2 md:mt-0  md:mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
             >
               <IoIosArrowRoundBack className="h-7 w-7 mr-1" />
               Back
@@ -292,7 +292,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`bg-gray-100 w-1/2 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
+              className={`bg-gray-100 w-full  md:w-[48%]  hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
                 isSubmitting ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
