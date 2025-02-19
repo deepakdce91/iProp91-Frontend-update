@@ -118,8 +118,8 @@ const Footer = () => {
           <p className="text-gray-100 text-sm mb-4">
             Subscribe to our newsletter
           </p>
-          <div className="relative flex items-center text-xs  overflow-hidden w-full border-b-[2px] border-b-white bg-black lg:w-72">
-            <p>🎉</p>
+          <div className="relative flex items-center text-xs  overflow-hidden w-full border-[1px] border-white bg-black lg:w-72 p-2">
+            
             <input
               type="email"
               placeholder={status === 'idle' ? "Email address" : ""}
@@ -137,7 +137,7 @@ const Footer = () => {
                   exit={{ opacity: 0 }}
                   className="absolute left-[30%] -translate-x-1/2 text-white"
                 >
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2 text-gold">
                     Sending...
                     <Loader2 className="w-4 h-4 animate-spin" />
                   </div>
@@ -151,7 +151,7 @@ const Footer = () => {
                   exit={{ opacity: 0 }}
                   className="absolute left-[30%] -translate-x-1/2 text-white"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-gold">
                     Thanks for subscribing!
                     <Check className="w-4 h-4" />
                   </div>
@@ -160,7 +160,7 @@ const Footer = () => {
             </AnimatePresence>
 
             <button
-              className=" text-white px-3 py-2 font-[400]  disabled:opacity-50 hover:bg-white hover:text-black"
+              className="  px-3 py-2 font-[400]  disabled:opacity-50 bg-white text-black"
               onClick={handleSubscribe}
               disabled={status === 'sending' || status === 'done' || !email}
             >

@@ -293,7 +293,7 @@ export default function PropCard ({
         </div>
       ) : null}
 
-      <div className="bg-white drop-shadow-2xl border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-full  md:w-64 overflow-hidden">
+      <div className="bg-white drop-shadow-2xl border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-full  md:w-56 md:h-[260px] overflow-hidden">
       {renderClassificationTag()}
         <img
           src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -301,20 +301,20 @@ export default function PropCard ({
           className="rounded-xl object-cover"
         />
         <div className="flex justify-between mt-3 mb-1">
-          <h1 className="text-xl text-black">{props?.project}</h1>
+          <h1 className=" text-black">{props?.project}</h1>
           <p className="text-xs text-black mt-auto mb-auto">Tower: {props?.tower}</p>
         </div>
         <div className="flex justify-between">
           <h1 className="text-xs text-black">{props?.builder}</h1>
           <p className="text-xs text-black">Unit: {props?.unit}</p>
         </div>
-        <div className="flex flex-row justify-between mt-4 gap-2">
+        <div className="flex flex-row justify-between mt-2 gap-2">
           {location.pathname === "/safe" ? (
             <div className="w-full flex justify-between items-center">
               <Link to={`/safe/Dealing/${props._id}/Documents`}>
                 <Goldbutton 
                   btnname={props?.applicationStatus === "approved" ? "View Details" : props?.applicationStatus}
-                  properties="w-full text-black bg-slate-100 py-2 px-4 rounded-lg"
+                  properties="w-full text-black text-xs bg-slate-100 py-2 px-4 rounded-lg"
                 />
               </Link>
               {/* <div className="relative group">

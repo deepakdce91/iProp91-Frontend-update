@@ -901,6 +901,20 @@ function Chats({
     window.location.href = emailUrl;
   };
 
+  const handleClickOutside = (event) => {
+    const emojiPicker = document.getElementById("emoji-picker");
+    if (emojiPicker && !emojiPicker.contains(event.target)) {
+      setShowPicker(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -1145,8 +1159,7 @@ function Chats({
               </div>
             </div>
             {showPicker && (
-              <div className="absolute bottom-[100px] right-[10%] md:right-[50%] "
-              >
+              <div id="emoji-picker" className="absolute bottom-[100px] right-[10%] md:right-[50%] ">
                 <EmojiPicker 
                   pickerStyle={{ width: "70%" }}
                   onEmojiClick={onEmojiClick}

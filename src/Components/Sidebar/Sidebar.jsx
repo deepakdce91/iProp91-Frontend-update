@@ -14,9 +14,8 @@ import {
   ChevronsRight,
   Lock,
   LogOut,
-  Key, // Add LogOut icon
+  Key,
 } from "lucide-react";
-
 import { motion } from "framer-motion";
 
 const SidebarIcons = {
@@ -24,16 +23,16 @@ const SidebarIcons = {
   "iProp91 Safe": { icon: Key, link: "/safe" },
   "Owners' Club": { icon: Users, link: "/family" },
   "Real Insights": { icon: Lightbulb, link: "/realinsight" },
-  "Advice": { icon: BookOpen, link: "/advice" },
-  "Lend": { icon: RefreshCw, link: "/lend" },
-  "NRI": { icon: Home, link: "/nri" },
+  Advice: { icon: BookOpen, link: "/advice" },
+  Lend: { icon: RefreshCw, link: "/lend" },
+  NRI: { icon: Home, link: "/nri" },
   "Listing Page": { icon: Home, link: "/property-for-sale" },
 };
 
 // SmallSidebar component
 const SmallSidebar = ({ onClose }) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: "-100%" }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: "-100%" }}
@@ -126,47 +125,44 @@ const Sidebar = () => {
     const isLocked =
       (link === "/safe" && isSafeLocked) ||
       (link === "/family" && isFamilyLocked);
-      const isActive = location.pathname.includes(link);
+    const isActive = location.pathname.includes(link);
 
-      const linkClass = `
-        flex text-sm items-center p-1 rounded-xl w-full  
-        ${isActive ? "border-gold text-black" : "hover:border-gold"}
-        ${expanded 
-          ? "w-full flex-row border-[2px] border-b-[4px] p-3" 
+    const linkClass = `
+      flex text-sm items-center p-1 rounded-xl w-full  
+      ${isActive ? "border-gold text-black" : "hover:border-gold"}
+      ${
+        expanded
+          ? "w-full flex-row border-[2px] border-b-[4px] p-3"
           : `w-16 justify-center flex-col ${isActive ? "bg-gold" : ""}`
-        }
-      `;
+      }
+    `;
 
-    if (isLocked) {
-      return (
-        <button
-          key={key}
-          className={linkClass}
-          onClick={() =>
+    return (
+      <Link
+        key={key}
+        to={link}
+        className={linkClass}
+        onClick={(e) => {
+          if (isLocked) {
+            e.preventDefault();
             toast(
               link === "/safe"
                 ? "Add a property to unlock this feature."
                 : "You need to join a community to unlock this feature."
-            )
+            );
           }
-        >
-          <Lock className={`"h-5 w-5"  ${expanded ? "text-black" : "text-gold"}`} />
-          {expanded ? (
-            <span className="ml-3 truncate">{key}</span>
-          ) : (
-            <span className="text-xs mt-1 text-center text-white">{key}</span>
-          )}
-        </button>
-      );
-    }
-
-    return (
-      <Link key={key} to={link} className={linkClass}>
+        }}
+      >
         <Icon className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
         {expanded ? (
           <span className="ml-3 truncate">{key}</span>
         ) : (
-          <span className="text-[10px] mt-1 text-center text-white w-12 whitespace-normal break-words leading-3">{key}</span>
+          <span className="text-[10px] mt-1 text-center text-white w-12 whitespace-normal break-words leading-3">
+            {key}
+          </span>
+        )}
+        {isLocked && expanded && (
+          <Lock className="h-5 w-5 ml-auto text-black" />
         )}
       </Link>
     );
@@ -182,12 +178,16 @@ const Sidebar = () => {
 
   return (
     <>
-     <aside
+      <aside
         className={`
-        h-[99%]  rounded-xl  my-1 ml-1 top-0 bottom-0 sticky bg-black
-        ${expanded ? "w-64 bg-white border-r-[1px] border-r-black/50 p-4" : "w-20"}
-        transition-all duration-300 ease-in-out hidden lg:!flex
-      `}
+          h-[99%]  rounded-xl my-1 ml-1 top-0 bottom-0 sticky bg-black
+          ${
+            expanded
+              ? "w-64 bg-white border-r-[1px] border-r-black/50 p-4"
+              : "w-20"
+          }
+          transition-all duration-300 ease-in-out hidden lg:!flex
+        `}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
@@ -204,7 +204,9 @@ const Sidebar = () => {
 
             <button
               onClick={() => setExpanded(!expanded)}
-              className={`"p-2 absolute   rounded-full  " ${expanded ?  "top-24 -right-3 bg-gold " : "top-20 bg-gold -right-2"}`}
+              className={`"p-2 absolute rounded-full ${
+                expanded ? "top-24 -right-3 bg-gold" : "top-20 bg-gold -right-2"
+              }`}
             >
               {expanded ? (
                 <ChevronsLeft className="text-white" />
@@ -220,20 +222,22 @@ const Sidebar = () => {
 
           <div
             onClick={handleLogout}
-            className={`flex ${expanded ? "flex-row" : "flex-col"} items-center p-2 rounded-lg hover:bg-gold cursor-pointer `}
+            className={`flex ${
+              expanded ? "flex-row" : "flex-col"
+            } items-center p-2 rounded-lg hover:bg-gold cursor-pointer`}
           >
             <LogOut className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
             {expanded ? (
               <span className="ml-3 truncate">Logout</span>
             ) : (
-              <span className="text-xs mt-1  text-white">Logout</span>
+              <span className="text-xs mt-1 text-white">Logout</span>
             )}
           </div>
         </nav>
       </aside>
 
       {/* Small screen sidebar toggle button */}
-      <div className="lg:!hidden w-full h-[10svh] align-middle z-[100] fixed top-0 bg-white justify-between !flex px-4 py-2 ">
+      <div className="lg:!hidden w-full h-[10svh] align-middle z-[100] fixed top-0 bg-white justify-between !flex px-4 py-2">
         <div>
           <img
             alt="logo"
@@ -263,8 +267,6 @@ const Sidebar = () => {
       {sidebarOpen && (
         <SmallSidebar isLocked={isFamilyLocked} onClose={toggleSidebar} />
       )}
-
-     
     </>
   );
 };

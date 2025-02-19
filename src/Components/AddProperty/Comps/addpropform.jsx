@@ -571,8 +571,6 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
-              </div>
-              <div className="flex flex-col xl:flex-row w-full">
                 {/* Project */}
                 <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
@@ -595,8 +593,11 @@ function Addpropform() {
                     ))}
                   </datalist>
                 </div>
+              </div>
+              {/* <div className="flex flex-col xl:flex-row w-full"> */}
+                
                 {/*house */}
-                <div className="w-full my-2 xl:m-2">
+                {/* <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     House Number
                   </label>
@@ -609,9 +610,9 @@ function Addpropform() {
                     placeholder="Enter House Number"
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
-                </div>
+                </div> */}
                 {/* floor */}
-                <div className="w-full my-2 xl:m-2">
+                {/* <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Floor Number
                   </label>
@@ -624,8 +625,8 @@ function Addpropform() {
                     placeholder="Enter Floor Number"
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
-                </div>
-              </div>
+                </div> */}
+              {/* </div> */}
 
               <div className="flex flex-col xl:flex-row w-full">
                 <div className="w-full my-2 xl:m-2">
@@ -684,14 +685,14 @@ function Addpropform() {
                     Select Nature of Property
                   </label>
                   <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row  items-center rounded-lg px-3 py-2 ">
                       <input
                         id="residential"
                         name="selectedNature"
                         value="residential"
                         type="radio"
                         onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 "
                         checked={formdata.selectedNature === "residential"}
                       />
                       <label
@@ -701,7 +702,7 @@ function Addpropform() {
                         Residential
                       </label>
                     </div>
-                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row  items-center rounded-lg px-3 py-2 ">
                       <input
                         id="commercial"
                         name="selectedNature"
@@ -709,7 +710,7 @@ function Addpropform() {
                         type="radio"
                         onChange={handleChange}
                         checked={formdata.selectedNature === "commercial"}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 "
                       />
                       <label
                         htmlFor="commercial"
@@ -727,14 +728,14 @@ function Addpropform() {
                     Select Status
                   </label>
                   <div className="flex items-center w-full mt-1 gap-2">
-                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row  items-center rounded-lg px-3 py-2 ">
                       <input
                         id="under-construction"
                         name="selectedStatus"
                         value="under-construction"
                         type="radio"
                         onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 "
                         checked={
                           formdata.selectedStatus === "under-construction"
                         }
@@ -746,7 +747,7 @@ function Addpropform() {
                         Under Construction
                       </label>
                     </div>
-                    <div className="flex w-full flex-row border items-center rounded-lg px-3 py-2 border-gray-300 bg-white">
+                    <div className="flex w-full flex-row  items-center rounded-lg px-3 py-2 ">
                       <input
                         id="completed"
                         name="selectedStatus"
@@ -754,7 +755,7 @@ function Addpropform() {
                         type="radio"
                         checked={formdata.selectedStatus === "completed"}
                         onChange={handleChange}
-                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 "
                       />
                       <label
                         htmlFor="completed"
@@ -806,7 +807,7 @@ function Addpropform() {
 
               {/* Checkbox */}
               <div className="my-2 xl:m-2">
-                <label className="inline-flex items-center mt-3">
+                <label className="inline-flex  mt-3">
                   <input
                     type="checkbox"
                     name="enable"

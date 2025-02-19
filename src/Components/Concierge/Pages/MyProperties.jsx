@@ -370,7 +370,7 @@ export default function MyProperties() {
 
           <Link
             to="/addproperty"
-            className="bg-white  drop-shadow-2xl z-0 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-64"
+            className="bg-white  drop-shadow-2xl z-0 border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl w-52 h-[260px]"
           >
             <div className="flex flex-col items-center justify-between h-full gap-4">
               <img
@@ -379,7 +379,7 @@ export default function MyProperties() {
                 alt="img"
               />
               {prop ? (
-                <div className="bg-gray-200 p-2 rounded-xl w-full text-center ">
+                <div className="bg-gray-200 p-2 rounded-xl w-full text-center text-xs">
                   Add the property you want to manage{" "}
                 </div>
               ) : (
@@ -568,7 +568,7 @@ export default function MyProperties() {
                 ))}
               </div>
           </div>
-          <div className="w-full  max-w-64 my-16 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
+          <div className="w-full  max-w-52 my-16 bg-white  drop-shadow-2xl  border-transparent border-b-4 border-[1px] hover:border-simple hover:border-b-4 hover:border-[1px] p-4 rounded-xl">
             <Link to="/addproperty" className="">
               <div className="flex flex-col items-center justify-between h-full gap-4">
                 <img
@@ -577,7 +577,7 @@ export default function MyProperties() {
                   alt="img"
                 />
                 {prop ? (
-                  <div className="bg-gray-200 p-2 rounded-xl w-full text-center ">
+                  <div className="bg-gray-200 text-xs p-2 rounded-xl w-full text-center ">
                     Add the property you want to manage{" "}
                   </div>
                 ) : (

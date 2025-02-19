@@ -47,6 +47,7 @@ function ChatScreen() {
   const [allMessages, setAllMessages] = useState({});
   const [isMobileInfoOpen, setIsMobileInfoOpen] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const [matchedPropertyId, setMatchedPropertyId] = useState(null);
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -142,6 +143,53 @@ function ChatScreen() {
 
     fetchData();
   }, [token, userId]);
+
+  // Add useEffect to fetch properties and find match
+  useEffect(() => {
+    const fetchAndMatchProperty = async () => {
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          }
+        );
+        
+        if (response) {
+          const properties = await response.json();
+          console.log(properties);
+          
+          
+          // Find property that matches all required fields
+          const matchedProperty = properties.find(property => 
+            property.builder === currentGroupData?.builder &&
+            property.city === currentGroupData?.city &&
+            property.state === currentGroupData?.state &&
+            property.project === currentGroupData?.projects
+          );
+
+          if (matchedProperty) {
+            setMatchedPropertyId(matchedProperty._id);
+          }
+          console.log(matchedProperty._id);
+          
+        }
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
+
+    if (currentGroupData) {
+      fetchAndMatchProperty();
+    }
+  }, [currentGroupData]);
 
   // Early return if no token
   if (!token || !userId) {
@@ -466,28 +514,37 @@ function ChatScreen() {
 
           {/* Important Links */}
           <div className="p-2 space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Project Documents</h4>
-                  <a
-                    href="/"
-                    className="text-gold flex  gap-3"
-                  >
-                    <FileIcon className="w-6 h-6" />
-                    <p className="text-xs">Show RERA documents of this project</p>
-                  </a>
-                </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Project Documents</h4>
+              <Link 
+                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
+                className="text-blue-500 underline flex gap-3"
+                onClick={(e) => {
+                  if (!matchedPropertyId) {
+                    e.preventDefault();
+                    toast.info("No matching property found for RERA documents");
+                  }
+                }}
+              >
+                <FileIcon className="w-6 h-6 text-black" />
+                <p className="text-xs mt-1">
+                  Show RERA documents of this project
+                </p>
+              </Link>
+            </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Official Website</h4>
-                  <a
-                    href="https://iprop91.com/"
-                    className="text-gold flex items-center space-x-2"
-                  >
-                    <Link2 className="w-6 h-6" />
-                    <p className="text-xs">Visit our official website</p>
-                  </a>
-                </div>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Official Website</h4>
+              <Link
+                target="_blank"
+                to={currentGroupData?.companyWebsiteLink}
+                className="text-blue-500 underline flex items-center space-x-2"
+              >
+                <Link2 className="w-6 h-6 text-black" />
+                <p className="text-xs">Visit our official website</p>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -819,28 +876,37 @@ function ChatScreen() {
 
               {/* Important Links */}
               <div className="p-2 space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Project Documents</h4>
-                  <a
-                    href="#"
-                    className="text-gold flex  gap-3"
-                  >
-                    <FileIcon className="w-6 h-6" />
-                    <p className="text-xs">Show RERA documents of this project</p>
-                  </a>
-                </div>
+            <div className="bg-gray-50 p-4 rounded-lg ">
+              <h4 className="font-medium mb-2">Project Documents</h4>
+              <Link 
+                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
+                className="text-blue-500 underline flex gap-3"
+                onClick={(e) => {
+                  if (!matchedPropertyId) {
+                    e.preventDefault();
+                    toast.info("No matching property found for RERA documents");
+                  }
+                }}
+              >
+                <FileIcon className="w-6 h-6 text-black" />
+                <p className="text-xs ">
+                  Show RERA documents of this project
+                </p>
+              </Link>
+            </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Official Website</h4>
-                  <a
-                    href="https://iprop91.com/"
-                    className="text-gold flex items-center space-x-2"
-                  >
-                    <Link2 className="w-6 h-6" />
-                    <p className="text-xs">Visit our official website</p>
-                  </a>
-                </div>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Official Website</h4>
+              <Link
+                target="_blank"
+                to={currentGroupData?.companyWebsiteLink}
+                className="text-blue-500 underline flex items-center space-x-2"
+              >
+                <Link2 className="w-6 h-6 text-black" />
+                <p className="text-xs">Visit our official website</p>
+              </Link>
+            </div>
+          </div>
             </div>
 
             {/* article section */}
