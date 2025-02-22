@@ -39,7 +39,7 @@ export function ProfileCompletionBanner() {
           data.data?.name && 
           (data.data.name.startsWith("IPU") && 
           !isNaN(data.data.name.replace("IPU", ""))) || 
-          data.data?.name === "Iprop91 User";
+          data.data?.name === "iProp91 User";
   
         setProfileItems([
           {

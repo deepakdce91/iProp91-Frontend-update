@@ -89,6 +89,14 @@ const ContactUsForm = ({onClose}) => {
 
   return (
     <div className="min-h-[60vh] max-w-[80vh] rounded-lg min-w-[60vw] bg-[#111] text-white p-8">
+      {/* Close Button */}
+      <button onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       <div className="max-w-6xl mx-auto flex flex-col-reverse md:flex-row gap-12 items-center">
         {/* Form Section */}
         <div className="space-y-8 flex-1">

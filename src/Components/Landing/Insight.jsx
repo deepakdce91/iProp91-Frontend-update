@@ -45,6 +45,7 @@ export default function Test() {
           `${process.env.REACT_APP_BACKEND_URL}/api/library/fetchAllActiveBlogs`
         );
         setBlogs(response.data);
+        console.log("expert views data", response.data)
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }

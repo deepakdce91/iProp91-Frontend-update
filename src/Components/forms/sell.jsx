@@ -51,8 +51,8 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
 
       const command = new GetObjectCommand(getParams);
       const signedUrl = await getSignedUrl(client, command, {
-        expiresIn: 3600,
-      }); // URL valid for 1 hour
+        expiresIn: 3600
+      }); 
 
       return {
         name: path.split("/")[path.split("/").length - 1],
@@ -199,13 +199,13 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   };
 
   return (
-    <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 ">
+    <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
       {/* Backdrop */}
       <div
         onClick={closeSellModal}
         className="absolute w-full h-full bg-black/40 backdrop-blur-sm "
       />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar ">
+      <div className="relative bg-white h-[80vh] lg:h-[90vh] rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar mt-20 lg:mt-0 ">
         <form
           onSubmit={handleSubmit}
           className="relative space-y-6   px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen "
@@ -421,6 +421,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
             </div>
           </div>
 
+          <div className="flex flex-col md:flex-row gap-5">
           <button
             type="submit"
             disabled={isUploading}
@@ -431,11 +432,12 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
             {isUploading ? "Uploading..." : "Submit"}
           </button>
           <button onClick={closeSellModal}
-            className={`w-full bg-black hover:border-black hover:bg-white px-4 py-2 text-white rounded-xl 
+            className={`w-full bg-black   px-4 py-2 text-white rounded-xl 
             `}
           >
             Cancel
           </button>
+          </div>
         </form>
       </div>
     </div>

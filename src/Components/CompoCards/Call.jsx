@@ -39,7 +39,7 @@ const ExpertContact = () => {
   const iconWrapperStyle =
     "flex items-center  justify-center  rounded-full bg-white   p-3 absolute";
   const pstyle =
-    "w-full flex bg-white py-5 rounded-full items-center justify-center text-black";
+    "w-full flex bg-white py-5 rounded-full items-center justify-center text-black ";
 
   return (
     <>
