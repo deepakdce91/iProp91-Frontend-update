@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { client } from "../../../config/s3client";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import StateCityCompo from "../../GeneralUi/StateCityCompo";
+import { FixedSizeList as List } from "react-window";
 
 import { useNavigate } from "react-router-dom";
 
@@ -65,6 +66,11 @@ function Addpropform() {
   // Update state to manage loading and tooltip message
   const [isLoading, setIsLoading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
+
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
+  const [filteredBuilders, setFilteredBuilders] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
 
   const handleTermsnCond = (e) => {
     setTermsnCond(e.target.checked);
@@ -536,6 +542,63 @@ function Addpropform() {
     }
   };
 
+  const Row = ({ index, style, data, onSelect }) => {
+    const item = data[index];
+    return (
+      <div
+        style={style}
+        className="px-4 py-2 hover:bg-blue-50 text-gray-700 cursor-pointer"
+        onClick={() => onSelect(item)}
+      >
+        {item.name}
+      </div>
+    );
+  };
+
+  const handleInputChangeBuilder = (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, selectBuilder: value }));
+    setFilteredBuilders(
+      builders.filter((builder) =>
+        builder.name.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  };
+
+  const handleInputChangeProject = (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, selectProject: value }));
+    setFilteredProjects(
+      projects.filter((project) =>
+        project.name.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  };
+
+  const ITEM_HEIGHT = 40; // Set a default item height
+  const MAX_HEIGHT = 300; // Set a maximum height for the dropdown
+
+  const getDropdownHeight = (itemCount) => {
+    const totalHeight = itemCount * ITEM_HEIGHT;
+    return Math.min(totalHeight, MAX_HEIGHT);
+  };
+
+  const handleSelectBuilder = (builder) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectBuilder: builder.name,
+    }));
+    setIsBuilderOpen(false);
+  };
+
+  const handleSelectProject = (project) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectProject: project.name,
+    }));
+    setIsProjectOpen(false);
+  };
+
   return (
     <>
       <div className="flex justify-center my-6 w-full md:w-[80vw] m-auto p-4">
@@ -550,54 +613,84 @@ function Addpropform() {
                 />
 
                 {/* builder */}
-                <div className="w-full my-2 xl:m-2">
+                <div className="w-full relative my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Select Builder
                   </label>
                   <input
-                    list="builders-list"
-                    id="builder"
-                    name="selectBuilder"
+                    type="text"
                     value={formdata.selectBuilder}
-                    onChange={handleChange}
+                    onChange={handleInputChangeBuilder}
                     placeholder="Select or type a builder..."
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    onFocus={() => {
+                      setIsBuilderOpen(true);
+                      setFilteredBuilders(builders); // Show all builders on focus
+                    }}
                   />
-                  <datalist id="builders-list">
-                    {builders.map((builder) => (
-                      <option key={builder._id} value={builder.name}>
-                        {builder.name}
-                      </option>
-                    ))}
-                  </datalist>
+                  {isBuilderOpen && filteredBuilders.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <List
+                        height={getDropdownHeight(filteredBuilders.length)}
+                        itemCount={filteredBuilders.length}
+                        itemSize={ITEM_HEIGHT}
+                        width="100%"
+                        itemData={filteredBuilders}
+                      >
+                        {({ index, style }) => (
+                          <Row
+                            index={index}
+                            style={style}
+                            data={filteredBuilders}
+                            onSelect={handleSelectBuilder}
+                          />
+                        )}
+                      </List>
+                    </div>
+                  )}
                 </div>
                 {/* Project */}
-                <div className="w-full my-2 xl:m-2">
+                <div className="w-full relative my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Select Project
                   </label>
                   <input
-                    list="projects-list"
-                    id="project"
-                    name="selectProject"
+                    type="text"
                     value={formdata.selectProject}
-                    onChange={handleChange}
+                    onChange={handleInputChangeProject}
                     placeholder="Select or type a project..."
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
+                    onFocus={() => {
+                      setIsProjectOpen(true);
+                      setFilteredProjects(projects); // Show all projects on focus
+                    }}
                   />
-                  <datalist id="projects-list">
-                    {projects.map((project) => (
-                      <option key={project._id} value={project.name}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </datalist>
+                  {isProjectOpen && filteredProjects.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <List
+                        height={getDropdownHeight(filteredProjects.length)}
+                        itemCount={filteredProjects.length}
+                        itemSize={ITEM_HEIGHT}
+                        width="100%"
+                        itemData={filteredProjects}
+                      >
+                        {({ index, style }) => (
+                          <Row
+                            index={index}
+                            style={style}
+                            data={filteredProjects}
+                            onSelect={handleSelectProject}
+                          />
+                        )}
+                      </List>
+                    </div>
+                  )}
                 </div>
               </div>
               {/* <div className="flex flex-col xl:flex-row w-full"> */}
-                
-                {/*house */}
-                {/* <div className="w-full my-2 xl:m-2">
+
+              {/*house */}
+              {/* <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     House Number
                   </label>
@@ -611,8 +704,8 @@ function Addpropform() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg  shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm bg-white"
                   />
                 </div> */}
-                {/* floor */}
-                {/* <div className="w-full my-2 xl:m-2">
+              {/* floor */}
+              {/* <div className="w-full my-2 xl:m-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Floor Number
                   </label>

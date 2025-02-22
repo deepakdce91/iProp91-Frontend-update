@@ -83,66 +83,66 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   const [activeSection, setActiveSection] = useState(Object.keys(Data)[0])
   const [activeDocument, setActiveDocument] = useState(Data[Object.keys(Data)[0]].content[0])
   const [isMobile, setIsMobile] = useState(false)
-  const [currentLayer, setCurrentLayer] = useState(1)
+  const [currentLayer, setCurrentLayer] = useState(1); // 1: first, 2: second, 3: third
   const [loading, setLoading] = useState(false)
-  const [previousLayer, setPreviousLayer] = useState(1)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSectionClick = (section) => {
-    setActiveSection(section)
-    setPreviousLayer(currentLayer)
-    
-    if (Data[section].hasSecondLayer) {
-      // Automatically select the first item in the second layer
-      setActiveDocument(Data[section].content[0])
-      if (isMobile) {
-        setCurrentLayer(2)
-      }
-    } else {
-      // Direct jump to third layer for sections without second layer
-      setActiveDocument({ name: section, category: Data[section].category })
-      setCurrentLayer(3)
+    setActiveSection(section);
+    setActiveDocument(null);
+    if (isMobile) {
+      setCurrentLayer(2);
     }
-  }
+    if (!Data[section].hasSecondLayer) {
+      setActiveDocument({ name: section, category: Data[section].category });
+      setCurrentLayer(3);
+    }
+  };
+
 
   const handleDocumentClick = (document) => {
-    setActiveDocument(document)
-    setPreviousLayer(currentLayer)
+    setActiveDocument(document);
     if (isMobile) {
-      setCurrentLayer(3)
+      setCurrentLayer(3);
     }
     if (onDocumentSelect) {
-      onDocumentSelect(`${activeSection} / ${document.name}`)
+      onDocumentSelect(`${activeSection} / ${document.name}`);
     }
-  }
+  };
 
   const handleBack = () => {
     if (currentLayer === 3) {
       if (!Data[activeSection].hasSecondLayer) {
-        // If coming from a section without second layer, go back to first layer
-        setCurrentLayer(1)
-        setActiveDocument(null)
+        setActiveSection(null);
+        setActiveDocument(null);
+        setCurrentLayer(1);
       } else {
-        // Normal case - go back to second layer
-        setCurrentLayer(2)
-        setActiveDocument(Data[activeSection].content[0])
+        setActiveDocument(null);
+        setCurrentLayer(2);
       }
     } else if (currentLayer === 2) {
-      setCurrentLayer(1)
-      setActiveSection(null)
-      setActiveDocument(null)
+      setActiveSection(null);
+      setCurrentLayer(1);
     }
+  };
+
+  const handleFileChange = async (e) => {
+    setLoading(true)
+    // ... existing file handling logic ...
+    // After uploading files
+    setLoading(false)
   }
 
   return (
-    <div className="flex flex-col md:h-[85vh] h-screen text-black">
-      {isMobile && currentLayer > 1 && (
+    <div className="flex flex-col md:h-[85vh] h-screen   text-black ">
+       {/* Header with back button */}
+       {isMobile && currentLayer > 1 && (
         <div className="flex items-center p-4 border-b border-gray-200">
           <button onClick={handleBack} className="flex items-center text-gray-600">
             <ChevronLeft className="w-6 h-6 mr-2" />
@@ -151,7 +151,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
         </div>
       )}
 
-      <div className="flex flex-grow overflow-hidden p-4 lg:rounded-xl shadow-md">
+      <div className="flex flex-grow overflow-hidden  p-4  lg:rounded-xl shadow-md">
         {/* First Layer */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
@@ -162,11 +162,11 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
               : 'w-full lg:w-[20%]'
           }`}
         >
-          <div className="bg-[#fdfbfb] h-full overflow-y-auto">
+          <div className="bg-[#fdfbfb] h-full overflow-y-auto border-r-[2px] border-r-black/70">
             {Object.keys(Data).map((section) => (
               <div
                 key={section}
-                className="border-b-[1px] border-b-black/70 border-r-[2px] border-r-black/70"
+                className="border-b-[1px] border-b-black/70"
                 onClick={() => handleSectionClick(section)}
               >
                 <div className={`flex items-center justify-between px-4 py-[18px] cursor-pointer ${
@@ -180,6 +180,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
           </div>
         </div>
 
+        {/* <div className="p-2 lg:border-[2px] lg:border-black/70 rounded-xl shadow-md flex w-full"> */}
         {/* Second Layer */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
@@ -187,17 +188,17 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
               ? currentLayer === 2
                 ? 'block'
                 : 'hidden'
-              : activeSection && Data[activeSection].hasSecondLayer
+              : activeSection
               ? 'w-3/3 lg:w-[28%]'
               : 'hidden'
           }`}
         >
           {activeSection && Data[activeSection].hasSecondLayer && (
-            <div className="bg-[#fdfbfb] h-full overflow-y-auto">
+            <div className="bg-[#fdfbfb] h-full overflow-y-auto border-r-[2px] border-r-black/70">
               {Data[activeSection].content.map((doc) => (
                 <div
                   key={doc.name}
-                  className="py-1 border-b-[1px] border-b-black/70 border-r-[2px] border-r-black/70"
+                  className="py-1 border-b-[1px] border-b-black/70"
                   onClick={() => handleDocumentClick(doc)}
                 >
                   <div className={`px-4 py-[14px] cursor-pointer flex items-center gap-3 text-sm ${
@@ -214,6 +215,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
           )}
         </div>
 
+
         {/* Third Layer */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
@@ -227,7 +229,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
           }`}
         >
           {activeDocument && (
-            <div className="px-3 h-full ">
+            <div className="px-3 h-full overflow-y-auto">
               <Table
                 category={activeDocument?.category}
                 tablename={activeDocument?.name}
@@ -236,7 +238,8 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    // </div>
   )
 }
