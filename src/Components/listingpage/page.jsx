@@ -70,11 +70,40 @@ const tools = [
   }
 ]
 
+const categoryTypes = [
+  {
+    title: "Pre Launch Projects",
+    description: "Upcoming pre-launch properties",
+    type: "pre_launch"
+  },
+  {
+    title: "Verified Owner Properties",
+    description: "Direct from property owners",
+    type: "verified_owner"
+  },
+  {
+    title: "New Projects",
+    description: "Latest property launches",
+    type: "new_projects"
+  },
+  {
+    title: "Upcoming Projects",
+    description: "Soon to be launched properties",
+    type: "upcoming_projects"
+  },
+  {
+    title: "New Sale Properties",
+    description: "Fresh properties for sale",
+    type: "new_sale"
+  }
+];
+
 export default function MainListingPage() {
   const [activeTab, setActiveTab] = useState('Buy')
   const [searchCity, setSearchCity] = useState('')
   const [allFetchedProjects, setAllFetchedProjects] = useState()
   const [filteredProperties, setFilteredProperties] = useState(allFetchedProjects)
+  const [categorizedProjects, setCategorizedProjects] = useState({});
 
   // Add search handler
   const handleCitySearch = (e) => {
@@ -108,6 +137,17 @@ export default function MainListingPage() {
         setAllFetchedProjects(allProjects);
         // toast.success("projects fetched successfully")
         console.log(allProjects);
+        
+        if (allProjects) {
+          const categorized = {
+            pre_launch: allProjects.filter(project => project.category === "pre_launch"),
+            verified_owner: allProjects.filter(project => project.category === "verified_owner"),
+            new_project: allProjects.filter(project => project.category === "new_project"),
+            upcoming_project: allProjects.filter(project => project.category === "upcoming_project"),
+            new_sale: allProjects.filter(project => project.category === "new_sale")
+          };
+          setCategorizedProjects(categorized);
+        }
         return;
       }
       toast.error("Error fetching projects");
@@ -116,9 +156,9 @@ export default function MainListingPage() {
   },[])
 
   return (
-    <main className="min-h-screen bg-gray-50 rounded-xl overflow-hidden">
+    <main className="min-h-screen lg:h-screen overflow-y-scroll bg-gray-50 rounded-xl ">
       {/* Hero Section with Enhanced Search */}
-      <div className="relative h-[600px]">
+      <div className="relative h-[600px] mt-20 lg:mt-0">
         <img
           src="/images/lishero.jpg"
           alt="Property Hero"
@@ -217,59 +257,32 @@ export default function MainListingPage() {
         </div>
       </section>
 
-      {/* Featured Properties Carousel */}
-      <section className="py-12 px-4 max-w-7xl mx-auto bg-white ">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Featured Properties</h2>
-            <p className="text-gray-600">Handpicked properties for you</p>
+      {/* Category Carousels */}
+      {categoryTypes.map((category) => (
+        <section key={category.type} className="py-12 px-4 max-w-7xl mx-auto bg-white">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
+              <p className="text-gray-600">{category.description}</p>
+            </div>
+            <Link 
+              to={`/category/${category.type}`} 
+              className="text-blue-600 hover:underline"
+            >
+              View All
+            </Link>
           </div>
-          <Link href="/featured-properties" className="text-blue-600 hover:underline">
-            View All
-          </Link>
-        </div>
-        <Carousel
-          items={allFetchedProjects}
-          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
-          className="pb-4"
-        />
-      </section>
-
-      {/* New Projects Section */}
-      <section className="py-12 px-4 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">New Project Gallery</h2>
-            <p className="text-gray-600">Latest projects in Bangalore</p>
-          </div>
-          <Link href="/new-projects" className="text-blue-600 hover:underline">
-            View All
-          </Link>
-        </div>
-        <Carousel
-          items={allFetchedProjects}
-          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
-          className="pb-4"
-        />
-      </section>
-
-      {/* Popular Owner Properties */}
-      <section className="py-12 px-4 max-w-7xl mx-auto bg-white">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Popular Owner Properties</h2>
-            <p className="text-gray-600">Verified properties from owners</p>
-          </div>
-          <Link href="/owner-properties" className="text-blue-600 hover:underline">
-            View All
-          </Link>
-        </div>
-        <Carousel
-          items={allFetchedProjects}
-          renderItem={(allFetchedProjects) => <PropertyCard property={allFetchedProjects} />}
-          className="pb-4"
-        />
-      </section>
+          {categorizedProjects[category.type]?.length > 0 ? (
+            <Carousel
+              items={categorizedProjects[category.type]}
+              renderItem={(project) => <PropertyCard property={project} />}
+              className="pb-4"
+            />
+          ) : (
+            <p className="text-gray-500">No properties available in this category</p>
+          )}
+        </section>
+      ))}
     </main>
   )
 }
