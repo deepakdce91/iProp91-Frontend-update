@@ -132,12 +132,7 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
     }
   };
 
-  const handleFileChange = async (e) => {
-    setLoading(true)
-    // ... existing file handling logic ...
-    // After uploading files
-    setLoading(false)
-  }
+  
 
   return (
     <div className="flex flex-col md:h-[85vh] h-screen   text-black ">

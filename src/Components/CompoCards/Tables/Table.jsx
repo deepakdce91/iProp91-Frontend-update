@@ -6,23 +6,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Spinner } from '@material-tailwind/react';
 
-
-
 const Table = ({ tablename, category, tableopen = false, loading }) => {
   const [isExpanded, setIsExpanded] = useState(tableopen);
   const [maxHeight, setMaxHeight] = useState(tableopen ? 'auto' : '0px');
   const [tableData, setdata] = useState([]);
   const contentRef = useRef(null);
-
-  // const toggleExpand = () => {
-  //   setMaxHeight(isExpanded ? '0px' : `${contentRef.current.scrollHeight}px`);
-  //   setIsExpanded(!isExpanded);
-  // };
-
-  // useEffect(() => {
-  //   setIsExpanded(tableopen);
-  //   setMaxHeight(tableopen ? `${contentRef.current.scrollHeight}px` : '0px');
-  // }, [tableopen]);
 
   useEffect(() => {
     // Automatically adjust height when tableData changes
@@ -31,21 +19,13 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
     }
   }, [tableData, isExpanded]);
 
-  // backend stuffs
-
+  // Fetch data when the category changes
   useEffect(() => {
     fetchSafeDate();
-  }, [tableData]);
-
-  useEffect(() => {
-    fetchSafeDate(); // Fetch data whenever the category changes
-  }, [category]); // Add category as a dependency
+  }, [category]);
 
   const fetchSafeDate = async () => {
-
     const propertyId = window.location.pathname.split('/')[3];
-    console.log(propertyId);
-    
     const token = localStorage.getItem('token');
     const user = jwtDecode(token);
 
@@ -60,41 +40,6 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
       if (response.ok) {
         const data = await response.json();
         setdata(data.data);
-        // console.log("Fetched",category, data);
-      }
-    }
-    catch (err) {
-      toast.error("Error fetching data");
-      console.log(err);
-    }
-  }
-  
-  const addSafeDocument = async (newData) => {
-    const propertyId = window.location.pathname.split('/')[3];
-    const token = localStorage.getItem('token');
-    const user = jwtDecode(token);
-    
-    console.log("Adding document:", newData);
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/safe/addDocument/${propertyId}/${category}?userId=${user.userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'auth-token': token
-        },
-        body: JSON.stringify(newData)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Added", category);
-        console.log(data);
-        toast.success("Documents Added!")
-      } else {
-        const errorData = await response.json();
-        console.error("Error response:", errorData);
-        toast.error("Error adding document: " + errorData.message);
       }
     } catch (err) {
       toast.error("Error fetching data");
@@ -102,11 +47,49 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
     }
   };
 
+  const addSafeDocument = async (newData) => {
+    const propertyId = window.location.pathname.split('/')[3];
+    const token = localStorage.getItem('token');
+    const user = jwtDecode(token);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/safe/addDocument/${propertyId}/${category}?userId=${user.userId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token
+          },
+          body: JSON.stringify(newData),
+          signal: controller.signal
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        // toast.success(`${newData.name} added successfully!`);
+        fetchSafeDate(); // Refresh the document list after adding
+      } else {
+        throw new Error(data.message || 'Failed to add document');
+      }
+    } catch (err) {
+      toast.error(`Error adding document: ${err.message}`);
+      console.error("Error in addSafeDocument:", err);
+    }
+  };
+
   const DeletebyId = async (file) => {
     const token = localStorage.getItem('token');
     const user = jwtDecode(token);
     const propertyId = window.location.pathname.split('/')[3];
-    try{
+
+    try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/safe/deleteDocument/${propertyId}/${category}/${file._id}?userId=${user.userId}`, {
         method: 'DELETE',
         headers: {
@@ -115,18 +98,13 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
         },
       });
       if (response.ok) {
-        const data = await response.json();
-        console.log("Deleted",category);
+        fetchSafeDate(); // Refresh the document list after deleting
       }
-
-    }
-    catch (err) {
-      toast.error("Error fetching data");
+    } catch (err) {
+      toast.error("Error deleting document");
       console.log(err);
     }
-  }
-
-
+  };
 
   const handleFileChange = async (e) => {
     const files = e.target.files;
@@ -134,73 +112,72 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
     const user = jwtDecode(token);
     const userId = user.userId;
     const newData = [];
-    // if now fieles are selected
-    // any file has more than 25MB size then it will not be uploaded
-    for (let i = 0; i < files.length; i++) {
-      if (files[i].size > 250000000000000) {
-        toast.error('File size should be less than 250MB');
+
+    try {
+      if (!files.length) {
+        toast.error('Please select a file');
         return;
       }
+
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].size > 25000000) { // 25MB limit
+          toast.error(`File ${files[i].name} is larger than 25MB`);
+          return;
+        }
+      }
+
+      const userPhone = localStorage.getItem("userPhone");
+      toast.info('Uploading files...', { autoClose: false });
+
+      for (let i = 0; i < files.length; i++) {
+        let item = files[i];
+        let cloudFilePath = await uploadFileToCloud(item, userPhone || "exception");
+        newData.push({
+          name: item.name,
+          path: cloudFilePath,
+          addedBy: userId,
+        });
+      }
+
+      for (let i = 0; i < newData.length; i++) {
+        try {
+          await addSafeDocument(newData[i]);
+        } catch (error) {
+          toast.error(`Failed to add ${newData[i].name}`);
+        }
+      }
+
+      e.target.value = '';
+      toast.success('All files uploaded successfully!');
+    } catch (error) {
+      console.error("File upload error:", error);
+      toast.error('Error uploading files: ' + error.message);
     }
-    if (!files.length) {
-      toast.error('Please select a file');
-      return;
-    }
-
-    const userPhone = localStorage.getItem("userPhone");
-
-    for (let i = 0; i < files.length; i++) {
-      let item = files[i];
-      let cloudFilePath = await uploadFileToCloud(item, userPhone || "exception");
-      newData.push({
-        name: item.name,
-        path: cloudFilePath,
-        addedBy: userId,
-      });
-    }
-
-    for (let i = 0; i < newData.length; i++) {
-      addSafeDocument(newData[i]);
-    }
-  }
-
-
-  const handleDelete = async (file) => {
-    DeletebyId(file);
-    fetchSafeDate();
   };
 
-
+  const handleDelete = async (file) => {
+    await DeletebyId(file);
+  };
 
   const handleView = async (file) => {
     const url = await getSignedUrlForPrivateFile(file.path);
-  // navigate to this url
-
-   window.open(url, '_blank');
+    window.open(url, '_blank');
   };
 
   const handleDownload = async (file) => {
     const url = await getSignedUrlForPrivateFile(file.path);
-    
-    // Fetch the file as a Blob
     const response = await fetch(url);
     const blob = await response.blob();
-  
-    // Create a download link
     const link = document.createElement('a');
     const objectUrl = URL.createObjectURL(blob);
-  
     link.href = objectUrl;
-    link.download = file.name; // Specify the file name for the download
+    link.download = file.name;
     document.body.appendChild(link);
     link.click();
-    
-    // Cleanup
     document.body.removeChild(link);
-    URL.revokeObjectURL(objectUrl); // Revoke the object URL to free up memory
+    URL.revokeObjectURL(objectUrl);
   };
 
-  // text wrap for file name
   const textWrap = (text, wordLimit) => {
     const words = text.split(' ');
     return words.length > wordLimit 
@@ -218,14 +195,10 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
         <div className={`${!isExpanded ? 'border-2 rounded-xl border-black ' : ''} w-full`}>
           <div
             className={`${!isExpanded ? '' : 'bg-[#e0e0e0] text-black border-[1px] border-black '} p-4 rounded-t-lg flex text-black  justify-between items-center w-full cursor-pointer px-10 py-6`}
-            
           >
             <h2 className={`${isExpanded ? 'text-black font-semibold' : ''} text-sm md:text-2xl font-semibold text-center w-full`}>
               {tablename}
             </h2>
-            {/* <button className={`text-black transition-all delay-150 duration-50 font-bold text-2xl ${!isExpanded ? 'transform rotate-180 text-white' : 'text-white'}`}>
-              <FaChevronUp />
-            </button> */}
             <button onClick={() => document.getElementById('dropzone-file').click()} className="ml-4 text-gray-700 text-2xl">
               <i className="fas fa-plus"></i>
             </button>
@@ -242,7 +215,6 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
                   <tr className="bg-[#f3f3f3] text-black">
                     <th className="py-3 px-6">No.</th>
                     <th className="py-3 px-6">Name</th>
-                   
                     <th className="py-3 px-6">Date</th>
                     <th className="py-3 px-6">Actions</th>
                   </tr>
@@ -290,13 +262,9 @@ const Table = ({ tablename, category, tableopen = false, loading }) => {
                       <i className="fas fa-upload"></i>
                     </button>
                     <p className="text-black   mt-2">Click to Upload or drag and drop</p>
-                    {/* <p className="text-xs text-gray-500 dark:text-gray-400">(Max. File size: 25 MB)</p> */}
                   </div>
                 </label>
               </div>
-
-
-
             </div>
           </div>
         </div>

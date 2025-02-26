@@ -16,6 +16,7 @@ import MainListingPage from "../listingpage/page.jsx";
 import PropertyDetail from "../listingpage/id/page.jsx";
 import Footer from "../Landing/Footer.jsx";
 import SiteFaqs from "../site-faqs/page.jsx";
+import CategoryPage from "../listingpage/CategoryPage.jsx";
 
 export default function AllPage() {
   const location = useLocation();
@@ -46,6 +47,7 @@ export default function AllPage() {
 
             <Route path="/property-for-sale" element={<MainListingPage />} />
             <Route path="/property-for-sale/:id" element={<PropertyDetail />} />
+            <Route path="/category/:categoryType" element={<CategoryPage />} />
           </Routes>
           {shouldRenderFooter && <Footer />}
         </div>
