@@ -235,10 +235,10 @@ export default function MyProperties() {
   return (
     <>
       <div className=" flex  flex-col pt-5 bg-white lg:rounded-xl h-full">
-        <Link className="lg:!hidden  pb-2 hover:underline  flex items-center text-xs" to={"/concierge"}>
+        {/* <Link className="lg:!hidden  pb-2 hover:underline  flex items-center text-xs" to={"/concierge"}>
           <ArrowLeft className="h-4 w-4" />
           Back to Concierge
-        </Link>
+        </Link> */}
         <div className="hidden lg:!flex flex-wrap gap-4 pb-5 mx-2 ">
           {prop.map((property) => (
             // <Link to={`/safe/Dealing/${property._id}/Documents`}>

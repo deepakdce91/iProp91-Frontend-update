@@ -348,7 +348,7 @@ export default function MyProperties() {
     setCurrentIndex(index);
     setIsPaused(true);
   };
-
+  
   return (
     <>
       <div className="flex flex-col mt-10 lg:mt-0 ">
@@ -649,6 +649,7 @@ export default function MyProperties() {
           {/* </div> */}
         </div>
       )}
+     
     </>
   );
 }
