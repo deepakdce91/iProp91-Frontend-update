@@ -52,10 +52,10 @@ export default function NameHeader ({name, pageName, description}){
         </div>
   
         <div className=" px-8 lg:!hidden bg-white">
-          <p className="text-xl font-semibold mb-2">
+          <p className="text-xl font-semibold mb-2 ml-5">
             iProp91 <span className="text-primary">{name}</span>
           </p>
-          <hr className="bg-primary w-12 h-1 rounded-sm" />
+          <hr className="bg-primary w-12 h-1 rounded-sm ml-5" />
         </div>
       </>
     );

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from "react"
-import { ChevronRight, ChevronLeft, Menu, DockIcon, File, FileBadge, FileIcon, Folder } from "lucide-react"
+import { ChevronRight, ChevronLeft, Menu, DockIcon, File, FileBadge, FileIcon, Folder, ArrowLeft } from "lucide-react"
 import Table from "../../../CompoCards/Tables/Table"
 import { GrDocument } from "react-icons/gr"
 
@@ -135,13 +135,15 @@ export default function DocumentManager({ PropName = "Sample Property", onDocume
   
 
   return (
-    <div className="flex flex-col md:h-[85vh] h-screen   text-black ">
+    <div className="flex flex-col relative md:h-[85vh] h-screen   text-black ">
        {/* Header with back button */}
        {isMobile && currentLayer > 1 && (
-        <div className="flex items-center p-4 border-b border-gray-200">
+        <div className="absolute p-4 border-b -left-1 -top-[50px] z-50 border-gray-200">
           <button onClick={handleBack} className="flex items-center text-gray-600">
-            <ChevronLeft className="w-6 h-6 mr-2" />
-            {currentLayer === 2 ? 'Back to Categories' : 'Back to Documents'}
+            <span className="p-1 rounded-full bg-white border-[1px] border-black ">
+            <ArrowLeft className="w-4 h-4 " />
+            </span>
+            {/* {currentLayer === 2 ? 'Back ' : 'Back '} */}
           </button>
         </div>
       )}

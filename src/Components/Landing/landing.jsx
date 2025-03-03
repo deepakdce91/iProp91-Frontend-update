@@ -30,6 +30,9 @@ import StateLaw from "../Laws/components/StateLaw";
 import BlogPost from "../Library/BlogPost";
 import SiteFaqs from "../site-faqs/page";
 import Stage2Form from "../Journey/Stage2Form";
+import ListingCompo from "./ListingCompo";
+import MapComponent from "../MapComponent/MapComponent";
+import 'leaflet/dist/leaflet.css';
 
 function LandingPage() {
   return (
@@ -42,9 +45,11 @@ function LandingPage() {
       <BrandMarquee />
       <Knowledge />
       <WeDoMore />
+      <ListingCompo/>
       <Insight />
       <Testimonials />
       <Call />
+      
 
       {/* <ContactUs /> */}
     </>
