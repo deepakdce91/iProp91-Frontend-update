@@ -17,7 +17,7 @@ export function ProfileCompletionBanner() {
         return;
       }
       let tokenid = jwtDecode(token);
-
+  
       try {
         const response = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/api/users/getuserdetails?userId=${tokenid.userId}`,
@@ -31,8 +31,16 @@ export function ProfileCompletionBanner() {
         );
         const data = await response.json();
         console.log(data);
-        
+  
         setUser(data);
+  
+        // Check if the name starts with "IPU" followed by numeric values or is "Iprop91 User"
+        const isNameEmpty = 
+          data.data?.name && 
+          (data.data.name.startsWith("IPU") && 
+          !isNaN(data.data.name.replace("IPU", ""))) || 
+          data.data?.name === "iProp91 User";
+  
         setProfileItems([
           {
             name: "Profile Picture",
@@ -41,7 +49,7 @@ export function ProfileCompletionBanner() {
           },
           {
             name: "Full Name",
-            completed: data.data?.name !== "",
+            completed: !isNameEmpty && data.data?.name !== "",
             icon: <User className="w-4 h-4" />,
           },
           {
@@ -54,7 +62,7 @@ export function ProfileCompletionBanner() {
         console.error("Error fetching user data:", error);
       }
     };
-
+  
     fetchUser();
   }, []);
 

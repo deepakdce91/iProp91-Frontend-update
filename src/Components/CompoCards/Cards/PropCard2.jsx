@@ -21,7 +21,7 @@ export default function PropCard2({ props, key }) {
           className=" rounded-xl object-cover "
         />
         <div className=" flex justify-between mt-3 mb-1">
-          <h1 className="text-xl responsive-text">{props.project}</h1>
+          <h1 className="text-xs responsive-text">{props.project}</h1>
           <p className="text-xs text-gray-500 mt-auto mb-auto responsive-text">
             Tower: {props.tower}
           </p>
@@ -33,8 +33,8 @@ export default function PropCard2({ props, key }) {
           </p>
         </div>
         <div className="flex flex-row justify-between mt-4 gap-2">
-          <Link to={`/safe/Dealing/${key}/Documents`}>
-            <button className=" w-full text-[14px] bg-slate-100 py-2 px-4 rounded-lg">
+          <Link to={`/safe/Dealing/${props._id}/Documents`}>
+            <button className=" w-full text-[14px] bg-slate-100  py-2 px-4 rounded-lg">
               {props.applicationStatus === "approved"
                 ? "View Details"
                 : props.applicationStatus}

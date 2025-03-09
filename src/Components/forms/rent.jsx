@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import { client, getSignedUrlForPrivateFile } from "../../config/s3client";
@@ -33,51 +33,59 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
   //  Helper function to remove spaces from filename
   const removeSpaces = (filename) => filename.replace(/\s/g, "");
 
-  // Get public URL from Supabase storage
-  const getPublicUrlFromSupabase = (path) => {
-    const { data, error } = supabase.storage
-      .from(process.env.REACT_APP_PROPERTY_BUCKET)
-      .getPublicUrl(path);
-
-    if (error) {
-      console.error("Error fetching public URL:", error);
-      return null;
-    }
-
-    return {
-      name: path.split("/")[path.split("/").length - 1],
-      url: data.publicUrl,
-    };
-  };
-
-  // Upload file to cloud storage
-  const uploadFileToCloud = async (myFile) => {
-    const myFileName = removeSpaces(myFile.name);
-    const myPath = `RentListings/${myFileName}`;
-
+  // Get signed URL for private file
+  const getSignedUrlForPrivateFile = async (path) => {
     try {
-      const uploadParams = {
+      const getParams = {
         Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
-        Key: myPath,
-        Body: myFile,
-        ContentType: myFile.type,
+        Key: path,
+        ResponseContentDisposition: "inline",
       };
 
-      const command = new PutObjectCommand(uploadParams);
-      await client.send(command);
+      const command = new GetObjectCommand(getParams);
+      const signedUrl = await getSignedUrl(client, command, {
+        expiresIn: 3600
+      }); 
 
-      // Get the signed URL after successful upload
-      const signedUrlData = await getSignedUrlForPrivateFile(myPath);
-      if (!signedUrlData) {
-        throw new Error("Failed to get signed URL");
-      }
-
-      return signedUrlData; // Returns both the name and url
+      return {
+        name: path.split("/")[path.split("/").length - 1],
+        url: signedUrl,
+      };
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error getting signed URL:", error);
       throw error;
     }
   };
+    // Upload file to cloud storage
+    const uploadFileToCloud = async (myFile) => {
+      const myFileName = removeSpaces(myFile.name);
+      const myPath = `RentListings/${myFileName}`;
+  
+      try {
+        const uploadParams = {
+          Bucket: process.env.REACT_APP_PROPERTY_BUCKET,
+          Key: myPath,
+          Body: myFile,
+          ContentType: myFile.type,
+        };
+  
+        const command = new PutObjectCommand(uploadParams);
+        await client.send(command);
+  
+        // Get the signed URL after successful upload
+        const signedUrlData = await getSignedUrlForPrivateFile(myPath);
+        if (!signedUrlData) {
+          throw new Error("Failed to get signed URL");
+        }
+  
+        return signedUrlData; // Returns both the name and url
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        throw error;
+      }
+    };
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -165,16 +173,17 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
   };
 
   return (
-    <div className=" absolute top-0 z-50 flex items-center justify-center w-full left-0 ">
+    <div className=" absolute  top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
       {/* Backdrop */}
-      <div onClick={closeBuyModal}
+      <div
+        onClick={closeBuyModal}
         className="absolute w-full h-full bg-black/40 backdrop-blur-sm"
       />
-      
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar">
+
+      <div className="relative bg-white h-[80vh] lg:h-[90vh] rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar mt-20 lg:mt-0">
         <form
           onSubmit={handleSubmit}
-          className="relative space-y-6  px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen"
+          className="relative space-y-6  px-7 md:px-14 py-5 rounded-lg shadow-md overflow-y-scroll "
         >
           <span
             onClick={closeBuyModal}
@@ -323,7 +332,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               </div>
 
               {/* Furnished or Non-Furnished */}
-              <div  className="space-y-2 flex-1 ">
+              <div className="space-y-2 flex-1 ">
                 <label className="text-sm text-gray-800">
                   Furnished Status
                 </label>
@@ -372,22 +381,24 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
               ))}
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={isUploading}
-            className={`w-full bg-white border-[2px] border-black  px-4 py-2 text-black rounded-xl  ${
-              isUploading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isUploading ? "Uploading..." : "Submit"}
-          </button>
-          <button onClick={closeBuyModal}
-            className={`w-full bg-black hover:border-black hover:bg-white px-4 py-2 text-white rounded-xl 
+          <div className="flex flex-col md:flex-row gap-5">
+            <button
+              type="submit"
+              disabled={isUploading}
+              className={`w-full bg-white border-[2px] border-black  px-4 py-2 text-black rounded-xl  ${
+                isUploading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isUploading ? "Uploading..." : "Submit"}
+            </button>
+            <button
+              onClick={closeBuyModal}
+              className={`w-full bg-black   px-4 py-2 text-white rounded-xl 
             `}
-          >
-            Cancel
-          </button>
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>

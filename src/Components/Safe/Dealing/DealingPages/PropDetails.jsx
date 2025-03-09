@@ -20,14 +20,14 @@ function PropertyForm({ closeEditModal, propertyId }) {
     houseNumber: "",
     floorNumber: "",
     nature: "",
-    status: "", 
+    status: "",
   });
 
   useEffect(() => {
     // fetch property details
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    
+
     const fetchProperty = async () => {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}?userId=${decoded.userId}`,
@@ -43,10 +43,10 @@ function PropertyForm({ closeEditModal, propertyId }) {
         const property = await response.json();
         setProperty(property);
 
-        if(property.tower !== "") {
+        if (property.tower !== "") {
           setTowerSelected(true);
         }
-        if(property.unit !== "") {
+        if (property.unit !== "") {
           setUnitSelected(true);
         }
         setForm({
@@ -121,79 +121,107 @@ function PropertyForm({ closeEditModal, propertyId }) {
   return (
     <section className="fixed  overflow-y-auto inset-0 z-50 flex items-center justify-center mt-10 lg:my-5  ">
       {/* Backdrop */}
-      <div onClick={closeEditModal}
-        className="absolute inset-0 "
-      />
+      <div onClick={closeEditModal} className="absolute inset-0 " />
       <section className="  relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn    ">
         <div className="px-10 py-5 h-full lg:min-w-[40%] border-[1px] border-black bg-white rounded-lg relative shadow-md ">
-          <p className="mb-4 text-xl lg:text-4xl font-semibold">Edit property Details</p>
-          <div className="flex flex-col gap-1">
-            {/* <div className="flex gap-2"> */}
-            {/* Developer Input */}
-            <label className="font-medium">Builder:</label>
-            <input
-              type="text"
-              name="builder"
-              className={`w-full text-gray-600 p-2 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-500 text-gray-500 text-sm" : "bg-gray-300"
-              }`}
-              value={form.builder}
-              onChange={isEditing ? handleChange : null}
-              disabled={true}
-            />
+          <p className="mb-4 text-xl lg:text-4xl font-semibold">
+            Edit property Details
+          </p>
+          <div className="flex flex-col gap-1 w-full">
+            <div className="flex gap-2 w-full">
+              <div className="flex flex-col gap-1 flex-1">
+                {/* Developer Input */}
+                <label className="font-medium">Builder:</label>
+                <input
+                  type="text"
+                  name="builder"
+                  className={`w-full text-gray-600 p-2 rounded-lg focus:outline-none ${
+                    !isEditing
+                      ? "bg-gray-500 text-gray-500 text-sm"
+                      : "bg-gray-300"
+                  }`}
+                  value={form.builder}
+                  onChange={isEditing ? handleChange : null}
+                  disabled={true}
+                />
+              </div>
+              <div className="flex flex-col gap-1 flex-1">
+                {/* Project Name Input */}
+                <label className="font-medium">Project Name:</label>
+                <input
+                  type="text"
+                  name="project"
+                  className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
+                    !isEditing
+                      ? "bg-gray-200 text-gray-500 text-sm"
+                      : "bg-gray-300"
+                  }`}
+                  value={form.project}
+                  onChange={isEditing ? handleChange : null}
+                  disabled={true}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+            <div className="flex flex-col gap-1">
+              {/* Tower Input */}
+              <label className="font-medium">Tower:</label>
+              <input
+                type="text"
+                name="tower"
+                className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
+                  !isEditing
+                    ? "bg-gray-200 text-gray-500 text-sm"
+                    : !towerSelected
+                    ? "bg-gray-100"
+                    : "bg-gray-300"
+                }`}
+                value={form.tower}
+                onChange={isEditing ? handleChange : null}
+                disabled={
+                  isEditing === false ? true : !towerSelected ? false : true
+                }
+              />
+              </div>
 
-            {/* Project Name Input */}
-            <label className="font-medium">Project Name:</label>
-            <input
-              type="text"
-              name="project"
-              className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : "bg-gray-300"
-              }`}
-              value={form.project}
-              onChange={isEditing ? handleChange : null}
-              disabled={true}
-            />
-            {/* </div> */}
+              <div className="flex flex-col gap-1">
+              {/* Unit Input */}
+              <label className="font-medium">Unit:</label>
+              <input
+                type="text"
+                name="unit"
+                className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
+                  !isEditing
+                    ? "bg-gray-200 text-gray-500 text-sm"
+                    : !unitSelected
+                    ? "bg-gray-100"
+                    : "bg-gray-300"
+                }`}
+                value={form.unit}
+                onChange={isEditing ? handleChange : null}
+                disabled={
+                  isEditing === false ? true : !unitSelected ? false : true
+                }
+              />
+              </div>
+              <div className="flex flex-col gap-1">
 
-            {/* Tower Input */}
-            <label className="font-medium">Tower:</label>
-            <input
-              type="text" 
-              name="tower"
-              className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : !towerSelected ? "bg-gray-100" : "bg-gray-300"
-              }`}
-              value={form.tower}
-              onChange={isEditing ? handleChange : null}
-              disabled={isEditing === false ? true : !towerSelected ? false : true}
-            />
-
-            {/* Unit Input */}
-            <label className="font-medium">Unit:</label>
-            <input
-              type="text"
-              name="unit"
-              className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : !unitSelected ? "bg-gray-100" : "bg-gray-300"
-              }`}
-              value={form.unit}
-              onChange={isEditing ? handleChange : null}
-              disabled={isEditing === false ? true : !unitSelected ? false : true}
-            />
-
-            {/* Area Input */}
-            <label className="font-medium">Area:</label>
-            <input
-              type="text"
-              name="size"
-              className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
-                !isEditing ? "bg-gray-200 text-gray-500 text-sm" : "bg-gray-100"
-              }`}
-              value={form.size}
-              onChange={isEditing ? handleChange : null}
-              disabled={!isEditing}
-            />
+              {/* Area Input */}
+              <label className="font-medium">Area:</label>
+              <input
+                type="text"
+                name="size"
+                className={`w-full p-2 text-gray-600 rounded-lg focus:outline-none ${
+                  !isEditing
+                    ? "bg-gray-200 text-gray-500 text-sm"
+                    : "bg-gray-100"
+                }`}
+                value={form.size}
+                onChange={isEditing ? handleChange : null}
+                disabled={!isEditing}
+              />
+            </div>
+            </div>
 
             {/* Nature Radio Buttons */}
             <label className="font-medium my-2">Nature:</label>
@@ -257,7 +285,6 @@ function PropertyForm({ closeEditModal, propertyId }) {
           <div className="flex justify-between w-full my-3  ">
             {isEditing && (
               <div className="flex justify-between w-full gap-4 flex-col md:flex-row">
-               
                 <GoldButton
                   btnname="Save Changes"
                   onclick={handleSubmit}
@@ -265,7 +292,7 @@ function PropertyForm({ closeEditModal, propertyId }) {
                 />
                 <button
                   onClick={closeEditModal}
-                  className={`px-4 py-2 flex-1 rounded-md text-xs bg-black text-white border-[2px] border-black/80 hover:shadow-md hover:bg-white`}
+                  className={`px-4 py-2 flex-1 rounded-md text-xs bg-black text-white border-[2px] border-black/80 hover:shadow-md hover:bg-black/80`}
                 >
                   Cancel
                 </button>

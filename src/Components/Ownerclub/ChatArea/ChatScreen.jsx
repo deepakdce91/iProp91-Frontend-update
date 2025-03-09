@@ -47,6 +47,9 @@ function ChatScreen() {
   const [allMessages, setAllMessages] = useState({});
   const [isMobileInfoOpen, setIsMobileInfoOpen] = useState(false);
   const [showAllMembers, setShowAllMembers] = useState(false);
+  const [matchedPropertyId, setMatchedPropertyId] = useState(null);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState(null);
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -142,6 +145,53 @@ function ChatScreen() {
 
     fetchData();
   }, [token, userId]);
+
+  // Add useEffect to fetch properties and find match
+  useEffect(() => {
+    const fetchAndMatchProperty = async () => {
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchallpropertiesForUser?userId=${decoded.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          }
+        );
+        
+        if (response) {
+          const properties = await response.json();
+          console.log(properties);
+          
+          
+          // Find property that matches all required fields
+          const matchedProperty = properties.find(property => 
+            property.builder === currentGroupData?.builder &&
+            property.city === currentGroupData?.city &&
+            property.state === currentGroupData?.state &&
+            property.project === currentGroupData?.projects
+          );
+
+          if (matchedProperty) {
+            setMatchedPropertyId(matchedProperty._id);
+          }
+          console.log(matchedProperty._id);
+          
+        }
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
+
+    if (currentGroupData) {
+      fetchAndMatchProperty();
+    }
+  }, [currentGroupData]);
 
   // Early return if no token
   if (!token || !userId) {
@@ -315,28 +365,51 @@ function ChatScreen() {
     );
   };
 
-  // Render media panel
+  // Modify MediaPanel component
   const MediaPanel = ({ messages }) => {
-    // Ensure we're working with the messages array from the community data
-    const messagesList = messages?.messages || messages || [];
-    const mediaCounts = getMediaCounts(messagesList);
+    // Memoize media counts and filtered media to prevent unnecessary recalculations
+    const { mediaCounts, mediaByType } = useMemo(() => {
+      const messagesList = messages?.messages || messages || [];
+      const counts = getMediaCounts(messagesList);
+      const byType = {
+        image: getMediaByType(messagesList, "image"),
+        video: getMediaByType(messagesList, "video"),
+        application: getMediaByType(messagesList, "application")
+      };
+      return { mediaCounts: counts, mediaByType: byType };
+    }, [messages]);
+
+    const openMediaModal = (type) => {
+      setSelectedMediaType(type);
+      setMediaModalOpen(true);
+    };
 
     return (
       <div className="max-w-md">
-        <div className="flex justify-between items-center ">
+        <div className="flex justify-between items-center">
           <h3 className="text-base font-medium">Files</h3>
         </div>
 
-        <div className="space">
+        <div className="space-y-4">
           {/* Photos Section */}
           <div>
-            <div className="flex items-center gap-3 p-3">
-              <Image className="w-4 h-4 " />
-              <span className="text-sm">{mediaCounts.image || 0} photos</span>
+            <div className="flex items-center justify-between p-3">
+              <div className="flex items-center gap-3">
+                <Image className="w-4 h-4" />
+                <span className="text-sm">{mediaCounts.image || 0} photos</span>
+              </div>
+              {mediaByType.image.length > 0 && (
+                <button 
+                  onClick={() => openMediaModal('image')}
+                  className="text-sm text-blue-500 hover:underline"
+                >
+                  View All
+                </button>
+              )}
             </div>
-            <div className="overflow-x-scroll custom-scrollbar">
-              <div className="flex gap-2  min-w-min">
-                {getMediaByType(messagesList, "image").map((msg, idx) => (
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <div className="flex gap-2 p-2 min-w-min">
+                {mediaByType.image.slice(0, 5).map((msg, idx) => (
                   <img
                     key={idx}
                     src={msg.file.url || "/placeholder.svg"}
@@ -350,13 +423,23 @@ function ChatScreen() {
 
           {/* Videos Section */}
           <div>
-            <div className="flex items-center gap-3 p-3">
-              <Video className="w-4 h-4 " />
-              <span className="text-sm">{mediaCounts.video || 0} videos</span>
+            <div className="flex items-center justify-between p-3">
+              <div className="flex items-center gap-3">
+                <Video className="w-4 h-4" />
+                <span className="text-sm">{mediaCounts.video || 0} videos</span>
+              </div>
+              {mediaByType.video.length > 0 && (
+                <button 
+                  onClick={() => openMediaModal('video')}
+                  className="text-sm text-blue-500 hover:underline"
+                >
+                  View All
+                </button>
+              )}
             </div>
-            <div className="overflow-x-auto ">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <div className="flex gap-2 p-2 min-w-min">
-                {getMediaByType(messagesList, "video").map((msg, idx) => (
+                {mediaByType.video.slice(0, 3).map((msg, idx) => (
                   <div key={idx} className="w-48 flex-shrink-0">
                     <video
                       src={msg.file.url}
@@ -371,15 +454,23 @@ function ChatScreen() {
 
           {/* Documents Section */}
           <div>
-            <div className="flex items-center gap-3 p-3">
-              <File className="w-4 h-4 " />
-              <span className="text-sm">
-                {mediaCounts.application || 0} files
-              </span>
+            <div className="flex items-center justify-between p-3">
+              <div className="flex items-center gap-3">
+                <File className="w-4 h-4" />
+                <span className="text-sm">{mediaCounts.application || 0} files</span>
+              </div>
+              {mediaByType.application.length > 0 && (
+                <button 
+                  onClick={() => openMediaModal('application')}
+                  className="text-sm text-blue-500 hover:underline"
+                >
+                  View All
+                </button>
+              )}
             </div>
-            <div className="overflow-x-auto scrollbar-hide">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <div className="flex gap-2 p-2 min-w-min">
-                {getMediaByType(messagesList, "application").map((msg, idx) => (
+                {mediaByType.application.slice(0, 3).map((msg, idx) => (
                   <a
                     key={idx}
                     href={msg.file.url}
@@ -393,6 +484,74 @@ function ChatScreen() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add new MediaModal component
+  const MediaModal = ({ isOpen, onClose, type, media }) => {
+    if (!isOpen) return null;
+
+    const getGridCols = () => {
+      switch (type) {
+        case 'image':
+          return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+        case 'video':
+          return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        default:
+          return 'grid-cols-1 md:grid-cols-2';
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+        <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+          <div className="flex justify-between items-center p-4 border-b">
+            <h3 className="text-lg font-semibold capitalize">{type}s</h3>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className={`grid ${getGridCols()} gap-4 p-4 overflow-y-auto max-h-[calc(90vh-100px)]`}>
+            {media.map((msg, idx) => {
+              if (type === 'image') {
+                return (
+                  <div key={idx} className="aspect-square">
+                    <img
+                      src={msg.file.url}
+                      alt=""
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                );
+              } else if (type === 'video') {
+                return (
+                  <div key={idx} className="aspect-video">
+                    <video
+                      src={msg.file.url}
+                      className="w-full h-full rounded-lg"
+                      controls
+                    />
+                  </div>
+                );
+              } else {
+                return (
+                  <a
+                    key={idx}
+                    href={msg.file.url}
+                    className="flex items-center p-4 hover:bg-gray-50 rounded-lg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FileIcon className="w-6 h-6 mr-3 text-gray-500" />
+                    <span className="text-sm truncate flex-1">{msg.file.name}</span>
+                  </a>
+                );
+              }
+            })}
           </div>
         </div>
       </div>
@@ -466,28 +625,37 @@ function ChatScreen() {
 
           {/* Important Links */}
           <div className="p-2 space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Project Documents</h4>
-                  <a
-                    href="/"
-                    className="text-gold flex  gap-3"
-                  >
-                    <FileIcon className="w-6 h-6" />
-                    <p className="text-xs">Show RERA documents of this project</p>
-                  </a>
-                </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Project Documents</h4>
+              <Link 
+                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
+                className="text-blue-500 underline flex gap-3"
+                onClick={(e) => {
+                  if (!matchedPropertyId) {
+                    e.preventDefault();
+                    toast.info("No matching property found for RERA documents");
+                  }
+                }}
+              >
+                <FileIcon className="w-6 h-6 text-black" />
+                <p className="text-xs mt-1">
+                  Show RERA documents of this project
+                </p>
+              </Link>
+            </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Official Website</h4>
-                  <a
-                    href="https://iprop91.com/"
-                    className="text-gold flex items-center space-x-2"
-                  >
-                    <Link2 className="w-6 h-6" />
-                    <p className="text-xs">Visit our official website</p>
-                  </a>
-                </div>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Official Website</h4>
+              <Link
+                target="_blank"
+                to={currentGroupData?.companyWebsiteLink}
+                className="text-blue-500 underline flex items-center space-x-2"
+              >
+                <Link2 className="w-6 h-6 text-black" />
+                <p className="text-xs">Visit our official website</p>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -819,28 +987,37 @@ function ChatScreen() {
 
               {/* Important Links */}
               <div className="p-2 space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Project Documents</h4>
-                  <a
-                    href="#"
-                    className="text-gold flex  gap-3"
-                  >
-                    <FileIcon className="w-6 h-6" />
-                    <p className="text-xs">Show RERA documents of this project</p>
-                  </a>
-                </div>
+            <div className="bg-gray-50 p-4 rounded-lg ">
+              <h4 className="font-medium mb-2">Project Documents</h4>
+              <Link 
+                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
+                className="text-blue-500 underline flex gap-3"
+                onClick={(e) => {
+                  if (!matchedPropertyId) {
+                    e.preventDefault();
+                    toast.info("No matching property found for RERA documents");
+                  }
+                }}
+              >
+                <FileIcon className="w-6 h-6 text-black" />
+                <p className="text-xs ">
+                  Show RERA documents of this project
+                </p>
+              </Link>
+            </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Official Website</h4>
-                  <a
-                    href="https://iprop91.com/"
-                    className="text-gold flex items-center space-x-2"
-                  >
-                    <Link2 className="w-6 h-6" />
-                    <p className="text-xs">Visit our official website</p>
-                  </a>
-                </div>
-              </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium mb-2">Official Website</h4>
+              <Link
+                target="_blank"
+                to={currentGroupData?.companyWebsiteLink}
+                className="text-blue-500 underline flex items-center space-x-2"
+              >
+                <Link2 className="w-6 h-6 text-black" />
+                <p className="text-xs">Visit our official website</p>
+              </Link>
+            </div>
+          </div>
             </div>
 
             {/* article section */}
@@ -980,6 +1157,14 @@ function ChatScreen() {
       <InfoPanel
         currentGroupData={currentGroupData}
         messages={allMessages[currentGroupData?._id] || []}
+      />
+
+      {/* Add MediaModal */}
+      <MediaModal
+        isOpen={mediaModalOpen}
+        onClose={() => setMediaModalOpen(false)}
+        type={selectedMediaType}
+        media={selectedMediaType ? getMediaByType(allMessages[currentGroupData?._id] || [], selectedMediaType) : []}
       />
     </div>
   );

@@ -10,12 +10,12 @@ import { Autoplay, Pagination } from "swiper/modules";
 const SaleCard = ({ blog, onClick }) => {
   return (
     <div
-      className="relative max-w-md min-h-96 mx-auto bg-beige rounded-xl overflow-hidden border-2 shadow-lg"
+      className="relative max-w-md h-96 mx-auto bg-beige rounded-xl overflow-hidden border-2 shadow-lg"
       onClick={onClick}
     >
       <div className="flex justify-center items-center">
         <img
-          src={blog.thumbnail || "images/image2.jpg"} // Use blog thumbnail or a default image
+          src={blog.thumbnail || "images/logo1.png"} // Use blog thumbnail or a default image
           alt={blog.title}
           className="w-full object-cover"
         />
@@ -45,6 +45,7 @@ export default function Test() {
           `${process.env.REACT_APP_BACKEND_URL}/api/library/fetchAllActiveBlogs`
         );
         setBlogs(response.data);
+        console.log("expert views data", response.data)
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }

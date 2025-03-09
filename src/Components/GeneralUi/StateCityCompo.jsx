@@ -43,37 +43,26 @@ const CityStateSelector = ({ setMainCity, setMainState, fromGuestForm, initialSt
     };
   }, [defaultCities]);
 
+  // Update filtered cities based on input value
+  useEffect(() => {
+    if (inputValue.trim() === "") {
+      setFilteredCities([]); // Clear the list if input is empty
+      setIsOpen(false); // Close the dropdown if input is empty
+    } else {
+      const filtered = citiesData.filter(city =>
+        city.city.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredCities(filtered);
+      setIsOpen(filtered.length > 0); // Open dropdown only if there are matching cities
+    }
+  }, [inputValue]);
+
   // Debounced input handler
   const handleInputChange = useCallback((e) => {
     const value = e.target.value;
     setInputValue(value);
-    setIsOpen(true);
-
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    debounceTimerRef.current = setTimeout(() => {
-      const filtered = filterCities(value);
-      setFilteredCities(filtered);
-
-      const exactMatch = filtered.find(
-        item => item.city.toLowerCase() === value.toLowerCase()
-      );
-
-      if (exactMatch) {
-        setSelectedCity(exactMatch.city);
-        setMainCity(exactMatch.city);
-        setSelectedState(exactMatch.state);
-        setMainState(exactMatch.state);
-      } else {
-        setSelectedCity("");
-        setMainCity("");
-        setSelectedState("");
-        setMainState("");
-      }
-    }, 300);
-  }, [filterCities, setMainCity, setMainState]);
+    // Dropdown will open based on the filtered results
+  }, []);
 
   // Handle input focus
   const handleInputFocus = useCallback(() => {

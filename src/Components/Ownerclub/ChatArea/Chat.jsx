@@ -398,6 +398,61 @@ function OutgoingMessage({
   );
 }
 
+function MediaPreviewModal({ file, onClose, onSend }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+      <div className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Preview</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Preview Content */}
+        <div className="p-4">
+          <div className="flex justify-center items-center">
+            {file.type.startsWith('image/') ? (
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Preview"
+                className="max-h-[60vh] object-contain"
+              />
+            ) : (
+              <video
+                src={URL.createObjectURL(file)}
+                controls
+                className="max-h-[60vh] object-contain"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-4 p-4 border-t">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSend}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            <SendHorizonal className="w-4 h-4" />
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // -----------------------------------------------------------
 
 function Chats({
@@ -435,6 +490,8 @@ function Chats({
   const [communityInviteLinks, setCommunityInviteLinks] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [showMediaPreview, setShowMediaPreview] = useState(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(getCurrentInviteUrl());
@@ -624,33 +681,51 @@ function Chats({
     fileInputRef.current.click(); // Simulate a click on the hidden input
   };
 
+  const isMediaFile = (file) => {
+    const mediaTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/heic',
+      'video/mp4',
+      'video/quicktime',
+      'video/webm'
+    ];
+    return mediaTypes.includes(file.type.toLowerCase());
+  };
+
   const handleFileAdding = async (event) => {
     const file = event.target.files[0];
+    
+    if (!file) return;
 
-    // checking for .heic files and converting it into jpeg before adding
-    if (file.type === "image/heic") {
-      try {
-        // Convert .heic file to .png
-        const convertedBlob = await heic2any({
-          blob: file,
-          toType: "image/jpeg",
-        });
+    if (isMediaFile(file)) {
+      // Handle HEIC conversion if needed
+      if (file.type === "image/heic") {
+        try {
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+          });
 
-        // Create a new File object from the Blob
-        const convertedFile = new File(
-          [convertedBlob],
-          file.name.replace(/\.heic$/i, ".jpeg"),
-          {
-            type: "image/jpeg",
-          }
-        );
-
-        setFileToUpload(convertedFile);
-      } catch (error) {
-        console.error("Error converting HEIC file:", error);
+          const convertedFile = new File(
+            [convertedBlob],
+            file.name.replace(/\.heic$/i, ".jpeg"),
+            {
+              type: "image/jpeg",
+            }
+          );
+          setFileToUpload(convertedFile);
+        } catch (error) {
+          console.error("Error converting HEIC file:", error);
+          return;
+        }
+      } else {
+        setFileToUpload(file);
       }
+      setShowMediaPreview(true);
     } else {
-      // if file is not jpeg..adding directly
+      // Handle non-media files as before
       setFileToUpload(file);
     }
   };
@@ -901,6 +976,25 @@ function Chats({
     window.location.href = emailUrl;
   };
 
+  const handleClickOutside = (event) => {
+    const emojiPicker = document.getElementById("emoji-picker");
+    if (emojiPicker && !emojiPicker.contains(event.target)) {
+      setShowPicker(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSendMedia = async () => {
+    await addFile({ preventDefault: () => {} });
+    setShowMediaPreview(false);
+  };
+
   return (
     <>
       <div
@@ -1145,8 +1239,7 @@ function Chats({
               </div>
             </div>
             {showPicker && (
-              <div className="absolute bottom-[100px] right-[10%] md:right-[50%] "
-              >
+              <div id="emoji-picker" className="absolute bottom-[100px] right-[10%] md:right-[50%] ">
                 <EmojiPicker 
                   pickerStyle={{ width: "70%" }}
                   onEmojiClick={onEmojiClick}
@@ -1157,17 +1250,24 @@ function Chats({
           </div>
         )}
 
-        {fileToUpload && (
+        {fileToUpload && showMediaPreview && (
+          <MediaPreviewModal
+            file={fileToUpload}
+            onClose={() => {
+              setShowMediaPreview(false);
+              setFileToUpload(null);
+            }}
+            onSend={handleSendMedia}
+          />
+        )}
+
+        {fileToUpload && !showMediaPreview && (
           <div className="flex flex-row justify-around items-center">
             <div className="flex flex-row items-center">
               <button onClick={handleFileRemoving}>
                 <TiDelete className="h-7 w-7 text-red-400 hover:scale-110 hover:text-red-500 mr-4" />
               </button>
-              <p
-                className={`${
-                  theme.palette.mode === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <p className={`${theme.palette.mode === "dark" ? "text-white" : "text-gray-900"}`}>
                 {fileToUpload.name}
               </p>
             </div>
