@@ -17,12 +17,13 @@ import PropertyDetail from "../listingpage/id/page.jsx";
 import Footer from "../Landing/Footer.jsx";
 import SiteFaqs from "../site-faqs/page.jsx";
 import CategoryPage from "../listingpage/CategoryPage.jsx";
+import PropertyJouneyPage from "../PropertyJourneyPage/page.js";
 
 export default function AllPage() {
   const location = useLocation();
 
   // Define the paths where you do NOT want to render the Footer
-  const noFooterPaths = ["/family","/concierge", "/safe", "/safe/*"]; // Add paths as needed
+  const noFooterPaths = ["/family","/concierge", "/safe", "/safe/*", "/property-for-sale"]; // Add paths as needed
 
   // Check if the current path is in the noFooterPaths array
   const shouldRenderFooter = !noFooterPaths.includes(location.pathname);
@@ -44,10 +45,12 @@ export default function AllPage() {
             <Route path="/addproperty" element={<AddProperty />} />
             <Route path="/profile" element={<UpdateUser />} />
             <Route path="/site-faqs" element={<SiteFaqs />} />
+            <Route path="/property-journey" element={<PropertyJouneyPage />} />
 
             <Route path="/property-for-sale" element={<MainListingPage />} />
             <Route path="/property-for-sale/:id" element={<PropertyDetail />} />
             <Route path="/category/:categoryType" element={<CategoryPage />} />
+            
           </Routes>
           {shouldRenderFooter && <Footer />}
         </div>

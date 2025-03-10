@@ -1,16 +1,26 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Search, MapPin, Mic, TrendingUp, Calculator, LineChart, FileText } from 'lucide-react'
-import { Carousel } from './components/carousel.jsx'
-import { PropertyCard } from './components/property-card'
-import { Link } from 'react-router-dom'
-import { jwtDecode } from 'jwt-decode'
-import axios from 'axios'
-import { toast } from 'react-toastify'
+import { useEffect, useState } from "react";
+import {
+  Search,
+  MapPin,
+  Mic,
+  TrendingUp,
+  Calculator,
+  LineChart,
+  FileText,
+  ListCheck,
+  Map,
+} from "lucide-react";
+import { Carousel } from "./components/carousel.jsx";
+import { PropertyCard } from "./components/property-card";
+import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { toast } from "react-toastify";
+import EnhancedMapComponent from "../MapComponent/EnhancedMapComponent.jsx";
 
 // Enhanced dummy data
-
 
 const categories = [
   {
@@ -18,84 +28,84 @@ const categories = [
     description: "Verified listings from property owners",
     image: "/images/propcat.jpg",
     link: "/owner-properties",
-    count: "15,800+ Properties"
+    count: "15,800+ Properties",
   },
   {
     title: "New Projects",
     description: "Upcoming and ongoing projects",
     image: "/images/propcat.jpg",
     link: "/new-projects",
-    count: "1,200+ Properties"
+    count: "1,200+ Properties",
   },
   {
     title: "Ready to Move",
     description: "Immediate possession properties",
     image: "/images/propcat.jpg",
     link: "/ready-to-move",
-    count: "8,500+ Properties"
+    count: "8,500+ Properties",
   },
   {
     title: "Budget Homes",
     description: "Affordable housing options",
     image: "/images/propcat.jpg",
     link: "/budget-homes",
-    count: "3,200+ Properties"
-  }
-]
+    count: "3,200+ Properties",
+  },
+];
 
 const tools = [
   {
     title: "Rates & Trends",
     description: "Know all about Property Rates & Trends in your city",
     icon: TrendingUp,
-    link: "/rates-trends"
+    link: "/rates-trends",
   },
   {
     title: "EMI Calculator",
     description: "Know how much you'll have to pay every month on your loan",
     icon: Calculator,
-    link: "/emi-calculator"
+    link: "/emi-calculator",
   },
   {
     title: "Investment Hotspot",
     description: "Discover the top localities in your city for investment",
     icon: LineChart,
-    link: "/investment-hotspot"
+    link: "/investment-hotspot",
   },
   {
     title: "Research Insights",
     description: "Get experts insights and research reports on real estate",
     icon: FileText,
-    link: "/research"
-  }
-]
+    link: "/research",
+  },
+];
 
 const categoryTypes = [
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
-    type: "pre_launch"
+    type: "pre_launch",
   },
   {
     title: "Verified Owner Properties",
     description: "Direct from property owners",
-    type: "verified_owner"
+    type: "verified_owner",
   },
   {
     title: "New Projects",
     description: "Latest property launches",
-    type: "new_projects"
+    type: "new_projects",
   },
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
-    type: "upcoming_projects"
+    type: "upcoming_projects",
   },
   {
     title: "New Sale Properties",
     description: "Fresh properties for sale",
-    type: "new_sale"
-  }
+    type: "new_sale",
+  },
 ];
 
 export default function MainListingPage() {
@@ -195,8 +205,6 @@ export default function MainListingPage() {
     setShowMaxPrice(false);
   };
 
- 
-
   // Function to filter projects based on search criteria
   const filterProjects = () => {
     if (!allFetchedProjects) return;
@@ -205,25 +213,26 @@ export default function MainListingPage() {
 
     // Filter by active tab (availableFor)
     if (activeTab) {
-      filtered = filtered.filter(project => 
-        project.availableFor?.toLowerCase() === activeTab.toLowerCase()
+      filtered = filtered.filter(
+        (project) =>
+          project.availableFor?.toLowerCase() === activeTab.toLowerCase()
       );
     }
 
     // Filter by city/location
     if (location) {
-      filtered = filtered.filter(project => 
+      filtered = filtered.filter((project) =>
         project.address?.toLowerCase().includes(location.toLowerCase())
       );
     }
 
     // Filter by property type and subtype
     if (selectedPropertyTypes.length > 0) {
-      filtered = filtered.filter(project => {
-        const matchesType = project.appartmentType?.some(type => 
+      filtered = filtered.filter((project) => {
+        const matchesType = project.appartmentType?.some((type) =>
           selectedPropertyTypes.includes(type)
         );
-        const matchesSubType = project.appartmentSubType?.some(subType => 
+        const matchesSubType = project.appartmentSubType?.some((subType) =>
           selectedPropertyTypes.includes(subType)
         );
         return matchesType || matchesSubType;
@@ -232,18 +241,22 @@ export default function MainListingPage() {
 
     // Filter by BHK
     if (selectedBhkTypes.length > 0) {
-      filtered = filtered.filter(project => 
+      filtered = filtered.filter((project) =>
         selectedBhkTypes.includes(project.bhk)
       );
     }
 
     // Filter by price range
     if (minPrice || maxPrice) {
-      filtered = filtered.filter(project => {
+      filtered = filtered.filter((project) => {
         const projectPrice = parseFloat(project.minimumPrice);
-        const minPriceValue = minPrice ? parseFloat(minPrice.replace(/[₹,]/g, '')) : 0;
-        const maxPriceValue = maxPrice ? parseFloat(maxPrice.replace(/[₹,]/g, '')) : Infinity;
-        
+        const minPriceValue = minPrice
+          ? parseFloat(minPrice.replace(/[₹,]/g, ""))
+          : 0;
+        const maxPriceValue = maxPrice
+          ? parseFloat(maxPrice.replace(/[₹,]/g, ""))
+          : Infinity;
+
         return projectPrice >= minPriceValue && projectPrice <= maxPriceValue;
       });
     }
@@ -253,11 +266,19 @@ export default function MainListingPage() {
     // Update categorized projects
     if (filtered.length > 0) {
       const categorized = {
-        pre_launch: filtered.filter(project => project.category === "pre_launch"),
-        verified_owner: filtered.filter(project => project.category === "verified_owner"),
-        new_project: filtered.filter(project => project.category === "new_project"),
-        upcoming_project: filtered.filter(project => project.category === "upcoming_project"),
-        new_sale: filtered.filter(project => project.category === "new_sale")
+        pre_launch: filtered.filter(
+          (project) => project.category === "pre_launch"
+        ),
+        verified_owner: filtered.filter(
+          (project) => project.category === "verified_owner"
+        ),
+        new_project: filtered.filter(
+          (project) => project.category === "new_project"
+        ),
+        upcoming_project: filtered.filter(
+          (project) => project.category === "upcoming_project"
+        ),
+        new_sale: filtered.filter((project) => project.category === "new_sale"),
       };
       setCategorizedProjects(categorized);
     }
@@ -266,7 +287,15 @@ export default function MainListingPage() {
   // Call filterProjects whenever search parameters change
   useEffect(() => {
     filterProjects();
-  }, [location, selectedPropertyTypes, selectedBhkTypes, minPrice, maxPrice, activeTab, allFetchedProjects]);
+  }, [
+    location,
+    selectedPropertyTypes,
+    selectedBhkTypes,
+    minPrice,
+    maxPrice,
+    activeTab,
+    allFetchedProjects,
+  ]);
 
   // Update the search button click handler
   const handleSearch = () => {
@@ -316,6 +345,12 @@ export default function MainListingPage() {
     fetchProjects();
   }, []);
 
+  const [showMap, setShowMap] = useState(false);
+
+  const toggleMap = () => {
+    setShowMap(!showMap);
+  };
+
   return (
     <main className="min-h-screen lg:h-screen overflow-y-scroll bg-gray-50 rounded-xl ">
       {/* Hero Section with Enhanced Search */}
@@ -329,21 +364,27 @@ export default function MainListingPage() {
           <h1 className="text-5xl md:text-6xl text-white font-bold mb-8 text-center">
             Find a home you'll <span className="text-primary">love</span>
           </h1>
-          
+
           <div className="w-full max-w-4xl bg-white rounded-lg shadow-xl p-4">
             <div className="flex flex-wrap border-b mx-auto justify-center">
-              {['Buy', 'Rent', 'New Launch', 'Plots/Land', 'Projects'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-4 text-sm font-medium transition-colors
-                    ${activeTab === tab ? 'text-gold border-b-2 border-gold' : 'text-gray-600 hover:text-gold'}`}
-                >
-                  {tab}
-                </button>
-              ))}
+              {["Buy", "Rent", "New Launch", "Plots/Land", "Projects"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-6 py-4 text-sm font-medium transition-colors
+                    ${
+                      activeTab === tab
+                        ? "text-gold border-b-2 border-gold"
+                        : "text-gray-600 hover:text-gold"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                )
+              )}
             </div>
-            
+
             <div className="w-full max-w-7xl mx-auto mt-5">
               <div className="flex flex-col md:flex-row items-center rounded-full border border-gray-300 bg-white shadow-sm pr-3">
                 {/* Location Input */}
@@ -415,7 +456,7 @@ export default function MainListingPage() {
                       <div className="px-3 py-2">
                         <div className="flex items-center mb-2">
                           <span className="text-sm font-medium text-gray-700">
-                            Residential 
+                            Residential
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -626,10 +667,16 @@ export default function MainListingPage() {
       </section>
 
       {/* Property Categories */}
+      {!showMap && (
       <section className="py-12 px-4 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">We've got properties for everyone</h2>
-          <Link href="/all-categories" className="text-blue-600 hover:underline">
+          <h2 className="text-2xl font-bold">
+            We've got properties for everyone
+          </h2>
+          <Link
+            href="/all-categories"
+            className="text-blue-600 hover:underline"
+          >
             View All
           </Link>
         </div>
@@ -643,43 +690,74 @@ export default function MainListingPage() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
-                  <h3 className="text-white text-xl font-bold mb-2">{category.title}</h3>
-                  <p className="text-white/80 text-sm mb-2">{category.description}</p>
-                  <span className="text-white/90 text-sm font-medium">{category.count}</span>
+                  <h3 className="text-white text-xl font-bold mb-2">
+                    {category.title}
+                  </h3>
+                  <p className="text-white/80 text-sm mb-2">
+                    {category.description}
+                  </p>
+                  <span className="text-white/90 text-sm font-medium">
+                    {category.count}
+                  </span>
                 </div>
               </div>
             </Link>
           ))}
         </div>
       </section>
+    )}
 
-      {/* Category Carousels */}
-      {categoryTypes.map((category) => (
-        <section key={category.type} className="py-12 px-4 max-w-7xl mx-auto bg-white">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
-              <p className="text-gray-600">{category.description}</p>
-            </div>
-            <Link 
-              to={`/category/${category.type}`} 
-              className="text-blue-600 hover:underline"
+       {/* Conditionally render carousels based on showMap state */}
+      {!showMap &&
+        categoryTypes.map((category) => {
+          // Only render carousel if there are projects in this category
+          const categoryProjects = categorizedProjects[category.type];
+          if (!categoryProjects || categoryProjects.length === 0) {
+            return null; // Don't render anything if no projects
+          }
+
+          return (
+            <section
+              key={category.type}
+              className="py-12 px-4 max-w-7xl mx-auto bg-white"
             >
-              View All
-            </Link>
-          </div>
-          {categorizedProjects[category.type]?.length > 0 ? (
-            <Carousel
-              items={categorizedProjects[category.type]}
-              renderItem={(project) => <PropertyCard property={project} />}
-              className="pb-4"
-            />
-          ) : (
-            <p className="text-gray-500">No properties available in this category</p>
-          )}
-        </section>
-      ))}
-    </main>
-  )
-}
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
+                  <p className="text-gray-600">{category.description}</p>
+                </div>
+                <Link
+                  to={`/category/${category.type}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  View All
+                </Link>
+              </div>
+              <Carousel
+                items={categoryProjects}
+                renderItem={(project) => <PropertyCard property={project} />}
+                className="pb-4"
+              />
+            </section>
+          );
+        })}
 
+
+      <div className="mt-5">{showMap && <EnhancedMapComponent />}</div>
+      <button
+        onClick={toggleMap}
+        className="px-4 py-3 sticky bottom-10 left-[45%] bg-black hover:bg-black/80 text-white rounded-xl "
+      >
+        {showMap ? (
+          <p className="flex gap-2">
+            Show List <ListCheck />
+          </p>
+        ) : (
+          <p className="flex gap-2">
+            Show Map <Map />
+          </p>
+        )}
+      </button>
+    </main>
+  );
+}
