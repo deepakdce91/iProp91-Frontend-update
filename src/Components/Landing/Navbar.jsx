@@ -42,8 +42,8 @@ const Navbar = ({setIsLoggedIn}) => {
     '/laws': false,
     '/laws/statelaw': false,
     '/laws/centrallaw': false,
-
-    '/': true
+    '/': true,
+    '/property-journey':false,
   };
   
   const SidebarIcons = {

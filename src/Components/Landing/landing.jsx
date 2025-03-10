@@ -31,8 +31,8 @@ import BlogPost from "../Library/BlogPost";
 import SiteFaqs from "../site-faqs/page";
 import Stage2Form from "../Journey/Stage2Form";
 import ListingCompo from "./ListingCompo";
-import MapComponent from "../MapComponent/MapComponent";
 import 'leaflet/dist/leaflet.css';
+import PropertyJouneyPage from "../PropertyJourneyPage/page";
 
 function LandingPage() {
   return (
@@ -157,6 +157,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
         <Route path="/site-faqs" element={<SiteFaqs />} />
+        <Route path="/property-journey" element={<PropertyJouneyPage />} />
         <Route
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
