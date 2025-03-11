@@ -200,6 +200,11 @@ const Footer = () => {
                 Site FAQs
               </Link>
             </li>
+            <li className="my-2">
+              <Link to="/property-journey" className="hover:text-primary">
+                Property Journey Page
+              </Link>
+            </li>
           </ul>
         </div>
 
