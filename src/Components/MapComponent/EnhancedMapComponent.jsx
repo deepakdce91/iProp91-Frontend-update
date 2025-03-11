@@ -1,20 +1,31 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { Map, Marker } from "pigeon-maps"
-import { Search, DollarSign, SquareIcon as SquareFootage, Bed, MapPin, Calendar, CheckCircle, CheckSquare } from "lucide-react"
-import CityStateSelector from "../GeneralUi/StateCityCompo"
-import { toast } from "react-toastify"
-import axios from "axios"
-import {dummyLocations} from "./dummyData"
+import React, { useEffect, useState } from "react";
+import { Map, Marker } from "pigeon-maps";
+import {
+  Search,
+  DollarSign,
+  SquareIcon as SquareFootage,
+  Bed,
+  MapPin,
+  Calendar,
+  CheckCircle,
+  CheckSquare,
+  HouseIcon,
+  House,
+} from "lucide-react";
+import CityStateSelector from "../GeneralUi/StateCityCompo";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { dummyLocations } from "./dummyData";
 
 const EnhancedMapComponent = () => {
-  const [selectedLocation, setSelectedLocation] = useState(null)
-  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]) // India center
-  const [zoom, setZoom] = useState(4)
-  const [filteredProperties, setFilteredProperties] = useState(dummyLocations) // Show all properties by default
-  const [showNoDataMessage, setShowNoDataMessage] = useState(false)
-  const [hoveredProperty, setHoveredProperty] = useState(null) // State to track hovered property
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // India center
+  const [zoom, setZoom] = useState(4);
+  const [filteredProperties, setFilteredProperties] = useState(dummyLocations); // Show all properties by default
+  const [showNoDataMessage, setShowNoDataMessage] = useState(false);
+  const [hoveredProperty, setHoveredProperty] = useState(null); // State to track hovered property
 
   // useEffect(() => {
   //   const fetchProjects = async () => {
@@ -32,7 +43,6 @@ const EnhancedMapComponent = () => {
   //       // toast.success("projects fetched successfully")
   //       console.log(allProjects);
 
-        
   //       return;
   //     }
   //     toast.error("Error fetching projects");
@@ -43,25 +53,29 @@ const EnhancedMapComponent = () => {
   // Handle location selection from CityStateSelector
   const handleLocationSelect = (city, state) => {
     // Find the matching location from dummyLocations
-    const nearbyProperties = dummyLocations.filter((property) => property.city === city || property.state === state)
+    const nearbyProperties = dummyLocations.filter(
+      (property) => property.city === city || property.state === state
+    );
 
     // Find coordinates for the selected city
-    const selectedProperty = dummyLocations.find((property) => property.city === city)
+    const selectedProperty = dummyLocations.find(
+      (property) => property.city === city
+    );
 
     if (selectedProperty) {
-      setMapCenter(selectedProperty.coordinates)
-      setZoom(12)
-      setShowNoDataMessage(false)
+      setMapCenter(selectedProperty.coordinates);
+      setZoom(12);
+      setShowNoDataMessage(false);
     }
 
     if (nearbyProperties.length > 0) {
-      setFilteredProperties(nearbyProperties)
-      setShowNoDataMessage(false)
+      setFilteredProperties(nearbyProperties);
+      setShowNoDataMessage(false);
     } else {
-      setFilteredProperties([])
-      setShowNoDataMessage(true)
+      setFilteredProperties([]);
+      setShowNoDataMessage(true);
     }
-  }
+  };
 
   return (
     <div className="relative w-full px-3 ">
@@ -71,8 +85,8 @@ const EnhancedMapComponent = () => {
           center={mapCenter}
           zoom={zoom}
           onBoundsChanged={({ center, zoom }) => {
-            setMapCenter(center)
-            setZoom(zoom)
+            setMapCenter(center);
+            setZoom(zoom);
           }}
         >
           {filteredProperties.map((property, index) => (
@@ -83,7 +97,16 @@ const EnhancedMapComponent = () => {
               onClick={() => setSelectedLocation(property)}
               onMouseOver={() => setHoveredProperty(property)} // Set hovered property on mouse over
               onMouseOut={() => setHoveredProperty(null)} // Clear hovered property on mouse out
-            />
+            >
+              {/* <House className="w-7 h-7  text-gray-700" /> */}
+              <svg className="w-4 h-4"
+                viewBox="0 0 16 16"
+                version="1.1"
+              >
+                <rect width="16" height="16" id="icon-bound" fill="none" />
+                <polygon points="0,6 0,16 6,16 6,10 10,10 10,16 16,16 16,6 8,0" />
+              </svg>
+            </Marker>
           ))}
         </Map>
       </div>
@@ -123,13 +146,19 @@ const EnhancedMapComponent = () => {
         {/* Property listing section */}
         <div className="flex-1 overflow-y-auto p-2">
           <div className="flex justify-between items-center px-2 py-3">
-            <h3 className="text-sm font-bold text-gray-900">{filteredProperties.length} Properties Found</h3>
-            {filteredProperties.length > 0 && <span className="text-xs text-gray-500">Scroll to see more</span>}
+            <h3 className="text-sm font-bold text-gray-900">
+              {filteredProperties.length} Properties Found
+            </h3>
+            {filteredProperties.length > 0 && (
+              <span className="text-xs text-gray-500">Scroll to see more</span>
+            )}
           </div>
 
           {showNoDataMessage ? (
             <div className="text-center py-6 px-4">
-              <p className="text-gray-500 text-sm">No properties available in this location</p>
+              <p className="text-gray-500 text-sm">
+                No properties available in this location
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -137,16 +166,28 @@ const EnhancedMapComponent = () => {
                 <div
                   key={index}
                   className={`bg-white border rounded-lg p-3 hover:shadow-md transition-all cursor-pointer  ${
-                    selectedLocation?.id === property.id ? "border-black ring-1 ring-black" : "border-gray-200"
+                    selectedLocation?.id === property.id
+                      ? "border-black ring-1 ring-black"
+                      : "border-gray-200"
                   }`}
-                  onClick={() => setSelectedLocation(property)}
+                  onClick={() => {
+                    setSelectedLocation(property);
+                    setMapCenter(property.coordinates); // Move map to the selected property's coordinates
+                    setZoom(12); // Set zoom to maximum for the selected location
+                  }}
                 >
                   <div className="flex justify-between items-start">
-                    <h3 className="font-semibold text-gray-900 text-sm capitalize">{property.project}</h3>
-                    <span className="text-xs bg-black text-white px-2 py-0.5 rounded-full">{property.type}</span>
+                    <h3 className="font-semibold text-gray-900 text-sm capitalize">
+                      {property.project}
+                    </h3>
+                    <span className="text-xs bg-black text-white px-2 py-0.5 rounded-full">
+                      {property.type}
+                    </span>
                   </div>
 
-                  <p className="text-xs text-gray-500 mb-2 capitalize">{property.builder}</p>
+                  <p className="text-xs text-gray-500 mb-2 capitalize">
+                    {property.builder}
+                  </p>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-1">
@@ -176,7 +217,10 @@ const EnhancedMapComponent = () => {
 
                   <div className="flex flex-wrap gap-1 mt-2">
                     {property.amenities.slice(0, 3).map((amenity, i) => (
-                      <span key={i} className="inline-flex items-center text-xs bg-gray-100 px-1.5 py-0.5 rounded">
+                      <span
+                        key={i}
+                        className="inline-flex items-center text-xs bg-gray-100 px-1.5 py-0.5 rounded"
+                      >
                         <CheckCircle className="w-2 h-2 mr-1 text-gray-700" />
                         {amenity}
                       </span>
@@ -204,8 +248,7 @@ const EnhancedMapComponent = () => {
         </div>
       )} */}
     </div>
-  )
-}
+  );
+};
 
-export default EnhancedMapComponent
-
+export default EnhancedMapComponent;
