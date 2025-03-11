@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
+import "swiper/css/pagination"; // Add this import for pagination
 import axios from "axios";
 import DOMPurify from "dompurify";
 
@@ -143,6 +144,10 @@ export default function Comparison() {
           .swiper-button-prev:after {
             font-size: 24px !important;
           }
+          
+          .swiper-pagination-bullet {
+            background: white !important;
+          }
         `}
       </style>
       <div
@@ -153,70 +158,76 @@ export default function Comparison() {
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
-        <Swiper
-          effect={"coverflow"}
-          grabCursor={true}
-          centeredSlides={true}
-          loop={enableLoop}
-          slidesPerView={3}
-          spaceBetween={30}
-          slidesPerGroup={1}
-          navigation={{
-            enabled: true,
-          }}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: isHovered,
-          }}
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 300,
-            modifier: 2.5,
-            slideShadows: true,
-          }}
-          modules={[EffectCoverflow, Navigation, Autoplay]}
-          className="relative hidden"
-          onSlideChange={(swiper) => {
-            setActiveIndex(swiper.realIndex);
-          }}
-          onSwiper={(swiper) => {
-            swiperRef.current = swiper;
-            setActiveIndex(swiper.realIndex);
-          }}
-        >
-          {processedSlides.length > 0 &&
-            processedSlides.map((item, index) => (
+        {/* For larger screens - REMOVED "hidden" class */}
+        <div className="hidden md:block w-full">
+          <Swiper
+            effect={"coverflow"}
+            grabCursor={true}
+            centeredSlides={true}
+            loop={enableLoop}
+            slidesPerView={3}
+            spaceBetween={30}
+            slidesPerGroup={1}
+            navigation={{
+              enabled: true,
+            }}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: isHovered,
+            }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: 0,
+              depth: 300,
+              modifier: 2.5,
+              slideShadows: true,
+            }}
+            modules={[EffectCoverflow, Navigation, Autoplay]}
+            className="mySwiper"
+            onSlideChange={(swiper) => {
+              setActiveIndex(swiper.realIndex);
+            }}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+              setActiveIndex(swiper.realIndex);
+            }}
+          >
+            {processedSlides.length > 0 &&
+              processedSlides.map((item, index) => (
+                <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+                  <div className="swiper-slide-wrapper py-10">
+                    <CompComponent item={item} />
+                  </div>
+                </SwiperSlide>
+              ))}
+          </Swiper>
+        </div>
+
+        {/* For smaller screens */}
+        <div className="block md:hidden w-full">
+          <Swiper
+            spaceBetween={30}
+            centeredSlides={true}
+            autoplay={{
+              delay: 2500,
+              disableOnInteraction: false,
+            }}
+            pagination={{
+              clickable: true,
+            }}
+            modules={[Autoplay, Pagination]}
+            className="mySwiper"
+          >
+            {processedSlides.map((item, index) => (
               <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
-                <div className="swiper-slide-wrapper py-10 hidden md:block">
+                <div className="py-10 px-3 z-50">
                   <CompComponent item={item} />
                 </div>
               </SwiperSlide>
             ))}
-        </Swiper>
-
-        {/* For smaller screens */}
-        <Swiper
-          spaceBetween={30}
-          centeredSlides={true}
-          autoplay={{
-            delay: 2500,
-            disableOnInteraction: false,
-          }}
-          pagination={{
-            clickable: true,
-          }}
-          modules={[Autoplay, Pagination]}
-        >
-          {processedSlides.map((item, index) => (
-            <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
-              <div className="py-10 px-3 z-50 block md:hidden">
-                <CompComponent item={item} />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          </Swiper>
+        </div>
       </div>
     </>
   );
