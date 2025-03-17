@@ -18,7 +18,7 @@ import Footer from "../Landing/Footer.jsx";
 import SiteFaqs from "../site-faqs/page.jsx";
 import CategoryPage from "../listingpage/CategoryPage.jsx";
 import PropertyJouneyPage from "../PropertyJourneyPage/page.js";
-
+import RewardsRedeem from "../redeemRewards/Index.jsx";
 export default function AllPage() {
   const location = useLocation();
 
@@ -50,6 +50,8 @@ export default function AllPage() {
             <Route path="/property-for-sale" element={<MainListingPage />} />
             <Route path="/property-for-sale/:id" element={<PropertyDetail />} />
             <Route path="/category/:categoryType" element={<CategoryPage />} />
+
+            <Route path="/rewards" element={<RewardsRedeem />} />
             
           </Routes>
           {shouldRenderFooter && <Footer />}
