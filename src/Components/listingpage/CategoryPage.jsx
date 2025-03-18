@@ -9,7 +9,7 @@ export default function CategoryPage() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchCategoryProperties = async () => {
       try {
         const token = localStorage.getItem("token");

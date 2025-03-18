@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from "../../../config/s3client";
 import { Upload } from "lucide-react";
+import { BiSolidCoinStack } from "react-icons/bi";
 
 export function validateEmail(email) {
   // Regular expression for basic email validation
@@ -79,6 +80,8 @@ function EditUser() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [rewardCount, setRewardCount] = useState(0);
+
   const defaultAvatars = [
     "/avtar/polo.jpg",
     "/avtar/ferrari.jpg",
@@ -105,11 +108,27 @@ function EditUser() {
           }
         );
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setName(data.data.name);
         setPhone(data.data.phone);
         setEmail(data.data.email);
         setImage(data.data.profilePicture);
+
+        const response2 = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchrewardpoints?userId=${tokenid.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          }
+        );
+        const data2 = await response2.json();
+        // console.log(data2.rewardPoints);
+        setRewardCount(data2.rewardPoints);
+
+
       } catch (error) {
         console.log(error);
       }
@@ -227,7 +246,7 @@ function EditUser() {
 
   return (
     <>
-      <div className="flex justify-center w-full min-h-[84vh] rounded-xl bg-gray-50 ">
+      <div className="flex justify-center w-full min-h-[84vh] rounded-xl bg-gray-50 flex-col ">
         <div className="  p-4 md:p-10 w-full justify-center flex items-center  ">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-10 mt-10 md:mt-0">
             <div className="flex-1 flex-row my-1 px-2 lg:gap-4 w-full">
@@ -364,10 +383,14 @@ function EditUser() {
                     }
                     onclick={HandleUpdatePassword}
                   />
-                </div>
+                </div> 
               </div>
             </div>
           </div>
+        </div>
+        {/* // rewards points  */}
+        <div className="w-full flex justify-center items-center text-center text-gray-600 font-semibold">
+          You currently have <span className="underline mx-1">{rewardCount }</span> {" "}reward points <BiSolidCoinStack/>
         </div>
       </div>
     </>
