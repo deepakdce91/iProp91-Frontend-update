@@ -217,7 +217,7 @@ const StateLaw = ({ onBack }) => {
       {selectedLaw ? (
         <div className="mt-2 animate-fade-in px-5 md:px-10 py-3">
           <div className="">
-            {stateLaws.map((law, index) => (
+            {stateLaws.length > 0 && stateLaws.map((law, index) => (
               <div
                 key={index}
                 className={`mb-4 transition-all duration-300 ease-in-out ${

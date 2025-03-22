@@ -174,15 +174,12 @@ const CentralLaw = ({}) => {
   return (
     <div className="flex flex-col w-full px-6 lg:px-32 min-h-[100vh] text-black relative gap-5 bg-white py-28 md:py-32">
       <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base"} />
-      
       <div className="w-full">
         {lawData.map((item, index) => {
           const { text, href } = parseContent(item.content); // Parse content
           const formattedContent = formatContent(item.content); // Format content
-
           // Check if title and content are the same
           const isSameAsTitle = item.title === text;
-
           return (
             <div
               key={index}

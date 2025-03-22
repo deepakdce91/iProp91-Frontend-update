@@ -134,7 +134,7 @@ const BlogPost = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blog.youtubeVideos.map((videoUrl, index) => (
             <div key={index} className="w-full">
-              <div className="relative hover:transition-all hover:scale-105  pt-0 pb-0 h-0" style={{ paddingBottom: '56.25%' }}>
+              <div className="relative hover:transition-all hover:scale-105 pt-0 pb-0 h-0" style={{ paddingBottom: '56.25%' }}>
                 <ReactPlayer
                   url={videoUrl}
                   className="absolute top-0 left-0 rounded-lg"
@@ -153,6 +153,44 @@ const BlogPost = () => {
                 />
               </div>
               <p className="mt-2 text-sm text-gray-700">Video {index + 1}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // New section for additional media links
+  const renderAdditionalMediaLinks = () => {
+    if (!blog.additionalMediaLinks || !Array.isArray(blog.additionalMediaLinks) || blog.additionalMediaLinks.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mt-16 border-t border-gray-300 pt-10">
+        <h2 className="text-2xl font-bold mb-6">Additional Media</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {blog.additionalMediaLinks.map((mediaLink, index) => (
+            <div key={index} className="w-full">
+              <div className="relative hover:transition-all hover:scale-105 pt-0 pb-0 h-0" style={{ paddingBottom: '56.25%' }}>
+                <ReactPlayer
+                  url={mediaLink}
+                  className="absolute top-0 left-0 rounded-lg"
+                  width="100%"
+                  height="100%"
+                  controls={true}
+                  light={true}
+                  config={{
+                    youtube: {
+                      playerVars: { 
+                        rel: 0,
+                        modestbranding: 1
+                      }
+                    }
+                  }}
+                />
+              </div>
+              <p className="mt-2 text-sm text-gray-700">Media {index + 1}</p>
             </div>
           ))}
         </div>
@@ -201,6 +239,9 @@ const BlogPost = () => {
         
         {/* YouTube Videos Section */}
         {renderYoutubeVideos()}
+        
+        {/* Additional Media Links Section */}
+        {renderAdditionalMediaLinks()}
       </div>
     </section>
   );
