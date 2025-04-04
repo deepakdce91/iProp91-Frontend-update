@@ -26,16 +26,16 @@ const BlogPost = () => {
 
   if (!blog) return <div>Loading...</div>; // Fallback in case blog is not found
 
-  // Configure DOMPurify to allow tables, links, and related elements/attributes
+  // Configure DOMPurify to allow tables, links, images, and related elements/attributes
   const purifyConfig = {
-    ADD_TAGS: ['table', 'thead', 'tbody', 'tr', 'td', 'th', 'a'],
-    ADD_ATTR: ['colspan', 'rowspan', 'scope', 'href', 'target', 'rel']
+    ADD_TAGS: ['table', 'thead', 'tbody', 'tr', 'td', 'th', 'a', 'img', 'figure', 'figcaption'],
+    ADD_ATTR: ['colspan', 'rowspan', 'scope', 'href', 'target', 'rel', 'src', 'alt', 'width', 'height', 'class', 'style']
   };
   
   // Sanitize HTML content with configuration
   const sanitizedContent = DOMPurify.sanitize(blog.content, purifyConfig);
   
-  // Parse HTML with custom options for table and link handling
+  // Parse HTML with custom options for table, link, and image handling
   const parserOptions = {
     replace: (domNode) => {
       // Handle hyperlinks
@@ -63,10 +63,52 @@ const BlogPost = () => {
         );
       }
 
+      // Handle images with text wrapping
+      if (domNode.name === 'img') {
+        // Determine image alignment 
+        // Default to right alignment to allow text to flow on the left
+        const align = domNode.attribs?.align || 'right';
+        const width = domNode.attribs?.width || 'auto';
+        const maxWidth = width === 'auto' ? '50%' : width; // Default to 50% if no width specified
+        
+        const floatClass = align === 'left' ? 'float-left mr-6 mb-4' : 'float-right ml-6 mb-4';
+        
+        return (
+          <img 
+            src={domNode.attribs.src}
+            alt={domNode.attribs.alt || "Blog image"}
+            className={`rounded-lg ${floatClass}`}
+            style={{ maxWidth: maxWidth }}
+          />
+        );
+      }
+
+      // Handle figure elements (often contain images with captions)
+      if (domNode.name === 'figure') {
+        // Determine alignment, defaulting to right
+        const align = domNode.attribs?.align || 'right';
+        const floatClass = align === 'left' ? 'float-left mr-6 mb-4' : 'float-right ml-6 mb-4';
+        
+        return (
+          <figure className={`rounded-lg ${floatClass} max-w-md`}>
+            {domToReact(domNode.children, parserOptions)}
+          </figure>
+        );
+      }
+      
+      // Handle figure captions
+      if (domNode.name === 'figcaption') {
+        return (
+          <figcaption className="text-sm text-gray-600 italic mt-2 text-center">
+            {domToReact(domNode.children, parserOptions)}
+          </figcaption>
+        );
+      }
+
       // Handle tables
       if (domNode.name === 'table') {
         return (
-          <div className="overflow-x-auto my-6">
+          <div className="overflow-x-auto my-6 clear-both">
             <table className="min-w-full divide-y divide-gray-300 border">
               {domToReact(domNode.children, parserOptions)}
             </table>
@@ -109,6 +151,15 @@ const BlogPost = () => {
           </tr>
         );
       }
+      
+      // Handle paragraph elements that might need to flow around images
+      if (domNode.name === 'p') {
+        return (
+          <p className="mb-4">
+            {domToReact(domNode.children, parserOptions)}
+          </p>
+        );
+      }
     }
   };
   
@@ -129,7 +180,7 @@ const BlogPost = () => {
     }
 
     return (
-      <div className="mt-16 border-t border-gray-300 pt-10">
+      <div className="mt-16 border-t border-gray-300 pt-10 clear-both">
         <h2 className="text-2xl font-bold mb-6">Related Videos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {blog.youtubeVideos.map((videoUrl, index) => (
@@ -160,7 +211,7 @@ const BlogPost = () => {
     );
   };
 
-  // New section for additional media links
+  // Additional media links section
   const renderAdditionalMediaLinks = () => {
     if (!blog.additionalMediaLinks || !Array.isArray(blog.additionalMediaLinks) || blog.additionalMediaLinks.length === 0) {
       return null;
@@ -206,7 +257,7 @@ const BlogPost = () => {
       <div className="max-w-7xl mx-auto mt-10">
         <div className="flex flex-col lg:flex-row gap-10 mb-16">
           
-          <div className="lg:w-1/2">
+          <div className="lg:w-3/5">
             <h1 className="md:text-5xl text-3xl font-bold mb-4">
               {blog.title}
             </h1>
@@ -219,20 +270,20 @@ const BlogPost = () => {
             </div> */}
           </div>
           
-          <div className="lg:w-1/2">
+          <div className="lg:w-2/5">
             <img
               src={blog.thumbnail || "images/2.jpg"}
               alt={blog.title}
-              className="rounded-lg w-full object-cover aspect-video"
+              className="rounded-lg w-full object-cover aspect-video max-w-md mx-auto"
             />
           </div>
         </div>
       </div>
 
-      {/* Full Width Content Section */}
+      {/* Full Width Content Section with text-wrapping */}
       <div className="max-w-none mx-auto">
         <div className="border-t border-gray-800 pt-16">
-          <div className="prose max-w-none mx-auto md:text-lg text-sm text-gray-700 leading-relaxed">
+          <div className="prose max-w-none mx-auto md:text-lg text-sm text-gray-700 leading-relaxed clearfix">
             {parsedContent}
           </div>
         </div>

@@ -5,12 +5,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Auth from "../User/Login/Auth";
 import StateCityCompo from "../GeneralUi/StateCityCompo";
 import CustomDropdown from "../GeneralUi/CustomDropdown";
+import axios from "axios";
+import { PiHandCoinsFill } from "react-icons/pi";
 
 const STORAGE_KEY = 'journey_progress';
 
 const Stage1Form = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const [firstPropRewards, setFirstPropRewards] = useState(0);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [formdata, setFormData] = useState({
@@ -126,9 +130,28 @@ const Stage1Form = ({ setIsLoggedIn }) => {
     }
   };
 
+  const GetRewardPoints = async () => {
+    try {
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRewardByNameForGuest/first_property`;
+  
+      const response = await axios.get(
+        endpoint
+      );
+  
+      if (response) {
+
+        setFirstPropRewards(response.data.amount);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  }
+
   useEffect(() => {
     fetchBuilders();
     fetchProjects();
+    GetRewardPoints();
+
   }, []);
 
   useEffect(() => {
@@ -152,8 +175,10 @@ const Stage1Form = ({ setIsLoggedIn }) => {
           
           <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
             <p className="md:text-3xl text-2xl text-white font-bold mb-5">
-              Add Property Details
+              Add Property Details  
             </p>
+            {firstPropRewards != 0 && <p className=" flex items-center text-lg text-white font-bold mb-5"><PiHandCoinsFill className="mr-2 text-yellow-600"/>{`Get`} <span className="text-yellow-600 mx-2">{`${firstPropRewards}`}</span>  {` reward points on adding your first property`}</p>}
+
 
             <div className="flex flex-col w-full">
               <StateCityCompo

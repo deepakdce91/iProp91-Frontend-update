@@ -27,6 +27,7 @@ import { ChevronLeft } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
 import axios from 'axios';
+import { PiHandCoinsFill } from "react-icons/pi";
 
 async function AddGuestProperty(userId, userToken, data, myCallback) {
   // Handle property submission
@@ -446,6 +447,8 @@ export default function Login({
   const [otp, setOtp] = useState("");
   const [isOtpScreen, setIsOtpScreen] = useState(false);
 
+  const [firstPropRewards, setFirstPropRewards] = useState(0);
+
   const [mySearchParam, setMySearchParam] = useState();
 
   useEffect(() => initOTPless(callback), []);
@@ -615,7 +618,25 @@ export default function Login({
     }
   };
 
+  const GetRewardPoints = async () => {
+    try {
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRewardByNameForGuest/first_property`;
+  
+      const response = await axios.get(
+        endpoint
+      );
+  
+      if (response) {
+
+        setFirstPropRewards(response.data.amount);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  }
+
   useEffect(() => {
+    GetRewardPoints();
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -633,7 +654,10 @@ export default function Login({
         stage1FormData || authPage ? "" : "absolute"
       } h-screen w-screen`}
     >
+
       <div className="relative w-full h-full sm:h-full" ref={modalRef}>
+
+     
         {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
@@ -649,6 +673,7 @@ export default function Login({
           }     flex justify-center  `}
         >
           <div className="flex bg-transparent relative rounded-lg max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
+
             {!(stage1FormData || authPage) && (
               <button
                 onClick={onClose}
@@ -658,13 +683,24 @@ export default function Login({
               </button>
             )}
 
+            
+
             {/* Left Side - Form */}
             <form
               onKeyDown={handleKeyPress}
-              className={`w-full md:p-16 p-6 lg:p-12 flex flex-col justify-center shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
+              className={`w-full md:p-16 p-6 lg:p-12 flex flex-col ${verify ? "justify-center" : "justify-start"} shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
                 stage1FormData || authPage ? "h-fit" : "h-[500px] lg:h-[600px]"
               }`}
             >
+
+{firstPropRewards !== 0 && !verify  && (
+  <div className="flex flex-wrap items-center text-xs  md:text-xs font-medium p-2 bg-green-50 text-green-800 rounded-lg mb-10">
+    <span className="mr-1">Get</span>
+    <PiHandCoinsFill/>
+    <span className="inline font-bold mx-1">{firstPropRewards}</span>
+    <span className="inline">reward points on adding your first property</span>
+  </div>
+)}
               {verify ? (
                 <Verify
                   phone={phone}

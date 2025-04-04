@@ -9,6 +9,8 @@ import { client } from "../../../config/s3client";
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 import StateCityCompo from "../../GeneralUi/StateCityCompo";
 import { FixedSizeList as List } from "react-window";
+import { PiHandCoinsFill } from "react-icons/pi";
+import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +38,7 @@ const uploadFileToCloud = async (myFile, userNumber) => {
     console.error("Error uploading file:", error);
     throw error;
   }
-};
+}; 
 
 // state,city,builder,project,houserNumber,floorNumber,tower,unit,size,nature,status,name,documents,applicationStatus,addedBy,isDeleted
 function Addpropform() {
@@ -48,6 +50,8 @@ function Addpropform() {
   }, []);
 
   const [isUploading, setIsUploading] = useState(false);
+
+  const [firstPropRewards, setFirstPropRewards] = useState(0);
 
   // Get user from backend
   const [user, setUser] = useState({});
@@ -94,6 +98,8 @@ function Addpropform() {
     },
     enable: "no",
   });
+
+
   const handleChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -123,8 +129,28 @@ function Addpropform() {
     });
   };
 
+
+  const GetRewardPoints = async () => {
+    try {
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRewardByNameForGuest/first_property`;
+  
+      const response = await axios.get(
+        endpoint
+      );
+  
+      if (response) {
+
+        setFirstPropRewards(response.data.amount);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  }
+
   // Fetch User Details
   useEffect(() => {
+    GetRewardPoints();
+
     const token = localStorage.getItem("token");
     const tokenid = jwtDecode(token);
     const fetchUser = async () => {
@@ -604,6 +630,13 @@ function Addpropform() {
       <div className="flex justify-center my-6 w-full md:w-[80vw] m-auto p-4">
         <div className="bg-gray-100 shadow-lg rounded-lg p-4 md:p-10 w-full ">
           <form>
+          {firstPropRewards !== 0 && (
+  <div className="flex flex-wrap items-center text-sm sm:text-base md:text-lg font-medium p-2 bg-green-50 text-green-800 rounded-lg">
+    <span className="mr-1">Get</span>
+    <span className="font-bold mx-1">{firstPropRewards}</span>
+    <span>reward points on adding your first property</span>
+  </div>
+)}
             <div className="flex flex-col w-full">
               {/* State */}
               <div className="flex flex-col xl:flex-row w-full">
