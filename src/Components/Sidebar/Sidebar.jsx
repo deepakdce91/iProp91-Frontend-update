@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { PiHandCoinsFill } from "react-icons/pi";
 import {
   Home,
   Shield,
@@ -15,6 +16,7 @@ import {
   Lock,
   LogOut,
   Key,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -27,6 +29,46 @@ const SidebarIcons = {
   Lend: { icon: RefreshCw, link: "/lend" },
   NRI: { icon: Home, link: "/nri" },
   "Listing Page": { icon: Home, link: "/property-for-sale" },
+  "Rewards": { icon: PiHandCoinsFill, link: "/rewards" },
+};
+
+// LogoutConfirmationModal component
+const LogoutConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-xl p-6 max-w-md w-full mx-4"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Confirm Logout</h3>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="mb-6">Are you sure you want to logout from your account?</p>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold/90"
+          >
+            Logout
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 
 // SmallSidebar component
@@ -61,7 +103,7 @@ const SmallSidebar = ({ onClose }) => {
             />
           </button>
         </div>
-        <nav className="flex flex-col justify-evenly text-white z-[110]">
+        <nav className="flex flex-col justify-evenly text-white z-[110] overflow-y-auto">
           {Object.keys(SidebarIcons).map((key, index) => (
             <Link
               key={index}
@@ -84,6 +126,7 @@ const Sidebar = () => {
   const [isFamilyLocked, setIsFamilyLocked] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
 
   const toggleSidebar = () => {
@@ -168,72 +211,81 @@ const Sidebar = () => {
     );
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = () => {
     localStorage.removeItem("token");
     toast("Logging Out.");
+    setShowLogoutModal(false);
     setTimeout(() => {
       window.location.reload();
     }, 500);
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   return (
     <>
       <aside
         className={`
-          h-[99%]  rounded-xl my-1 ml-1 top-0 bottom-0 sticky bg-black
+          h-[99%] rounded-xl my-1 ml-1 top-0 bottom-0 sticky bg-black
           ${
             expanded
               ? "w-64 bg-white border-r-[1px] border-r-black/50 p-4"
               : "w-20"
           }
-          transition-all duration-300 ease-in-out hidden lg:!flex
+          transition-all duration-300 ease-in-out hidden lg:!flex flex-col
         `}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        <nav className="h-full flex flex-col w-full gap-5">
-          <div className="flex items-center justify-center mb-12 mt-5">
-            <img
-              src="/svgs/iPropLogo.6ed8e014.svg"
-              alt="Logo"
-              className={`
-                ${expanded ? "mr-4 h-14 w-14" : "h-8 w-8"}
-                transition-all duration-300
-              `}
-            />
+        <div className="flex items-center justify-center mb-12 mt-5 relative">
+          <img
+            src="/svgs/iPropLogo.6ed8e014.svg"
+            alt="Logo"
+            className={`
+              ${expanded ? "mr-4 h-14 w-14" : "h-8 w-8"}
+              transition-all duration-300
+            `}
+          />
 
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className={`"p-2 absolute rounded-full ${
-                expanded ? "top-24 -right-3 bg-gold" : "top-20 bg-gold -right-2"
-              }`}
-            >
-              {expanded ? (
-                <ChevronsLeft className="text-white" />
-              ) : (
-                <ChevronsRight className="text-white" />
-              )}
-            </button>
-          </div>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className={`p-2 absolute rounded-full ${
+              expanded ? "top-24 -right-3 bg-gold" : "top-20 bg-gold -right-2"
+            }`}
+          >
+            {expanded ? (
+              <ChevronsLeft className="text-white" />
+            ) : (
+              <ChevronsRight className="text-white" />
+            )}
+          </button>
+        </div>
 
+        <nav className="flex-1 overflow-y-auto pr-2 flex flex-col w-full">
           <div className="flex-1 space-y-2 w-full">
             {Object.keys(SidebarIcons).map(renderLink)}
           </div>
-
-          <div
-            onClick={handleLogout}
-            className={`flex ${
-              expanded ? "flex-row" : "flex-col"
-            } items-center p-2 rounded-lg hover:bg-gold cursor-pointer`}
-          >
-            <LogOut className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
-            {expanded ? (
-              <span className="ml-3 truncate">Logout</span>
-            ) : (
-              <span className="text-xs mt-1 text-white">Logout</span>
-            )}
-          </div>
         </nav>
+        
+        <div
+          onClick={handleLogoutClick}
+          className={`flex ${
+            expanded ? "flex-row" : "flex-col"
+          } items-center p-2 rounded-lg hover:bg-gold cursor-pointer mt-4 mb-2`}
+        >
+          <LogOut className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
+          {expanded ? (
+            <span className="ml-3 truncate">Logout</span>
+          ) : (
+            <span className="text-xs mt-1 text-white">Logout</span>
+          )}
+        </div>
       </aside>
 
       {/* Small screen sidebar toggle button */}
@@ -267,6 +319,13 @@ const Sidebar = () => {
       {sidebarOpen && (
         <SmallSidebar isLocked={isFamilyLocked} onClose={toggleSidebar} />
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal 
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </>
   );
 };

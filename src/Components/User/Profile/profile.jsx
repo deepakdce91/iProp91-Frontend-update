@@ -2,14 +2,56 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
-import { Edit } from "lucide-react";
+import { Edit, X } from "lucide-react";
+import { motion } from "framer-motion";
+
+// LogoutConfirmationModal component
+const LogoutConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-xl p-6 max-w-md w-full mx-4"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Confirm Logout</h3>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="mb-6">Are you sure you want to logout from your account?</p>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold/90"
+          >
+            Logout
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 export default function Profile() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const dropdownRef = useRef(null); // Create a reference for the dropdown
   const [user, setUser] = useState({});
   const [dataloaded, setDataloaded] = useState(false);
+  
   useEffect(() => {
     const fetchUser = async () => {
       // Fetch user data from the server
@@ -59,12 +101,22 @@ export default function Profile() {
     };
   }, [dropdownRef]);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+    setIsOpen(false); // Close the dropdown when opening the modal
+  };
+
+  const handleLogoutConfirm = () => {
     localStorage.removeItem("token");
     toast("Logging Out.");
+    setShowLogoutModal(false);
     setTimeout(() => {
       window.location.reload();
     }, 500);
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   return (
@@ -139,13 +191,20 @@ export default function Profile() {
             Manage Profile
           </Link>
           <div
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="block px-6 py-3 text-base text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
             Logout
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal 
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </>
   );
 }
