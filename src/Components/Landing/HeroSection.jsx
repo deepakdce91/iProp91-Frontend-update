@@ -29,7 +29,7 @@ const HeroSection = () => {
                 "auth-token": token,
               },
             }
-          );
+          ); 
           if (response.ok) {
             const user = await response.json();
             localStorage.setItem("userPhone", user.phone);

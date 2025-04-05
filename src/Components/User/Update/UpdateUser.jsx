@@ -427,11 +427,11 @@ function EditUser() {
                           Selected: {profileFile.name}
                         </p>
                       )}
-                      {profilePicture && !profileFile && (
+                      {/* {profilePicture && !profileFile && (
                         <p className="text-xs text-gray-600 mt-2 truncate">
                           Current: {profilePicture}
                         </p>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>
