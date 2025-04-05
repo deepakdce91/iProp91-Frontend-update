@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import axios from "axios";
 
+
+
 export default function ScrollAnimatedText() {
   const containerRef = useRef(null);
   const [textData, setTextData] = useState({
