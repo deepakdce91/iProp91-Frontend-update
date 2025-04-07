@@ -253,30 +253,19 @@ const BlogPost = () => {
     <section className="pt-28 px-4 md:px-10 lg:px-20 text-text bg-white min-h-screen pb-20">
       <Breadcrumb className="flex z-50 items-center space-x-2 text-black text-sm my-3" items={breadcrumbItems} />
       
-      {/* Hero Section with Image and Title */}
+      {/* Hero Section with Title Only (Thumbnail Removed) */}
       <div className="max-w-7xl mx-auto mt-10">
-        <div className="flex flex-col lg:flex-row gap-10 mb-16">
-          
-          <div className="lg:w-3/5">
-            <h1 className="md:text-5xl text-3xl font-bold mb-4">
-              {blog.title}
-            </h1>
-            <p className="text-sm text-gray-700 mb-4">
-              Published on {formatDate(blog.createdAt)}
-            </p>
-            {/* Uncomment below to show excerpt */}
-            {/* <div className="prose max-w-none md:text-lg text-sm text-gray-700 leading-relaxed">
-              {createExcerpt()}
-            </div> */}
-          </div>
-          
-          <div className="lg:w-2/5">
-            <img
-              src={blog.thumbnail || "images/2.jpg"}
-              alt={blog.title}
-              className="rounded-lg w-full object-cover aspect-video max-w-md mx-auto"
-            />
-          </div>
+        <div className="mb-16">
+          <h1 className="md:text-5xl text-3xl font-bold mb-4">
+            {blog.title}
+          </h1>
+          <p className="text-sm text-gray-700 mb-4">
+            Published on {formatDate(blog.createdAt)}
+          </p>
+          {/* Uncomment below to show excerpt */}
+          {/* <div className="prose max-w-none md:text-lg text-sm text-gray-700 leading-relaxed">
+            {createExcerpt()}
+          </div> */}
         </div>
       </div>
 
