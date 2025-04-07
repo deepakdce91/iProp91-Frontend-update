@@ -9,14 +9,19 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
-import "swiper/css/pagination"; // Add this import for pagination
+import "swiper/css/pagination";
 import axios from "axios";
 import DOMPurify from "dompurify";
 
 const CompComponent = ({ item }) => {
   if (!item) {
-    return null; // Return null or a placeholder if item is undefined
+    return null;
   }
+
+  // Determine if we have one or two images
+  const hasImage1 = Boolean(item.centerImage1);
+  const hasImage2 = Boolean(item.centerImage2);
+  const imagesToShow = hasImage1 && hasImage2 ? 2 : hasImage1 ? 1 : 0;
 
   return (
     <div className="rounded-2xl max-w-[90vw] md:w-[600px] md:h-[450px] h-[350px] border-2 border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500">
@@ -30,28 +35,47 @@ const CompComponent = ({ item }) => {
       </div>
       <div className="md:h-[250px] h-[200px] bg-gray-100 text-black px-6 py-2">
         <div className="bg-white h-full p-4 shadow-md flex flex-row gap-7">
-          {item.centerImage1 && (
-            <div className="flex w-[30%] flex-col items-center justify-center">
+          {imagesToShow === 1 && (
+            <div className="flex w-full flex-col items-center justify-center">
               <img
-                src={item.centerImage1.url}
-                alt={item.centerImage1.name}
-                className="w-16 h-16 object-contain"
+                src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
+                alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
+                className="w-24 h-24 object-contain"
               />
               <span className="text-sm font-medium mt-2 text-center">
-                {item.centerImage1Text}
+                {hasImage1 ? item.centerImage1Text : item.centerImage2Text}
               </span>
             </div>
           )}
-          {item.centerImage2 && (
-            <div className="w-[70%] flex flex-col items-center justify-center">
-              <img
-                src={item.centerImage2.url}
-                alt={item.centerImage2.name}
-                className="w-16 h-16 object-contain"
-              />
-              <span className="text-sm font-medium mt-2 text-center">
-                {item.centerImage2Text}
-              </span>
+          
+          {imagesToShow === 2 && (
+            <>
+              <div className="flex w-1/2 flex-col items-center justify-center">
+                <img
+                  src={item.centerImage1.url}
+                  alt={item.centerImage1.name}
+                  className="w-16 h-16 object-contain"
+                />
+                <span className="text-sm font-medium mt-2 text-center">
+                  {item.centerImage1Text}
+                </span>
+              </div>
+              <div className="w-1/2 flex flex-col items-center justify-center">
+                <img
+                  src={item.centerImage2.url}
+                  alt={item.centerImage2.name}
+                  className="w-16 h-16 object-contain"
+                />
+                <span className="text-sm font-medium mt-2 text-center">
+                  {item.centerImage2Text}
+                </span>
+              </div>
+            </>
+          )}
+          
+          {imagesToShow === 0 && (
+            <div className="w-full flex items-center justify-center">
+              <span className="text-sm text-gray-500">No images available</span>
             </div>
           )}
         </div>
@@ -102,14 +126,12 @@ export default function Comparison() {
 
   // Ensure we have enough slides for looping based on slidesPerView
   const processedSlides = (() => {
-    if (data.length === 0) return []; // Return empty array if data is not yet loaded
+    if (data.length === 0) return [];
     
-    // For loop mode with slidesPerView=3, we need at least 6 slides
     const minSlidesForLoop = 6;
     
     if (data.length >= minSlidesForLoop) return data;
 
-    // If there are fewer than minSlidesForLoop slides, duplicate the existing slides
     const duplicatesNeeded = minSlidesForLoop - data.length;
     const duplicatedSlides = [];
 
@@ -120,7 +142,6 @@ export default function Comparison() {
     return [...data, ...duplicatedSlides];
   })();
 
-  // Determine if we should enable the loop mode
   const enableLoop = processedSlides.length >= 6;
 
   const handleSlideClick = (clickedIndex) => {
@@ -158,7 +179,7 @@ export default function Comparison() {
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
-        {/* For larger screens - REMOVED "hidden" class */}
+        {/* For larger screens */}
         <div className="hidden md:block w-full">
           <Swiper
             effect={"coverflow"}
