@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 
-
 function toTitleCase(str) {
   return str
     .split("_") // Split by underscore
@@ -15,7 +14,7 @@ const RewardCard = ({ name, amount, status, icon }) => {
     "https://res.cloudinary.com/people-matters/image/upload/q_auto,f_auto/v1573711585/1573711584.jpg";
 
   return (
-    <div className="bg-gray-200 rounded-xl shadow-md transition-all duration-300 hover:scale-105 min-w-[280px] max-w-xs overflow-hidden flex flex-col mx-2 no-selection-effect">
+    <div className="bg-gray-200 rounded-xl shadow-md transition-all duration-300 hover:scale-105 min-w-[280px] max-w-xs overflow-hidden flex flex-col mx-3 no-selection-effect">
       {/* Image section with curved top corners */}
       <div className="w-full bg-blue-800 rounded-t-xl flex items-center justify-center h-32 relative">
         <img
@@ -26,14 +25,13 @@ const RewardCard = ({ name, amount, status, icon }) => {
       </div>
 
       {/* Content section */}
-      <div className="pt-4 px-3">
+      <div className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex flex-col">
             <h3 className="text-xl font-bold text-gray-800">{toTitleCase(name)}</h3>
-            <span className="text-orange-500 font-semibold mt-5 text-lg">
+            <span className="text-orange-500 font-semibold mt-4 text-lg">
               {amount} Coins
             </span>
-           
           </div>
           <div className="p-2">
             <svg
@@ -56,7 +54,7 @@ const RewardCard = ({ name, amount, status, icon }) => {
 };
 
 // Modified rewards container with horizontal scrolling and navigation arrows
-const RewardsContainer = ( {cardsData}) => {
+const RewardsContainer = ({ cardsData }) => {
   const scrollContainerRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -92,13 +90,11 @@ const RewardsContainer = ( {cardsData}) => {
       id: 6,
       name: "Submit feedback",
       amount: 3000,
-
     },
     {
       id: 7,
       name: "Complete survey",
       amount: 4000,
-
     },
   ];
 
@@ -178,7 +174,7 @@ const RewardsContainer = ( {cardsData}) => {
       {/* Scrollable container */}
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto scrollbar-hide py-6 scroll-smooth"
+        className="flex overflow-x-auto scrollbar-hide py-6 scroll-smooth space-x-4"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {rewardsData.map((reward) => (
@@ -223,21 +219,17 @@ const WeDoMore = () => {
   const [cardsData, setCardsData] = useState([]);
  
   useEffect(() => {
-   
     axios
         .get(
           `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchAdditionRewards`
         )
         .then((response) => {
           if (response) { 
-            
             setCardsData(response.data);
-          
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-
         });
   }, []);
 

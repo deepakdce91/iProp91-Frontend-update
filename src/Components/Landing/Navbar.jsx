@@ -17,7 +17,8 @@ import {
   ChevronsRight,
   Lock,
   LogOut,
-  Key, // Add LogOut icon
+  Key,
+  Gift, // Added Gift icon for Rewards
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -43,7 +44,8 @@ const Navbar = ({setIsLoggedIn}) => {
     '/laws/statelaw': false,
     '/laws/centrallaw': false,
     '/': true,
-    '/property-journey':false,
+    '/property-journey': false,
+    '/rewards': true,  // Added rewards route with dark background
   };
   
   const SidebarIcons = {
@@ -54,6 +56,7 @@ const Navbar = ({setIsLoggedIn}) => {
     "Advice": { icon: BookOpen, link: "/advice" },
     "Lend": { icon: RefreshCw, link: "/lend" },
     "NRI": { icon: Home, link: "/nri" },
+    "Rewards": { icon: Gift, link: "/rewards" }, // Added Rewards to mobile menu
     "Listing Page": { icon: Home, link: "/property-for-sale" },
   };
 
@@ -213,7 +216,7 @@ useEffect(() => {
     <nav
     className={`flex items-center justify-between px-10 py-4 ${
       isDarkBg 
-        ? "bg-white bg-opacity-10 text-white" 
+        ? `${location.pathname.startsWith("/rewards") ? "bg-black bg-opacity-10 text-black" : "bg-white bg-opacity-10 text-white"}` 
         : "bg-black bg-opacity-10 text-black"
     } backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
       isDarkBg ? "border-white" : "border-black"
@@ -232,18 +235,21 @@ useEffect(() => {
       </Link>
 
       {/* Desktop Links */}
-      <div className="hidden md:flex  space-x-8 ">
-        <Link to="/services" className="hover:text-white/80 ">
+      <div className="hidden md:flex space-x-8">
+        <Link to="/services" className="hover:text-white/80">
           Services
         </Link>
-        <Link to="/nri" className=" hover:text-white/80">
+        <Link to="/nri" className="hover:text-white/80">
           NRI
         </Link>
-        <Link to="/advice" className=" hover:text-white/80">
+        <Link to="/advice" className="hover:text-white/80">
           Advice
         </Link>
-        <Link to="/lend" className="hover:text-white/80 ">
+        <Link to="/lend" className="hover:text-white/80">
           Lend
+        </Link>
+        <Link to="/rewards" className="hover:text-white/80">
+          Rewards
         </Link>
 
         {user ? (

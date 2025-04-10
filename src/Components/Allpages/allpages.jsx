@@ -19,20 +19,31 @@ import SiteFaqs from "../site-faqs/page.jsx";
 import CategoryPage from "../listingpage/CategoryPage.jsx";
 import PropertyJouneyPage from "../PropertyJourneyPage/page.js";
 import RewardsRedeem from "../redeemRewards/Index.jsx";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+
 export default function AllPage() {
   const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Define the paths where you do NOT want to render the Footer
   const noFooterPaths = ["/family","/concierge", "/safe", "/safe/*", "/property-for-sale"]; // Add paths as needed
 
   // Check if the current path is in the noFooterPaths array
   const shouldRenderFooter = !noFooterPaths.includes(location.pathname);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [location.pathname]);
   return (
     <>
       <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />
         <div className="w-full  lg:p-1 ">
-          <Routes>
+          <Routes> 
             <Route path="/*" element={<Conci />} />
             <Route path="/safe/*" element={<Safe />} />
             <Route path="/family" element={<OwnerClub />} />
@@ -54,7 +65,7 @@ export default function AllPage() {
             <Route path="/rewards" element={<RewardsRedeem />} />
             
           </Routes>
-          {shouldRenderFooter && <Footer />}
+          {shouldRenderFooter && isLoggedIn === false && <Footer />}
         </div>
       </div>
     </>
