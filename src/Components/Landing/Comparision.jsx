@@ -33,16 +33,18 @@ const CompComponent = ({ item }) => {
           }}
         ></p>
       </div>
-      <div className="md:h-[250px] h-[200px] bg-gray-100 text-black px-6 py-2">
-        <div className="bg-white h-full p-4 shadow-md flex flex-row gap-7">
+      <div className="md:h-[250px] h-[200px] bg-gray-100 text-black px-2 py-1">
+        <div className="bg-white h-full shadow-md flex flex-row">
           {imagesToShow === 1 && (
             <div className="flex w-full flex-col items-center justify-center">
-              <img
-                src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
-                alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
-                className="w-24 h-24 object-contain"
-              />
-              <span className="text-sm font-medium mt-2 text-center">
+              <div className="flex items-center justify-center h-[180px]">
+                <img
+                  src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
+                  alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              <span className="text-sm font-medium text-center">
                 {hasImage1 ? item.centerImage1Text : item.centerImage2Text}
               </span>
             </div>
@@ -51,22 +53,26 @@ const CompComponent = ({ item }) => {
           {imagesToShow === 2 && (
             <>
               <div className="flex w-1/2 flex-col items-center justify-center">
-                <img
-                  src={item.centerImage1.url}
-                  alt={item.centerImage1.name}
-                  className="w-16 h-16 object-contain"
-                />
-                <span className="text-sm font-medium mt-2 text-center">
+                <div className="flex items-center justify-center h-[140px]">
+                  <img
+                    src={item.centerImage1.url}
+                    alt={item.centerImage1.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+                <span className="text-sm font-medium text-center px-1">
                   {item.centerImage1Text}
                 </span>
               </div>
               <div className="w-1/2 flex flex-col items-center justify-center">
-                <img
-                  src={item.centerImage2.url}
-                  alt={item.centerImage2.name}
-                  className="w-16 h-16 object-contain"
-                />
-                <span className="text-sm font-medium mt-2 text-center">
+                <div className="flex items-center justify-center h-[140px]">
+                  <img
+                    src={item.centerImage2.url}
+                    alt={item.centerImage2.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+                <span className="text-sm font-medium text-center px-1">
                   {item.centerImage2Text}
                 </span>
               </div>
