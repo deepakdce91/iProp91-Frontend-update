@@ -99,7 +99,8 @@ export default function Comparison() {
   const [data, setData] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoplayRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -152,6 +153,34 @@ export default function Comparison() {
     }
   };
 
+  // Function to pause autoplay
+  const pauseAutoplay = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.stop();
+      setIsPaused(true);
+    }
+  };
+
+  // Function to resume autoplay
+  const resumeAutoplay = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.start();
+      setIsPaused(false);
+    }
+  };
+
+  // Custom hover handlers for slides
+  const handleSlideHover = (index) => {
+    // Only pause when hovering the active/center slide
+    if (index === activeIndex) {
+      pauseAutoplay();
+    }
+  };
+
+  const handleSlideHoverExit = () => {
+    resumeAutoplay();
+  };
+
   return (
     <>
       <style>
@@ -169,13 +198,13 @@ export default function Comparison() {
           .swiper-pagination-bullet {
             background: white !important;
           }
+          
+          .swiper-slide-active {
+            z-index: 10;
+          }
         `}
       </style>
-      <div
-        className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
@@ -195,7 +224,7 @@ export default function Comparison() {
             autoplay={{
               delay: 3000,
               disableOnInteraction: false,
-              pauseOnMouseEnter: isHovered,
+              pauseOnMouseEnter: false, // We'll handle this manually
             }}
             coverflowEffect={{
               rotate: 0,
@@ -212,11 +241,17 @@ export default function Comparison() {
             onSwiper={(swiper) => {
               swiperRef.current = swiper;
               setActiveIndex(swiper.realIndex);
+              autoplayRef.current = swiper.autoplay;
             }}
           >
             {processedSlides.length > 0 &&
               processedSlides.map((item, index) => (
-                <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+                <SwiperSlide 
+                  key={index} 
+                  onClick={() => handleSlideClick(index)}
+                  onMouseEnter={() => handleSlideHover(index)}
+                  onMouseLeave={handleSlideHoverExit}
+                >
                   <div className="swiper-slide-wrapper py-10">
                     <CompComponent item={item} />
                   </div>
@@ -239,9 +274,21 @@ export default function Comparison() {
             }}
             modules={[Autoplay, Pagination]}
             className="mySwiper"
+            onSwiper={(swiper) => {
+              // Store reference for mobile swiper too
+              if (!swiperRef.current) {
+                swiperRef.current = swiper;
+                autoplayRef.current = swiper.autoplay;
+              }
+            }}
           >
             {processedSlides.map((item, index) => (
-              <SwiperSlide key={index} onClick={() => handleSlideClick(index)}>
+              <SwiperSlide 
+                key={index} 
+                onClick={() => handleSlideClick(index)}
+                onMouseEnter={() => handleSlideHover(index)}
+                onMouseLeave={handleSlideHoverExit}
+              >
                 <div className="py-10 px-3 z-50">
                   <CompComponent item={item} />
                 </div>
