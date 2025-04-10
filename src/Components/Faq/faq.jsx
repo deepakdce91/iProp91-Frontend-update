@@ -17,7 +17,7 @@ export default function Faq() {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
+  useEffect(() => {  
     const fetchData = async () => {
       try {
         const response = await axios.get(

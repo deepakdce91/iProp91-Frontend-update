@@ -271,6 +271,11 @@ const Footer = () => {
                 Laws
               </Link>
             </li>
+            <li className="my-2">
+              <Link to="/rewards" className="hover:text-primary">
+                Rewards FAQs
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

@@ -26,7 +26,7 @@ import { GrClose } from "react-icons/gr";
 import { ChevronLeft } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 import { PiHandCoinsFill } from "react-icons/pi";
 
 async function AddGuestProperty(userId, userToken, data, myCallback) {
@@ -63,7 +63,6 @@ async function AddGuestProperty(userId, userToken, data, myCallback) {
   }
 }
 
-
 const Verify = ({
   phone,
   countryCode,
@@ -76,87 +75,94 @@ const Verify = ({
   redirectionUrl,
 }) => {
   const navigate = useNavigate();
-  const [otp, setOTP] = useState('');
+  const [otp, setOTP] = useState("");
   const [timer, setTimer] = useState(30);
   const [showtimer, setShowtimer] = useState(false);
   const [askforname, setAskforname] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState('');
-  const [token, setToken] = useState('');
-  
+  const [userId, setUserId] = useState("");
+  const [token, setToken] = useState("");
+
   // Profile update states
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const HandleResendOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     await Authenticate({
-      channel: 'PHONE',
+      channel: "PHONE",
       phone: phone,
       countryCode: countryCode,
     });
     setTimer(5);
     setLoading(false);
     setShowtimer(false);
-    toast.success('OTP Sent');
+    toast.success("OTP Sent");
   };
 
   const checkUserExists = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuserbyphone/${phone}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuserbyphone/${phone}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error checking user existence:', error);
-      toast.error('Failed to check user existence');
+      console.error("Error checking user existence:", error);
+      toast.error("Failed to check user existence");
       throw error;
     }
   };
 
   const loginUser = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/login/${phone}`);
-      
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/login/${phone}`
+      );
+
       if (response.data.success) {
         const { token } = response.data;
-        localStorage.setItem('token', token);
+        localStorage.setItem("token", token);
         setToken(token);
-        
+
         // Extract user ID from token
-        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        const tokenData = JSON.parse(atob(token.split(".")[1]));
         setUserId(tokenData.userId);
-        
+
         return { token, userId: tokenData.userId };
       } else {
-        toast.error(response.data.message || 'Login failed');
-        throw new Error(response.data.message || 'Login failed');
+        toast.error(response.data.message || "Login failed");
+        throw new Error(response.data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Error logging in:', error);
-      toast.error('Failed to login');
+      console.error("Error logging in:", error);
+      toast.error("Failed to login");
       throw error;
     }
   };
 
   const createNewUser = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`, {
-        phone: phone,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`,
+        {
+          phone: phone,
+        }
+      );
 
       if (response.data.success) {
         const { token, userInfo } = response.data;
-        localStorage.setItem('token', token);
+        localStorage.setItem("token", token);
         setToken(token);
         setUserId(userInfo._id);
         return { token, userId: userInfo._id };
       } else {
-        throw new Error('User creation failed');
+        throw new Error("User creation failed");
       }
     } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error('Failed to create account');
+      console.error("Error creating user:", error);
+      toast.error("Failed to create account");
       throw error;
     }
   };
@@ -164,8 +170,8 @@ const Verify = ({
   const updateUserDetails = async () => {
     try {
       // Use userId as the name if no name is provided
-      const nameToUse = name || userId || 'iProp91 User';
-      
+      const nameToUse = name || userId || "iProp91 User";
+
       const response = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
         {
@@ -175,40 +181,40 @@ const Verify = ({
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'auth-token': token,
+            "Content-Type": "application/json",
+            "auth-token": token,
           },
         }
       );
 
       if (response.data.success) {
-        toast.success('Profile updated successfully');
+        toast.success("Profile updated successfully");
         return true;
       } else {
-        throw new Error('Profile update failed');
+        throw new Error("Profile update failed");
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
       throw error;
     }
   };
 
   const handlePostLoginActions = async (userId, token) => {
     if (redirectionUrl) {
-      localStorage.setItem('redirectToPage', redirectionUrl);
+      localStorage.setItem("redirectToPage", redirectionUrl);
     }
-    
+
     if (stage1FormData && !onJourneyPage) {
-      localStorage.setItem('addPropDetails', 'true');
+      localStorage.setItem("addPropDetails", "true");
       await AddGuestProperty(userId, token, stage1FormData, () => {
         setTimeout(() => {
-          navigate('/concierge');
+          navigate("/concierge");
         }, 1000);
       });
     } else {
       setTimeout(() => {
-        navigate('/concierge');
+        navigate("/concierge");
       }, 1000);
     }
   };
@@ -228,23 +234,23 @@ const Verify = ({
     }, 30000);
 
     if (isNaN(otp)) {
-      toast.error('Invalid OTP');
+      toast.error("Invalid OTP");
       setLoading(false);
       return;
     }
 
     try {
       const verifyResponse = await verifyOTP({
-        channel: 'PHONE',
+        channel: "PHONE",
         otp: otp,
         phone: phone,
         countryCode: countryCode,
       });
 
-      setOTP('');
+      setOTP("");
 
-      if (verifyResponse?.response?.verification === 'FAILED') {
-        toast.error(verifyResponse.response.errorMessage.split(':')[1]);
+      if (verifyResponse?.response?.verification === "FAILED") {
+        toast.error(verifyResponse.response.errorMessage.split(":")[1]);
         setTimer(30);
         setLoading(false);
         return;
@@ -257,23 +263,22 @@ const Verify = ({
       if (userExistsResponse.success) {
         // User exists, login
         userData = await loginUser();
-        toast.success('Logged in successfully');
+        toast.success("Logged in successfully");
         setIsLoggedIn(true);
         await handlePostLoginActions(userData.userId, userData.token);
       } else {
         // User doesn't exist, create new user
         userData = await createNewUser();
-        toast.success('Account created successfully');
-        
+        toast.success("Account created successfully");
+
         // Show the update modal after account creation
         setAskforname(true);
       }
-      
-      setLoading(false);
 
+      setLoading(false);
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Something went wrong');
+      console.error("Error:", error);
+      toast.error("Something went wrong");
       setLoading(false);
     }
   };
@@ -283,18 +288,18 @@ const Verify = ({
     try {
       // Always update user details, using userId as the name if none provided
       await updateUserDetails();
-      
+
       // Set login status after modal interaction is complete
       setIsLoggedIn(true);
-      
+
       // Close modal
       setAskforname(false);
-      
+
       // Handle property data and navigation after modal interaction
       await handlePostLoginActions(userId, token);
     } catch (error) {
-      console.error('Error in dialog close:', error);
-      toast.error('Something went wrong');
+      console.error("Error in dialog close:", error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -313,15 +318,18 @@ const Verify = ({
           <Spinner color="amber" className="h-12 w-16" />
         </div>
       )}
-      
-      <Dialog 
-        size="sm" 
-        open={askforname} 
+
+      <Dialog
+        size="sm"
+        open={askforname}
         handler={() => {}} // Prevent closing by clicking outside
         className="p-4"
         dismissible={false} // Prevent closing using escape key
       >
-        <p onClick={handleDialogClose} className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20">
+        <p
+          onClick={handleDialogClose}
+          className="absolute right-4 top-3 cursor-pointer text-xs hover:underline text-black/70 hover:text-black z-20"
+        >
           Skip for now
         </p>
         <DialogHeader className="relative m-0 block">
@@ -376,15 +384,27 @@ const Verify = ({
         </DialogFooter>
       </Dialog>
 
-      <div className={`${stage1FormData || authPage ? 'h-fit' : 'min-h-screen'} flex items-center justify-center`}>
+      <div
+        className={`${
+          stage1FormData || authPage ? "h-fit" : "min-h-screen"
+        } flex items-center justify-center`}
+      >
         <div className="flex bg-white rounded-lg md:max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
           <div className="md:p-8 p-5">
-            <div className="flex items-center mb-4 cursor-pointer" onClick={onBack}>
-              <i className="bx bxs-chevron-left" style={{ fontSize: '20px' }}></i>
+            <div
+              className="flex items-center mb-4 cursor-pointer"
+              onClick={onBack}
+            >
+              <i
+                className="bx bxs-chevron-left"
+                style={{ fontSize: "20px" }}
+              ></i>
               <span className="ml-2 text-gray-600">Back</span>
             </div>
-            
-            <h2 className="text-3xl font-semibold mb-4 text-black">Verify Code</h2>
+
+            <h2 className="text-3xl font-semibold mb-4 text-black">
+              Verify Code
+            </h2>
             <p className="text-gray-500 mb-8">
               An authentication code has been sent to your Phone Number
             </p>
@@ -402,8 +422,11 @@ const Verify = ({
             {!showtimer ? (
               <div className="w-72 max-lg:m-auto mt-2">
                 <p className="text-gray-500 text-center">
-                  Didn't receive the code?{' '}
-                  <span className="cursor-pointer text-gold" onClick={HandleResendOTP}>
+                  Didn't receive the code?{" "}
+                  <span
+                    className="cursor-pointer text-gold"
+                    onClick={HandleResendOTP}
+                  >
                     Resend
                   </span>
                 </p>
@@ -421,7 +444,6 @@ const Verify = ({
     </section>
   );
 };
-
 
 export default function Login({
   setIsLoggedIn,
@@ -497,7 +519,7 @@ export default function Login({
         }
       );
       const loginresjson = await response.json();
-      if (loginresjson.success === false){
+      if (loginresjson.success === false) {
         toast.error(loginresjson.message);
         return;
       }
@@ -519,7 +541,7 @@ export default function Login({
         const userId = decoded.userId;
 
         if (stage1FormData && !onJourneyPage) {
-          localStorage.setItem("addPropDetails", "true"); 
+          localStorage.setItem("addPropDetails", "true");
           const SendToConciPage = () => {
             setTimeout(() => {
               navigate("/concierge");
@@ -609,10 +631,10 @@ export default function Login({
 
   // Function to handle clicks outside the modal
   const handleClickOutside = (event) => {
-    if ( 
-      modalRef.current && 
-      !modalRef.current.contains(event.target) && 
-      verify === false  // Add this condition to prevent closing when Verify is active
+    if (
+      modalRef.current &&
+      !modalRef.current.contains(event.target) &&
+      verify === false // Add this condition to prevent closing when Verify is active
     ) {
       // onClose(); // Close the modal only if Verify is not open
     }
@@ -620,20 +642,17 @@ export default function Login({
 
   const GetRewardPoints = async () => {
     try {
-      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRewardByNameForGuest/first_property`;
-  
-      const response = await axios.get(
-        endpoint
-      );
-  
-      if (response) {
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRewardByNameForGuest/signup`;
 
+      const response = await axios.get(endpoint);
+
+      if (response) {
         setFirstPropRewards(response.data.amount);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "An error occurred");
     }
-  }
+  };
 
   useEffect(() => {
     GetRewardPoints();
@@ -654,10 +673,7 @@ export default function Login({
         stage1FormData || authPage ? "" : "absolute"
       } h-screen w-screen`}
     >
-
       <div className="relative w-full h-full sm:h-full" ref={modalRef}>
-
-     
         {/* {loading ? (
           <div className="h-screen   absolute flex justify-center items-center">
           <Spinner color="amber" className="h-16 w-16" />
@@ -666,14 +682,15 @@ export default function Login({
         <div
           className={`shadow-md  ${
             stage1FormData || authPage
-              ? `${authPage ? "bg-white " : "bg-black p-4 sm:p-0"} items-center  flex-col ${
+              ? `${
+                  authPage ? "bg-white " : "bg-black p-4 sm:p-0"
+                } items-center  flex-col ${
                   authPage ? "" : "pt-5 md:pt-20"
                 }  h-full`
               : `rounded-xl bg-transparent absolute items-start h-fit ${properties}`
           }     flex justify-center  `}
         >
           <div className="flex bg-transparent relative rounded-lg max-w-7xl overflow-hidden justify-center w-full mx-4 my-4 md:mx-0">
-
             {!(stage1FormData || authPage) && (
               <button
                 onClick={onClose}
@@ -683,24 +700,25 @@ export default function Login({
               </button>
             )}
 
-            
-
             {/* Left Side - Form */}
             <form
               onKeyDown={handleKeyPress}
-              className={`w-full md:p-16 p-6 lg:p-12 flex flex-col ${verify ? "justify-center" : "justify-start"} shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
+              className={`w-full md:p-16 p-6 lg:p-12 flex flex-col ${
+                verify ? "justify-center" : "justify-start"
+              } shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
                 stage1FormData || authPage ? "h-fit" : "h-[500px] lg:h-[600px]"
               }`}
             >
-
-{firstPropRewards !== 0 && !verify  && (
-  <div className="flex flex-wrap items-center text-xs  md:text-xs font-medium p-2 bg-green-50 text-green-800 rounded-lg mb-10">
-    <span className="mr-1">Get</span>
-    <PiHandCoinsFill/>
-    <span className="inline font-bold mx-1">{firstPropRewards}</span>
-    <span className="inline">reward points on adding your first property</span>
-  </div>
-)}
+              {firstPropRewards !== 0 && !verify && (
+                <div className="flex flex-wrap items-center text-xs md:text-xs font-medium p-2 bg-green-50 text-green-800 rounded-lg mb-10 whitespace-nowrap">
+                  <span>Get</span>
+                  <PiHandCoinsFill className="mx-1" />
+                  <span className="font-bold">{firstPropRewards}</span>
+                  <span className="mx-1">reward points worth</span>
+                  <span className="font-bold">{firstPropRewards} rs</span>
+                  <span> on registering</span>
+                </div>
+              )}
               {verify ? (
                 <Verify
                   phone={phone}
@@ -810,16 +828,16 @@ export default function Login({
                 </>
               )}
               {stage1FormData && (
-           <div className="w-full ">
-             <button
-              onClick={goBackToStage1}
-              className="flex mt-6 items-center px-3 py-2 rounded-lg text-gray-800 hover:text-black border border-1 border-white hover:border-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </button>
-           </div>
-          )}
+                <div className="w-full ">
+                  <button
+                    onClick={goBackToStage1}
+                    className="flex mt-6 items-center px-3 py-2 rounded-lg text-gray-800 hover:text-black border border-1 border-white hover:border-black bg-gray-200 hover:bg-white  -left-12 top-2 z-50"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back
+                  </button>
+                </div>
+              )}
             </form>
 
             {/* Right Side - Image */}
@@ -831,8 +849,6 @@ export default function Login({
             />
           </div> */}
           </div>
-
-          
         </div>
       </div>
     </section>

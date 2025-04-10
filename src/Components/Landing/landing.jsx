@@ -33,6 +33,7 @@ import Stage2Form from "../Journey/Stage2Form";
 import ListingCompo from "./ListingCompo";
 import 'leaflet/dist/leaflet.css';
 import PropertyJouneyPage from "../PropertyJourneyPage/page";
+import RedeemRewards from "../redeemRewards/Index"
 
 function LandingPage() {
   return (
@@ -157,6 +158,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/advice" element={<Advice />} />
         <Route path="/lend" element={<Lend />} />
         <Route path="/site-faqs" element={<SiteFaqs />} />
+        <Route path="/rewards" element={<RedeemRewards />} />
         <Route path="/property-journey" element={<PropertyJouneyPage />} />
         <Route
           path="/chats"
