@@ -14,6 +14,10 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 
 const CompComponent = ({ item }) => {
+  // Always declare hooks at the top level, before any conditional logic
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const imageRef = useRef(null);
+
   if (!item) {
     return null;
   }
@@ -22,6 +26,33 @@ const CompComponent = ({ item }) => {
   const hasImage1 = Boolean(item.centerImage1);
   const hasImage2 = Boolean(item.centerImage2);
   const imagesToShow = hasImage1 && hasImage2 ? 2 : hasImage1 ? 1 : 0;
+  
+  // Function to calculate appropriate sizing based on aspect ratio with no padding
+  const calculateImageStyle = () => {
+    if (imagesToShow !== 1 || !imageDimensions.width || !imageDimensions.height) {
+      return { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' };
+    }
+    
+    // Calculate aspect ratio
+    const aspectRatio = imageDimensions.width / imageDimensions.height;
+    
+    // Simple style with no padding, just maintain aspect ratio
+    return { 
+      maxWidth: '100%', 
+      maxHeight: '100%',
+      objectFit: 'contain'
+    };
+  };
+
+  // Handle image load to get dimensions
+  const handleImageLoad = (e) => {
+    if (imagesToShow === 1) {
+      setImageDimensions({
+        width: e.target.naturalWidth,
+        height: e.target.naturalHeight
+      });
+    }
+  };
 
   return (
     <div className="rounded-2xl max-w-[90vw] md:w-[600px] md:h-[450px] h-[350px] border-2 border-gold overflow-hidden relative flex flex-col hover:scale-105 duration-500">
@@ -33,18 +64,21 @@ const CompComponent = ({ item }) => {
           }}
         ></p>
       </div>
-      <div className="md:h-[250px] h-[200px] bg-gray-100 text-black px-2 py-1">
-        <div className="bg-white h-full shadow-md flex flex-row">
+      <div className="md:h-[250px] h-[200px] bg-gray-100 text-black">
+        <div className="bg-white h-full w-full shadow-md flex flex-row">
           {imagesToShow === 1 && (
-            <div className="flex w-full flex-col items-center justify-center">
-              <div className="flex items-center justify-center h-[180px]">
+            <div className="flex w-full flex-col items-center justify-center h-full relative">
+              <div className="flex items-center justify-center h-full w-full">
                 <img
+                  ref={imageRef}
                   src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
                   alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
-                  className="max-w-full max-h-full object-contain"
+                  className="object-contain"
+                  style={calculateImageStyle()}
+                  onLoad={handleImageLoad}
                 />
               </div>
-              <span className="text-sm font-medium text-center">
+              <span className="text-sm font-medium text-center absolute bottom-1 w-full">
                 {hasImage1 ? item.centerImage1Text : item.centerImage2Text}
               </span>
             </div>
@@ -52,27 +86,27 @@ const CompComponent = ({ item }) => {
           
           {imagesToShow === 2 && (
             <>
-              <div className="flex w-1/2 flex-col items-center justify-center">
-                <div className="flex items-center justify-center h-[140px]">
+              <div className="flex w-1/2 flex-col items-center justify-center h-full relative border-r border-gray-200">
+                <div className="flex items-center justify-center h-full w-full">
                   <img
                     src={item.centerImage1.url}
                     alt={item.centerImage1.name}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
-                <span className="text-sm font-medium text-center px-1">
+                <span className="text-sm font-medium text-center absolute bottom-1 w-full px-2">
                   {item.centerImage1Text}
                 </span>
               </div>
-              <div className="w-1/2 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center h-[140px]">
+              <div className="w-1/2 flex flex-col items-center justify-center h-full relative">
+                <div className="flex items-center justify-center h-full w-full">
                   <img
                     src={item.centerImage2.url}
                     alt={item.centerImage2.name}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
-                <span className="text-sm font-medium text-center px-1">
+                <span className="text-sm font-medium text-center absolute bottom-1 w-full px-2">
                   {item.centerImage2Text}
                 </span>
               </div>
@@ -102,6 +136,7 @@ const CompComponent = ({ item }) => {
 };
 
 export default function Comparison() {
+  // Rest of the component remains unchanged
   const [data, setData] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
