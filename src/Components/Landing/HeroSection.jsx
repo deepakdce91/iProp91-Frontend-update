@@ -6,7 +6,6 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // {{ edit_1 }}
 
-
 const HeroSection = () => {
   const [form, setForm] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -29,7 +28,7 @@ const HeroSection = () => {
                 "auth-token": token,
               },
             }
-          ); 
+          );
           if (response.ok) {
             const user = await response.json();
             localStorage.setItem("userPhone", user.phone);
@@ -71,38 +70,38 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black overflow-hidden">
-     <div className="text-center">
-       <motion.h1 // {{ edit_2 }}
-         className="text-4xl lg:text-7xl font-bold py-4 text-white"
-         initial={{ opacity: 0, y: -50 }} // {{ edit_3 }}
-         animate={{ opacity: 1, y: 0 }} // {{ edit_4 }}
-         transition={{ duration: 1 }} // {{ edit_5 }}
-       >
-         Your Trusted <br /> Real Estate Manager
-       </motion.h1>
-       <motion.p // {{ edit_6 }}
-         className="text-gray-400 text-md lg:text-xl"
-         initial={{ opacity: 0, y: -50 }} // {{ edit_7 }}
-         animate={{ opacity: 1, y: 0 }} // {{ edit_8 }}
-         transition={{ duration: 1, delay: 0.5 }} // {{ edit_9 }}
-       >
-         For the exclusive few who appreciate their most valued asset and its
-         value!
-       </motion.p>
-       <br />
-       <button
-         onClick={() => navigate('/journey')}
-         className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
-       >
-         Start your journey
-       </button>
-     </div>
+    <div className="h-screen flex items-center justify-center bg-black overflow-hidden sm:h-[100vh]">
+      <div className="text-center">
+        <motion.h1 // {{ edit_2 }}
+          className="text-4xl lg:text-7xl font-bold py-4 text-white"
+          initial={{ opacity: 0, y: -50 }} // {{ edit_3 }}
+          animate={{ opacity: 1, y: 0 }} // {{ edit_4 }}
+          transition={{ duration: 1 }} // {{ edit_5 }}
+        >
+          Your Trusted <br /> Real Estate Manager
+        </motion.h1>
+        <motion.p // {{ edit_6 }}
+          className="text-gray-400 text-md lg:text-xl sm:p-3"
+          initial={{ opacity: 0, y: -50 }} // {{ edit_7 }}
+          animate={{ opacity: 1, y: 0 }} // {{ edit_8 }}
+          transition={{ duration: 1, delay: 0.5 }} // {{ edit_9 }}
+        >
+          For the exclusive few who appreciate their most valued asset and its
+          value!
+        </motion.p>
+        <br />
+        <button
+          onClick={() => navigate("/journey")}
+          className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
+        >
+          Start your journey
+        </button>
+      </div>
       {/* Form Modal */}
-     {/* {form && <GetStartedForm close={closeFormModal} openAuth={openAuthModal} />} */}
+      {/* {form && <GetStartedForm close={closeFormModal} openAuth={openAuthModal} />} */}
       {/* Auth Modal */}
-     {/* {auth && <Auth onClose={closeAuthModal} setIsLoggedIn={handleSuccessfulLogin} properties={" top-[15%] z-20 right-10 w-[400px] md:right-24 lg:right-16 "} />} */} 
-   </div>
+      {/* {auth && <Auth onClose={closeAuthModal} setIsLoggedIn={handleSuccessfulLogin} properties={" top-[15%] z-20 right-10 w-[400px] md:right-24 lg:right-16 "} />} */}
+    </div>
   );
 };
 

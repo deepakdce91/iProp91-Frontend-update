@@ -29,7 +29,7 @@ const SidebarIcons = {
   Lend: { icon: RefreshCw, link: "/lend" },
   NRI: { icon: Home, link: "/nri" },
   "Listing Page": { icon: Home, link: "/property-for-sale" },
-  "Rewards": { icon: PiHandCoinsFill, link: "/rewards" },
+  Rewards: { icon: PiHandCoinsFill, link: "/rewards" },
 };
 
 // LogoutConfirmationModal component
@@ -47,11 +47,16 @@ const LogoutConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
       >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">Confirm Logout</h3>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-full hover:bg-gray-100"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <p className="mb-6">Are you sure you want to logout from your account?</p>
+        <p className="mb-6">
+          Are you sure you want to logout from your account?
+        </p>
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
@@ -272,14 +277,16 @@ const Sidebar = () => {
             {Object.keys(SidebarIcons).map(renderLink)}
           </div>
         </nav>
-        
+
         <div
           onClick={handleLogoutClick}
           className={`flex ${
             expanded ? "flex-row" : "flex-col"
           } items-center p-2 rounded-lg hover:bg-gold cursor-pointer mt-4 mb-2`}
         >
-          <LogOut className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`} />
+          <LogOut
+            className={`h-5 w-5 ${expanded ? "text-black" : "text-white"}`}
+          />
           {expanded ? (
             <span className="ml-3 truncate">Logout</span>
           ) : (
@@ -321,7 +328,7 @@ const Sidebar = () => {
       )}
 
       {/* Logout Confirmation Modal */}
-      <LogoutConfirmationModal 
+      <LogoutConfirmationModal
         isOpen={showLogoutModal}
         onClose={handleLogoutCancel}
         onConfirm={handleLogoutConfirm}

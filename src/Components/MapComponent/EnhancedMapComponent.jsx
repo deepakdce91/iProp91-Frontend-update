@@ -8,66 +8,78 @@ import {
   SquareIcon as SquareFootage,
   Bed,
   MapPin,
-  Calendar,
   CheckCircle,
   CheckSquare,
-  HouseIcon,
-  House,
 } from "lucide-react";
 import CityStateSelector from "../GeneralUi/StateCityCompo";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { dummyLocations } from "./dummyData";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 
 const EnhancedMapComponent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // India center
+  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]);
   const [zoom, setZoom] = useState(4);
-  const [filteredProperties, setFilteredProperties] = useState(dummyLocations); // Show all properties by default
+  const [filteredProperties, setFilteredProperties] = useState(dummyLocations);
   const [showNoDataMessage, setShowNoDataMessage] = useState(false);
-  const [hoveredProperty, setHoveredProperty] = useState(null); // State to track hovered property
+  const [hoveredProperty, setHoveredProperty] = useState(null);
+  const [drawerState, setDrawerState] = useState("collapsed"); // "collapsed", "partial", or "expanded"
 
-  // useEffect(() => {
-  //   const fetchProjects = async () => {
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects`,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     if (response) {
-  //       const allProjects = await response.data;
-  //       setFilteredProperties(allProjects);
-  //       // toast.success("projects fetched successfully")
-  //       console.log(allProjects);
+  // Initial position will be at the bottom with just the header showing
+  const y = useMotionValue(0);
 
-  //       return;
-  //     }
-  //     toast.error("Error fetching projects");
-  //   };
-  //   fetchProjects();
-  // }, []);
+  // Transform values based on drag position
+  const borderRadius = useTransform(
+    y,
+    [0, -200],
+    [24, 8] // Border radius decreases as drawer expands
+  );
 
-  // Handle location selection from CityStateSelector
+  // Handle drawer drag end to determine final position
+  const handleDragEnd = (_, info) => {
+    const velocity = info.velocity.y;
+    const offset = info.offset.y;
+
+    // If dragged up with sufficient velocity or distance
+    if (velocity < -500 || offset < -100) {
+      // Expand the drawer
+      y.set(-300);
+      setDrawerState("expanded");
+    }
+    // If dragged down with sufficient velocity or distance
+    else if (velocity > 500 || offset > 100) {
+      // Collapse the drawer
+      y.set(0);
+      setDrawerState("collapsed");
+    }
+    // If not dragged enough in either direction, snap to previous state
+    else {
+      if (drawerState === "expanded") {
+        y.set(-300);
+      } else {
+        y.set(0);
+      }
+    }
+  };
+
   const handleLocationSelect = (city, state) => {
-    // Find the matching location from dummyLocations
     const nearbyProperties = dummyLocations.filter(
       (property) => property.city === city || property.state === state
     );
-
-    // Find coordinates for the selected city
     const selectedProperty = dummyLocations.find(
       (property) => property.city === city
     );
-
     if (selectedProperty) {
       setMapCenter(selectedProperty.coordinates);
       setZoom(12);
       setShowNoDataMessage(false);
     }
-
     if (nearbyProperties.length > 0) {
       setFilteredProperties(nearbyProperties);
       setShowNoDataMessage(false);
@@ -77,9 +89,19 @@ const EnhancedMapComponent = () => {
     }
   };
 
+  // Handle drawer open when user clicks on the header
+  const handleDrawerHeaderClick = () => {
+    if (drawerState === "expanded") {
+      y.set(0);
+      setDrawerState("collapsed");
+    } else {
+      y.set(-300);
+      setDrawerState("expanded");
+    }
+  };
+
   return (
-    <div className="relative w-full px-3 ">
-      {/* Full width map with fixed height */}
+    <div className="relative w-full px-3 overflow-hidden">
       <div className="w-full h-[90vh] rounded-xl">
         <Map
           center={mapCenter}
@@ -95,14 +117,10 @@ const EnhancedMapComponent = () => {
               width={50}
               anchor={property.coordinates}
               onClick={() => setSelectedLocation(property)}
-              onMouseOver={() => setHoveredProperty(property)} // Set hovered property on mouse over
-              onMouseOut={() => setHoveredProperty(null)} // Clear hovered property on mouse out
+              onMouseOver={() => setHoveredProperty(property)}
+              onMouseOut={() => setHoveredProperty(null)}
             >
-              {/* <House className="w-7 h-7  text-gray-700" /> */}
-              <svg className="w-4 h-4"
-                viewBox="0 0 16 16"
-                version="1.1"
-              >
+              <svg className="w-4 h-4" viewBox="0 0 16 16" version="1.1">
                 <rect width="16" height="16" id="icon-bound" fill="none" />
                 <polygon points="0,6 0,16 6,16 6,10 10,10 10,16 16,16 16,6 8,0" />
               </svg>
@@ -111,30 +129,32 @@ const EnhancedMapComponent = () => {
         </Map>
       </div>
 
-      {/* Tooltip for hovered property */}
-      {hoveredProperty && (
+      <motion.div
+        drag="y"
+        dragConstraints={{ top: -100, bottom: 200 }}
+        onDragEnd={handleDragEnd}
+        dragElastic={0.1}
+        dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+        initial={{ y: 0 }}
+        style={{
+          y,
+          borderTopLeftRadius: borderRadius,
+          borderTopRightRadius: borderRadius,
+        }}
+        className="absolute bottom-0 left-0 right-0 w-full bg-white shadow-xl rounded-t-xl max-h-[90vh] overflow-hidden"
+      >
         <div
-          className="absolute bg-white p-2 rounded shadow-lg"
-          style={{
-            left: `${hoveredProperty.coordinates[1]}px`, // Adjust position based on coordinates
-            top: `${hoveredProperty.coordinates[0]}px`, // Adjust position based on coordinates
-          }}
+          className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 cursor-pointer"
+          onClick={handleDrawerHeaderClick}
         >
-          <h3 className="font-semibold">{hoveredProperty.name}</h3>
-          <p>Price: ₹{hoveredProperty.price}</p>
-          <p>
-            Location: {hoveredProperty.city}, {hoveredProperty.state}
-          </p>
-        </div>
-      )}
-
-      {/* Absolute positioned search and property panel */}
-      <div className="absolute top-4 right-4 w-96 max-h-[calc(90vh-32px)] flex flex-col bg-white/95 shadow-xl rounded-lg  border border-gray-200 overflow-y-scroll">
-        {/* Search section */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2 mb-2">
-            <Search className="w-5 h-5 text-gray-700" />
-            <h2 className="text-lg font-bold text-gray-900">Find Properties</h2>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Search className="w-5 h-5 text-gray-700" />
+              <h2 className="text-lg font-bold text-gray-900">
+                Find Properties
+              </h2>
+            </div>
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto" />
           </div>
           <CityStateSelector
             setMainCity={(city) => handleLocationSelect(city)}
@@ -143,8 +163,7 @@ const EnhancedMapComponent = () => {
           />
         </div>
 
-        {/* Property listing section */}
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="flex-1 overflow-y-auto p-2 max-h-[60vh]">
           <div className="flex justify-between items-center px-2 py-3">
             <h3 className="text-sm font-bold text-gray-900">
               {filteredProperties.length} Properties Found
@@ -165,15 +184,15 @@ const EnhancedMapComponent = () => {
               {filteredProperties.map((property, index) => (
                 <div
                   key={index}
-                  className={`bg-white border rounded-lg p-3 hover:shadow-md transition-all cursor-pointer  ${
+                  className={`bg-white border rounded-lg p-3 hover:shadow-md transition-all cursor-pointer ${
                     selectedLocation?.id === property.id
                       ? "border-black ring-1 ring-black"
                       : "border-gray-200"
                   }`}
                   onClick={() => {
                     setSelectedLocation(property);
-                    setMapCenter(property.coordinates); // Move map to the selected property's coordinates
-                    setZoom(12); // Set zoom to maximum for the selected location
+                    setMapCenter(property.coordinates);
+                    setZoom(12);
                   }}
                 >
                   <div className="flex justify-between items-start">
@@ -236,17 +255,7 @@ const EnhancedMapComponent = () => {
             </div>
           )}
         </div>
-      </div>
-
-      {/* No Data Message */}
-      {/* {showNoDataMessage && (
-        <div className="absolute top-20 left-4 z-10 bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-gray-900 text-sm flex items-center">
-            <Search className="w-4 h-4 mr-2 text-gray-700" />
-            No properties found in this location
-          </p>
-        </div>
-      )} */}
+      </motion.div>
     </div>
   );
 };

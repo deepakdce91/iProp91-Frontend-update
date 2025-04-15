@@ -19,6 +19,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
+    "client": "file:",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.2",
@@ -65,6 +66,7 @@
     "socket.io-client": "^4.8.1",
     "swiper": "^11.1.14",
     "tailwind-merge": "^2.5.4",
+    "tailwind-variants": "^1.0.0",
     "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^2.1.4"
   },
@@ -95,6 +97,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "dotenv": "^16.5.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
   }

@@ -1,0 +1,19 @@
+@media (max-width: 550px) {
+  .reward-card {
+    width: 50vw;
+    height: 15rem;
+    padding: 0;
+  }
+  .reward-cards {
+    padding: 1rem;
+  }
+  .scroll-left-arrow {
+    display: none;
+  }
+  .scroll-right-arrow {
+    display: none;
+  }
+  .reward-card-title {
+    font-size: 5vw;
+  }
+}

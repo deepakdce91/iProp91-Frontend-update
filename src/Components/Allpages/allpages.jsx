@@ -21,13 +21,23 @@ import PropertyJouneyPage from "../PropertyJourneyPage/page.js";
 import RewardsRedeem from "../redeemRewards/Index.jsx";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import FeaturesSafe from "../features-page/safe.jsx";
+import FeaturesListing from "../features-page/listing.jsx";
+import FeatureOwnerClub from "../features-page/ownersClub.jsx";
+import FeatureConcierge from "../features-page/Concierge.jsx";
 
 export default function AllPage() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Define the paths where you do NOT want to render the Footer
-  const noFooterPaths = ["/family","/concierge", "/safe", "/safe/*", "/property-for-sale"]; // Add paths as needed
+  const noFooterPaths = [
+    "/family",
+    "/concierge",
+    "/safe",
+    "/safe/*",
+    "/property-for-sale",
+  ]; // Add paths as needed
 
   // Check if the current path is in the noFooterPaths array
   const shouldRenderFooter = !noFooterPaths.includes(location.pathname);
@@ -43,7 +53,7 @@ export default function AllPage() {
       <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />
         <div className="w-full  lg:p-1 ">
-          <Routes> 
+          <Routes>
             <Route path="/*" element={<Conci />} />
             <Route path="/safe/*" element={<Safe />} />
             <Route path="/family" element={<OwnerClub />} />
@@ -63,7 +73,14 @@ export default function AllPage() {
             <Route path="/category/:categoryType" element={<CategoryPage />} />
 
             <Route path="/rewards" element={<RewardsRedeem />} />
-            
+
+            <Route path="/services/safe" element={<FeaturesSafe />} />
+            <Route path="/services/listing" element={<FeaturesListing />} />
+            <Route
+              path="/services/owner's-club"
+              element={<FeatureOwnerClub />}
+            />
+            <Route path="/services/concierge" element={<FeatureConcierge />} />
           </Routes>
           {shouldRenderFooter && isLoggedIn === false && <Footer />}
         </div>
