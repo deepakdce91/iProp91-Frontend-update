@@ -15,9 +15,11 @@ import DOMPurify from "dompurify";
 
 const CompComponent = ({ item }) => {
   // Always declare hooks at the top level, before any conditional logic
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   const imageRef = useRef(null);
-
   if (!item) {
     return null;
   }
@@ -26,21 +28,23 @@ const CompComponent = ({ item }) => {
   const hasImage1 = Boolean(item.centerImage1);
   const hasImage2 = Boolean(item.centerImage2);
   const imagesToShow = hasImage1 && hasImage2 ? 2 : hasImage1 ? 1 : 0;
-  
   // Function to calculate appropriate sizing based on aspect ratio with no padding
   const calculateImageStyle = () => {
-    if (imagesToShow !== 1 || !imageDimensions.width || !imageDimensions.height) {
-      return { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' };
+    if (
+      imagesToShow !== 1 ||
+      !imageDimensions.width ||
+      !imageDimensions.height
+    ) {
+      return { maxWidth: "100%", maxHeight: "100%", objectFit: "contain" };
     }
-    
+
     // Calculate aspect ratio
     const aspectRatio = imageDimensions.width / imageDimensions.height;
-    
-    // Simple style with no padding, just maintain aspect ratio
-    return { 
-      maxWidth: '100%', 
-      maxHeight: '100%',
-      objectFit: 'contain'
+
+    return {
+      maxWidth: "100%",
+      maxHeight: "100%",
+      objectFit: "contain",
     };
   };
 
@@ -49,7 +53,7 @@ const CompComponent = ({ item }) => {
     if (imagesToShow === 1) {
       setImageDimensions({
         width: e.target.naturalWidth,
-        height: e.target.naturalHeight
+        height: e.target.naturalHeight,
       });
     }
   };
@@ -71,8 +75,12 @@ const CompComponent = ({ item }) => {
               <div className="flex items-center justify-center h-full w-full">
                 <img
                   ref={imageRef}
-                  src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
-                  alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
+                  src={
+                    hasImage1 ? item.centerImage1.url : item.centerImage2.url
+                  }
+                  alt={
+                    hasImage1 ? item.centerImage1.name : item.centerImage2.name
+                  }
                   className="object-contain"
                   style={calculateImageStyle()}
                   onLoad={handleImageLoad}
@@ -83,7 +91,7 @@ const CompComponent = ({ item }) => {
               </span>
             </div>
           )}
-          
+
           {imagesToShow === 2 && (
             <>
               <div className="flex w-1/2 flex-col items-center justify-center h-full relative border-r border-gray-200">
@@ -112,7 +120,7 @@ const CompComponent = ({ item }) => {
               </div>
             </>
           )}
-          
+
           {imagesToShow === 0 && (
             <div className="w-full flex items-center justify-center">
               <span className="text-sm text-gray-500">No images available</span>
@@ -169,16 +177,16 @@ export default function Comparison() {
   // Ensure we have enough slides for looping based on slidesPerView
   const processedSlides = (() => {
     if (data.length === 0) return [];
-    
+
     const minSlidesForLoop = 6;
-    
+
     if (data.length >= minSlidesForLoop) return data;
 
     const duplicatesNeeded = minSlidesForLoop - data.length;
     const duplicatedSlides = [];
 
     for (let i = 0; i < duplicatesNeeded; i++) {
-      duplicatedSlides.push({...data[i % data.length], id: `dup-${i}`});
+      duplicatedSlides.push({ ...data[i % data.length], id: `dup-${i}` });
     }
 
     return [...data, ...duplicatedSlides];
@@ -287,8 +295,8 @@ export default function Comparison() {
           >
             {processedSlides.length > 0 &&
               processedSlides.map((item, index) => (
-                <SwiperSlide 
-                  key={index} 
+                <SwiperSlide
+                  key={index}
                   onClick={() => handleSlideClick(index)}
                   onMouseEnter={() => handleSlideHover(index)}
                   onMouseLeave={handleSlideHoverExit}
@@ -324,8 +332,8 @@ export default function Comparison() {
             }}
           >
             {processedSlides.map((item, index) => (
-              <SwiperSlide 
-                key={index} 
+              <SwiperSlide
+                key={index}
                 onClick={() => handleSlideClick(index)}
                 onMouseEnter={() => handleSlideHover(index)}
                 onMouseLeave={handleSlideHoverExit}
