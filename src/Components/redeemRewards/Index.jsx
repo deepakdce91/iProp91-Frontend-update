@@ -39,31 +39,29 @@ export default function FirstSafe() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Fetch FAQ data if user is not logged in
+  // Fetch FAQ data for both logged in and not logged in users
   useEffect(() => {
-    if (!isLoggedIn) {
-      const fetchFAQs = async () => {
-        try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllActiveRewardPointsFAQs`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          setFaqData(response.data);
-          console.log("FAQ data:", response.data);
-        } catch (error) {
-          console.error(
-            "Error fetching FAQ data:",
-            error.response?.data || error.message
-          );
-        }
-      };
-      fetchFAQs();
-    }
-  }, [isLoggedIn]);
+    const fetchFAQs = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/faqs/fetchAllActiveRewardPointsFAQs`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setFaqData(response.data);
+        console.log("FAQ data:", response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching FAQ data:",
+          error.response?.data || error.message
+        );
+      }
+    };
+    fetchFAQs();
+  }, []);
 
   const convertToVoucher = async (rewardName, rewardType) => {
     // Convert the points to voucher
@@ -87,9 +85,13 @@ export default function FirstSafe() {
         }
       );
       const data = await response.json();
-      console.log(data);
+      if(data.success === true){
+        toast.success(data.message);
+      }else{
+        toast.error(data.message);
+      }
 
-      toast.success("Voucher added successfully");
+      
       setChangeMade(!changeMade);
     } catch (error) {
       console.log(error);
@@ -205,6 +207,93 @@ export default function FirstSafe() {
     { label: "Rewards FAQ" },
   ];
 
+  // FAQ section component that will be reused for both logged in and not logged in users
+  const FAQSection = () => (
+    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 my-4 mb-8">
+      {/* FAQ Section Header */}
+      <div className="w-full flex justify-center items-center text-center text-white font-semibold bg-[#AE93F4] p-3">
+        Frequently Asked Questions
+      </div>
+      
+      {/* FAQ Content */}
+      <div className="w-full p-4">
+        {faqData && faqData.length > 0 ? (
+          faqData.map((faq, index) => {
+            const prefix = "Frequently Asked Questions (FAQs) – Property Tax – Gurgaon";
+            const cleanContent = faq.content.startsWith(prefix)
+              ? faq.content.slice(prefix.length).trim()
+              : faq.content.trim();
+
+            // Check if cleanContent contains HTML
+            const isHTML = /<[^>]+>/.test(cleanContent);
+            let sanitizedContent;
+
+            if (isHTML) {
+              // If it's already HTML, just sanitize it
+              sanitizedContent = DOMPurify.sanitize(cleanContent);
+            } else {
+              // If it's plain text, replace links and then sanitize
+              const formattedContent = cleanContent.replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>'
+              );
+              sanitizedContent = DOMPurify.sanitize(formattedContent);
+            }
+
+            // Add styles to existing links if any
+            sanitizedContent = sanitizedContent.replace(
+              /<a /g,
+              '<a class="text-blue-500 underline" '
+            );
+
+            return (
+              <div
+                key={index}
+                className={`my-4 transition-all duration-300 ease-in-out ${
+                  openIndex === index
+                    ? "border-[1px] border-black/20 bg-gray-200 max-h-[300px] overflow-y-scroll"
+                    : "border-[1px] border-black/30"
+                } p-4 hover:scale-105 transition-all`}
+              >
+                <div
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleFAQ(index)}
+                >
+                  <h3 className="md:text-lg text-base font-medium">
+                    {faq.title}
+                  </h3>
+                  <div className="text-xl">
+                    {openIndex === index ? <FiMinus /> : <FiPlus />}
+                  </div>
+                </div>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    openIndex === index ? "mt-4" : "max-h-0"
+                  }`}
+                >
+                  <hr className="border-t-[2px] border-black mb-4" />
+                  <p
+                    className="mt-7"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizedContent,
+                    }}
+                  ></p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-center text-gray-500">
+              <p className="text-xl font-medium mb-2">Loading FAQs...</p>
+              <p>Please wait while we fetch the rewards information.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {isLoggedIn ? (
@@ -317,7 +406,7 @@ export default function FirstSafe() {
           </div>
 
          {/* Transaction History Section */}
-          <div className="w-full max-w-full bg-white rounded-lg shadow-sm border border-gray-200 my-4 mb-8">
+          <div className="w-full max-w-full bg-white rounded-lg shadow-sm border border-gray-200 my-4">
             {/* Header */}
             <div className="w-full flex justify-center items-center text-center text-white font-semibold bg-[#AE93F4] p-3">
               Reward Transaction History
@@ -385,30 +474,22 @@ export default function FirstSafe() {
               )}
             </div>
           </div>
+
+          {/* FAQ Section for logged in users */}
+          <FAQSection />
+
         </div>
       ) : ( 
         // REWARDS FAQ SECTION FOR NON-LOGGED IN USERS
         <div className="flex relative text-black py-28 px-3 md:px-8 bg-white min-h-screen lg:px-32 pt-5 md:pt-10">
-          {/* <Breadcrumb 
-            items={breadcrumbItems} 
-            className={"flex items-center space-x-2 text-black text-sm lg:text-base absolute top-28 lg:left-32 mt-2 left-[5%]"} 
-          /> */}
           <div className="flex flex-col md:flex-row justify-center h-full lg:items-start mt-32">
             <div className="md:w-1/3 flex flex-col gap-3">
-            <p className="lg:text-7xl mb-6 text-5xl text-primary font-bold text-start">
-                  Rewards
-                </p>
+              <p className="lg:text-7xl mb-6 text-5xl text-primary font-bold text-start">
+                Rewards
+              </p>
               <p className="text-lg">
                 Learn about our rewards program and how you can earn points to redeem exclusive vouchers and discounts.
               </p>
-              {/* <div className="mt-6"> 
-                <button 
-                  onClick={() => window.location.href = "/login"} 
-                  className="bg-[#AE93F4] text-white px-6 py-3 rounded-md hover:bg-purple-600 transition-colors"
-                >
-                  Login to Access Rewards
-                </button>
-              </div> */}
             </div>
             <div className="md:w-2/3 md:pl-8 mt-8 md:mt-0">
               {faqData && faqData.length > 0 ? (
