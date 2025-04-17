@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { PiHandCoinsFill } from "react-icons/pi"; // Added import for PiHandCoinsFill
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Profile from "../User/Profile/profile";
 import { jwtDecode } from "jwt-decode";
@@ -248,8 +249,8 @@ useEffect(() => {
         <Link to="/lend" className="hover:text-white/80">
           Lend
         </Link>
-        <Link to="/rewards" className="hover:text-white/80">
-          Rewards
+        <Link to="/rewards" className="hover:text-white/80 flex items-center">
+          <PiHandCoinsFill className="text-xl" />
         </Link>
 
         {user ? (
