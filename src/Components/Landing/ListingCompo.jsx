@@ -336,26 +336,8 @@ const ListingCompo = () => {
           </h1>
           {!showMap && (
             <div className="w-full max-w-5xl mx-auto space-y-4 ">
-              <div className="flex max-w-4xl mx-auto flex-wrap ">
-                {["Buy", "Rent", "New Launch", "Plots/Land", "Projects"].map(
-                  (tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-4 text-sm font-medium transition-colors
-                  ${
-                    activeTab === tab
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-600 hover:text-black/90"
-                  }`}
-                    >
-                      {tab}
-                    </button>
-                  )
-                )}
-              </div>
-              <div className="w-full max-w-7xl mx-auto">
-                <div className="flex flex-col max-sm:flex-row sm:flex-row items-center rounded-full border border-gray-300 bg-white shadow-sm pr-3">
+              <div className="w-full   max-w-7xl mx-auto">
+                <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
                   {/* Location Input */}
                   <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <svg
@@ -380,7 +362,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Property Type Dropdown */}
-                  <div className="max-sm:hidden relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
+                  <div className="max-md:hidden  relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <div
                       className="flex items-center justify-between max-sm:px-0 px-4 py-2 cursor-pointer"
                       onClick={() => {
@@ -470,7 +452,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Budget Dropdown */}
-                  <div className=" max-sm:hiddenrelative w-full md:w-1/3">
+                  <div className=" max-sm:hidden relative w-full md:w-1/3">
                     <div
                       className="flex items-center justify-between px-4 py-2 cursor-pointer"
                       onClick={() => {
@@ -583,7 +565,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Search Button */}
-                  <button className="bg-black max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3 w-full max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
+                  <button className="bg-black w-[6rem] max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3  max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
                     <div className="flex items-center justify-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
