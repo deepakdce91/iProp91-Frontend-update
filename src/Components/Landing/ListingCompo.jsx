@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { Carousel } from "../listingpage/components/carousel";
 import { PropertyCard } from "../listingpage/components/property-card";
 import EnhancedMapComponent from "../MapComponent/EnhancedMapComponent";
+import { motion } from "framer-motion";
 
 // Enhanced dummy data
 
@@ -48,6 +49,20 @@ const categories = [
     image: "/images/propcat.jpg",
     link: "/budget-homes",
     count: "3,200+ Properties",
+  },
+  {
+    title: "pre Launch Projects",
+    discription: "Upcoming pre-launch properties",
+    image: "/images/propcat.jpg",
+    link: "/pre-launch-projects",
+    count: "1,200+ Properties",
+  },
+  {
+    title: "Verified Owner Properties",
+    description: "Direct from property owners",
+    image: "/images/propcat.jpg",
+    link: "/verified-owner-properties",
+    count: "1,200+ Properties",
   },
 ];
 
@@ -267,6 +282,20 @@ const ListingCompo = () => {
     allFetchedProjects,
   ]);
 
+  const scrollContainerRef = useRef(null);
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollAmount = direction === "left" ? -400 : 400; // Adjusted scroll amount
+      const targetScroll = container.scrollLeft + scrollAmount;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: "smooth",
+      });
+    }
+  };
+
   // Update the search button click handler
   const handleSearch = () => {
     filterProjects();
@@ -380,7 +409,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Property Type Dropdown */}
-                  <div className="relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
+                  <div className="max-sm:hidden relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <div
                       className="flex items-center justify-between max-sm:px-0 px-4 py-2 cursor-pointer"
                       onClick={() => {
@@ -421,7 +450,7 @@ const ListingCompo = () => {
 
                     {/* Property Type Dropdown Content */}
                     {showPropertyDropdown && (
-                      <div className="absolute  top-full left-0 z-10 bg-white w-full lg:w-[150%] shadow-lg rounded-lg border border-gray-200 mt-1 py-2">
+                      <div className="absolute max-sm:hidden top-full left-0 z-10 bg-white w-full lg:w-[150%] shadow-lg rounded-lg border border-gray-200 mt-1 py-2">
                         <div className="px-3 py-2">
                           <div className="flex items-center mb-2">
                             <span className="text-sm font-medium text-gray-700">
@@ -470,7 +499,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Budget Dropdown */}
-                  <div className="relative w-full md:w-1/3">
+                  <div className=" max-sm:hiddenrelative w-full md:w-1/3">
                     <div
                       className="flex items-center justify-between px-4 py-2 cursor-pointer"
                       onClick={() => {
@@ -583,7 +612,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Search Button */}
-                  <button className="bg-black hover:bg-black/80 text-white font-medium px-6 py-3 w-full max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
+                  <button className="bg-black max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3 w-full max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
                     <div className="flex items-center justify-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -599,7 +628,7 @@ const ListingCompo = () => {
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                         />
                       </svg>
-                      <span>Search</span>
+                      <span className="max-sm:hidden">Search</span>
                     </div>
                   </button>
                 </div>
@@ -622,7 +651,7 @@ const ListingCompo = () => {
 
       {/* Property Categories */}
       {!showMap && (
-        <section className="py-12 px-4 max-w-7xl mx-auto">
+        <section className="py-12 px-4 max-w-7xl mx-auto w-full relative">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold">
               We've got properties for everyone
@@ -634,29 +663,88 @@ const ListingCompo = () => {
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <Link href={category.link} key={index}>
-                <div className="relative h-64 rounded-lg overflow-hidden group">
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
-                    <h3 className="text-white text-xl font-bold mb-2">
-                      {category.title}
-                    </h3>
-                    <p className="text-white/80 text-sm mb-2">
-                      {category.description}
-                    </p>
-                    <span className="text-white/90 text-sm font-medium">
-                      {category.count}
-                    </span>
+
+          {/* Container wrapper for proper overflow handling */}
+          <div className="relative overflow-hidden group">
+            {/* Scroll buttons */}
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg text-gray-800 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Scroll left"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            {/* Scrollable container */}
+            <div
+              ref={scrollContainerRef}
+              className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-6 py-4"
+              style={{
+                scrollbarWidth: "none",
+                "-ms-overflow-style": "none",
+                "&::-webkit-scrollbar": {
+                  display: "none",
+                },
+              }}
+            >
+              {categories.map((category, index) => (
+                <Link href={category.link} key={index} className="flex-none">
+                  <div className="relative w-[300px] h-64 rounded-lg overflow-hidden group">
+                    <img
+                      src={category.image}
+                      alt={category.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
+                      <h3 className="text-white text-xl font-bold mb-2">
+                        {category.title}
+                      </h3>
+                      <p className="text-white/80 text-sm mb-2">
+                        {category.description}
+                      </p>
+                      <span className="text-white/90 text-sm font-medium">
+                        {category.count}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
+
+            {/* Right scroll button */}
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg text-gray-800 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Scroll right"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           </div>
         </section>
       )}
@@ -669,30 +757,31 @@ const ListingCompo = () => {
           if (!categoryProjects || categoryProjects.length === 0) {
             return null; // Don't render anything if no projects
           }
-
+          // thisis the category type section which is commented but not deleted. if needed in the future can be used
           return (
-            <section
-              key={category.type}
-              className="py-12 px-4 max-w-7xl mx-auto bg-white"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
-                  <p className="text-gray-600">{category.description}</p>
-                </div>
-                <Link
-                  to={`/category/${category.type}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  View All
-                </Link>
-              </div>
-              <Carousel
-                items={categoryProjects}
-                renderItem={(project) => <PropertyCard property={project} />}
-                className="pb-4"
-              />
-            </section>
+            // <section
+            //   key={category.type}
+            //   className="py-12 px-4 max-w-7xl mx-auto bg-white"
+            // >
+            //   <div className="flex justify-between items-center mb-8">
+            //     <div>
+            //       <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
+            //       <p className="text-gray-600">{category.description}</p>
+            //     </div>
+            //     <Link
+            //       to={`/category/${category.type}`}
+            //       className="text-blue-600 hover:underline"
+            //     >
+            //       View All
+            //     </Link>
+            //   </div>
+            //   <Carousel
+            //     items={categoryProjects}
+            //     renderItem={(project) => <PropertyCard property={project} />}
+            //     className="pb-4"
+            //   />
+            // </section>
+            <></>
           );
         })}
 

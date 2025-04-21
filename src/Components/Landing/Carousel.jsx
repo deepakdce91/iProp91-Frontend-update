@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence, useAnimation } from "framer-motion"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import axios from "axios"
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function extractImageUrls(dataArray) {
-  return dataArray.map(item => item.image?.url).filter(Boolean);
+  return dataArray.map((item) => item.image?.url).filter(Boolean);
 }
 
-export default function Component({data}) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState(1)
-  const controls = useAnimation()
+export default function Component({ data }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isClicked, setIsClicked] = useState(false);
+  const [direction, setDirection] = useState(1);
+  const controls = useAnimation();
   const [slides, setSlides] = useState([]);
   let navigate = useNavigate();
 
@@ -29,7 +30,6 @@ export default function Component({data}) {
 
         setSlides(response.data);
         console.log(response.data);
-        
       } catch (error) {
         console.error(
           "Error fetching data:",
@@ -40,58 +40,65 @@ export default function Component({data}) {
 
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + direction + slides.length) % slides.length)
-    }, 3000)
+      setCurrentIndex(
+        (prevIndex) => (prevIndex + direction + slides.length) % slides.length
+      );
+    }, 3000);
 
-    return () => clearInterval(timer)
-  }, [direction, slides.length])
+    return () => clearInterval(timer);
+  }, [direction, slides.length, isClicked]);
 
   const handleNext = () => {
-    setDirection(1)
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length)
-  }
+    setDirection(1);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+    setIsClicked(!isClicked);
+  };
 
   const handlePrevious = () => {
-    setDirection(-1)
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + slides.length) % slides.length)
-  }
+    setDirection(-1);
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + slides.length) % slides.length
+    );
+    setIsClicked(!isClicked);
+  };
 
   const getSlideStyles = (index) => {
-    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024
-    const isMobile = screenWidth < 768 // md breakpoint
+    const screenWidth =
+      typeof window !== "undefined" ? window.innerWidth : 1024;
+    const isMobile = screenWidth < 768; // md breakpoint
 
     if (isMobile) {
       // For mobile, we'll only show 3 slides
-      const totalVisibleSlides = 3
-      const centerIndex = currentIndex
-      const prevIndex = (currentIndex - 1 + slides.length) % slides.length
-      const nextIndex = (currentIndex + 1) % slides.length
+      const totalVisibleSlides = 3;
+      const centerIndex = currentIndex;
+      const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
+      const nextIndex = (currentIndex + 1) % slides.length;
 
       // Default styles for non-visible slides
-      let scale = 0
-      let x = 0
-      let zIndex = 0
-      let opacity = 0
+      let scale = 0;
+      let x = 0;
+      let zIndex = 0;
+      let opacity = 0;
 
       // Adjusted scales and positions for mobile
       if (index === centerIndex) {
-        scale = 1.6  // Increased center scale
-        x = 0
-        zIndex = 1000
-        opacity = 1
+        scale = 1.6; // Increased center scale
+        x = 0;
+        zIndex = 1000;
+        opacity = 1;
       } else if (index === prevIndex) {
-        scale = 1.1 // Smaller side scales
-        x = -80    // Reduced gap
-        zIndex = 500
-        opacity = 0.8
+        scale = 1.1; // Smaller side scales
+        x = -80; // Reduced gap
+        zIndex = 500;
+        opacity = 0.8;
       } else if (index === nextIndex) {
-        scale = 1.1  // Smaller side scales
-        x = 80      // Reduced gap
-        zIndex = 500
-        opacity = 0.8
+        scale = 1.1; // Smaller side scales
+        x = 80; // Reduced gap
+        zIndex = 500;
+        opacity = 0.8;
       }
 
       return {
@@ -102,40 +109,46 @@ export default function Component({data}) {
         zIndex,
         opacity,
         transition: "all 0.5s ease-out",
-      }
+      };
     } else {
       // Original desktop layout logic
-      const totalSlides = slides.length
-      const angleStep = 180 / (totalSlides - 1)
-      const angle = (index - currentIndex + totalSlides) % totalSlides
-      const adjustedAngle = (angle <= totalSlides / 2 ? angle : angle - totalSlides) * angleStep
+      const totalSlides = slides.length;
+      const angleStep = 180 / (totalSlides - 1);
+      const angle = (index - currentIndex + totalSlides) % totalSlides;
+      const adjustedAngle =
+        (angle <= totalSlides / 2 ? angle : angle - totalSlides) * angleStep;
 
       const radius = {
         sm: 150,
         md: 250,
-        lg: 380
-      }
+        lg: 380,
+      };
 
-      let currentRadius = radius.lg
+      let currentRadius = radius.lg;
 
       if (screenWidth < 640) {
-        currentRadius = radius.sm
+        currentRadius = radius.sm;
       } else if (screenWidth < 1024) {
-        currentRadius = radius.md
+        currentRadius = radius.md;
       }
 
-      const x = Math.sin((adjustedAngle * Math.PI) / 180) * currentRadius
-      const y = -Math.cos((adjustedAngle * Math.PI) / 180) * currentRadius * 0.3 + currentRadius * 0.3
+      const x = Math.sin((adjustedAngle * Math.PI) / 180) * currentRadius;
+      const y =
+        -Math.cos((adjustedAngle * Math.PI) / 180) * currentRadius * 0.3 +
+        currentRadius * 0.3;
 
-      let scale = 1 - Math.abs(adjustedAngle) / 180 * 0.2
-      let zIndex = 100 - Math.abs(adjustedAngle)
+      let scale = 1 - (Math.abs(adjustedAngle) / 180) * 0.2;
+      let zIndex = 100 - Math.abs(adjustedAngle);
 
       if (index === currentIndex) {
-        scale = 1.3
-        zIndex = 1000
-      } else if (Math.abs(index - currentIndex) === 1 || Math.abs(index - currentIndex) === slides.length - 1) {
-        scale = 1.1
-        zIndex = 500
+        scale = 1.3;
+        zIndex = 1000;
+      } else if (
+        Math.abs(index - currentIndex) === 1 ||
+        Math.abs(index - currentIndex) === slides.length - 1
+      ) {
+        scale = 1.1;
+        zIndex = 500;
       }
 
       return {
@@ -146,17 +159,18 @@ export default function Component({data}) {
         zIndex,
         opacity: 1,
         transition: "all 0.5s ease-out",
-      }
+      };
     }
-  }
+  };
 
   const handleDrag = (event, info) => {
     const dragOffset = info.offset.x;
     const cardWidth = 150;
     const draggedIndexes = Math.round(dragOffset / cardWidth);
-  
+
     if (draggedIndexes !== 0) {
-      const newIndex = (currentIndex - draggedIndexes + slides.length) % slides.length;
+      const newIndex =
+        (currentIndex - draggedIndexes + slides.length) % slides.length;
       setCurrentIndex(newIndex);
     }
   };
@@ -175,7 +189,12 @@ export default function Component({data}) {
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={handleDrag}
             >
-              <a className="cursor-pointer" href={slide.redirectionLink} target="_blank" rel="noopener noreferrer">
+              <a
+                className="cursor-pointer"
+                href={slide.redirectionLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <img
                   src={slide.image.url}
                   alt={`Slide ${index + 1}`}
@@ -186,7 +205,7 @@ export default function Component({data}) {
           ))}
         </div>
       </div>
-      
+
       <div className="absolute -bottom-32 md:-bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
           className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
@@ -202,5 +221,5 @@ export default function Component({data}) {
         </button>
       </div>
     </section>
-  )
+  );
 }

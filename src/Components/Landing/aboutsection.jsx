@@ -104,7 +104,7 @@ export default function ScrollAnimatedText() {
   // Show loading state or render content
   return (
     <div
-      className="relative h-screen bg-black px-3 
+      className="relative lg:h-[120vh] bg-black px-3 
             lg:py-10 
             between-md-lg:py-0 
             max-sm:py-0 
@@ -114,7 +114,7 @@ export default function ScrollAnimatedText() {
       ref={containerRef}
     >
       {loading ? (
-        <div className="flex h-[110vh] items-center justify-center ">
+        <div className="flex md:justify-start md:h-[70vh]  h-[110vh] items-center justify-center ">
           <div className="text-white text-xl">Loading...</div>
         </div>
       ) : (
