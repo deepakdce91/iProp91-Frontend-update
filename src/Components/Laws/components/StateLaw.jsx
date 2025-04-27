@@ -1,32 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Book, Gavel, Scale, FileText } from "lucide-react";
+import { ArrowLeft, Book, Gavel, Scale, FileText, Map } from "lucide-react";
 import { FiMinus, FiPlus, FiDownload, FiFile } from "react-icons/fi";
 import axios from "axios";
 import DOMPurify from "dompurify";
 import parse from 'html-react-parser';
 import Breadcrumb from "../../Landing/Breadcrumb";
 
-// Mock data (replace with actual API data when available)
-const mockData = [
-  {
-    id: 1,
-    title: "Delhi",
-    icon: "/images/delhi.png",
-    content: "Content for Criminal Law...",
-  },
-  {
-    id: 2,
-    title: "Haryana",
-    icon: "/images/har.png",
-    content: "Content for Civil Law...",
-  },
+// Complete list of Indian states and union territories with abbreviations
+const allIndianStates = [
+  { id: 1, title: "Andhra Pradesh", code: "AP", color: "#FFD700" },
+  { id: 2, title: "Arunachal Pradesh", code: "AR", color: "#32CD32" },
+  { id: 3, title: "Assam", code: "AS", color: "#1E90FF" },
+  { id: 4, title: "Bihar", code: "BR", color: "#FF4500" },
+  { id: 5, title: "Chhattisgarh", code: "CG", color: "#9932CC" },
+  { id: 6, title: "Goa", code: "GA", color: "#00CED1" },
+  { id: 7, title: "Gujarat", code: "GJ", color: "#FF8C00" },
+  { id: 8, title: "Haryana", code: "HR", color: "#4682B4" },
+  { id: 9, title: "Himachal Pradesh", code: "HP", color: "#6A5ACD" },
+  { id: 10, title: "Jharkhand", code: "JH", color: "#8B4513" },
+  { id: 11, title: "Karnataka", code: "KA", color: "#FF6347" },
+  { id: 12, title: "Kerala", code: "KL", color: "#2E8B57" },
+  { id: 13, title: "Madhya Pradesh", code: "MP", color: "#CD5C5C" },
+  { id: 14, title: "Maharashtra", code: "MH", color: "#B8860B" },
+  { id: 15, title: "Manipur", code: "MN", color: "#9400D3" },
+  { id: 16, title: "Meghalaya", code: "ML", color: "#3CB371" },
+  { id: 17, title: "Mizoram", code: "MZ", color: "#4169E1" },
+  { id: 18, title: "Nagaland", code: "NL", color: "#8FBC8F" },
+  { id: 19, title: "Odisha", code: "OD", color: "#FF69B4" },
+  { id: 20, title: "Punjab", code: "PB", color: "#DAA520" },
+  { id: 21, title: "Rajasthan", code: "RJ", color: "#D2691E" },
+  { id: 22, title: "Sikkim", code: "SK", color: "#48D1CC" },
+  { id: 23, title: "Tamil Nadu", code: "TN", color: "#DC143C" },
+  { id: 24, title: "Telangana", code: "TG", color: "#FF1493" },
+  { id: 25, title: "Tripura", code: "TR", color: "#20B2AA" },
+  { id: 26, title: "Uttar Pradesh", code: "UP", color: "#7B68EE" },
+  { id: 27, title: "Uttarakhand", code: "UK", color: "#6B8E23" },
+  { id: 28, title: "West Bengal", code: "WB", color: "#BA55D3" },
+  // Union Territories
+  { id: 29, title: "Delhi", code: "DL", color: "#708090" },
+  { id: 30, title: "Andaman and Nicobar", code: "AN", color: "#5F9EA0" },
+  { id: 31, title: "Chandigarh", code: "CH", color: "#A9A9A9" },
+  { id: 32, title: "Dadra and Nagar Haveli and Daman and Diu", code: "DD", color: "#BDB76B" },
+  { id: 33, title: "Jammu and Kashmir", code: "JK", color: "#556B2F" },
+  { id: 34, title: "Ladakh", code: "LA", color: "#B0C4DE" },
+  { id: 35, title: "Lakshadweep", code: "LD", color: "#00BFFF" },
+  { id: 36, title: "Puducherry", code: "PY", color: "#F08080" }
 ];
 
 const StateLaw = ({ onBack }) => {
   const [openIndex, setOpenIndex] = useState(null);
-  const [states, setStates] = useState([]); // for active states
+  const [states, setStates] = useState([]); // for active states from API
   const [stateLaws, setStateLaws] = useState([]); // for state-specific laws
-  const [selectedLaw, setSelectedLaw] = useState(mockData[0]); // Default to first state
+  const [selectedLaw, setSelectedLaw] = useState(allIndianStates[28]); // Default to Delhi (index 28)
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -34,6 +60,8 @@ const StateLaw = ({ onBack }) => {
 
   const handleSelectLaw = async (law) => {
     setSelectedLaw(law);
+    setIsLoading(true);
+    
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveLawsByState`,
@@ -42,58 +70,83 @@ const StateLaw = ({ onBack }) => {
         }
       );
       setStateLaws(response.data);
-      console.log(response.data);
+      console.log(`Fetched laws for ${law.title}:`, response.data);
       
     } catch (error) {
-      console.error("Error fetching state laws:", error);
+      console.error(`Error fetching laws for ${law.title}:`, error);
+      setStateLaws([]); // Reset on error
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     const fetchLaws = async () => {
+      setIsLoading(true);
       try {
+        // Fetch list of active states from backend
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveStates`
         );
         setStates(response.data);
-        // Fetch laws for default selected state
-        handleSelectLaw(mockData[0]);
+        
+        // Fetch laws for default selected state (Delhi)
+        handleSelectLaw(allIndianStates[28]);
       } catch (error) {
         console.error("Error fetching states:", error);
+        // If API fails, at least show all states from our hardcoded list
+        setStates(allIndianStates.map(state => state.title));
+      } finally {
+        setIsLoading(false);
       }
     };
+    
     fetchLaws();
   }, []);
 
   // Function to handle file download
   const handleDownload = async (myUrl) => {
-    const fileUrl = myUrl; // Replace with your file link
-    const response = await fetch(fileUrl);
-    
-    // Check if the response is successful
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    if (!myUrl) {
+      console.error("No URL provided for download");
+      return;
     }
-  
-    const blob = await response.blob(); // Get the file as a Blob
-    const url = window.URL.createObjectURL(blob); // Create a Blob URL
-  
-    const link = document.createElement('a'); // Create a link element
-    link.href = url;
     
-    // Use the filename from user input or default to 'filename.pdf' if empty
-    link.setAttribute('download', "document"); 
-  
-    // Append to the body and trigger the download
-    document.body.appendChild(link);
-    link.click();
-  
-    // Clean up and remove the link
-    link.parentNode.removeChild(link);
+    try {
+      const fileUrl = myUrl;
+      const response = await fetch(fileUrl);
+      
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+    
+      const blob = await response.blob(); // Get the file as a Blob
+      const url = window.URL.createObjectURL(blob); // Create a Blob URL
+    
+      const link = document.createElement('a'); // Create a link element
+      link.href = url;
+      
+      // Use the filename from URL or default to 'document'
+      const filename = myUrl.split('/').pop() || "document";
+      link.setAttribute('download', filename); 
+    
+      // Append to the body and trigger the download
+      document.body.appendChild(link);
+      link.click();
+    
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url); // Free up memory
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Failed to download file. Please try again later.");
+    }
   };
 
   // Function to format content with proper styling for tables and links
   const formatContent = (content) => {
+    if (!content) return "";
+    
     // Check if content contains HTML
     const isHTML = /<[^>]+>/.test(content);
     let sanitizedContent;
@@ -188,92 +241,127 @@ const StateLaw = ({ onBack }) => {
     }
   };
 
+  // Function to render state icon/abbreviation
+  const renderStateIcon = (state) => {
+    // If there's an actual image path available
+    if (state.icon) {
+      return <img src={state.icon} alt={state.title} className="w-8 h-8" />;
+    }
+    
+    // Otherwise use the state abbreviation with color background
+    return (
+      <div 
+        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
+        style={{ backgroundColor: state.color }}
+      >
+        {state.code}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col w-full px-5 md:px-20 pt-28 min-h-screen bg-white">
       <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base my-3"} />
+      
+      {/* State Selection Horizontal Scrollable Area */}
       <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg py-3 md:px-10 px-3">
-        {mockData.map((law) => (
+        {allIndianStates.map((state) => (
           <button
-            key={law.id}
+            key={state.id}
             className={`flex flex-col min-w-[70px] items-center focus:outline-none ${
-              selectedLaw?.id === law.id ? "scale-110" : ""
+              selectedLaw?.id === state.id ? "scale-110" : ""
             }`}
-            onClick={() => handleSelectLaw(law)}
+            onClick={() => handleSelectLaw(state)}
           >
             <div
               className={`p-4 rounded-full flex items-center justify-center ${
-                selectedLaw?.id === law.id
+                selectedLaw?.id === state.id
                   ? "bg-white border-[3px] border-black"
                   : "bg-gray-200 border-[2px] border-black"
               }`}
             >
-              <img src={law.icon} alt="img" className="w-8 h-8" />
+              {renderStateIcon(state)}
             </div>
-            <span className="text-xs text-center text-black">{law.title}</span>
+            <span className="text-xs text-center text-black mt-1">{state.title}</span>
           </button>
         ))}
       </div>
 
+      {/* Laws Display Section */}
       {selectedLaw ? (
         <div className="mt-2 animate-fade-in px-5 md:px-10 py-3">
-          <div className="">
-            {stateLaws.length > 0 && stateLaws.map((law, index) => (
-              <div
-                key={index}
-                className={`mb-4 transition-all duration-300 ease-in-out ${
-                  openIndex === index
-                    ? "bg-gray-200 text-black border-[1px] border-black/30"
-                    : "border-[1px] bg-white text-black border-black/30"
-                } p-4 hover:scale-105 transition-all`}
-              >
+          <h2 className="text-2xl font-bold text-center mb-4">Laws of {selectedLaw.title}</h2>
+          
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : stateLaws.length > 0 ? (
+            <div className="">
+              {stateLaws.map((law, index) => (
                 <div
-                  className="flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleFAQ(index)}
+                  key={index}
+                  className={`mb-4 transition-all duration-300 ease-in-out ${
+                    openIndex === index
+                      ? "bg-gray-200 text-black border-[1px] border-black/30"
+                      : "border-[1px] bg-white text-black border-black/30"
+                  } p-4 hover:scale-105 transition-all shadow-sm rounded-md`}
                 >
-                  <h3 className="text-lg font-medium">{law.title}</h3>
-                  <div className="text-xl">
-                    {openIndex === index ? <FiMinus /> : <FiPlus />}
-                  </div>
-                </div>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    openIndex === index ? "max-h-screen mt-4" : "max-h-0"
-                  }`}
-                >
-                  <hr className="border-t-[2px] border-black mb-4" />
-                  {/* Use html-react-parser instead of dangerouslySetInnerHTML */}
-                  <div className="mt-7">
-                    {parse(formatContent(law.content), parserOptions)}
-                  </div>
-                  
-                  {/* Resource Files Section */}
-                  {law.file && (law.file.name || law.file.url) && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-black mb-2">Resource Files:</h4>
-                      <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                        <span className="text-lg">{getFileIcon(law.file.name)}</span>
-                        <a 
-                          href={law.file.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="flex-1 text-blue-600 hover:underline font-medium"
-                        >
-                          {law.file.name || getFilenameFromUrl(law.file.url)}
-                        </a>
-                        <button 
-                          onClick={() => handleDownload(law.file.url)}
-                          className="p-2 text-gray-700 hover:text-blue-600 cursor-pointer"
-                          title="Download file"
-                        >
-                          <FiDownload />
-                        </button>
-                      </div>
+                  <div
+                    className="flex justify-between items-center cursor-pointer"
+                    onClick={() => toggleFAQ(index)}
+                  >
+                    <h3 className="text-lg font-medium">{law.title}</h3>
+                    <div className="text-xl">
+                      {openIndex === index ? <FiMinus /> : <FiPlus />}
                     </div>
-                  )}
+                  </div>
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      openIndex === index ? "max-h-screen mt-4" : "max-h-0"
+                    }`}
+                  >
+                    <hr className="border-t-[2px] border-black mb-4" />
+                    {/* Use html-react-parser instead of dangerouslySetInnerHTML */}
+                    <div className="mt-7">
+                      {parse(formatContent(law.content), parserOptions)}
+                    </div>
+                    
+                    {/* Resource Files Section */}
+                    {law.file && (law.file.name || law.file.url) && (
+                      <div className="mt-4">
+                        <h4 className="font-medium text-black mb-2">Resource Files:</h4>
+                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                          <span className="text-lg">{getFileIcon(law.file.name || law.file.url)}</span>
+                          <a 
+                            href={law.file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="flex-1 text-blue-600 hover:underline font-medium"
+                          >
+                            {law.file.name || getFilenameFromUrl(law.file.url)}
+                          </a>
+                          <button 
+                            onClick={() => handleDownload(law.file.url)}
+                            className="p-2 text-gray-700 hover:text-blue-600 cursor-pointer"
+                            title="Download file"
+                          >
+                            <FiDownload />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              <Map className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <p className="text-gray-500">No laws found for {selectedLaw.title}</p>
+              <p className="text-sm text-gray-400 mt-2">Please check back later or select another state</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="mt-8 text-center text-gray-500">
