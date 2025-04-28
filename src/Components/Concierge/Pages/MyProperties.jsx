@@ -12,7 +12,7 @@ import ApprovedListedProperties from "../ApprovedListedProperties";
 import PropertyForm from "../../Safe/Dealing/DealingPages/PropDetails";
 import BuyForm from "../../forms/rent";
 import SellForm from "../../forms/sell";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import Goldbutton from "../../CompoCards/GoldButton/Goldbutton";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";

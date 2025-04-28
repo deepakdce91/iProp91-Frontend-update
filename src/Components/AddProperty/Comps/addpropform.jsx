@@ -553,7 +553,8 @@ function Addpropform() {
         return toast.error("Please fill all the fields.");
       }
       const data = await response.json();
-      if (data._id) {
+
+      if (data.property._id) {
         setIsUploading(false);
         toast.success("Property added successfully!");
 
