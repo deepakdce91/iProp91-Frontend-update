@@ -45,7 +45,7 @@ export default function Test() {
           `${process.env.REACT_APP_BACKEND_URL}/api/library/fetchAllActiveBlogs`
         );
         setBlogs(response.data);
-        console.log("expert views data", response.data)
+        console.log("expert views data", response.data);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }
@@ -113,7 +113,10 @@ export default function Test() {
           ))}
         </Swiper>
         <div className="w-full flex justify-end items-end mt-5 ">
-          <Link className="text-white  text-sm lg:text-lg border-b-[1px] border-b-white" to={"/library"}>
+          <Link
+            className="text-white  text-sm lg:text-lg border-b-[1px] border-b-white"
+            to={"/library"}
+          >
             View all
           </Link>
         </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import {
   Search,
@@ -338,28 +336,10 @@ const ListingCompo = () => {
           </h1>
           {!showMap && (
             <div className="w-full max-w-5xl mx-auto space-y-4 ">
-              <div className="flex max-w-4xl mx-auto flex-wrap ">
-                {["Buy", "Rent", "New Launch", "Plots/Land", "Projects"].map(
-                  (tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-4 text-sm font-medium transition-colors
-                  ${
-                    activeTab === tab
-                      ? "text-black border-b-2 border-black"
-                      : "text-gray-600 hover:text-black/90"
-                  }`}
-                    >
-                      {tab}
-                    </button>
-                  )
-                )}
-              </div>
-              <div className="w-full max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row items-center rounded-full border border-gray-300 bg-white shadow-sm pr-3">
+              <div className="w-full   max-w-7xl mx-auto">
+                <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
                   {/* Location Input */}
-                  <div className="flex items-center px-4 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
+                  <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 text-black"
@@ -375,16 +355,16 @@ const ListingCompo = () => {
                     <input
                       type="text"
                       placeholder="Enter City, Locality, Project"
-                      className="w-full p-2 outline-none"
+                      className="w-full p-2 outline-none max-sm:p-0 max-sm:placeholder:text-sm"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                     />
                   </div>
 
                   {/* Property Type Dropdown */}
-                  <div className="relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
+                  <div className="max-md:hidden  relative w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <div
-                      className="flex items-center justify-between px-4 py-2 cursor-pointer"
+                      className="flex items-center justify-between max-sm:px-0 px-4 py-2 cursor-pointer"
                       onClick={() => {
                         setShowPropertyDropdown(!showPropertyDropdown);
                         setShowBudgetDropdown(false);
@@ -423,7 +403,7 @@ const ListingCompo = () => {
 
                     {/* Property Type Dropdown Content */}
                     {showPropertyDropdown && (
-                      <div className="absolute top-full left-0 z-10 bg-white w-full lg:w-[150%] shadow-lg rounded-lg border border-gray-200 mt-1 py-2">
+                      <div className="absolute max-sm:hidden top-full left-0 z-10 bg-white w-full lg:w-[150%] shadow-lg rounded-lg border border-gray-200 mt-1 py-2">
                         <div className="px-3 py-2">
                           <div className="flex items-center mb-2">
                             <span className="text-sm font-medium text-gray-700">
@@ -472,7 +452,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Budget Dropdown */}
-                  <div className="relative w-full md:w-1/3">
+                  <div className=" max-sm:hidden relative w-full md:w-1/3">
                     <div
                       className="flex items-center justify-between px-4 py-2 cursor-pointer"
                       onClick={() => {
@@ -585,7 +565,7 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Search Button */}
-                  <button className="bg-black hover:bg-black/80 text-white font-medium px-6 py-3 w-full md:w-auto transition-colors rounded-full">
+                  <button className="bg-black w-[6rem] max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3  max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
                     <div className="flex items-center justify-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -601,7 +581,7 @@ const ListingCompo = () => {
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                         />
                       </svg>
-                      <span>Search</span>
+                      <span className="max-sm:hidden">Search</span>
                     </div>
                   </button>
                 </div>

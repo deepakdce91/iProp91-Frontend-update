@@ -4,13 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import axios from "axios";
 
-
-
 export default function ScrollAnimatedText() {
   const containerRef = useRef(null);
   const [textData, setTextData] = useState({
     title: "",
-    text: ""
+    text: "",
   });
   const [loading, setLoading] = useState(true);
 
@@ -60,20 +58,21 @@ export default function ScrollAnimatedText() {
             },
           }
         );
-        
+
         if (response.data && response.data.length > 0) {
           // Access the first item in the array
           setTextData({
             title: response.data[0].title || "",
-            text: response.data[0].text || ""
+            text: response.data[0].text || "",
           });
           console.log("hero text: ", response.data[0]);
         } else {
           console.warn("No hero text data found in the response");
           // Set fallback data if needed
           setTextData({
-            title: "Curated real estate management solutions for the ones who have arrived",
-            text: "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free."
+            title:
+              "Curated real estate management solutions for the ones who have arrived",
+            text: "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free.",
           });
         }
       } catch (error) {
@@ -83,36 +82,43 @@ export default function ScrollAnimatedText() {
         );
         // Set fallback data on error
         setTextData({
-          title: "Curated real estate management solutions for the ones who have arrived",
-          text: "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free."
+          title:
+            "Curated real estate management solutions for the ones who have arrived",
+          text: "Real estate transactions as well as management is complicated, biased, and lacks transparency. With constant regulatory changes and cumbersome one-sided documentation, you need a refined way to manage your most valued asset. Using curated tools and unbiased data-driven analysis, we endeavor to ensure your real estate transactions yield desired results and your ownership experience is hassle-free.",
         });
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
   // Split the title and text into words
   const headingWords = splitText(textData.title);
   const subheadingWords = splitText(textData.text);
-  
+
   // Calculate total words for animation timing
   const totalWords = headingWords.length + subheadingWords.length * 1.3;
 
   // Show loading state or render content
   return (
     <div
-      className="relative min-h-screen bg-black px-3 py-10"
+      className="relative h-screen bg-black px-3 
+            lg:py-10 
+            between-md-lg:py-0 
+            max-sm:py-0 
+            md:pb-0 
+            md:py-0 
+            flex justify-start "
       ref={containerRef}
     >
       {loading ? (
-        <div className="flex min-h-[110vh] items-center justify-center">
+        <div className="flex h-[110vh] items-center justify-center ">
           <div className="text-white text-xl">Loading...</div>
         </div>
       ) : (
-        <section className="flex min-h-[110vh] lg:pb-28 items-center justify-center">
+        <section className="flex lg:h-[110vh] md:justify-start md:h-[70vh] lg:pb-28 items-center justify-center">
           <div className="flex flex-col gap-8 items-center">
             <h1 className="lg:text-6xl font-semibold w-full lg:w-8/12 text-4xl text-white">
               {headingWords.map((word, index) => (
