@@ -28,7 +28,7 @@ const useAuthToken = (navigate) => {
           location.pathname.includes("site-faqs") ||
           location.pathname.includes("/property-journey") ||
           location.pathname.includes("/search-properties") ||
-          location.pathname.includes("/property-details") ||
+          location.pathname.includes("/search-properties") ||
           location.pathname.includes("/property-listing")
         )
       ) {
