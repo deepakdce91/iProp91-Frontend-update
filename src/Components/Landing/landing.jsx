@@ -34,8 +34,8 @@ import ListingCompo from "./ListingCompo";
 import "leaflet/dist/leaflet.css";
 import PropertyJouneyPage from "../PropertyJourneyPage/page";
 import RedeemRewards from "../redeemRewards/Index";
-import PropertyListing from "../propertyListing/listing";
 import App from "../map/map";
+import PropertyListing from "../propertyListing/listing";
 
 function LandingPage() {
   return (
@@ -43,11 +43,11 @@ function LandingPage() {
       <HeroSection />
       <AboutSection />
       <Comparision />
+      <WeDoMore />
       <MobileScreen />
       <Number />
       <BrandMarquee />
       <Knowledge />
-      <WeDoMore />
       <ListingCompo />
       <Insight />
       <Testimonials />
@@ -147,12 +147,12 @@ function Landing({ setIsLoggedIn }) {
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
-
+        <Route path="/search-properties" element={<App />} />
+        <Route path="/property-listing" element={<PropertyListing />} />
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
-        <Route path={"/search-properties"} element={<App />} />
-        <Route path={"/property-listing"} element={<PropertyListing />} />
+
         <Route path="/laws" element={<Law />} />
         <Route path="/laws/statelaw" element={<StateLaw />} />
         <Route path="/laws/centrallaw" element={<CentralLaw />} />

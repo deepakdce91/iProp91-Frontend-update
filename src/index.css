@@ -2,126 +2,148 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer  utilities{
-    .text-primary{
-        background: linear-gradient(90deg, #f9bc2e 0, #e29a1e 13%, #ffcd38 30%, #f0af30 73%, #e29a1e 83%, #ffcd38 96%, #dd931a);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .text-secondary {
-        color: #8b8989;
-    }
-    .border-secondary {
-        border: 2px solid #b7b7b7;
-    }
-    .bg-primary {
-        background: linear-gradient(90deg, #f9bc2e 0, #e29a1e 13%, #ffcd38 30%, #f0af30 73%, #e29a1e 83%, #ffcd38 96%, #dd931a);
-    }
-    .bg-slate-100 {
-        --tw-bg-opacity: 1;
-        background-color: rgb(241 245 249 / var(--tw-bg-opacity));
-    }
-    .border-simple {
-        border-color: #f9bc2e;
-    }
-    .bg-gray{
-        background-color: #f5f5f5;
-    }
+/* Override any custom text selection styles */
+::selection {
+  background: #007bff !important;
+  color: white !important;
 }
 
 @layer utilities {
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-   /* Hide scrollbar for IE, Edge and Firefox */
-    .no-scrollbar {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+  .text-primary {
+    background: linear-gradient(
+      90deg,
+      #f9bc2e 0,
+      #e29a1e 13%,
+      #ffcd38 30%,
+      #f0af30 73%,
+      #e29a1e 83%,
+      #ffcd38 96%,
+      #dd931a
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-secondary {
+    color: #8b8989;
+  }
+  .border-secondary {
+    border: 2px solid #b7b7b7;
+  }
+  .bg-primary {
+    background: linear-gradient(
+      90deg,
+      #f9bc2e 0,
+      #e29a1e 13%,
+      #ffcd38 30%,
+      #f0af30 73%,
+      #e29a1e 83%,
+      #ffcd38 96%,
+      #dd931a
+    );
+  }
+  .bg-slate-100 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+  }
+  .border-simple {
+    border-color: #f9bc2e;
+  }
+  .bg-gray {
+    background-color: #f5f5f5;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }
 
 @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-  
-  .fade-in-text {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  
-  .fade-in-text span {
+  0% {
     opacity: 0;
-    animation: fadeIn 1s forwards;
-    animation-delay: calc(var(--char-index) * 0.1s); /* Delay for each letter */
   }
-  
+  100% {
+    opacity: 1;
+  }
+}
 
-  
-  .text-highlight {
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    background-image: linear-gradient(to right, white 50%, transparent 50%);
-  }
+.fade-in-text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+}
 
+.fade-in-text span {
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  animation-delay: calc(var(--char-index) * 0.1s); /* Delay for each letter */
+}
 
-  .accordion-content {
-    overflow: hidden;
-    transition: max-height 0.4s ease-out; /* Add smooth transition effect */
-  }
-  
-  .max-h-0 {
-    max-height: 0;
-  }
-  
-  .max-h-96 {
-    max-height: 500px; /* Adjust as necessary based on your content size */
-  }
-  
+.text-highlight {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, white 50%, transparent 50%);
+}
 
-  ::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent; /* Background of the scrollbar track */
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.5); /* Color of the scrollbar thumb */
-    border-radius: 10px; /* Rounded corners for the scrollbar thumb */
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.8); /* Darker color on hover */
-  }
-  
-  /* Hide default scrollbar */
-  body {
-    overflow: hidden; /* Hide default scrollbar */
-  }
-  
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 0.4s ease-out; /* Add smooth transition effect */
+}
 
+.max-h-0 {
+  max-height: 0;
+}
 
-  .customLoader {
-    width: 48px;
-    height: 48px;
-    border: 5px solid #FFF;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-    }
+.max-h-96 {
+  max-height: 500px; /* Adjust as necessary based on your content size */
+}
 
-    @keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-    } 
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.5); /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.8); /* Darker color on hover */
+}
+
+/* Hide default scrollbar */
+body {
+  overflow: hidden; /* Hide default scrollbar */
+}
+
+.customLoader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
