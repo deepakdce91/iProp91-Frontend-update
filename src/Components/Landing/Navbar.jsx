@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaCaretDown, FaCaretUp, FaTimes } from "react-icons/fa";
 import { PiHandCoinsFill } from "react-icons/pi"; // Added import for PiHandCoinsFill
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Profile from "../User/Profile/profile";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const Navbar = ({setIsLoggedIn}) => {
+const Navbar = ({ setIsLoggedIn }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
   const [isVisible, setIsVisible] = useState(true);
@@ -32,48 +32,53 @@ const Navbar = ({setIsLoggedIn}) => {
   const navigate = useNavigate();
   const [isDarkBg, setIsDarkBg] = useState(true);
   const location = useLocation();
-  
+  const [serviceDown, setServiceDown] = useState(false);
+
   // Define routes that should have specific backgrounds
   const specificRoutes = {
-    '/nri': false,      // true means dark background
-    '/lend': false,
-    '/advice': false,  // false means light background
-    '/case-laws': false,
-    '/library': false,
-    '/faqs': false,
-    '/laws': false,
-    '/laws/statelaw': false,
-    '/laws/centrallaw': false,
-    '/': true,
-    '/property-journey': false,
-    '/rewards': true,  // Added rewards route with dark background
+    "/nri": false, // true means dark background
+    "/lend": false,
+    "/advice": false, // false means light background
+    "/case-laws": false,
+    "/library": false,
+    "/faqs": false,
+    "/laws": false,
+    "/laws/statelaw": false,
+    "/laws/centrallaw": false,
+    "/": true,
+    "/property-journey": false,
+    "/rewards": true, // Added rewards route with dark background
   };
-  
+
   const SidebarIcons = {
     Concierge: { icon: Home, link: "/concierge" },
     "iProp91 Safe": { icon: Key, link: "/safe" },
     "Owners' Club": { icon: Users, link: "/family" },
     "Real Insights": { icon: Lightbulb, link: "/realinsight" },
-    "Advice": { icon: BookOpen, link: "/advice" },
-    "Lend": { icon: RefreshCw, link: "/lend" },
-    "NRI": { icon: Home, link: "/nri" },
-    "Rewards": { icon: Gift, link: "/rewards" }, // Added Rewards to mobile menu
+    Advice: { icon: BookOpen, link: "/advice" },
+    Lend: { icon: RefreshCw, link: "/lend" },
+    NRI: { icon: Home, link: "/nri" },
+    Rewards: { icon: Gift, link: "/rewards" }, // Added Rewards to mobile menu
     "Listing Page": { icon: Home, link: "/property-for-sale" },
   };
 
   // Check if current route should override background detection
   const shouldOverrideBackground = () => {
     const currentPath = location.pathname;
-    if (currentPath.startsWith('/library')) {
+    if (currentPath.startsWith("/library")) {
       return false; // All library routes default to light background
     }
     return currentPath in specificRoutes ? specificRoutes[currentPath] : null;
   };
 
+  function handleServicesDropdown() {
+    setServiceDown(!serviceDown);
+  }
+
   // Function to check background color
   const checkBackgroundColor = () => {
     const routeOverride = shouldOverrideBackground();
-    
+
     // If route has specific background setting, use that
     if (routeOverride !== null) {
       setIsDarkBg(routeOverride);
@@ -83,10 +88,14 @@ const Navbar = ({setIsLoggedIn}) => {
     // Otherwise use automatic detection
     const element = document.body;
     const bgColor = window.getComputedStyle(element).backgroundColor;
-    
+
     const rgb = bgColor.match(/\d+/g);
     if (rgb) {
-      const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+      const brightness =
+        (parseInt(rgb[0]) * 299 +
+          parseInt(rgb[1]) * 587 +
+          parseInt(rgb[2]) * 114) /
+        1000;
       setIsDarkBg(brightness < 128);
     }
   };
@@ -101,12 +110,11 @@ const Navbar = ({setIsLoggedIn}) => {
     const observer = new MutationObserver(checkBackgroundColor);
     observer.observe(document.body, {
       attributes: true,
-      attributeFilter: ['style', 'class']
+      attributeFilter: ["style", "class"],
     });
 
     return () => observer.disconnect();
   }, []);
-
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -158,9 +166,9 @@ const Navbar = ({setIsLoggedIn}) => {
   };
   const handleClickOutside = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setIsMobileMenuOpen(false);
+      setIsMobileMenuOpen(false);
     }
-};
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -193,40 +201,47 @@ const Navbar = ({setIsLoggedIn}) => {
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
-        const currentScrollPos = window.scrollY;
-        setIsVisible(currentScrollPos < scrollPos);
-        setScrollPos(currentScrollPos);
+      const currentScrollPos = window.scrollY;
+      setIsVisible(currentScrollPos < scrollPos);
+      setScrollPos(currentScrollPos);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-}, [scrollPos]);
+  }, [scrollPos]);
 
-useEffect(() => {
+  useEffect(() => {
     if (isAuthModalOpen) {
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
+      document.body.style.overflow = "hidden"; // Prevent scrolling
     } else {
-      document.body.style.overflow = 'unset'; // Restore scrolling
+      document.body.style.overflow = "unset"; // Restore scrolling
     }
   }, [isAuthModalOpen]);
 
   return (
     <nav
-    className={`flex items-center justify-between px-10 py-4 ${
-      isDarkBg 
-        ? `${location.pathname.startsWith("/rewards") ? "bg-black bg-opacity-10 text-black" : "bg-white bg-opacity-10 text-white"}` 
-        : "bg-black bg-opacity-10 text-black"
-    } backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
-      isDarkBg ? "border-white" : "border-black"
-    } ${
-      isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
-    }`}
+      className={`flex items-center justify-between px-10 py-4 ${
+        isDarkBg
+          ? `${
+              location.pathname.startsWith("/rewards")
+                ? "bg-black bg-opacity-10 text-black"
+                : "bg-white bg-opacity-10 text-white"
+            }`
+          : "bg-black bg-opacity-10 text-black"
+      } backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
+        isDarkBg ? "border-white" : "border-black"
+      } ${
+        isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
+      }`}
     >
       {/* Logo */}
-      <Link to={"/"} className="text-2xl flex justify-center items-center gap-2 font-bold text-primary">
+      <Link
+        to={"/"}
+        className="text-2xl flex justify-center items-center gap-2 font-bold text-primary"
+      >
         <img
           className="w-12 h-12 scale-125"
           src="/images/Logo1.png"
@@ -234,12 +249,38 @@ useEffect(() => {
         />
         <p>iProp91</p>
       </Link>
-
       {/* Desktop Links */}
-      <div className="hidden md:flex space-x-8">
-        <Link to="/services" className="hover:text-white/80">
-          Services
-        </Link>
+      <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base">
+        <div className="hover:text-white/80 relative">
+          <div
+            className="flex items-center cursor-pointer gap-1"
+            onClick={() => handleServicesDropdown()}
+          >
+            <span className="whitespace-nowrap">Services</span>
+            <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
+          </div>
+          <div className="absolute top-10 flex items-center justify-start left-0 z-10 bg-white rounded-md">
+            {serviceDown && (
+              <div className="p-3 lg:p-4 text-black flex flex-col gap-2 whitespace-nowrap">
+                <Link to="/services/concierge" className="hover:text-gray-600">
+                  Concierge
+                </Link>
+                <Link
+                  to="/services/owners-club"
+                  className="hover:text-gray-600"
+                >
+                  Owners' Club
+                </Link>
+                <Link to="/services/safe" className="hover:text-gray-600">
+                  Safe
+                </Link>
+                <Link to="/services/listing" className="hover:text-gray-600">
+                  Listing
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
         <Link to="/nri" className="hover:text-white/80">
           NRI
         </Link>
@@ -250,82 +291,84 @@ useEffect(() => {
           Lend
         </Link>
         <Link to="/rewards" className="hover:text-white/80 flex items-center">
-          <PiHandCoinsFill className="text-xl" />
+          <PiHandCoinsFill className="text-lg lg:text-xl" />
         </Link>
 
         {user ? (
           <Profile />
         ) : (
-          <button onClick={openAuthModal} className="">
+          <button onClick={openAuthModal} className="whitespace-nowrap">
             Member login
           </button>
         )}
       </div>
-
       {/* Mobile Menu Icon */}
       <div className="md:hidden flex items-center z-[100]">
         <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
-
       {/* Mobile Menu Modal */}
       {isMobileMenuOpen && (
-        <motion.div 
-        initial={{ opacity: 0, y: "-100%" }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: "-100%" }}
-        transition={{ type: "tween", duration: 0.3 }}
-        className="z-[100] fixed  h-screen w-screen -top-4 -left-5  lg:hidden text-white transform transition-transform duration-300 ease-in-out"
-      >
-        <div
-          className="w-full h-full flex flex-col z-[100]"
-          style={{
-            backgroundImage: `url(/images/sidebarbg.png)`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
+        <motion.div
+          initial={{ opacity: 0, y: "-100%" }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: "-100%" }}
+          transition={{ type: "tween", duration: 0.3 }}
+          className="z-[100] fixed  h-screen w-screen -top-4 -left-5  lg:hidden text-white transform transition-transform duration-300 ease-in-out"
         >
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-75"></div>
-          <div className="flex justify-end px-3 py-2 z-[110]">
-            <button onClick={toggleMobileMenu} className="p-2 bg-gold rounded-full mt-4">
-              <img
-                alt="close"
-                loading="lazy"
-                width="14"
-                height="14"
-                src="/svgs/cross.c0162762.svg"
-              />
-            </button>
-          </div>
-          <nav className="flex flex-col justify-evenly text-white z-[110]">
-            {Object.keys(SidebarIcons).map((key, index) => (
-              <Link
-                key={index}
-                to={SidebarIcons[key].link}
-                className="flex gap-2 px-7 py-4 rounded-xl ml-auto mr-auto"
+          <div
+            className="w-full h-full flex flex-col z-[100]"
+            style={{
+              backgroundImage: `url(/images/sidebarbg.png)`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-75"></div>
+            <div className="flex justify-end px-3 py-2 z-[110]">
+              <button
                 onClick={toggleMobileMenu}
+                className="p-2 bg-gold rounded-full mt-4"
               >
-                <p className="text-xl my-3 md:my-5">{key}</p>
-              </Link>
-            ))}
-          </nav> 
-        </div>
-      </motion.div>
+                <img
+                  alt="close"
+                  loading="lazy"
+                  width="14"
+                  height="14"
+                  src="/svgs/cross.c0162762.svg"
+                />
+              </button>
+            </div>
+            <nav className="flex flex-col justify-evenly text-white z-[110]">
+              {Object.keys(SidebarIcons).map((key, index) => (
+                <Link
+                  key={index}
+                  to={SidebarIcons[key].link}
+                  className="flex gap-2 px-7 py-4 rounded-xl ml-auto mr-auto"
+                  onClick={toggleMobileMenu}
+                >
+                  <p className="text-xl my-3 md:my-5">{key}</p>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </motion.div>
       )}
-
       {/* Auth Modal */}
       {isAuthModalOpen && (
-        <Auth 
-          onClose={closeAuthModal} 
-          setIsLoggedIn={setIsLoggedIn} 
-          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 z-50 transition-transform transform ${isAuthModalOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        <Auth
+          onClose={closeAuthModal}
+          setIsLoggedIn={setIsLoggedIn}
+          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 z-50 transition-transform transform ${
+            isAuthModalOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         />
       )}
     </nav>
-  ); 
-}; 
+  );
+};
 
 export default Navbar;

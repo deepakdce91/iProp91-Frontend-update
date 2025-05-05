@@ -8,14 +8,25 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
+  // Development-only logs that should be removed in production
+  const DEBUG = process.env.NODE_ENV === "development";
+
+  if (DEBUG) {
+    console.log("PropertyCard rendered with:", { property, propertyId });
+  }
+
+  const navigate = useNavigate();
+
   // If propertyId is provided but no property data, we can fetch it
   const [propertyData, setPropertyData] = useState(property);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
+    if (DEBUG) {
+      console.log("PropertyCard useEffect triggered");
+    }
+
     // If we already have property data, use it
     if (property) {
       setPropertyData(property);
@@ -50,10 +61,10 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
 
       fetchPropertyData();
     }
-  }, [property, propertyId]);
+  }, [property, propertyId, processProperty]);
 
   // Function to process property data similar to App.jsx
-  const processProperty = (rawProperty) => {
+  const processProperty = React.useCallback((rawProperty) => {
     return {
       ...rawProperty,
       title:
@@ -92,7 +103,8 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
         rawProperty.distance ||
         `${Math.floor(Math.random() * 500) + 50} kilometres away`,
     };
-  };
+  }, []);
+
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -113,7 +125,8 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
   ];
 
   // Use property.images or fallback to dummy images
-  const images = property?.images?.length > 0 ? property.images : dummyImages;
+  const images =
+    propertyData?.images?.length > 0 ? propertyData.images : dummyImages;
 
   // Show loading skeleton when isLoading or fetchLoading is true
   if (isLoading || fetchLoading) {
@@ -189,22 +202,30 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
 
   const handleCardClick = (e) => {
     e.stopPropagation();
-    if (propertyData) {
+    if (propertyData && onClick) {
       // Only handle map repositioning here
-      if (onClick) {
-        onClick(propertyData);
-      }
+      onClick(propertyData);
     }
   };
 
-  const handleViewDetailsClick = (e) => {
-    e.stopPropagation();
-    if (propertyData) {
-      navigate(`/property-details/${propertyData._id}`, {
-        state: { property: propertyData },
-      });
-    }
+  // Get property ID with fallbacks for different ID formats
+  const getPropertyId = () => {
+    if (!propertyData) return null;
+
+    // Try multiple possible ID fields
+    return (
+      propertyData._id ||
+      propertyData.id ||
+      propertyData.propertyId ||
+      propertyData.property_id
+    );
   };
+
+  // Get the correct property ID
+  const propId = getPropertyId();
+
+  // Create a proper absolute URL to ensure consistency
+  const detailsUrl = propId ? `/property-details/${propId}` : null;
 
   return (
     <motion.div
@@ -227,9 +248,9 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
         />
 
         {/* Image Counter */}
-        {propertyData?.images && propertyData.images.length > 1 && (
+        {images.length > 1 && (
           <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-            {activeImageIndex + 1}/{propertyData.images.length}
+            {activeImageIndex + 1}/{images.length}
           </div>
         )}
 
@@ -241,6 +262,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
               onClick={handlePrevImage}
               onMouseEnter={(e) => e.stopPropagation()}
               onMouseLeave={(e) => e.stopPropagation()}
+              aria-label="Previous image"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -262,6 +284,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
               onClick={handleNextImage}
               onMouseEnter={(e) => e.stopPropagation()}
               onMouseLeave={(e) => e.stopPropagation()}
+              aria-label="Next image"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -308,6 +331,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
           }}
           onMouseEnter={(e) => e.stopPropagation()}
           onMouseLeave={(e) => e.stopPropagation()}
+          aria-label={isLiked ? "Remove from favorites" : "Add to favorites"}
         >
           <Heart
             className={`w-5 h-5 ${
@@ -339,29 +363,34 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
         </p>
 
         <div className="flex justify-end items-center mt-4">
-          <motion.button
-            className="px-3 py-1.5 bg-black text-gold-500 rounded-md text-sm font-medium flex items-center"
-            whileHover={{ scale: 1.05, backgroundColor: "#111" }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400 }}
-            onClick={handleViewDetailsClick}
-          >
-            View Details
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 ml-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {detailsUrl ? (
+            <a
+              href={detailsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-black text-gold-500 rounded-md text-sm font-medium flex items-center hover:bg-gray-900 transition-colors"
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`View details of property in ${location}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </motion.button>
+              View Details
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 ml-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </a>
+          ) : (
+            <span className="text-gray-400 text-sm">No details available</span>
+          )}
         </div>
       </div>
     </motion.div>

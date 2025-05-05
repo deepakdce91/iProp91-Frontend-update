@@ -1,0 +1,127 @@
+/* Gold Theme CSS Variables */
+:root {
+  --gold-100: #fff6e0;
+  --gold-200: #ffe7b3;
+  --gold-300: #ffd980;
+  --gold-400: #ffc94d;
+  --gold-500: #D4AF37; /* Primary gold */
+  --gold-600: #B8860B; /* Dark Goldenrod */
+  --gold-700: #A67C00;
+  --gold-800: #806000;
+  --gold-900: #4d3900;
+  
+  --black-100: #d5d5d5;
+  --black-200: #ababab;
+  --black-300: #808080;
+  --black-400: #565656;
+  --black-500: #2b2b2b;
+  --black-600: #1f1f1f;
+  --black-700: #171717;
+  --black-800: #0f0f0f;
+  --black-900: #070707;
+  
+  /* Shadows */
+  --gold-shadow: 0 4px 12px rgba(255, 186, 26, 0.15);
+  --gold-glow: 0 0 15px rgba(255, 186, 26, 0.3);
+}
+
+/* Tailwind-compatible utility classes */
+.text-gold-500 { color: var(--gold-500); }
+.text-gold-600 { color: var(--gold-600); }
+.bg-gold-500 { background-color: var(--gold-500); }
+.bg-gold-600 { background-color: var(--gold-600); }
+.bg-gold-700 { background-color: var(--gold-700); }
+.bg-gold-50 { background-color: #FFF8DC; }
+.border-gold-500 { border-color: var(--gold-500); }
+.border-gold-600 { border-color: var(--gold-600); }
+.ring-gold-500 { --tw-ring-color: var(--gold-500); }
+
+/* Hover variants */
+.hover\:text-gold-400:hover { color: #FFD700; }
+.hover\:text-gold-500:hover { color: var(--gold-500); }
+.hover\:bg-gold-50:hover { background-color: #FFF8DC; }
+.hover\:bg-gold-500:hover { background-color: var(--gold-500); }
+.hover\:bg-gold-600:hover { background-color: var(--gold-600); }
+.hover\:bg-gold-700:hover { background-color: var(--gold-700); }
+
+/* Focus variants */
+.focus\:border-gold-500:focus { border-color: var(--gold-500); }
+
+/* Gold Theme Classes */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, var(--black-700) 0%, var(--black-900) 100%);
+}
+
+.text-gold {
+  color: var(--gold-500);
+}
+
+.border-gold {
+  border-color: var(--gold-500);
+}
+
+.btn-gold {
+  background-color: var(--gold-500);
+  color: var(--black-900);
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  background-color: var(--gold-600);
+  box-shadow: var(--gold-shadow);
+}
+
+.filter-item {
+  transition: all 0.2s ease;
+}
+
+.filter-item:hover {
+  transform: translateY(-2px);
+}
+
+.filter-item.selected {
+  background-color: var(--gold-500);
+  color: var(--black-900);
+  border-color: var(--gold-600);
+  box-shadow: var(--gold-shadow);
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  background-color: var(--black-800);
+  border: 1px solid var(--black-600);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  color: var(--gold-500);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--gold-500);
+}

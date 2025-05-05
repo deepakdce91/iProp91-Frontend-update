@@ -31,26 +31,27 @@ import BlogPost from "../Library/BlogPost";
 import SiteFaqs from "../site-faqs/page";
 import Stage2Form from "../Journey/Stage2Form";
 import ListingCompo from "./ListingCompo";
-import 'leaflet/dist/leaflet.css';
+import "leaflet/dist/leaflet.css";
 import PropertyJouneyPage from "../PropertyJourneyPage/page";
-import RedeemRewards from "../redeemRewards/Index"
-
+import RedeemRewards from "../redeemRewards/Index";
+import MapSearchComponent from "../map/map";
+import PropertyDetailPage from "../map/pages/PropertyDetailPage";
+import PropertyListing from "../propertyListing/listing";
 function LandingPage() {
   return (
     <>
       <HeroSection />
       <AboutSection />
       <Comparision />
+      <WeDoMore />
       <MobileScreen />
       <Number />
       <BrandMarquee />
       <Knowledge />
-      <WeDoMore />
-      <ListingCompo/>
+      <ListingCompo />
       <Insight />
       <Testimonials />
       <Call />
-      
 
       {/* <ContactUs /> */}
     </>
@@ -146,11 +147,12 @@ function Landing({ setIsLoggedIn }) {
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
-
+        <Route path="/search-properties" element={<MapSearchComponent />} />
+        <Route path="/property-details/:id" element={<PropertyDetailPage />} />
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
-
+        <Route path="/property-listing" element={<PropertyListing />} />
         <Route path="/laws" element={<Law />} />
         <Route path="/laws/statelaw" element={<StateLaw />} />
         <Route path="/laws/centrallaw" element={<CentralLaw />} />
@@ -164,7 +166,10 @@ function Landing({ setIsLoggedIn }) {
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}
         />
-        <Route path="/journey" element={<JourneyPage setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route
+          path="/journey"
+          element={<JourneyPage setIsLoggedIn={setIsLoggedIn} />}
+        />
 
         <Route
           path="/stage1Form"
@@ -179,7 +184,8 @@ function Landing({ setIsLoggedIn }) {
       </Routes>
       {(location.pathname !== "/advice" ||
         location.pathname !== "/journey" ||
-        location.pathname !== "/stage1Form"  || location.pathname !== "/stage2Form") && <Footer />}
+        location.pathname !== "/stage1Form" ||
+        location.pathname !== "/stage2Form") && <Footer />}
       {/* <Footer /> */}
     </>
   );

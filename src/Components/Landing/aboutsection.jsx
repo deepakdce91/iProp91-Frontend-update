@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function ScrollAnimatedText() {
   const containerRef = useRef(null);
@@ -51,16 +52,16 @@ export default function ScrollAnimatedText() {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/heroText/fetchAllHeroTexts`,
+          `${process.env.REACT_APP_API_URL}/api/heroText/fetchAllHeroTexts`,
           {
             headers: {
               "Content-Type": "application/json",
+              "auth-token": localStorage.getItem("token"),
             },
           }
         );
 
         if (response.data && response.data.length > 0) {
-          // Access the first item in the array
           setTextData({
             title: response.data[0].title || "",
             text: response.data[0].text || "",
@@ -68,7 +69,6 @@ export default function ScrollAnimatedText() {
           console.log("hero text: ", response.data[0]);
         } else {
           console.warn("No hero text data found in the response");
-          // Set fallback data if needed
           setTextData({
             title:
               "Curated real estate management solutions for the ones who have arrived",
@@ -76,11 +76,8 @@ export default function ScrollAnimatedText() {
           });
         }
       } catch (error) {
-        console.error(
-          "Error fetching data:",
-          error.response?.data || error.message
-        );
-        // Set fallback data on error
+        console.error("Error fetching hero text:", error);
+        toast.error("Failed to fetch hero text");
         setTextData({
           title:
             "Curated real estate management solutions for the ones who have arrived",
@@ -90,7 +87,6 @@ export default function ScrollAnimatedText() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
