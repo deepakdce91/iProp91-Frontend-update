@@ -12,6 +12,7 @@ import useAuthToken from "./hooks/useAuthToken.js";
 import { ToastContainer } from "react-toastify";
 import InvitationPage from "./Components/Invitation/InvitationPage.jsx";
 import WelcomePage from "./Components/Welcome/WelcomePage.jsx";
+import PropertyDetail from "./Components/listingpage/id/page.jsx";
 
 // import { FcLock } from "react-icons/fc";
 
@@ -71,19 +72,18 @@ function App() {
           {/* Public routes accessible to all */}
           <Route path="/welcome/:token" element={<WelcomePage />} />
           <Route path="/invite/:token" element={<InvitationPage />} />
-          
           {/* Unauthenticated routes */}
           {isLoggedIn === false && (
-            <Route path="/*" element={<Landing setIsLoggedIn={setIsLoggedIn} />} />
+            <Route
+              path="/*"
+              element={<Landing setIsLoggedIn={setIsLoggedIn} />}
+            />
           )}
-
           <Route
             path="/authenticate"
             element={<Auth setIsLoggedIn={setIsLoggedIn} authPage={true} />}
           />
-
           <Route path="/name" element={<AskName />} />
-
           {/* Protected routes */}
           {isLoggedIn === true && (
             <Route

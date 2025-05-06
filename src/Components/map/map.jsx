@@ -1,0 +1,1499 @@
+import React, { useState, useEffect, useCallback, useRef, memo } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import {
+  Home,
+  Star,
+  Heart,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import SearchBar from "./components/searchbar";
+import PropertyCardComponent from "./components/PropertyCard";
+import FiltersPanel from "./pages/FiltersPage";
+import ErrorBoundary from "./components/ErrorBoundary";
+import PropertyDetailPage from "./pages/PropertyDetailPage";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
+// Debounce function to limit API calls
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+
+// Create custom house icon
+const houseIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+// Create custom user location icon
+const userLocationIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+// Image Carousel Component
+const ImageCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const handlePrev = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  return (
+    <div className="relative w-full h-full overflow-hidden">
+      <motion.img
+        key={currentIndex}
+        src={images[currentIndex]}
+        alt={`Property image ${currentIndex + 1}`}
+        className="w-full h-full object-cover"
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -100 }}
+        transition={{ duration: 0.3 }}
+      />
+
+      <button
+        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 p-1 rounded-full hover:bg-white"
+        onClick={handlePrev}
+      >
+        <ChevronLeft size={20} className="text-gray-700" />
+      </button>
+
+      <button
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/70 p-1 rounded-full hover:bg-white"
+        onClick={handleNext}
+      >
+        <ChevronRight size={20} className="text-gray-700" />
+      </button>
+
+      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+        {images.map((_, index) => (
+          <div
+            key={index}
+            className={`w-1.5 h-1.5 rounded-full ${
+              currentIndex === index ? "bg-white" : "bg-white/50"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Main app component
+export default function App() {
+  return (
+    <div className="pt-[14vh] bg-black">
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<AirbnbMapClone />} />
+          <Route path="/property/:id" element={<PropertyDetailPage />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </ErrorBoundary>
+    </div>
+  );
+}
+
+function AirbnbMapClone() {
+  const location = useLocation();
+  const [mapInstance, setMapInstance] = useState(null);
+  const [properties, setProperties] = useState([]);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [isFetchingLimited, setIsFetchingLimited] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [currentStateCity, setCurrentStateCity] = useState({
+    state: "",
+    city: "",
+  });
+  const [activeFilters, setActiveFilters] = useState({
+    propertyType: [],
+    bedrooms: [],
+    budget: { min: 0, max: 10000000 },
+  });
+  const [panelState, setPanelState] = useState("half");
+  const panelRef = useRef(null);
+  const startYRef = useRef(0);
+  const currentYRef = useRef(0);
+
+  // State data from API
+  const [statesData, setStatesData] = useState([]);
+
+  // Function to fetch states data from API - not memoized since it's only called once
+  const fetchStatesData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/states`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+      setStatesData(response.data.sort((a, b) => a.name.localeCompare(b.name)));
+      console.log("States data fetched:", response.data.length, "states");
+    } catch (error) {
+      console.error("Error fetching states data:", error);
+      toast.error("Failed to fetch states data");
+    }
+  };
+
+  // Fetch states data on component mount
+  // We're using useRef to ensure it only runs once on mount, avoiding the dependency issue completely
+  const statesDataFetchedRef = useRef(false);
+  useEffect(() => {
+    if (!statesDataFetchedRef.current) {
+      statesDataFetchedRef.current = true;
+      fetchStatesData();
+    }
+  }, []);
+
+  // Utility function to process property data - memoized with useCallback
+  const processProperties = useCallback(
+    (propertiesArray, latitude, longitude) => {
+      // Add distance and coordinates for each property
+      const propertiesWithCoordinates = propertiesArray.map((property) => {
+        // Check if coordinates array is empty or undefined
+        let propertyCoordinates;
+
+        if (property.coordinates) {
+          propertyCoordinates = {
+            latitude: parseFloat(property.coordinates.latitude),
+            longitude: parseFloat(property.coordinates.longitude),
+          };
+        } else {
+          // If no valid coordinates, add random coordinates near the center
+          propertyCoordinates = {
+            latitude: latitude + (Math.random() - 0.5) * 0.05,
+            longitude: longitude + (Math.random() - 0.5) * 0.05,
+          };
+        }
+
+        // Calculate distance from center (simplified)
+        const distance =
+          Math.sqrt(
+            Math.pow(propertyCoordinates.latitude - latitude, 2) +
+              Math.pow(propertyCoordinates.longitude - longitude, 2)
+          ) * 111; // Rough conversion to kilometers
+
+        // Create a complete property object with all fields from the API response
+        return {
+          ...property,
+          coordinates: propertyCoordinates,
+          title:
+            property.title || property.project || `Property ${property._id}`,
+          price:
+            property.price ||
+            (property.minimumPrice
+              ? property.maximumPrice
+                ? `${property.minimumPrice} - ${property.maximumPrice}`
+                : property.minimumPrice
+              : "Price on request"),
+          location: [
+            property.address,
+            property.sector,
+            property.city,
+            property.state,
+            property.pincode,
+          ]
+            .filter(Boolean)
+            .join(", "),
+          images:
+            Array.isArray(property.images) && property.images.length > 0
+              ? property.images
+              : ["/dummy-image.png"], // Using image from public folder
+          propertyType: property.type || "Residential",
+          bedrooms: property.bhk || property.numberOfBedrooms || "",
+          bathrooms: property.numberOfBathrooms || "",
+          washrooms: property.numberOfWashrooms || "",
+          floors: property.numberOfFloors || "",
+          parkings: property.numberOfParkings || "",
+          area: property.size ? `${property.size} sq.ft` : "",
+          description: property.overview || "",
+          distance: `${Math.round(distance)} kilometres away`,
+        };
+      });
+
+      // Sort by distance
+      propertiesWithCoordinates.sort((a, b) => {
+        const distA = parseInt(a.distance);
+        const distB = parseInt(b.distance);
+        return distA - distB;
+      });
+
+      setProperties(propertiesWithCoordinates);
+
+      // Automatically select the first property
+      if (propertiesWithCoordinates.length > 0) {
+        setSelectedProperty(propertiesWithCoordinates[0]);
+      }
+    },
+    [setProperties, setSelectedProperty]
+  );
+
+  // Function to fetch properties near a location - memoized with useCallback
+  const fetchPropertiesNearLocation = useCallback(
+    async (latitude, longitude) => {
+      try {
+        setIsLoading(true);
+
+        console.log(
+          `Fetching properties near latitude: ${latitude}, longitude: ${longitude}`
+        );
+
+        try {
+          const response = await axios.get(
+            `https://iprop91new.onrender.com/api/projectsDataMaster?lat=${latitude}&lng=${longitude}&radius=10`,
+            {
+              timeout: 15000, // 15 second timeout
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          console.log("API Response:", response.data);
+          const propertiesData = response.data;
+          const propertiesArray = propertiesData.data?.projects || [];
+
+          // Process properties if we get them
+          if (propertiesArray.length > 0) {
+            processProperties(propertiesArray, latitude, longitude);
+          } else {
+            console.log("No properties found from API");
+            setProperties([]);
+          }
+        } catch (error) {
+          console.error("Error fetching from API:", error);
+          setProperties([]);
+        }
+      } catch (outerError) {
+        console.error(
+          "Outer error in fetchPropertiesNearLocation:",
+          outerError
+        );
+        setProperties([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setIsLoading, processProperties, setProperties]
+  );
+
+  // Create a ref to store the fetchPropertiesNearLocation function
+  const fetchFnRef = useRef(fetchPropertiesNearLocation);
+
+  // Update the ref when the function changes
+  useEffect(() => {
+    fetchFnRef.current = fetchPropertiesNearLocation;
+  }, [fetchPropertiesNearLocation]);
+
+  // Get user's geolocation and fetch nearby properties on component mount
+  useEffect(() => {
+    const getUserLocation = () => {
+      setIsLoading(true);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log("User location:", latitude, longitude);
+
+            // Set map center to user's location
+            if (mapInstance) {
+              mapInstance.setView([latitude, longitude], 13);
+            }
+
+            // Update state with user's location
+            setCurrentLocation({ lat: latitude, lng: longitude });
+            setUserLocation({ lat: latitude, lng: longitude });
+
+            // Fetch properties near the user's location using the API
+            fetchFnRef.current(latitude, longitude);
+          },
+          (error) => {
+            console.error("Error getting geolocation:", error);
+            setIsLoading(false);
+            // Don't use a default location, just show error
+            alert(
+              "Please enable location services to view properties near you."
+            );
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+        setIsLoading(false);
+        alert("Geolocation is not supported by your browser.");
+      }
+    };
+
+    getUserLocation();
+  }, [mapInstance]); // Removed fetchPropertiesNearLocation from dependencies
+
+  // Use the ref instead of the function directly to avoid dependency cycles
+  useEffect(() => {
+    // If we have the user's location, fetch properties near it
+    if (currentLocation && !properties.length) {
+      fetchFnRef.current(currentLocation.lat, currentLocation.lng);
+    }
+  }, [currentLocation, properties.length]);
+
+  // Track screen size for responsive UI adjustments
+  const isSmallScreen = viewportWidth < 768;
+
+  // State for controlling FiltersPanel visibility
+  const [filtersVisible, setFiltersVisible] = useState(false);
+
+  // Handler for opening filters panel
+  const handleOpenFilters = useCallback(() => {
+    setFiltersVisible(true);
+  }, []);
+
+  // Handler for closing filters panel
+  const handleCloseFilters = useCallback(() => {
+    setFiltersVisible(false);
+  }, []);
+
+  const panelAnimations = {
+    full: { height: "85vh" },
+    half: { height: "50vh" },
+    minimized: { height: "4rem" },
+  };
+
+  // Handle touch start event for panel dragging
+  const handleTouchStart = (e) => {
+    startYRef.current = e.touches[0].clientY;
+    currentYRef.current = e.touches[0].clientY;
+  };
+
+  // Handle touch move event for panel dragging
+  const handleTouchMove = (e) => {
+    if (!startYRef.current) return;
+
+    e.preventDefault();
+    const touch = e.touches[0];
+    currentYRef.current = touch.clientY;
+    const yDifference = startYRef.current - currentYRef.current;
+
+    if (Math.abs(yDifference) > 50) {
+      if (yDifference > 0 && panelState !== "full") {
+        setPanelState("full");
+      } else if (yDifference < 0 && panelState !== "minimized") {
+        setPanelState("minimized");
+      }
+      startYRef.current = 0;
+    }
+  };
+
+  // Function to fetch properties within map bounds
+  const fetchPropertiesInBounds = useCallback(
+    async (latitude, longitude, bounds) => {
+      const now = Date.now();
+      // Increase the cooldown time to 3 seconds and check isLoading state
+      if (isLoading || now - lastFetchTime < 3000) {
+        console.log("Throttling map bounds fetch requests");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setLastFetchTime(Date.now());
+
+        // Get the northeast and southwest corners of the bounds
+        const ne = bounds.getNorthEast();
+        const sw = bounds.getSouthWest();
+
+        // Calculate radius based on the bounds (approximate)
+        const latDiff = Math.abs(ne.lat - sw.lat);
+        const lngDiff = Math.abs(ne.lng - sw.lng);
+        const radius = (Math.max(latDiff, lngDiff) * 111) / 2; // Convert to km
+
+        let url = "https://iprop91new.onrender.com/api/projectsDataMaster";
+
+        try {
+          // First, try a minimal request without coordinates to check if the server is responding
+          await axios.get(url, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            timeout: 10000,
+          });
+
+          // If we got here, the server is up. Now build our query with filters
+          const params = new URLSearchParams();
+
+          // *** IMPORTANT: We're using city/state search instead of lat/lng since that works ***
+          // Only add lat/lng as fallback
+          try {
+            // Use OpenStreetMap's Nominatim service for reverse geocoding
+            const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
+            const geocodeResponse = await axios.get(geocodeUrl, {
+              headers: {
+                Accept: "application/json",
+                "User-Agent": "iProp Web Application", // Nominatim requires a user-agent
+              },
+            });
+
+            const result = geocodeResponse.data;
+
+            // Extract city and state from geocoding result
+            let city = null;
+            let state = null;
+
+            if (result && result.address) {
+              // Extract city and state from Nominatim response
+              city =
+                result.address.city ||
+                result.address.town ||
+                result.address.village;
+              state = result.address.state || result.address.county;
+            }
+
+            // Add city and state if found
+            if (city) params.append("city", city);
+            if (state) params.append("state", state);
+
+            // If geocoding failed or no city/state found, fall back to coordinates
+            if (!city && !state) {
+              params.append("lat", latitude);
+              params.append("lng", longitude);
+              params.append("radius", Math.ceil(radius));
+            }
+          } catch (geocodeError) {
+            console.error("Geocoding error:", geocodeError);
+            // Fall back to coordinates
+            params.append("lat", latitude);
+            params.append("lng", longitude);
+            params.append("radius", Math.ceil(radius));
+          }
+
+          // Add filter parameters
+          if (activeFilters?.propertyType?.length > 0) {
+            params.append("propertyType", activeFilters.propertyType.join(","));
+          }
+
+          if (activeFilters?.bedrooms?.length > 0) {
+            params.append("bedrooms", activeFilters.bedrooms.join(","));
+          }
+
+          if (activeFilters?.budget?.min && activeFilters.budget.min > 0) {
+            params.append("minBudget", activeFilters.budget.min);
+          }
+
+          if (
+            activeFilters?.budget?.max &&
+            activeFilters.budget.max < 10000000
+          ) {
+            params.append("maxBudget", activeFilters.budget.max);
+          }
+
+          if (selectedAmenities.length > 0) {
+            params.append("amenities", selectedAmenities.join(","));
+          }
+
+          const finalUrl = `${url}?${params.toString()}`;
+          console.log("Fetching properties with URL:", finalUrl);
+
+          const response = await axios.get(finalUrl, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            timeout: 10000,
+          });
+
+          const propertiesData = response.data;
+          console.log("API Response for search:", propertiesData);
+
+          const propertiesArray = propertiesData.data?.projects || [];
+
+          if (propertiesArray.length > 0) {
+            processProperties(propertiesArray, latitude, longitude);
+          } else {
+            console.log("No properties found");
+            setProperties([]);
+          }
+        } catch (apiError) {
+          console.error("API error when fetching properties:", apiError);
+
+          // Use hardcoded sample data as fallback when server fails
+          // This prevents showing no results when the server is having issues
+          try {
+            const sampleProperty = {
+              _id: "IPMP0005",
+              thumbnail: null,
+              propertyId: "IPP00120",
+              listingId: "IPL00045",
+              state: "Haryana",
+              city: "Sonipat",
+              coordinates: [latitude, longitude], // Use the requested coordinates
+              builder: "Sample Builder",
+              project: "Sample Project",
+              tower: "Tower A",
+              unit: "3333",
+              size: "2223",
+              status: "under-construction",
+              type: "residential",
+              // Add other required fields here
+            };
+
+            // Process the sample data
+            processProperties([sampleProperty], latitude, longitude);
+            console.log("Using fallback sample property data");
+          } catch (fallbackError) {
+            console.error("Error using fallback data:", fallbackError);
+            setProperties([]);
+          }
+        }
+      } catch (error) {
+        console.error("Error in fetchPropertiesInBounds:", error);
+        setProperties([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      lastFetchTime,
+      activeFilters,
+      selectedAmenities,
+      processProperties,
+      isLoading,
+    ]
+  );
+
+  // Create a debounced version of fetchPropertiesInBounds
+  const debouncedFetch = useCallback(() => {
+    // Using an inline function rather than passing debounce directly
+    const debouncedFn = debounce((lat, lng, bounds) => {
+      if (!isLoading) {
+        fetchPropertiesInBounds(lat, lng, bounds);
+      }
+    }, 1000);
+    return debouncedFn;
+  }, [fetchPropertiesInBounds, isLoading])();
+
+  // Re-initialize the debounced function when its dependencies change
+  useEffect(() => {
+    // This ensures the debounced function is properly updated
+    window.debouncedMapFetch = debouncedFetch;
+  }, [debouncedFetch]);
+
+  // Store fetch function in window object for the MapController to access
+  useEffect(() => {
+    if (fetchPropertiesInBounds && typeof window !== "undefined") {
+      // Store reference to fetchPropertiesInBounds in window object
+      window.mapFetchPropertiesInBounds = fetchPropertiesInBounds;
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.mapFetchPropertiesInBounds = null;
+      }
+    };
+  }, [fetchPropertiesInBounds]);
+
+  // Cleanup for debouncedFetch reference
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        window.debouncedMapFetch = null;
+      }
+    };
+  }, []);
+
+  // Update viewport width when window resizes
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  function MapController() {
+    const map = useMap();
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+
+    useEffect(() => {
+      setMapInstance(map);
+      window.mapInstance = map;
+
+      // Add keyboard event listeners for Control key
+      const handleKeyDown = (e) => {
+        if (e.key === "Control") {
+          setIsCtrlPressed(true);
+        }
+      };
+
+      const handleKeyUp = (e) => {
+        if (e.key === "Control") {
+          setIsCtrlPressed(false);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keyup", handleKeyUp);
+
+      return () => {
+        window.mapInstance = null;
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keyup", handleKeyUp);
+      };
+    }, [map]);
+
+    // Add event listener for zoom end events to fetch properties in the visible area
+    useEffect(() => {
+      // Function to fetch properties in the current map bounds
+      const handleMapZoomEnd = () => {
+        const bounds = map.getBounds();
+        const center = bounds.getCenter();
+        const northEast = bounds.getNorthEast();
+        const southWest = bounds.getSouthWest();
+
+        console.log("Map zoomed or panned. New bounds:", {
+          center: [center.lat, center.lng],
+          ne: [northEast.lat, northEast.lng],
+          sw: [southWest.lat, southWest.lng],
+          zoom: map.getZoom(),
+        });
+
+        // Use the debounced fetch function from window instead
+        if (window.debouncedMapFetch) {
+          window.debouncedMapFetch(center.lat, center.lng, bounds);
+        }
+      };
+
+      // Only add event listener for zoom end events, not for position changes
+      map.on("zoomend", handleMapZoomEnd);
+
+      // Add wheel event listener to check for Control key
+      const handleWheel = (e) => {
+        if (!isCtrlPressed) {
+          e.preventDefault();
+          return;
+        }
+      };
+
+      map
+        .getContainer()
+        .addEventListener("wheel", handleWheel, { passive: false });
+
+      // Clean up event listeners when component unmounts
+      return () => {
+        map.off("zoomend", handleMapZoomEnd);
+        map.getContainer().removeEventListener("wheel", handleWheel);
+      };
+    }, [map, isCtrlPressed]);
+
+    useEffect(() => {
+      if (selectedProperty && selectedProperty.coordinates) {
+        const timer = setTimeout(() => {
+          map.setView(
+            [
+              selectedProperty.coordinates.latitude,
+              selectedProperty.coordinates.longitude,
+            ],
+            13
+          );
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }, [map, selectedProperty]);
+
+    return null;
+  }
+
+  const CustomMarker = memo(({ property, onSelect }) => {
+    if (
+      !property.coordinates ||
+      !property.coordinates.latitude ||
+      !property.coordinates.longitude ||
+      isNaN(property.coordinates.latitude) ||
+      isNaN(property.coordinates.longitude)
+    ) {
+      console.warn(
+        `Property ${property._id || "unknown"} has invalid coordinates:`,
+        property.coordinates
+      );
+      return null;
+    }
+
+    return (
+      <Marker
+        position={[
+          property.coordinates.latitude,
+          property.coordinates.longitude,
+        ]}
+        id={`marker-${property._id}`}
+        icon={houseIcon}
+        eventHandlers={{
+          click: () => {
+            onSelect(property);
+          },
+        }}
+      >
+        <Popup>
+          <div className="p-2 text-center">
+            <h3 className="font-semibold">{property.title || "Property"}</h3>
+            <p className="text-sm">{property.price || "Price not available"}</p>
+          </div>
+        </Popup>
+      </Marker>
+    );
+  });
+
+  const getPanelClasses = (state) => {
+    const baseClasses = "bg-white rounded-t-xl shadow-2xl overflow-hidden";
+
+    switch (state) {
+      case "full":
+        return `${baseClasses} h-5/6`;
+      case "half":
+        return `${baseClasses} h-1/2`;
+      case "minimized":
+        return `${baseClasses} h-16`;
+      default:
+        return `${baseClasses} h-1/2`;
+    }
+  };
+
+  const handlePropertiesSearch = useCallback(
+    async (state, city, propertyType, bedrooms, minBudget, maxBudget) => {
+      const now = Date.now();
+      if (isFetchingLimited && now - lastFetchTime < 2000) {
+        console.log("Throttling search requests");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setLastFetchTime(Date.now());
+
+        setCurrentStateCity({
+          state: state || "",
+          city: city || "",
+        });
+
+        let url = `${process.env.REACT_APP_API_URL}/api/projectsDataMaster`;
+        const params = new URLSearchParams();
+
+        // Add state parameter
+        if (state) {
+          params.append("state", state);
+        }
+
+        // Add city parameter
+        if (city) {
+          params.append("city", city);
+        }
+
+        // Add safety checks for propertyType
+        if (Array.isArray(propertyType) && propertyType.length > 0) {
+          params.append("propertyType", propertyType.join(","));
+        }
+
+        // Add amenities parameter if needed
+        if (selectedAmenities.length > 0) {
+          params.append("amenities", selectedAmenities.join(","));
+        }
+
+        // Add safety checks for bedrooms
+        if (Array.isArray(bedrooms) && bedrooms.length > 0) {
+          params.append("bedrooms", bedrooms.join(","));
+        }
+
+        if (minBudget) {
+          params.append("minBudget", minBudget);
+        }
+
+        if (maxBudget) {
+          params.append("maxBudget", maxBudget);
+        }
+
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+
+        console.log("Fetching properties with URL:", url);
+        const response = await axios.get(url, {
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": localStorage.getItem("token"),
+          },
+        });
+        const propertiesData = response.data;
+
+        // Log the response for debugging
+        console.log("API Response:", propertiesData);
+
+        // Extract properties array from the response data structure
+        // Changed from 'properties' to 'projects' to match the API response structure
+        let propertiesArray = propertiesData.data?.projects || [];
+
+        // Validate and transform coordinates for each property
+        propertiesArray = propertiesArray.map((property) => {
+          // Make a copy of the property to avoid mutating the original
+          const processedProperty = { ...property };
+
+          // Ensure coordinates exist and are in the correct format
+          if (property.coordinates) {
+            // If coordinates are strings, convert them to numbers
+            if (typeof property.coordinates.latitude === "string") {
+              processedProperty.coordinates = {
+                ...property.coordinates,
+                latitude: parseFloat(property.coordinates.latitude),
+                longitude: parseFloat(property.coordinates.longitude),
+              };
+            }
+          } else if (property.latitude && property.longitude) {
+            // If property has latitude/longitude directly (not in coordinates object)
+            processedProperty.coordinates = {
+              latitude: parseFloat(property.latitude),
+              longitude: parseFloat(property.longitude),
+            };
+          }
+
+          return processedProperty;
+        });
+
+        // Log if no properties were found
+        if (propertiesArray.length === 0) {
+          console.log("No properties found in the API response");
+        }
+
+        // Log how many properties have valid coordinates
+        const validCoordinatesCount = propertiesArray.filter(
+          (p) =>
+            p.coordinates &&
+            p.coordinates.latitude &&
+            p.coordinates.longitude &&
+            !isNaN(p.coordinates.latitude) &&
+            !isNaN(p.coordinates.longitude)
+        ).length;
+
+        console.log(
+          `Properties with valid coordinates: ${validCoordinatesCount} out of ${propertiesArray.length}`
+        );
+
+        setProperties(propertiesArray);
+
+        console.log("Properties fetched:", propertiesData);
+        console.log("Total properties found:", propertiesArray.length);
+        if (propertiesArray.length > 0) {
+          console.log("First property details:", propertiesArray[0]);
+        }
+        console.log("Fetch URL:", url);
+
+        const searchParams = new URLSearchParams(location.search);
+        const defaultProperty = searchParams.get("defaultProperty");
+
+        if (propertiesArray.length > 0 && defaultProperty === "first") {
+          setSelectedProperty(propertiesArray[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+        setProperties([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [location.search, isFetchingLimited, lastFetchTime, selectedAmenities]
+  );
+
+  const handleApplyFilters = useCallback(
+    (filterValues) => {
+      setIsFetchingLimited(false);
+
+      const newFilters = {
+        propertyType: filterValues.propertyTypes || [],
+        bedrooms: filterValues.bhk || [],
+        budget: {
+          min: filterValues.minBudget || 0,
+          max: filterValues.maxBudget || 10000000,
+        },
+        state: filterValues.state,
+        city: filterValues.city,
+        amenities: filterValues.amenities,
+      };
+
+      setActiveFilters(newFilters);
+
+      // Update selected amenities from filter values
+      if (filterValues.amenities) {
+        setSelectedAmenities(filterValues.amenities);
+      }
+
+      if (filterValues.state) {
+        setCurrentStateCity({
+          state: filterValues.state,
+          city: filterValues.city || "",
+        });
+
+        handlePropertiesSearch(
+          filterValues.state,
+          filterValues.city,
+          newFilters.propertyType,
+          newFilters.bedrooms,
+          newFilters.budget.min,
+          newFilters.budget.max
+        );
+      } else if (properties.length > 0 && properties[0]?.state) {
+        handlePropertiesSearch(
+          properties[0].state,
+          properties[0].city,
+          newFilters.propertyType,
+          newFilters.bedrooms,
+          newFilters.budget.min,
+          newFilters.budget.max
+        );
+      }
+    },
+    [properties, handlePropertiesSearch]
+  );
+
+  const navigate = useNavigate();
+
+  const handlePropertyClick = (property) => {
+    if (!property || !property.coordinates) {
+      console.error("Invalid property or missing coordinates");
+      return;
+    }
+
+    const { latitude, longitude } = property.coordinates;
+
+    // Validate coordinates
+    if (
+      typeof latitude !== "number" ||
+      typeof longitude !== "number" ||
+      isNaN(latitude) ||
+      isNaN(longitude)
+    ) {
+      console.error("Invalid coordinates:", { latitude, longitude });
+      return;
+    }
+
+    setSelectedProperty(property);
+
+    // Center map on the property location
+    if (mapInstance) {
+      mapInstance.setView([latitude, longitude], 15);
+    }
+
+    // Navigate to the property detail page with the property data
+    navigate(`/property/${property._id}`, { state: { property } });
+  };
+
+  const handleFilterChange = useCallback(
+    (filters) => {
+      if (filters) {
+        setIsFetchingLimited(false);
+
+        const newFilters = {
+          propertyType: filters.propertyTypes || [],
+          bedrooms: filters.bhk || [],
+          budget: {
+            min: filters.minBudget || 0,
+            max: filters.maxBudget || 10000000,
+          },
+          state: filters.state || "",
+          city: filters.city || "",
+          amenities: filters.amenities || "",
+        };
+
+        setActiveFilters(newFilters);
+
+        setFiltersVisible(false);
+
+        if (filters.state) {
+          setCurrentStateCity({
+            state: filters.state,
+            city: filters.city || "",
+          });
+
+          handlePropertiesSearch(
+            filters.state,
+            filters.city,
+            newFilters.propertyType,
+            newFilters.bedrooms,
+            newFilters.budget.min,
+            newFilters.budget.max
+          );
+        } else if (properties.length > 0 && properties[0]?.state) {
+          handlePropertiesSearch(
+            properties[0].state,
+            properties[0].city,
+            newFilters.propertyType,
+            newFilters.bedrooms,
+            newFilters.budget.min,
+            newFilters.budget.max
+          );
+        }
+      }
+    },
+    [
+      handlePropertiesSearch,
+      properties,
+      setActiveFilters,
+      setCurrentStateCity,
+      setFiltersVisible,
+      setIsFetchingLimited,
+    ]
+  );
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const autoSearch = searchParams.get("autoSearch");
+    const propertyTypes = searchParams.get("propertyTypes");
+    const bhk = searchParams.get("bhk");
+    const minBudget = searchParams.get("minBudget");
+    const maxBudget = searchParams.get("maxBudget");
+    const city = searchParams.get("city");
+
+    if (autoSearch === "true") {
+      const newFilters = {
+        propertyType: [],
+        bedrooms: [],
+        budget: { min: 0, max: 10000000 },
+      };
+
+      if (propertyTypes) {
+        newFilters.propertyType = propertyTypes.split(",");
+      }
+
+      if (bhk) {
+        newFilters.bedrooms = bhk.split(",");
+      }
+
+      if (minBudget) {
+        newFilters.budget.min = parseInt(minBudget, 10);
+      }
+
+      if (maxBudget) {
+        newFilters.budget.max = parseInt(maxBudget, 10);
+      }
+
+      setActiveFilters(newFilters);
+
+      if (city) {
+        handlePropertiesSearch(
+          "Delhi",
+          city,
+          newFilters.propertyType,
+          newFilters.bedrooms,
+          newFilters.budget.min,
+          newFilters.budget.max
+        );
+      } else {
+        handlePropertiesSearch(
+          "Delhi",
+          "",
+          newFilters.propertyType,
+          newFilters.bedrooms,
+          newFilters.budget.min,
+          newFilters.budget.max
+        );
+      }
+    }
+  }, [location.search, handlePropertiesSearch]);
+
+  // Effect to handle marker click events
+  useEffect(() => {
+    // Avoid trying to attach listeners if no property is selected
+    if (!selectedProperty || !selectedProperty._id) return () => {};
+
+    const markerId = `marker-${selectedProperty._id}`;
+    const marker = document.getElementById(markerId);
+
+    if (!marker) return () => {};
+
+    // Create a handler that doesn't depend on the selectedProperty closure
+    // to avoid stale references in the event listener
+    const handleMarkerClick = () => {
+      // This just logs the click, actual selection is handled elsewhere
+      console.log("Marker clicked:", selectedProperty.title || "Property");
+    };
+
+    marker.addEventListener("click", handleMarkerClick);
+
+    // Return cleanup function
+    return () => {
+      // Need to find the marker again when cleaning up
+      const markerElement = document.getElementById(markerId);
+      if (markerElement) {
+        markerElement.removeEventListener("click", handleMarkerClick);
+      }
+    };
+  }, [selectedProperty]); // Include the full selectedProperty to satisfy the linter
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* Filters Panel with states data from API */}
+      <FiltersPanel
+        isVisible={filtersVisible}
+        onClose={handleCloseFilters}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={{
+          tab: "buy",
+          propertyTypes: activeFilters.propertyType,
+          bhk: activeFilters.bedrooms,
+          minBudget: activeFilters.budget?.min,
+          maxBudget: activeFilters.budget?.max,
+          state: currentStateCity.state,
+          city: currentStateCity.city,
+          amenities: activeFilters.amenities || [],
+        }}
+        statesData={statesData}
+      />
+
+      {/* Header with search bar - black background with gold accents */}
+      <div className="bg-black text-white shadow-md z-10 sticky top-0 border-b border-gold-500">
+        <div className="max-w-7xl mx-auto">
+          <SearchBar
+            search={handlePropertiesSearch}
+            onFilterChange={handleFilterChange}
+            onOpenFilters={handleOpenFilters}
+            currentStateCity={currentStateCity}
+          />
+        </div>
+      </div>
+
+      {/* Main content area - white background */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-white">
+        {/* Property listings panel for desktop (lg and above) */}
+        <div className="hidden lg:flex lg:w-2/5 xl:w-1/3 h-full overflow-y-auto p-4 flex-col bg-white lg:border-r">
+          <div className="mb-4 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-black">
+              <span className="text-gold-600">{properties.length}</span>{" "}
+              Properties{" "}
+              {currentStateCity.city && `in ${currentStateCity.city}`}
+            </h2>
+          </div>
+
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-64">
+              <div className="w-12 h-12 border-t-2 border-b-2 border-gold-500 rounded-full animate-spin"></div>
+              <p className="mt-4 text-gray-600">Loading properties...</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {properties.length > 0 ? (
+                properties.map((property) => (
+                  <PropertyCardComponent
+                    key={property._id}
+                    property={property}
+                    isSelected={
+                      selectedProperty && selectedProperty._id === property._id
+                    }
+                    onClick={() => handlePropertyClick(property)}
+                  />
+                ))
+              ) : (
+                <div className="bg-gray-50 p-6 rounded-lg text-center">
+                  <div className="w-16 h-16 mx-auto bg-gold-100 rounded-full flex items-center justify-center mb-4">
+                    <Home className="w-8 h-8 text-gold-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-700 mb-2">
+                    No properties found
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Try adjusting your filters or search for a different
+                    location
+                  </p>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                    Reset Filters
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Map area */}
+        <div className="flex-1 relative">
+          {/* Slidable panel for mobile (max-md) */}
+          <motion.div
+            ref={panelRef}
+            className={`absolute bottom-0 left-0 right-0 z-10 ${
+              isSmallScreen ? "" : "lg:hidden"
+            } ${getPanelClasses(panelState)}`}
+            initial="half"
+            animate={panelState}
+            variants={panelAnimations}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.2}
+            dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.y < -50) {
+                setPanelState(panelState === "half" ? "full" : "half");
+              } else if (info.offset.y > 50) {
+                setPanelState(panelState === "full" ? "half" : "minimized");
+              }
+            }}
+          >
+            {/* Handle for dragging */}
+            <div className="w-full flex justify-center p-2">
+              <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+
+            {/* Panel header */}
+            <div className="px-4 py-2 flex justify-between items-center">
+              <h2 className="text-xl font-bold">
+                {properties.length} Properties{" "}
+                {currentStateCity.city && `in ${currentStateCity.city}`}
+              </h2>
+              <div className="flex space-x-2">
+                <button onClick={() => setPanelState("half")}>
+                  {panelState === "minimized" ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Panel content */}
+            {panelState !== "minimized" && (
+              <div className="overflow-y-auto h-full p-4">
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center h-64">
+                    <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+                    <p className="mt-4 text-gray-600">Loading properties...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {properties.length > 0 ? (
+                      properties.map((property) => (
+                        <PropertyCardComponent
+                          key={property._id}
+                          property={property}
+                          isSelected={
+                            selectedProperty &&
+                            selectedProperty._id === property._id
+                          }
+                          onClick={() => handlePropertyClick(property)}
+                        />
+                      ))
+                    ) : (
+                      <div className="bg-gray-50 p-6 rounded-lg text-center">
+                        <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                          <Home className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="font-semibold text-gray-700 mb-2">
+                          No properties found
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Try adjusting your filters or search for a different
+                          location.
+                        </p>
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700 transition-colors">
+                          Reset Filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+          <MapContainer
+            center={[28.6139, 77.209]}
+            zoom={10}
+            style={{ height: "100%", width: "100%" }}
+            className="z-0"
+            whenCreated={(map) => {
+              setMapInstance(map);
+              window.mapInstance = map;
+            }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {/* Add user location marker */}
+            {userLocation && (
+              <Marker
+                position={[userLocation.lat, userLocation.lng]}
+                icon={userLocationIcon}
+              >
+                <Popup>You are here</Popup>
+              </Marker>
+            )}
+            {Array.isArray(properties) &&
+              properties.map((property) => (
+                <CustomMarker
+                  key={property._id || Math.random().toString(36).substr(2, 9)}
+                  property={property}
+                  onSelect={setSelectedProperty}
+                />
+              ))}
+            <MapController />
+          </MapContainer>
+
+          {/* Map overlay controls with enhanced styling */}
+          <div className="absolute top-4 right-4 z-[1000]">
+            <div className="bg-black border border-gold-500 rounded-full shadow-lg p-2 flex flex-col space-y-2">
+              <button
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
+                title="Zoom In (Hold Control)"
+                onClick={() => {
+                  if (window.mapInstance) {
+                    window.mapInstance.zoomIn();
+                  }
+                }}
+              >
+                <svg
+                  className="w-5 h-5 text-gold-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+              </button>
+              <div className="h-px bg-gray-200 w-full"></div>
+              <button
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
+                title="Zoom Out (Hold Control)"
+                onClick={() => {
+                  if (window.mapInstance) {
+                    window.mapInstance.zoomOut();
+                  }
+                }}
+              >
+                <svg
+                  className="w-5 h-5 text-gold-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M18 12H6"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+            <div className="mt-2 bg-black border border-gold-500 rounded-full shadow-lg p-2">
+              <button
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
+                title="My Location"
+                onClick={() => {
+                  if (navigator.geolocation && window.mapInstance) {
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        const { latitude, longitude } = position.coords;
+                        window.mapInstance.setView([latitude, longitude], 13);
+                      },
+                      (error) => {
+                        console.error("Error getting location:", error);
+                        alert(
+                          "Could not get your location. Please check your browser permissions."
+                        );
+                      }
+                    );
+                  } else {
+                    alert("Geolocation is not supported by your browser.");
+                  }
+                }}
+              >
+                <svg
+                  className="w-5 h-5 text-gold-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

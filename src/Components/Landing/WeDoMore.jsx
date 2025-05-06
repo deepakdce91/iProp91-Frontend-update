@@ -12,8 +12,7 @@ function toTitleCase(str) {
 
 const RewardCard = ({ name, amount, status, icon }) => {
   // Common image URL for all cards
-  const commonImageUrl =
-    "https://res.cloudinary.com/people-matters/image/upload/q_auto,f_auto/v1573711585/1573711584.jpg";
+  const commonImageUrl = "/images/rewards-image.jpg";
 
   return (
     <>
@@ -38,7 +37,7 @@ const RewardCard = ({ name, amount, status, icon }) => {
           <div className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-wrap text-gray-800 reward-card-title">
+                <h3 className="text-xl font-bold text-wrap text-[#00008B] reward-card-title">
                   {toTitleCase(name)}
                 </h3>
                 <span className="text-orange-500 font-semibold mt-4 text-lg">

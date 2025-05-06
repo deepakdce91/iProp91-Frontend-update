@@ -145,9 +145,14 @@ const Verify = ({
   const createNewUser = async () => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`,
+        `${process.env.REACT_APP_API_URL}/api/users/signup`,
         {
           phone: phone,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -162,7 +167,7 @@ const Verify = ({
       }
     } catch (error) {
       console.error("Error creating user:", error);
-      toast.error("Failed to create account");
+      toast.error(error.response?.data?.message || "Failed to create account");
       throw error;
     }
   };
@@ -173,7 +178,7 @@ const Verify = ({
       const nameToUse = name || userId || "iProp91 User";
 
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
+        `${process.env.REACT_APP_API_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
         {
           name: nameToUse,
           email,
@@ -195,7 +200,7 @@ const Verify = ({
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      toast.error(error.response?.data?.message || "Failed to update profile");
       throw error;
     }
   };

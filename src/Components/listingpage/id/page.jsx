@@ -60,6 +60,7 @@ function PropertyDetail() {
 
   const fetchPropertyDetails = async () => {
     const token = localStorage.getItem("token");
+    console.log(token);
     const decoded = jwtDecode(token);
     try {
       const response = await axios.get(
@@ -138,12 +139,12 @@ function PropertyDetail() {
     balcony: "0", // Default value as not in API
     furnishing: "Unfurnished", // Default value as not in API
     amenities: property.amenities || [],
-    commercialHubs:property.commercialHubs || [],
-    educationalInstitutions:property.educationalInstitutions || [],
-    transportationHubs:property.transportationHubs || [],
-    shoppingCentres:property.shoppingCentres || [],
-    hotels:property.hotels || [],
-    hospitals:property.hospitals || [],
+    commercialHubs: property.commercialHubs || [],
+    educationalInstitutions: property.educationalInstitutions || [],
+    transportationHubs: property.transportationHubs || [],
+    shoppingCentres: property.shoppingCentres || [],
+    hotels: property.hotels || [],
+    hospitals: property.hospitals || [],
   };
 
   // Navbar items
@@ -867,8 +868,8 @@ const LocationOverview = ({
                       <div key={itemIndex} className="flex items-center gap-2">
                         <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                         <span className="text-gray-600 capitalize ">
-                          {item}{" "}
-                          {Math.floor(Math.random() * 10) + 1} {category.suffix}
+                          {item} {Math.floor(Math.random() * 10) + 1}{" "}
+                          {category.suffix}
                         </span>
                       </div>
                     ))}

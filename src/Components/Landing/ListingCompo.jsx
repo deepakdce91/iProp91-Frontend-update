@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -10,13 +10,15 @@ import {
   ListCheck,
   Map,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Carousel } from "../listingpage/components/carousel";
 import { PropertyCard } from "../listingpage/components/property-card";
 import EnhancedMapComponent from "../MapComponent/EnhancedMapComponent";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Enhanced dummy data
 
@@ -49,35 +51,206 @@ const categories = [
     link: "/budget-homes",
     count: "3,200+ Properties",
   },
-];
-
-const categoryTypes = [
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
-    type: "pre_launch",
+    image: "/images/propcat.jpg",
+    link: "/pre-launch-projects",
+    count: "1,500+ Properties",
   },
   {
     title: "Verified Owner Properties",
     description: "Direct from property owners",
-    type: "verified_owner",
-  },
-  {
-    title: "New Projects",
-    description: "Latest property launches",
-    type: "new_projects",
-  },
-  {
-    title: "Upcoming Projects",
-    description: "Soon to be launched properties",
-    type: "upcoming_projects",
+    image: "/images/propcat.jpg",
+    link: "/verified-owner-properties",
+    count: "10,000+ Properties",
   },
   {
     title: "New Sale Properties",
     description: "Fresh properties for sale",
-    type: "new_sale",
+    image: "/images/propcat.jpg",
+    link: "/new-sale-properties",
+    count: "5,000+ Properties",
+  },
+  {
+    title: "Upcoming Projects",
+    description: "Soon to be launched properties",
+    image: "/images/propcat.jpg",
+    link: "/upcoming-projects",
+    count: "2,000+ Properties",
   },
 ];
+
+const CategoryCarousel = ({ categories }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Create an array with duplicated cards for infinite effect
+  const infiniteCategories = [...categories, ...categories, ...categories];
+
+  const resetTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    timerRef.current = setInterval(nextSlide, 3000);
+  };
+
+  const nextSlide = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex + 1;
+      if (newIndex >= categories.length) {
+        // Reset to the middle section without animation
+        setTimeout(() => {
+          setCurrentIndex(0);
+          setIsTransitioning(false);
+        }, 50);
+        return categories.length;
+      }
+      setIsTransitioning(false);
+      return newIndex;
+    });
+    resetTimer();
+  };
+
+  const prevSlide = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex - 1;
+      if (newIndex < 0) {
+        // Reset to the middle section without animation
+        setTimeout(() => {
+          setCurrentIndex(categories.length - 1);
+          setIsTransitioning(false);
+        }, 50);
+        return -1;
+      }
+      setIsTransitioning(false);
+      return newIndex;
+    });
+    resetTimer();
+  };
+
+  useEffect(() => {
+    if (!isPaused) {
+      resetTimer();
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isPaused]);
+
+  return (
+    <div className="relative w-full overflow-hidden">
+      <div
+        className="flex transition-transform duration-500 ease-in-out gap-4"
+        style={{
+          transform: `translateX(-${
+            currentIndex * (100 / categories.length)
+          }%)`,
+          width: `${infiniteCategories.length * (100 / categories.length)}%`,
+        }}
+      >
+        {infiniteCategories.map((category, index) => (
+          <motion.div
+            key={`${category.title}-${index}`}
+            className="w-[15%] flex-shrink-0"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <Link to={category.link} className="block">
+              <motion.div
+                className="relative h-[35vh] rounded-xl overflow-hidden shadow-lg group"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.img
+                  src={category.image}
+                  alt={category.title}
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 flex flex-col justify-end"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.h3
+                    className="text-white text-xl font-bold mb-1 group-hover:text-white/90"
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {category.title}
+                  </motion.h3>
+                  <motion.p
+                    className="text-white/80 text-sm mb-2 group-hover:text-white/70"
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {category.description}
+                  </motion.p>
+                  <motion.span
+                    className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded-full inline-block group-hover:bg-black/60"
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {category.count}
+                  </motion.span>
+                </motion.div>
+              </motion.div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg z-10 transition-all duration-300 hover:scale-110"
+      >
+        <ChevronLeft className="h-6 w-6 text-gray-700" />
+      </button>
+
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg z-10 transition-all duration-300 hover:scale-110"
+      >
+        <ChevronRight className="h-6 w-6 text-gray-700" />
+      </button>
+
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
+        {categories.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setCurrentIndex(index);
+              resetTimer();
+            }}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              currentIndex % categories.length === index
+                ? "bg-white w-4"
+                : "bg-white/50 hover:bg-white/75"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ListingCompo = () => {
   const [activeTab, setActiveTab] = useState("Buy");
   const [allFetchedProjects, setAllFetchedProjects] = useState();
@@ -268,8 +441,41 @@ const ListingCompo = () => {
   ]);
 
   // Update the search button click handler
+  const navigate = useNavigate();
   const handleSearch = () => {
-    filterProjects();
+    // Create search parameters object
+    const searchParams = new URLSearchParams();
+
+    // Add location if provided
+    if (location) {
+      searchParams.append("location", location);
+    }
+
+    // Add property types if selected
+    if (selectedPropertyTypes.length > 0) {
+      searchParams.append("propertyTypes", selectedPropertyTypes.join(","));
+    }
+
+    // Add BHK types if selected
+    if (selectedBhkTypes.length > 0) {
+      searchParams.append("bhk", selectedBhkTypes.join(","));
+    }
+
+    // Add min price if selected
+    if (minPrice) {
+      searchParams.append("minBudget", minPrice.replace(/[₹,]/g, ""));
+    }
+
+    // Add max price if selected
+    if (maxPrice) {
+      searchParams.append("maxBudget", maxPrice.replace(/[₹,]/g, ""));
+    }
+
+    // Add active tab
+    searchParams.append("tab", activeTab);
+
+    // Navigate to search-properties with the parameters
+    navigate(`/search-properties?${searchParams.toString()}`);
   };
 
   useEffect(() => {
@@ -318,7 +524,8 @@ const ListingCompo = () => {
   const [showMap, setShowMap] = useState(false);
 
   const toggleMap = () => {
-    setShowMap(!showMap);
+    // Navigate to search-properties without any filters
+    navigate("/search-properties");
   };
 
   return (
@@ -565,7 +772,10 @@ const ListingCompo = () => {
                   </div>
 
                   {/* Search Button */}
-                  <button className="bg-black w-[6rem] max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3  max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full">
+                  <button
+                    onClick={handleSearch}
+                    className="bg-black w-[6rem] max-sm:w-[30vw] hover:bg-black/80 text-white font-medium px-6 py-3 max-sm:px-0 max-sm:text-sm md:w-auto transition-colors rounded-full"
+                  >
                     <div className="flex items-center justify-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -616,72 +826,14 @@ const ListingCompo = () => {
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <Link href={category.link} key={index}>
-                <div className="relative h-64 rounded-lg overflow-hidden group">
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
-                    <h3 className="text-white text-xl font-bold mb-2">
-                      {category.title}
-                    </h3>
-                    <p className="text-white/80 text-sm mb-2">
-                      {category.description}
-                    </p>
-                    <span className="text-white/90 text-sm font-medium">
-                      {category.count}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <CategoryCarousel categories={categories} />
         </section>
       )}
-
-      {/* Conditionally render carousels based on showMap state */}
-      {!showMap &&
-        categoryTypes.map((category) => {
-          // Only render carousel if there are projects in this category
-          const categoryProjects = categorizedProjects[category.type];
-          if (!categoryProjects || categoryProjects.length === 0) {
-            return null; // Don't render anything if no projects
-          }
-
-          return (
-            <section
-              key={category.type}
-              className="py-12 px-4 max-w-7xl mx-auto bg-white"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold mb-1">{category.title}</h2>
-                  <p className="text-gray-600">{category.description}</p>
-                </div>
-                <Link
-                  to={`/category/${category.type}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  View All
-                </Link>
-              </div>
-              <Carousel
-                items={categoryProjects}
-                renderItem={(project) => <PropertyCard property={project} />}
-                className="pb-4"
-              />
-            </section>
-          );
-        })}
 
       <div className="mt-5">{showMap && <EnhancedMapComponent />}</div>
       <button
         onClick={toggleMap}
-        className="px-4 py-3 sticky bottom-10 left-[45%] bg-black hover:bg-black/80 text-white rounded-xl "
+        className="px-4 py-3 sticky bottom-10 left-[45%] bg-black hover:bg-black/80 text-white rounded-xl"
       >
         {showMap ? (
           <p className="flex gap-2">
