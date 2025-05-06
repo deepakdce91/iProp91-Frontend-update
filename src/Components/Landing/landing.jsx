@@ -36,6 +36,9 @@ import PropertyJouneyPage from "../PropertyJourneyPage/page";
 import RedeemRewards from "../redeemRewards/Index";
 import PropertyListing from "../propertyListing/listing";
 import App from "../map/map";
+import AboutUs from "../FrontendPages/AboutUs";
+import PrivacyPolicy from "../FrontendPages/PrivacyPolicy";
+import TermsAndConditions from "../FrontendPages/TermsAndConditions";
 
 function LandingPage() {
   return (
@@ -162,6 +165,10 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/site-faqs" element={<SiteFaqs />} />
         <Route path="/rewards" element={<RedeemRewards />} />
         <Route path="/property-journey" element={<PropertyJouneyPage />} />
+        
+        <Route path="/aboutUs" element={<AboutUs />} />
+        <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
+        <Route path="/termsAndConditions" element={<TermsAndConditions />} />
         <Route
           path="/chats"
           element={<ChatScreen userId={userId} userToken={userToken} />}

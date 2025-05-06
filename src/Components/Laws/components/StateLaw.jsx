@@ -8,51 +8,53 @@ import Breadcrumb from "../../Landing/Breadcrumb";
 
 // Complete list of Indian states and union territories with abbreviations
 const allIndianStates = [
-  { id: 1, title: "Andhra Pradesh", code: "AP", color: "#FFD700" },
-  { id: 2, title: "Arunachal Pradesh", code: "AR", color: "#32CD32" },
-  { id: 3, title: "Assam", code: "AS", color: "#1E90FF" },
-  { id: 4, title: "Bihar", code: "BR", color: "#FF4500" },
-  { id: 5, title: "Chhattisgarh", code: "CG", color: "#9932CC" },
-  { id: 6, title: "Goa", code: "GA", color: "#00CED1" },
-  { id: 7, title: "Gujarat", code: "GJ", color: "#FF8C00" },
-  { id: 8, title: "Haryana", code: "HR", color: "#4682B4" },
-  { id: 9, title: "Himachal Pradesh", code: "HP", color: "#6A5ACD" },
-  { id: 10, title: "Jharkhand", code: "JH", color: "#8B4513" },
-  { id: 11, title: "Karnataka", code: "KA", color: "#FF6347" },
-  { id: 12, title: "Kerala", code: "KL", color: "#2E8B57" },
-  { id: 13, title: "Madhya Pradesh", code: "MP", color: "#CD5C5C" },
-  { id: 14, title: "Maharashtra", code: "MH", color: "#B8860B" },
-  { id: 15, title: "Manipur", code: "MN", color: "#9400D3" },
-  { id: 16, title: "Meghalaya", code: "ML", color: "#3CB371" },
-  { id: 17, title: "Mizoram", code: "MZ", color: "#4169E1" },
-  { id: 18, title: "Nagaland", code: "NL", color: "#8FBC8F" },
-  { id: 19, title: "Odisha", code: "OD", color: "#FF69B4" },
-  { id: 20, title: "Punjab", code: "PB", color: "#DAA520" },
-  { id: 21, title: "Rajasthan", code: "RJ", color: "#D2691E" },
-  { id: 22, title: "Sikkim", code: "SK", color: "#48D1CC" },
-  { id: 23, title: "Tamil Nadu", code: "TN", color: "#DC143C" },
-  { id: 24, title: "Telangana", code: "TG", color: "#FF1493" },
-  { id: 25, title: "Tripura", code: "TR", color: "#20B2AA" },
-  { id: 26, title: "Uttar Pradesh", code: "UP", color: "#7B68EE" },
-  { id: 27, title: "Uttarakhand", code: "UK", color: "#6B8E23" },
-  { id: 28, title: "West Bengal", code: "WB", color: "#BA55D3" },
+  { id: 1, title: "Andhra Pradesh", code: "AP" },
+  { id: 2, title: "Arunachal Pradesh", code: "AR" },
+  { id: 3, title: "Assam", code: "AS" },
+  { id: 4, title: "Bihar", code: "BR" },
+  { id: 5, title: "Chhattisgarh", code: "CG" },
+  { id: 6, title: "Goa", code: "GA" },
+  { id: 7, title: "Gujarat", code: "GJ" },
+  { id: 8, title: "Haryana", code: "HR" },
+  { id: 9, title: "Himachal Pradesh", code: "HP" },
+  { id: 10, title: "Jharkhand", code: "JH" },
+  { id: 11, title: "Karnataka", code: "KA" },
+  { id: 12, title: "Kerala", code: "KL" },
+  { id: 13, title: "Madhya Pradesh", code: "MP" },
+  { id: 14, title: "Maharashtra", code: "MH" },
+  { id: 15, title: "Manipur", code: "MN" },
+  { id: 16, title: "Meghalaya", code: "ML" },
+  { id: 17, title: "Mizoram", code: "MZ" },
+  { id: 18, title: "Nagaland", code: "NL" },
+  { id: 19, title: "Odisha", code: "OD" },
+  { id: 20, title: "Punjab", code: "PB" },
+  { id: 21, title: "Rajasthan", code: "RJ" },
+  { id: 22, title: "Sikkim", code: "SK" },
+  { id: 23, title: "Tamil Nadu", code: "TN" },
+  { id: 24, title: "Telangana", code: "TG" },
+  { id: 25, title: "Tripura", code: "TR" },
+  { id: 26, title: "Uttar Pradesh", code: "UP" },
+  { id: 27, title: "Uttarakhand", code: "UK" },
+  { id: 28, title: "West Bengal", code: "WB" },
+
   // Union Territories
-  { id: 29, title: "Delhi", code: "DL", color: "#708090" },
-  { id: 30, title: "Andaman and Nicobar", code: "AN", color: "#5F9EA0" },
-  { id: 31, title: "Chandigarh", code: "CH", color: "#A9A9A9" },
-  { id: 32, title: "Dadra and Nagar Haveli and Daman and Diu", code: "DD", color: "#BDB76B" },
-  { id: 33, title: "Jammu and Kashmir", code: "JK", color: "#556B2F" },
-  { id: 34, title: "Ladakh", code: "LA", color: "#B0C4DE" },
-  { id: 35, title: "Lakshadweep", code: "LD", color: "#00BFFF" },
-  { id: 36, title: "Puducherry", code: "PY", color: "#F08080" }
+  { id: 29, title: "Delhi", code: "DL" },
+  { id: 30, title: "Andaman and Nicobar", code: "AN" },
+  { id: 31, title: "Chandigarh", code: "CH" },
+  { id: 32, title: "Dadra and Nagar Haveli and Daman and Diu", code: "DD" },
+  { id: 33, title: "Jammu and Kashmir", code: "JK" },
+  { id: 34, title: "Ladakh", code: "LA" },
+  { id: 35, title: "Lakshadweep", code: "LD" },
+  { id: 36, title: "Puducherry", code: "PY" }
 ];
 
 const StateLaw = ({ onBack }) => {
   const [openIndex, setOpenIndex] = useState(null);
   const [states, setStates] = useState([]); // for active states from API
   const [stateLaws, setStateLaws] = useState([]); // for state-specific laws
-  const [selectedLaw, setSelectedLaw] = useState(allIndianStates[28]); // Default to Delhi (index 28)
+  const [selectedLaw, setSelectedLaw] = useState(null); // Will be set after fetching available states
   const [isLoading, setIsLoading] = useState(false);
+  const [availableStates, setAvailableStates] = useState([]); // States that have laws
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -88,14 +90,26 @@ const StateLaw = ({ onBack }) => {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/laws/fetchActiveStates`
         );
-        setStates(response.data);
         
-        // Fetch laws for default selected state (Delhi)
-        handleSelectLaw(allIndianStates[28]);
+        // Filter all states to only include those returned by the API
+        const activeStateNames = response.data;
+        const activeStates = allIndianStates.filter(state => 
+          activeStateNames.includes(state.title)
+        );
+        
+        setAvailableStates(activeStates);
+        
+        // Set the first available state as selected, or Delhi if it's available
+        const defaultState = activeStates.find(s => s.title === "Delhi") || activeStates[0];
+        if (defaultState) {
+          setSelectedLaw(defaultState);
+          // Fetch laws for the default state
+          handleSelectLaw(defaultState);
+        }
       } catch (error) {
         console.error("Error fetching states:", error);
-        // If API fails, at least show all states from our hardcoded list
-        setStates(allIndianStates.map(state => state.title));
+        // If API fails, don't show any states
+        setAvailableStates([]);
       } finally {
         setIsLoading(false);
       }
@@ -143,55 +157,71 @@ const StateLaw = ({ onBack }) => {
     }
   };
 
-  // Function to format content with proper styling for tables and links
-  const formatContent = (content) => {
-    if (!content) return "";
-    
-    // Check if content contains HTML
-    const isHTML = /<[^>]+>/.test(content);
-    let sanitizedContent;
+// Function to format content with proper styling for tables, links, and bullet points
+const formatContent = (content) => {
+  if (!content) return "";
+  
+  // Check if content contains HTML
+  const isHTML = /<[^>]+>/.test(content);
+  let sanitizedContent;
 
-    if (isHTML) {
-      // If it's already HTML, just sanitize it
-      sanitizedContent = DOMPurify.sanitize(content);
-    } else {
-      // If it's plain text, replace links and then sanitize
-      sanitizedContent = content.replace(
-        /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>'
-      );
-      sanitizedContent = DOMPurify.sanitize(sanitizedContent);
-    }
+  if (isHTML) {
+    // If it's already HTML, just sanitize it
+    sanitizedContent = DOMPurify.sanitize(content);
+  } else {
+    // If it's plain text, replace links and then sanitize
+    sanitizedContent = content.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a href="$1" target="_blank" class="text-blue-500 underline">$1</a>'
+    );
+    sanitizedContent = DOMPurify.sanitize(sanitizedContent);
+  }
 
-    // Add styles to existing links if any
-    sanitizedContent = sanitizedContent.replace(
-      /<a /g,
-      '<a class="text-blue-500 underline" target="_blank" rel="noopener noreferrer" '
-    );
+  // Add styles to existing links if any
+  sanitizedContent = sanitizedContent.replace(
+    /<a /g,
+    '<a class="text-blue-500 underline" target="_blank" rel="noopener noreferrer" '
+  );
 
-    // Enhance tables with styling if present
-    sanitizedContent = sanitizedContent.replace(
-      /<table/g,
-      '<table class="min-w-full border-collapse border border-gray-300 my-4"'
-    );
-    
-    sanitizedContent = sanitizedContent.replace(
-      /<tr/g,
-      '<tr class="border-b border-gray-300"'
-    );
-    
-    sanitizedContent = sanitizedContent.replace(
-      /<th/g,
-      '<th class="border border-gray-300 bg-gray-100 p-2 text-left font-medium"'
-    );
-    
-    sanitizedContent = sanitizedContent.replace(
-      /<td/g,
-      '<td class="border border-gray-300 p-2"'
-    );
+  // Enhance tables with styling if present
+  sanitizedContent = sanitizedContent.replace(
+    /<table/g,
+    '<table class="min-w-full border-collapse border border-gray-300 my-4"'
+  );
+  
+  sanitizedContent = sanitizedContent.replace(
+    /<tr/g,
+    '<tr class="border-b border-gray-300"'
+  );
+  
+  sanitizedContent = sanitizedContent.replace(
+    /<th/g,
+    '<th class="border border-gray-300 bg-gray-100 p-2 text-left font-medium"'
+  );
+  
+  sanitizedContent = sanitizedContent.replace(
+    /<td/g,
+    '<td class="border border-gray-300 p-2"'
+  );
 
-    return sanitizedContent;
-  };
+  // Add styling for bullet points and ordered lists
+  sanitizedContent = sanitizedContent.replace(
+    /<ul/g,
+    '<ul class="list-disc pl-5 space-y-2 my-4"'
+  );
+  
+  sanitizedContent = sanitizedContent.replace(
+    /<ol/g,
+    '<ol class="list-decimal pl-5 space-y-2 my-4"'
+  );
+  
+  sanitizedContent = sanitizedContent.replace(
+    /<li/g,
+    '<li class="ml-2"'
+  );
+
+  return sanitizedContent;
+}
 
   // Function to determine file type and return appropriate icon
   const getFileIcon = (fileName) => {
@@ -241,18 +271,17 @@ const StateLaw = ({ onBack }) => {
     }
   };
 
-  // Function to render state icon/abbreviation
+  // Function to render state icon/abbreviation with black styling
   const renderStateIcon = (state) => {
     // If there's an actual image path available
     if (state.icon) {
       return <img src={state.icon} alt={state.title} className="w-8 h-8" />;
     }
     
-    // Otherwise use the state abbreviation with color background
+    // Otherwise use the state abbreviation with black background
     return (
       <div 
-        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
-        style={{ backgroundColor: state.color }}
+        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold bg-black"
       >
         {state.code}
       </div>
@@ -263,29 +292,47 @@ const StateLaw = ({ onBack }) => {
     <div className="flex flex-col w-full px-5 md:px-20 pt-28 min-h-screen bg-white">
       <Breadcrumb items={breadcrumbItems} className={"flex z-50 items-center space-x-2 text-black text-sm lg:text-base my-3"} />
       
-      {/* State Selection Horizontal Scrollable Area */}
-      <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg py-3 md:px-10 px-3">
-        {allIndianStates.map((state) => (
-          <button
-            key={state.id}
-            className={`flex flex-col min-w-[70px] items-center focus:outline-none ${
-              selectedLaw?.id === state.id ? "scale-110" : ""
-            }`}
-            onClick={() => handleSelectLaw(state)}
-          >
-            <div
-              className={`p-4 rounded-full flex items-center justify-center ${
-                selectedLaw?.id === state.id
-                  ? "bg-white border-[3px] border-black"
-                  : "bg-gray-200 border-[2px] border-black"
+      {/* State Selection Horizontal Scrollable Area - Only show available states */}
+      {availableStates.length > 0 && (
+        <div className="flex md:gap-5 gap-4 lg:overflow-x-auto bg-white/20 text-white overflow-x-scroll shadow-lg py-3 md:px-10 px-3">
+          {availableStates.map((state) => (
+            <button
+              key={state.id}
+              className={`flex flex-col min-w-[70px] items-center focus:outline-none ${
+                selectedLaw?.id === state.id ? "scale-110" : ""
               }`}
+              onClick={() => handleSelectLaw(state)}
             >
-              {renderStateIcon(state)}
-            </div>
-            <span className="text-xs text-center text-black mt-1">{state.title}</span>
-          </button>
-        ))}
-      </div>
+              <div
+                className={`p-4 rounded-full flex items-center justify-center ${
+                  selectedLaw?.id === state.id
+                    ? "bg-white border-[3px] border-black"
+                    : "bg-gray-200 border-[2px] border-black"
+                }`}
+              >
+                {renderStateIcon(state)}
+              </div>
+              <span className="text-xs text-center text-black mt-1">{state.title}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Display a loader while initially loading states */}
+      {isLoading && availableStates.length === 0 && (
+        <div className="flex justify-center items-center h-40 mt-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+
+      {/* No states available message */}
+      {!isLoading && availableStates.length === 0 && (
+        <div className="text-center py-10 mt-8">
+          <Map className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <p className="text-gray-500">No states with laws available</p>
+          <p className="text-sm text-gray-400 mt-2">Please check back later</p>
+        </div>
+      )}
 
       {/* Laws Display Section */}
       {selectedLaw ? (
@@ -364,9 +411,11 @@ const StateLaw = ({ onBack }) => {
           )}
         </div>
       ) : (
-        <div className="mt-8 text-center text-gray-500">
-          Select a state to view details
-        </div>
+        !isLoading && availableStates.length > 0 && (
+          <div className="mt-8 text-center text-gray-500">
+            Select a state to view details
+          </div>
+        )
       )}
     </div>
   );

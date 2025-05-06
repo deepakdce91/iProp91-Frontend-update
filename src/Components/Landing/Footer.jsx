@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
@@ -9,7 +7,12 @@ import "react-toastify/dist/ReactToastify.css"
 import { useTypewriter } from "./typeWriter"
 import { useInView } from "react-intersection-observer"
 
+import ContactUsForm from "../forms/ContactUs";
+
 const Footer = () => {
+
+  const [isContactModalOpen, setContactModalOpen] = useState(false);
+
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState('idle')
   const [hasAnimated, setHasAnimated] = useState(false)
@@ -20,6 +23,21 @@ const Footer = () => {
     threshold: 0.2,
     triggerOnce: true,
   })
+
+  useEffect(() => {
+      if (isContactModalOpen ) {
+        // Disable scrolling when modal is open
+        document.body.style.overflow = "hidden";
+      } else {
+        // Re-enable scrolling when modal is closed
+        document.body.style.overflow = "unset";
+      }
+  
+      // Cleanup function to re-enable scrolling when component unmounts
+      return () => {
+        document.body.style.overflow = "unset";
+      };
+    }, [isContactModalOpen ]);
 
   useEffect(() => {
     if (inView && !hasAnimated) {
@@ -41,6 +59,10 @@ const Footer = () => {
   const handleInputChange = (e) => {
     setEmail(e.target.value)
   }
+
+  const handleContactModalClose = () => {
+    setContactModalOpen(false);
+  };
 
   const handleSubscribe = async () => {
     if (!email) return
@@ -176,22 +198,22 @@ const Footer = () => {
           </h3>
           <ul className="text-xs">
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/aboutUs" className="hover:text-primary">
                 About Us
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <p onClick={()=>{setContactModalOpen(true)}} className="hover:text-primary">
                 Contact Us
-              </Link>
+              </p>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/privacyPolicy" className="hover:text-primary">
                 Privacy Policy
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/termsAndConditions" className="hover:text-primary">
                 Terms & Conditions
               </Link>
             </li>
@@ -279,8 +301,28 @@ const Footer = () => {
           </ul>
         </div>
       </div>
+
+      {/* Contact Us Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleContactModalClose}
+          />
+          <div className="relative bg-black rounded-lg shadow-xl  mx-4">
+            <button
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+              onClick={handleContactModalClose}
+            >
+              {/* Close Button SVG */}
+            </button>
+            <ContactUsForm onClose={handleContactModalClose} />
+          </div>
+        </div>
+      )}
+      
     </footer>
   )
 }
 
-export default Footer
+export default Footer 
