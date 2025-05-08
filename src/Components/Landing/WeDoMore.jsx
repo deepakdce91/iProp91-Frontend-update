@@ -11,44 +11,58 @@ function toTitleCase(str) {
 
 const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
   // Use a random image for each card to ensure variety
-  const imageUrl =
-    Math.random() < 0.5
-      ? "/images/rewards-image.jpg"
-      : "/images/rewards-image2.jpg";
+  const imageUrl = "/images/rewards-image.jpg";
+
+  // Normalize the name for comparison
+  const normalized = (str) => str.trim().toLowerCase();
+  const bonusNames = [
+    "buy property through us test",
+    "sell property through us",
+    "rent property through us",
+  ];
+  const showBonus = bonusNames.some(
+    (target) => normalized(name) === normalized(target)
+  );
 
   return (
     <>
-      <div className="inline-block lg:w-[350px]">
+      <div className="inline-block lg:w-[400px]">
         <div
           className="bg-white 
-          reward-card rounded-xl shadow-md 
+          reward-card rounded-xl shadow-lg 
           transition-all duration-300 hover:scale-105 
           max-w-xs overflow-hidden flex
-          flex-col mx-3 max-sm:mx-0 no-selection-effect h-[300px]"
+          flex-col mx-3 max-sm:mx-0 no-selection-effect h-[400px]"
         >
           {/* Image section with curved top corners */}
-          <div className="w-full bg-blue-800 rounded-t-xl flex items-center justify-center h-[150px] relative">
+          <div className="w-full bg-gradient-to-r from-blue-800 to-blue-600 rounded-t-xl flex items-center justify-center h-[250px] relative overflow-hidden">
             <img
               src={imageUrl}
               alt="Reward"
-              className="w-full h-full object-cover rounded-t-xl"
+              className="w-full h-full object-cover rounded-t-xl hover:scale-110 transition-transform duration-300"
             />
+            <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all duration-300"></div>
+            {showBonus && (
+              <div className="absolute top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
+                Get 25% bonus
+              </div>
+            )}
           </div>
 
           {/* Content section */}
-          <div className="p-4 flex-1">
+          <div className="p-6 flex-1 bg-gradient-to-b from-white to-gray-50">
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-wrap text-[#0a0f19] reward-card-title">
+                <h3 className="text-2xl font-bold text-wrap text-[#0a0f19] reward-card-title">
                   {toTitleCase(name)}
                 </h3>
-                <span className="text-orange-500 font-semibold mt-4 text-lg">
-                  {amount} Coins
+                <span className="text-orange-500 font-semibold mt-4 text-xl">
+                  Get {amount} Coins
                 </span>
               </div>
-              <div className="p-2">
+              <div className="p-2 bg-blue-50 rounded-full">
                 <svg
-                  className="w-6 h-6 text-blue-500"
+                  className="w-7 h-7 text-blue-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -192,7 +206,7 @@ const RewardsContainer = ({ cardsData }) => {
       <div className="width-full ">
         <div
           ref={scrollContainerRef}
-          className=" overflow-x-auto whitespace-nowrap scrollbar-hide  scroll-smooth space-x-4"
+          className=" overflow-x-auto whitespace-nowrap scrollbar-hide  scroll-smooth space-x-2"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {rewardsData.map((reward) => (
