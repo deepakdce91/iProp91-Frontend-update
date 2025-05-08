@@ -175,22 +175,28 @@ function AirbnbMapClone() {
   // State data from API
   const [statesData, setStatesData] = useState([]);
 
-  // Function to fetch states data from API - not memoized since it's only called once
+  // Function to fetch states data from API
   const fetchStatesData = async () => {
+    console.log("🔄 Starting to fetch states data...");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/states`,
+        `https://api.countrystatecity.in/v1/countries/IN/states`,
         {
           headers: {
             "Content-Type": "application/json",
+            "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
             "auth-token": localStorage.getItem("token"),
           },
         }
       );
       setStatesData(response.data.sort((a, b) => a.name.localeCompare(b.name)));
-      console.log("States data fetched:", response.data.length, "states");
+      console.log(
+        "✅ States data fetched successfully:",
+        response.data.length,
+        "states"
+      );
     } catch (error) {
-      console.error("Error fetching states data:", error);
+      console.error("❌ Error fetching states data:", error);
       toast.error("Failed to fetch states data");
     }
   };
@@ -288,113 +294,50 @@ function AirbnbMapClone() {
     [setProperties, setSelectedProperty]
   );
 
-  // Function to fetch properties near a location - memoized with useCallback
-  const fetchPropertiesNearLocation = useCallback(
-    async (latitude, longitude) => {
-      try {
-        setIsLoading(true);
+  // Function to get user location
+  const getUserLocation = () => {
+    console.log("🔄 Getting user location...");
+    if (!navigator.geolocation) {
+      console.log("❌ Geolocation is not supported by this browser");
+      return;
+    }
 
-        console.log(
-          `Fetching properties near latitude: ${latitude}, longitude: ${longitude}`
-        );
-
-        try {
-          const response = await axios.get(
-            `https://iprop91new.onrender.com/api/projectsDataMaster?lat=${latitude}&lng=${longitude}&radius=10`,
-            {
-              timeout: 15000, // 15 second timeout
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          console.log("API Response:", response.data);
-          const propertiesData = response.data;
-          const propertiesArray = propertiesData.data?.projects || [];
-
-          // Process properties if we get them
-          if (propertiesArray.length > 0) {
-            processProperties(propertiesArray, latitude, longitude);
-          } else {
-            console.log("No properties found from API");
-            setProperties([]);
-          }
-        } catch (error) {
-          console.error("Error fetching from API:", error);
-          setProperties([]);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("✅ User location obtained successfully");
+        const { latitude, longitude } = position.coords;
+        // Ensure coordinates are valid numbers
+        if (
+          typeof latitude === "number" &&
+          typeof longitude === "number" &&
+          !isNaN(latitude) &&
+          !isNaN(longitude)
+        ) {
+          setUserLocation({ lat: latitude, lng: longitude });
+          setCurrentLocation({ lat: latitude, lng: longitude });
+        } else {
+          console.error("❌ Invalid coordinates received:", {
+            latitude,
+            longitude,
+          });
+          toast.error("Invalid location coordinates received");
         }
-      } catch (outerError) {
-        console.error(
-          "Outer error in fetchPropertiesNearLocation:",
-          outerError
-        );
-        setProperties([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [setIsLoading, processProperties, setProperties]
-  );
-
-  // Create a ref to store the fetchPropertiesNearLocation function
-  const fetchFnRef = useRef(fetchPropertiesNearLocation);
-
-  // Update the ref when the function changes
-  useEffect(() => {
-    fetchFnRef.current = fetchPropertiesNearLocation;
-  }, [fetchPropertiesNearLocation]);
+      },
+      (error) => {
+        console.error("❌ Error getting user location:", error);
+        toast.error("Failed to get your location");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
 
   // Get user's geolocation and fetch nearby properties on component mount
   useEffect(() => {
-    const getUserLocation = () => {
-      setIsLoading(true);
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            console.log("User location:", latitude, longitude);
-
-            // Set map center to user's location
-            if (mapInstance) {
-              mapInstance.setView([latitude, longitude], 13);
-            }
-
-            // Update state with user's location
-            setCurrentLocation({ lat: latitude, lng: longitude });
-            setUserLocation({ lat: latitude, lng: longitude });
-
-            // Fetch properties near the user's location using the API
-            fetchFnRef.current(latitude, longitude);
-          },
-          (error) => {
-            console.error("Error getting geolocation:", error);
-            setIsLoading(false);
-            // Don't use a default location, just show error
-            alert(
-              "Please enable location services to view properties near you."
-            );
-          },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
-      } else {
-        console.log("Geolocation is not supported by this browser.");
-        setIsLoading(false);
-        alert("Geolocation is not supported by your browser.");
-      }
-    };
-
     getUserLocation();
   }, [mapInstance]); // Removed fetchPropertiesNearLocation from dependencies
 
   // Use the ref instead of the function directly to avoid dependency cycles
-  useEffect(() => {
-    // If we have the user's location, fetch properties near it
-    if (currentLocation && !properties.length) {
-      fetchFnRef.current(currentLocation.lat, currentLocation.lng);
-    }
-  }, [currentLocation, properties.length]);
+  useEffect(() => {}, [currentLocation, properties.length]);
 
   // Track screen size for responsive UI adjustments
   const isSmallScreen = viewportWidth < 768;
@@ -420,26 +363,23 @@ function AirbnbMapClone() {
 
   // Handle touch start event for panel dragging
   const handleTouchStart = (e) => {
+    console.log("🔄 Touch start detected");
     startYRef.current = e.touches[0].clientY;
     currentYRef.current = e.touches[0].clientY;
   };
 
   // Handle touch move event for panel dragging
   const handleTouchMove = (e) => {
-    if (!startYRef.current) return;
+    console.log("🔄 Touch move detected");
+    currentYRef.current = e.touches[0].clientY;
+    const deltaY = currentYRef.current - startYRef.current;
 
-    e.preventDefault();
-    const touch = e.touches[0];
-    currentYRef.current = touch.clientY;
-    const yDifference = startYRef.current - currentYRef.current;
-
-    if (Math.abs(yDifference) > 50) {
-      if (yDifference > 0 && panelState !== "full") {
-        setPanelState("full");
-      } else if (yDifference < 0 && panelState !== "minimized") {
-        setPanelState("minimized");
-      }
-      startYRef.current = 0;
+    if (deltaY > 50) {
+      console.log("✅ Panel state changed to: full");
+      setPanelState("full");
+    } else if (deltaY < -50) {
+      console.log("✅ Panel state changed to: half");
+      setPanelState("half");
     }
   };
 
@@ -449,7 +389,7 @@ function AirbnbMapClone() {
       const now = Date.now();
       // Increase the cooldown time to 3 seconds and check isLoading state
       if (isLoading || now - lastFetchTime < 3000) {
-        console.log("Throttling map bounds fetch requests");
+        console.log("⏳ Throttling map bounds fetch requests");
         return;
       }
 
@@ -467,9 +407,11 @@ function AirbnbMapClone() {
         const radius = (Math.max(latDiff, lngDiff) * 111) / 2; // Convert to km
 
         let url = "https://iprop91new.onrender.com/api/projectsDataMaster";
+        console.log("🌐 Initial API URL:", url);
 
         try {
           // First, try a minimal request without coordinates to check if the server is responding
+          console.log("🔍 Checking server availability...");
           await axios.get(url, {
             headers: {
               "Content-Type": "application/json",
@@ -477,6 +419,7 @@ function AirbnbMapClone() {
             },
             timeout: 10000,
           });
+          console.log("✅ Server is responding");
 
           // If we got here, the server is up. Now build our query with filters
           const params = new URLSearchParams();
@@ -486,14 +429,17 @@ function AirbnbMapClone() {
           try {
             // Use OpenStreetMap's Nominatim service for reverse geocoding
             const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
+            console.log("🗺️ Geocoding URL:", geocodeUrl);
+
             const geocodeResponse = await axios.get(geocodeUrl, {
               headers: {
                 Accept: "application/json",
-                "User-Agent": "iProp Web Application", // Nominatim requires a user-agent
+                "User-Agent": "iProp Web Application",
               },
             });
 
             const result = geocodeResponse.data;
+            console.log("📍 Geocoding result:", result);
 
             // Extract city and state from geocoding result
             let city = null;
@@ -506,6 +452,7 @@ function AirbnbMapClone() {
                 result.address.town ||
                 result.address.village;
               state = result.address.state || result.address.county;
+              console.log("🏙️ Extracted location:", { city, state });
             }
 
             // Add city and state if found
@@ -514,12 +461,15 @@ function AirbnbMapClone() {
 
             // If geocoding failed or no city/state found, fall back to coordinates
             if (!city && !state) {
+              console.log(
+                "⚠️ No city/state found, falling back to coordinates"
+              );
               params.append("lat", latitude);
               params.append("lng", longitude);
               params.append("radius", Math.ceil(radius));
             }
           } catch (geocodeError) {
-            console.error("Geocoding error:", geocodeError);
+            console.error("❌ Geocoding error:", geocodeError);
             // Fall back to coordinates
             params.append("lat", latitude);
             params.append("lng", longitude);
@@ -551,7 +501,7 @@ function AirbnbMapClone() {
           }
 
           const finalUrl = `${url}?${params.toString()}`;
-          console.log("Fetching properties with URL:", finalUrl);
+          console.log("🔗 Final API URL with parameters:", finalUrl);
 
           const response = await axios.get(finalUrl, {
             headers: {
@@ -562,22 +512,32 @@ function AirbnbMapClone() {
           });
 
           const propertiesData = response.data;
-          console.log("API Response for search:", propertiesData);
+          console.log("📦 API Response:", {
+            totalProperties: propertiesData.data?.projects?.length || 0,
+            firstProperty: propertiesData.data?.projects?.[0],
+            responseStatus: response.status,
+            responseHeaders: response.headers,
+          });
 
           const propertiesArray = propertiesData.data?.projects || [];
 
           if (propertiesArray.length > 0) {
+            console.log("✅ Processing", propertiesArray.length, "properties");
             processProperties(propertiesArray, latitude, longitude);
           } else {
-            console.log("No properties found");
+            console.log("ℹ️ No properties found in the response");
             setProperties([]);
           }
         } catch (apiError) {
-          console.error("API error when fetching properties:", apiError);
+          console.error("❌ API error when fetching properties:", {
+            error: apiError,
+            message: apiError.message,
+            response: apiError.response?.data,
+          });
 
           // Use hardcoded sample data as fallback when server fails
-          // This prevents showing no results when the server is having issues
           try {
+            console.log("🔄 Using fallback sample property data");
             const sampleProperty = {
               _id: "IPMP0005",
               thumbnail: null,
@@ -585,7 +545,7 @@ function AirbnbMapClone() {
               listingId: "IPL00045",
               state: "Haryana",
               city: "Sonipat",
-              coordinates: [latitude, longitude], // Use the requested coordinates
+              coordinates: [latitude, longitude],
               builder: "Sample Builder",
               project: "Sample Project",
               tower: "Tower A",
@@ -593,19 +553,16 @@ function AirbnbMapClone() {
               size: "2223",
               status: "under-construction",
               type: "residential",
-              // Add other required fields here
             };
 
-            // Process the sample data
             processProperties([sampleProperty], latitude, longitude);
-            console.log("Using fallback sample property data");
           } catch (fallbackError) {
-            console.error("Error using fallback data:", fallbackError);
+            console.error("❌ Error using fallback data:", fallbackError);
             setProperties([]);
           }
         }
       } catch (error) {
-        console.error("Error in fetchPropertiesInBounds:", error);
+        console.error("❌ Error in fetchPropertiesInBounds:", error);
         setProperties([]);
       } finally {
         setIsLoading(false);
@@ -663,7 +620,9 @@ function AirbnbMapClone() {
   // Update viewport width when window resizes
   useEffect(() => {
     const handleResize = () => {
+      console.log("🔄 Handling window resize");
       setViewportWidth(window.innerWidth);
+      console.log("✅ Viewport width updated:", window.innerWidth);
     };
 
     window.addEventListener("resize", handleResize);
@@ -705,6 +664,9 @@ function AirbnbMapClone() {
     useEffect(() => {
       // Function to fetch properties in the current map bounds
       const handleMapZoomEnd = () => {
+        console.log("🔄 Map zoom ended");
+        const currentZoom = map.getZoom();
+        console.log("✅ Current zoom level:", currentZoom);
         const bounds = map.getBounds();
         const center = bounds.getCenter();
         const northEast = bounds.getNorthEast();
@@ -834,7 +796,7 @@ function AirbnbMapClone() {
           city: city || "",
         });
 
-        let url = `${process.env.REACT_APP_API_URL}/api/projectsDataMaster`;
+        let url = `https://iprop91new.onrender.com/api/projectsDataMaster`;
         const params = new URLSearchParams();
 
         // Add state parameter
@@ -875,12 +837,15 @@ function AirbnbMapClone() {
         }
 
         console.log("Fetching properties with URL:", url);
-        const response = await axios.get(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": localStorage.getItem("token"),
-          },
-        });
+        const response = await axios.get(
+          `https://iprop91new.onrender.com/api/projectsDataMaster`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": localStorage.getItem("token"),
+            },
+          }
+        );
         const propertiesData = response.data;
 
         // Log the response for debugging
@@ -1014,6 +979,7 @@ function AirbnbMapClone() {
   const navigate = useNavigate();
 
   const handlePropertyClick = (property) => {
+    console.log("🔄 Handling property click for:", property.title);
     if (!property || !property.coordinates) {
       console.error("Invalid property or missing coordinates");
       return;
@@ -1037,6 +1003,7 @@ function AirbnbMapClone() {
     // Center map on the property location
     if (mapInstance) {
       mapInstance.setView([latitude, longitude], 15);
+      console.log("✅ Map view updated to property location");
     }
 
     // Navigate to the property detail page with the property data
@@ -1169,8 +1136,10 @@ function AirbnbMapClone() {
     // Create a handler that doesn't depend on the selectedProperty closure
     // to avoid stale references in the event listener
     const handleMarkerClick = () => {
-      // This just logs the click, actual selection is handled elsewhere
-      console.log("Marker clicked:", selectedProperty.title || "Property");
+      console.log("🔄 Marker clicked");
+      if (selectedProperty) {
+        console.log("✅ Showing property details for:", selectedProperty.title);
+      }
     };
 
     marker.addEventListener("click", handleMarkerClick);
@@ -1374,7 +1343,7 @@ function AirbnbMapClone() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {/* Add user location marker */}
-            {userLocation && (
+            {userLocation && userLocation.lat && userLocation.lng && (
               <Marker
                 position={[userLocation.lat, userLocation.lng]}
                 icon={userLocationIcon}

@@ -22,47 +22,6 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
-  useEffect(() => {
-    if (DEBUG) {
-      console.log("PropertyCard useEffect triggered");
-    }
-
-    // If we already have property data, use it
-    if (property) {
-      setPropertyData(property);
-      return;
-    }
-
-    // If propertyId is provided but no property data, fetch it
-    if (propertyId && !property) {
-      setFetchLoading(true);
-
-      const fetchPropertyData = async () => {
-        try {
-          // Use the same API endpoint as in PropertyDetailPage
-          const response = await axios.get(
-            `https://iprop-api.irentpro.com/api/v1/map-project/${propertyId}`
-          );
-
-          if (response.data && response.data.data) {
-            // Process the property using similar logic as in App.jsx
-            const processedProperty = processProperty(response.data.data);
-            setPropertyData(processedProperty);
-          } else {
-            setFetchError("Property data not found");
-          }
-        } catch (err) {
-          console.error("Error fetching property data:", err);
-          setFetchError("Failed to load property data");
-        } finally {
-          setFetchLoading(false);
-        }
-      };
-
-      fetchPropertyData();
-    }
-  }, [property, propertyId, processProperty]);
-
   // Function to process property data similar to App.jsx
   const processProperty = React.useCallback((rawProperty) => {
     return {
@@ -104,6 +63,47 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
         `${Math.floor(Math.random() * 500) + 50} kilometres away`,
     };
   }, []);
+
+  useEffect(() => {
+    if (DEBUG) {
+      console.log("PropertyCard useEffect triggered");
+    }
+
+    // If we already have property data, use it
+    if (property) {
+      setPropertyData(property);
+      return;
+    }
+
+    // If propertyId is provided but no property data, fetch it
+    if (propertyId && !property) {
+      setFetchLoading(true);
+
+      const fetchPropertyData = async () => {
+        try {
+          // Use the same API endpoint as in PropertyDetailPage
+          const response = await axios.get(
+            `https://iprop-api.irentpro.com/api/v1/map-project/${propertyId}`
+          );
+
+          if (response.data && response.data.data) {
+            // Process the property using similar logic as in App.jsx
+            const processedProperty = processProperty(response.data.data);
+            setPropertyData(processedProperty);
+          } else {
+            setFetchError("Property data not found");
+          }
+        } catch (err) {
+          console.error("Error fetching property data:", err);
+          setFetchError("Failed to load property data");
+        } finally {
+          setFetchLoading(false);
+        }
+      };
+
+      fetchPropertyData();
+    }
+  }, [property, propertyId, processProperty]);
 
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
