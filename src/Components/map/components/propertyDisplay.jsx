@@ -1112,8 +1112,7 @@ export default function PropertyListing({ property, onBack }) {
         <div className="relative">
           <div className="relative aspect-video bg-gray-200">
             <img
-              src={images[activeImage]}
-              alt={`Property image ${activeImage + 1}`}
+              src={"/images/logo.svg"}
               className="w-full h-full object-cover"
             />
 
@@ -1173,7 +1172,7 @@ export default function PropertyListing({ property, onBack }) {
                 className={`relative cursor-pointer transition-all duration-300 flex-shrink-0`}
               >
                 <img
-                  src={img}
+                  src={"/images/logo.svg"}
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-20 h-16 object-cover rounded ${
                     activeImage === index

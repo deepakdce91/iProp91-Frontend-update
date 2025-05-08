@@ -248,7 +248,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
       {/* Image with heart and guest favorite overlay */}
       <div className="relative overflow-hidden">
         <motion.img
-          src={images[activeImageIndex]}
+          src={"/images/logo.svg"}
           alt={`${location} - Image ${activeImageIndex + 1}`}
           className="w-full h-48 object-cover"
           variants={imageVariants}

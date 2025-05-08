@@ -366,7 +366,7 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
           {/* Image carousel */}
           <div className="relative h-[25vh] md:h-[30vh] bg-black">
             <img
-              src={images[activeImage]}
+              src={"/images/logo.svg"}
               alt={`Property ${activeImage + 1}`}
               className="w-full h-full object-cover"
               onError={handleImageError}
