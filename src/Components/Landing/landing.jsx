@@ -34,8 +34,9 @@ import ListingCompo from "./ListingCompo";
 import "leaflet/dist/leaflet.css";
 import PropertyJouneyPage from "../PropertyJourneyPage/page";
 import RedeemRewards from "../redeemRewards/Index";
-import PropertyListing from "../propertyListing/listing";
 import App from "../map/map";
+import PropertyListing from "../propertyListing/listing";
+import PropertyDetails from "../map/components/PropertyDetails";
 import AboutUs from "../FrontendPages/AboutUs";
 import PrivacyPolicy from "../FrontendPages/PrivacyPolicy";
 import TermsAndConditions from "../FrontendPages/TermsAndConditions";
@@ -46,11 +47,11 @@ function LandingPage() {
       <HeroSection />
       <AboutSection />
       <Comparision />
+      <WeDoMore />
       <MobileScreen />
       <Number />
       <BrandMarquee />
       <Knowledge />
-      <WeDoMore />
       <ListingCompo />
       <Insight />
       <Testimonials />
@@ -150,12 +151,13 @@ function Landing({ setIsLoggedIn }) {
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
-
+        <Route path="/search-properties" element={<App />} />
+        <Route path="/property-listing" element={<PropertyListing />} />
+        <Route path="/property-details/:id" element={<PropertyDetails />} />
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
-        <Route path={"/search-properties"} element={<App />} />
-        <Route path={"/property-listing"} element={<PropertyListing />} />
+
         <Route path="/laws" element={<Law />} />
         <Route path="/laws/statelaw" element={<StateLaw />} />
         <Route path="/laws/centrallaw" element={<CentralLaw />} />
@@ -165,7 +167,7 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/site-faqs" element={<SiteFaqs />} />
         <Route path="/rewards" element={<RedeemRewards />} />
         <Route path="/property-journey" element={<PropertyJouneyPage />} />
-        
+
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
         <Route path="/termsAndConditions" element={<TermsAndConditions />} />

@@ -162,11 +162,52 @@ function AirbnbMapClone() {
     state: "",
     city: "",
   });
-  const [activeFilters, setActiveFilters] = useState({
-    propertyType: [],
-    bedrooms: [],
-    budget: { min: 0, max: 10000000 },
+  const [filters, setFilters] = useState(() => {
+    // First check URL parameters
+    const searchParams = new URLSearchParams(location.search);
+    const urlFilters = {};
+
+    // Get category from URL
+    const category = searchParams.get("category");
+    if (category) {
+      urlFilters.category = category;
+    }
+
+    // Get property type from URL
+    const propertyType = searchParams.get("propertyType");
+    if (propertyType) {
+      urlFilters.propertyType = propertyType.split(",");
+    }
+
+    // Get BHK from URL
+    const bhk = searchParams.get("bhk");
+    if (bhk) {
+      urlFilters.bhk = bhk.split(",");
+    }
+
+    // Get budget range from URL
+    const minBudget = searchParams.get("minBudget");
+    const maxBudget = searchParams.get("maxBudget");
+    if (minBudget) urlFilters.minBudget = minBudget;
+    if (maxBudget) urlFilters.maxBudget = maxBudget;
+
+    // Get location from URL
+    const state = searchParams.get("state");
+    const city = searchParams.get("city");
+    if (state) urlFilters.state = state;
+    if (city) urlFilters.city = city;
+
+    // If URL has filters, use them
+    if (Object.keys(urlFilters).length > 0) {
+      return urlFilters;
+    }
+
+    // Otherwise, check localStorage
+    const savedFilters = localStorage.getItem("propertyFilters");
+    return savedFilters ? JSON.parse(savedFilters) : {};
   });
+  const [sortBy, setSortBy] = useState("relevance");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [panelState, setPanelState] = useState("half");
   const panelRef = useRef(null);
   const startYRef = useRef(0);
@@ -175,22 +216,209 @@ function AirbnbMapClone() {
   // State data from API
   const [statesData, setStatesData] = useState([]);
 
-  // Function to fetch states data from API - not memoized since it's only called once
+  // Function to fetch properties with filters - matching listing.jsx logic
+  const fetchProperties = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const queryParams = new URLSearchParams();
+
+      // Add all filter parameters if they exist
+      if (filters.state) queryParams.append("state", filters.state);
+      if (filters.city) queryParams.append("city", filters.city);
+      if (filters.propertyType?.length)
+        queryParams.append("propertyType", filters.propertyType.join(","));
+      if (filters.bhk?.length) queryParams.append("bhk", filters.bhk.join(","));
+      if (filters.minBudget) queryParams.append("minBudget", filters.minBudget);
+      if (filters.maxBudget) queryParams.append("maxBudget", filters.maxBudget);
+      if (filters.amenities?.length)
+        queryParams.append("amenities", filters.amenities.join(","));
+
+      // Always add these parameters
+      if (activeCategory && activeCategory !== "all") {
+        queryParams.append("category", activeCategory);
+      }
+
+      // Add sort parameter
+      if (sortBy) {
+        queryParams.append("sort", sortBy);
+      }
+
+      // Add pagination parameters
+      queryParams.append("page", "1");
+      queryParams.append("limit", "100"); // Increased limit for map view
+
+      const apiUrl = `https://iprop91new.onrender.com/api/projectsDataMaster?${queryParams.toString()}`;
+      console.log("Fetching properties with URL:", apiUrl);
+
+      const response = await axios.get(apiUrl);
+
+      if (response.data.status === "success" && response.data.data?.projects) {
+        const processedProperties = response.data.data.projects.map(
+          (property) => ({
+            id: property._id,
+            title: `${property.bhk || ""} ${property.type || "Property"} in ${
+              property.project || ""
+            }`,
+            price: property.minimumPrice
+              ? `₹${property.minimumPrice}`
+              : "Price on Request",
+            location: `${property.city}, ${property.state}`,
+            coordinates: {
+              lat: property.latitude || 0,
+              lng: property.longitude || 0,
+            },
+            images: property.images || [],
+            description: property.overview || "",
+            amenities: property.amenities || [],
+            features: property.features || [],
+            bhk: property.bhk,
+            type: property.type,
+            area: property.size,
+            status: property.status,
+          })
+        );
+
+        setProperties(processedProperties);
+      } else {
+        console.error("Invalid API response format:", response.data);
+        setProperties([]);
+      }
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+      setProperties([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters, sortBy, activeCategory]);
+
+  // Load filters from localStorage on initial render
+  useEffect(() => {
+    const savedFilters = localStorage.getItem("propertyFilters");
+    if (savedFilters) {
+      setFilters(JSON.parse(savedFilters));
+    }
+  }, []);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("propertyFilters", JSON.stringify(filters));
+  }, [filters]);
+
+  // Update useEffect to handle URL parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const category = searchParams.get("category");
+
+    if (category) {
+      // Map URL category to activeCategory
+      const categoryMapping = {
+        verified_owner: "verified",
+        new_project: "new",
+        ready_to_move: "ready",
+        budget_homes: "budget",
+        pre_launch: "prelaunch",
+        new_sale: "sale",
+        upcoming_project: "upcoming",
+      };
+
+      setActiveCategory(categoryMapping[category] || "all");
+    }
+  }, [location.search]);
+
+  // Fetch properties when filters change
+  useEffect(() => {
+    fetchProperties();
+  }, [filters, sortBy, activeCategory, fetchProperties]);
+
+  // Handle filter changes - matching listing.jsx logic
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      console.log("Before filter change:", filters);
+      console.log("New filters being applied:", newFilters);
+
+      setFilters((prevFilters) => {
+        const updatedFilters = {
+          ...prevFilters,
+          ...newFilters,
+        };
+
+        console.log("Updated filters:", updatedFilters);
+        return updatedFilters;
+      });
+    },
+    [filters]
+  );
+
+  // Handle search - matching listing.jsx logic
+  const handlePropertiesSearch = useCallback(
+    async (state, city, propertyType, bedrooms, minBudget, maxBudget) => {
+      const now = Date.now();
+      if (isFetchingLimited && now - lastFetchTime < 2000) {
+        console.log("Throttling search requests");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setLastFetchTime(Date.now());
+
+        setCurrentStateCity({
+          state: state || "",
+          city: city || "",
+        });
+
+        const newFilters = {
+          ...filters,
+          state: state || "",
+          city: city || "",
+          propertyType: propertyType || [],
+          bhk: bedrooms || [],
+          minBudget: minBudget || 0,
+          maxBudget: maxBudget || 10000000,
+        };
+
+        setFilters(newFilters);
+      } catch (error) {
+        console.error("Error in search:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [filters, isFetchingLimited, lastFetchTime]
+  );
+
+  // Handle sort changes
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
+
+  // Handle category changes
+  const handleCategoryClick = (categoryId) => {
+    setActiveCategory(categoryId);
+  };
+
+  // Function to fetch states data from API
   const fetchStatesData = async () => {
+    console.log("🔄 Starting to fetch states data...");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/states`,
+        `https://api.countrystatecity.in/v1/countries/IN/states`,
         {
           headers: {
             "Content-Type": "application/json",
+            "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
             "auth-token": localStorage.getItem("token"),
           },
         }
       );
       setStatesData(response.data.sort((a, b) => a.name.localeCompare(b.name)));
-      console.log("States data fetched:", response.data.length, "states");
+      console.log(
+        "✅ States data fetched successfully:",
+        response.data.length,
+        "states"
+      );
     } catch (error) {
-      console.error("Error fetching states data:", error);
+      console.error("❌ Error fetching states data:", error);
       toast.error("Failed to fetch states data");
     }
   };
@@ -288,113 +516,50 @@ function AirbnbMapClone() {
     [setProperties, setSelectedProperty]
   );
 
-  // Function to fetch properties near a location - memoized with useCallback
-  const fetchPropertiesNearLocation = useCallback(
-    async (latitude, longitude) => {
-      try {
-        setIsLoading(true);
+  // Function to get user location
+  const getUserLocation = () => {
+    console.log("🔄 Getting user location...");
+    if (!navigator.geolocation) {
+      console.log("❌ Geolocation is not supported by this browser");
+      return;
+    }
 
-        console.log(
-          `Fetching properties near latitude: ${latitude}, longitude: ${longitude}`
-        );
-
-        try {
-          const response = await axios.get(
-            `https://iprop91new.onrender.com/api/projectsDataMaster?lat=${latitude}&lng=${longitude}&radius=10`,
-            {
-              timeout: 15000, // 15 second timeout
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          console.log("API Response:", response.data);
-          const propertiesData = response.data;
-          const propertiesArray = propertiesData.data?.projects || [];
-
-          // Process properties if we get them
-          if (propertiesArray.length > 0) {
-            processProperties(propertiesArray, latitude, longitude);
-          } else {
-            console.log("No properties found from API");
-            setProperties([]);
-          }
-        } catch (error) {
-          console.error("Error fetching from API:", error);
-          setProperties([]);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("✅ User location obtained successfully");
+        const { latitude, longitude } = position.coords;
+        // Ensure coordinates are valid numbers
+        if (
+          typeof latitude === "number" &&
+          typeof longitude === "number" &&
+          !isNaN(latitude) &&
+          !isNaN(longitude)
+        ) {
+          setUserLocation({ lat: latitude, lng: longitude });
+          setCurrentLocation({ lat: latitude, lng: longitude });
+        } else {
+          console.error("❌ Invalid coordinates received:", {
+            latitude,
+            longitude,
+          });
+          toast.error("Invalid location coordinates received");
         }
-      } catch (outerError) {
-        console.error(
-          "Outer error in fetchPropertiesNearLocation:",
-          outerError
-        );
-        setProperties([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [setIsLoading, processProperties, setProperties]
-  );
-
-  // Create a ref to store the fetchPropertiesNearLocation function
-  const fetchFnRef = useRef(fetchPropertiesNearLocation);
-
-  // Update the ref when the function changes
-  useEffect(() => {
-    fetchFnRef.current = fetchPropertiesNearLocation;
-  }, [fetchPropertiesNearLocation]);
+      },
+      (error) => {
+        console.error("❌ Error getting user location:", error);
+        toast.error("Failed to get your location");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
 
   // Get user's geolocation and fetch nearby properties on component mount
   useEffect(() => {
-    const getUserLocation = () => {
-      setIsLoading(true);
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            console.log("User location:", latitude, longitude);
-
-            // Set map center to user's location
-            if (mapInstance) {
-              mapInstance.setView([latitude, longitude], 13);
-            }
-
-            // Update state with user's location
-            setCurrentLocation({ lat: latitude, lng: longitude });
-            setUserLocation({ lat: latitude, lng: longitude });
-
-            // Fetch properties near the user's location using the API
-            fetchFnRef.current(latitude, longitude);
-          },
-          (error) => {
-            console.error("Error getting geolocation:", error);
-            setIsLoading(false);
-            // Don't use a default location, just show error
-            alert(
-              "Please enable location services to view properties near you."
-            );
-          },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
-      } else {
-        console.log("Geolocation is not supported by this browser.");
-        setIsLoading(false);
-        alert("Geolocation is not supported by your browser.");
-      }
-    };
-
     getUserLocation();
   }, [mapInstance]); // Removed fetchPropertiesNearLocation from dependencies
 
   // Use the ref instead of the function directly to avoid dependency cycles
-  useEffect(() => {
-    // If we have the user's location, fetch properties near it
-    if (currentLocation && !properties.length) {
-      fetchFnRef.current(currentLocation.lat, currentLocation.lng);
-    }
-  }, [currentLocation, properties.length]);
+  useEffect(() => {}, [currentLocation, properties.length]);
 
   // Track screen size for responsive UI adjustments
   const isSmallScreen = viewportWidth < 768;
@@ -420,26 +585,23 @@ function AirbnbMapClone() {
 
   // Handle touch start event for panel dragging
   const handleTouchStart = (e) => {
+    console.log("🔄 Touch start detected");
     startYRef.current = e.touches[0].clientY;
     currentYRef.current = e.touches[0].clientY;
   };
 
   // Handle touch move event for panel dragging
   const handleTouchMove = (e) => {
-    if (!startYRef.current) return;
+    console.log("🔄 Touch move detected");
+    currentYRef.current = e.touches[0].clientY;
+    const deltaY = currentYRef.current - startYRef.current;
 
-    e.preventDefault();
-    const touch = e.touches[0];
-    currentYRef.current = touch.clientY;
-    const yDifference = startYRef.current - currentYRef.current;
-
-    if (Math.abs(yDifference) > 50) {
-      if (yDifference > 0 && panelState !== "full") {
-        setPanelState("full");
-      } else if (yDifference < 0 && panelState !== "minimized") {
-        setPanelState("minimized");
-      }
-      startYRef.current = 0;
+    if (deltaY > 50) {
+      console.log("✅ Panel state changed to: full");
+      setPanelState("full");
+    } else if (deltaY < -50) {
+      console.log("✅ Panel state changed to: half");
+      setPanelState("half");
     }
   };
 
@@ -449,7 +611,7 @@ function AirbnbMapClone() {
       const now = Date.now();
       // Increase the cooldown time to 3 seconds and check isLoading state
       if (isLoading || now - lastFetchTime < 3000) {
-        console.log("Throttling map bounds fetch requests");
+        console.log("⏳ Throttling map bounds fetch requests");
         return;
       }
 
@@ -467,9 +629,11 @@ function AirbnbMapClone() {
         const radius = (Math.max(latDiff, lngDiff) * 111) / 2; // Convert to km
 
         let url = "https://iprop91new.onrender.com/api/projectsDataMaster";
+        console.log("🌐 Initial API URL:", url);
 
         try {
           // First, try a minimal request without coordinates to check if the server is responding
+          console.log("🔍 Checking server availability...");
           await axios.get(url, {
             headers: {
               "Content-Type": "application/json",
@@ -477,6 +641,7 @@ function AirbnbMapClone() {
             },
             timeout: 10000,
           });
+          console.log("✅ Server is responding");
 
           // If we got here, the server is up. Now build our query with filters
           const params = new URLSearchParams();
@@ -486,14 +651,17 @@ function AirbnbMapClone() {
           try {
             // Use OpenStreetMap's Nominatim service for reverse geocoding
             const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
+            console.log("🗺️ Geocoding URL:", geocodeUrl);
+
             const geocodeResponse = await axios.get(geocodeUrl, {
               headers: {
                 Accept: "application/json",
-                "User-Agent": "iProp Web Application", // Nominatim requires a user-agent
+                "User-Agent": "iProp Web Application",
               },
             });
 
             const result = geocodeResponse.data;
+            console.log("📍 Geocoding result:", result);
 
             // Extract city and state from geocoding result
             let city = null;
@@ -506,6 +674,7 @@ function AirbnbMapClone() {
                 result.address.town ||
                 result.address.village;
               state = result.address.state || result.address.county;
+              console.log("🏙️ Extracted location:", { city, state });
             }
 
             // Add city and state if found
@@ -514,12 +683,15 @@ function AirbnbMapClone() {
 
             // If geocoding failed or no city/state found, fall back to coordinates
             if (!city && !state) {
+              console.log(
+                "⚠️ No city/state found, falling back to coordinates"
+              );
               params.append("lat", latitude);
               params.append("lng", longitude);
               params.append("radius", Math.ceil(radius));
             }
           } catch (geocodeError) {
-            console.error("Geocoding error:", geocodeError);
+            console.error("❌ Geocoding error:", geocodeError);
             // Fall back to coordinates
             params.append("lat", latitude);
             params.append("lng", longitude);
@@ -527,23 +699,20 @@ function AirbnbMapClone() {
           }
 
           // Add filter parameters
-          if (activeFilters?.propertyType?.length > 0) {
-            params.append("propertyType", activeFilters.propertyType.join(","));
+          if (filters?.propertyType?.length > 0) {
+            params.append("propertyType", filters.propertyType.join(","));
           }
 
-          if (activeFilters?.bedrooms?.length > 0) {
-            params.append("bedrooms", activeFilters.bedrooms.join(","));
+          if (filters?.bhk?.length > 0) {
+            params.append("bhk", filters.bhk.join(","));
           }
 
-          if (activeFilters?.budget?.min && activeFilters.budget.min > 0) {
-            params.append("minBudget", activeFilters.budget.min);
+          if (filters?.minBudget && filters.minBudget > 0) {
+            params.append("minBudget", filters.minBudget);
           }
 
-          if (
-            activeFilters?.budget?.max &&
-            activeFilters.budget.max < 10000000
-          ) {
-            params.append("maxBudget", activeFilters.budget.max);
+          if (filters?.maxBudget && filters.maxBudget < 10000000) {
+            params.append("maxBudget", filters.maxBudget);
           }
 
           if (selectedAmenities.length > 0) {
@@ -551,7 +720,7 @@ function AirbnbMapClone() {
           }
 
           const finalUrl = `${url}?${params.toString()}`;
-          console.log("Fetching properties with URL:", finalUrl);
+          console.log("🔗 Final API URL with parameters:", finalUrl);
 
           const response = await axios.get(finalUrl, {
             headers: {
@@ -562,22 +731,32 @@ function AirbnbMapClone() {
           });
 
           const propertiesData = response.data;
-          console.log("API Response for search:", propertiesData);
+          console.log("📦 API Response:", {
+            totalProperties: propertiesData.data?.projects?.length || 0,
+            firstProperty: propertiesData.data?.projects?.[0],
+            responseStatus: response.status,
+            responseHeaders: response.headers,
+          });
 
           const propertiesArray = propertiesData.data?.projects || [];
 
           if (propertiesArray.length > 0) {
+            console.log("✅ Processing", propertiesArray.length, "properties");
             processProperties(propertiesArray, latitude, longitude);
           } else {
-            console.log("No properties found");
+            console.log("ℹ️ No properties found in the response");
             setProperties([]);
           }
         } catch (apiError) {
-          console.error("API error when fetching properties:", apiError);
+          console.error("❌ API error when fetching properties:", {
+            error: apiError,
+            message: apiError.message,
+            response: apiError.response?.data,
+          });
 
           // Use hardcoded sample data as fallback when server fails
-          // This prevents showing no results when the server is having issues
           try {
+            console.log("🔄 Using fallback sample property data");
             const sampleProperty = {
               _id: "IPMP0005",
               thumbnail: null,
@@ -585,7 +764,7 @@ function AirbnbMapClone() {
               listingId: "IPL00045",
               state: "Haryana",
               city: "Sonipat",
-              coordinates: [latitude, longitude], // Use the requested coordinates
+              coordinates: [latitude, longitude],
               builder: "Sample Builder",
               project: "Sample Project",
               tower: "Tower A",
@@ -593,31 +772,22 @@ function AirbnbMapClone() {
               size: "2223",
               status: "under-construction",
               type: "residential",
-              // Add other required fields here
             };
 
-            // Process the sample data
             processProperties([sampleProperty], latitude, longitude);
-            console.log("Using fallback sample property data");
           } catch (fallbackError) {
-            console.error("Error using fallback data:", fallbackError);
+            console.error("❌ Error using fallback data:", fallbackError);
             setProperties([]);
           }
         }
       } catch (error) {
-        console.error("Error in fetchPropertiesInBounds:", error);
+        console.error("❌ Error in fetchPropertiesInBounds:", error);
         setProperties([]);
       } finally {
         setIsLoading(false);
       }
     },
-    [
-      lastFetchTime,
-      activeFilters,
-      selectedAmenities,
-      processProperties,
-      isLoading,
-    ]
+    [lastFetchTime, filters, selectedAmenities, processProperties, isLoading]
   );
 
   // Create a debounced version of fetchPropertiesInBounds
@@ -663,7 +833,9 @@ function AirbnbMapClone() {
   // Update viewport width when window resizes
   useEffect(() => {
     const handleResize = () => {
+      console.log("🔄 Handling window resize");
       setViewportWidth(window.innerWidth);
+      console.log("✅ Viewport width updated:", window.innerWidth);
     };
 
     window.addEventListener("resize", handleResize);
@@ -705,6 +877,9 @@ function AirbnbMapClone() {
     useEffect(() => {
       // Function to fetch properties in the current map bounds
       const handleMapZoomEnd = () => {
+        console.log("🔄 Map zoom ended");
+        const currentZoom = map.getZoom();
+        console.log("✅ Current zoom level:", currentZoom);
         const bounds = map.getBounds();
         const center = bounds.getCenter();
         const northEast = bounds.getNorthEast();
@@ -817,203 +992,10 @@ function AirbnbMapClone() {
     }
   };
 
-  const handlePropertiesSearch = useCallback(
-    async (state, city, propertyType, bedrooms, minBudget, maxBudget) => {
-      const now = Date.now();
-      if (isFetchingLimited && now - lastFetchTime < 2000) {
-        console.log("Throttling search requests");
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        setLastFetchTime(Date.now());
-
-        setCurrentStateCity({
-          state: state || "",
-          city: city || "",
-        });
-
-        let url = `${process.env.REACT_APP_API_URL}/api/projectsDataMaster`;
-        const params = new URLSearchParams();
-
-        // Add state parameter
-        if (state) {
-          params.append("state", state);
-        }
-
-        // Add city parameter
-        if (city) {
-          params.append("city", city);
-        }
-
-        // Add safety checks for propertyType
-        if (Array.isArray(propertyType) && propertyType.length > 0) {
-          params.append("propertyType", propertyType.join(","));
-        }
-
-        // Add amenities parameter if needed
-        if (selectedAmenities.length > 0) {
-          params.append("amenities", selectedAmenities.join(","));
-        }
-
-        // Add safety checks for bedrooms
-        if (Array.isArray(bedrooms) && bedrooms.length > 0) {
-          params.append("bedrooms", bedrooms.join(","));
-        }
-
-        if (minBudget) {
-          params.append("minBudget", minBudget);
-        }
-
-        if (maxBudget) {
-          params.append("maxBudget", maxBudget);
-        }
-
-        if (params.toString()) {
-          url += `?${params.toString()}`;
-        }
-
-        console.log("Fetching properties with URL:", url);
-        const response = await axios.get(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": localStorage.getItem("token"),
-          },
-        });
-        const propertiesData = response.data;
-
-        // Log the response for debugging
-        console.log("API Response:", propertiesData);
-
-        // Extract properties array from the response data structure
-        // Changed from 'properties' to 'projects' to match the API response structure
-        let propertiesArray = propertiesData.data?.projects || [];
-
-        // Validate and transform coordinates for each property
-        propertiesArray = propertiesArray.map((property) => {
-          // Make a copy of the property to avoid mutating the original
-          const processedProperty = { ...property };
-
-          // Ensure coordinates exist and are in the correct format
-          if (property.coordinates) {
-            // If coordinates are strings, convert them to numbers
-            if (typeof property.coordinates.latitude === "string") {
-              processedProperty.coordinates = {
-                ...property.coordinates,
-                latitude: parseFloat(property.coordinates.latitude),
-                longitude: parseFloat(property.coordinates.longitude),
-              };
-            }
-          } else if (property.latitude && property.longitude) {
-            // If property has latitude/longitude directly (not in coordinates object)
-            processedProperty.coordinates = {
-              latitude: parseFloat(property.latitude),
-              longitude: parseFloat(property.longitude),
-            };
-          }
-
-          return processedProperty;
-        });
-
-        // Log if no properties were found
-        if (propertiesArray.length === 0) {
-          console.log("No properties found in the API response");
-        }
-
-        // Log how many properties have valid coordinates
-        const validCoordinatesCount = propertiesArray.filter(
-          (p) =>
-            p.coordinates &&
-            p.coordinates.latitude &&
-            p.coordinates.longitude &&
-            !isNaN(p.coordinates.latitude) &&
-            !isNaN(p.coordinates.longitude)
-        ).length;
-
-        console.log(
-          `Properties with valid coordinates: ${validCoordinatesCount} out of ${propertiesArray.length}`
-        );
-
-        setProperties(propertiesArray);
-
-        console.log("Properties fetched:", propertiesData);
-        console.log("Total properties found:", propertiesArray.length);
-        if (propertiesArray.length > 0) {
-          console.log("First property details:", propertiesArray[0]);
-        }
-        console.log("Fetch URL:", url);
-
-        const searchParams = new URLSearchParams(location.search);
-        const defaultProperty = searchParams.get("defaultProperty");
-
-        if (propertiesArray.length > 0 && defaultProperty === "first") {
-          setSelectedProperty(propertiesArray[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-        setProperties([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [location.search, isFetchingLimited, lastFetchTime, selectedAmenities]
-  );
-
-  const handleApplyFilters = useCallback(
-    (filterValues) => {
-      setIsFetchingLimited(false);
-
-      const newFilters = {
-        propertyType: filterValues.propertyTypes || [],
-        bedrooms: filterValues.bhk || [],
-        budget: {
-          min: filterValues.minBudget || 0,
-          max: filterValues.maxBudget || 10000000,
-        },
-        state: filterValues.state,
-        city: filterValues.city,
-        amenities: filterValues.amenities,
-      };
-
-      setActiveFilters(newFilters);
-
-      // Update selected amenities from filter values
-      if (filterValues.amenities) {
-        setSelectedAmenities(filterValues.amenities);
-      }
-
-      if (filterValues.state) {
-        setCurrentStateCity({
-          state: filterValues.state,
-          city: filterValues.city || "",
-        });
-
-        handlePropertiesSearch(
-          filterValues.state,
-          filterValues.city,
-          newFilters.propertyType,
-          newFilters.bedrooms,
-          newFilters.budget.min,
-          newFilters.budget.max
-        );
-      } else if (properties.length > 0 && properties[0]?.state) {
-        handlePropertiesSearch(
-          properties[0].state,
-          properties[0].city,
-          newFilters.propertyType,
-          newFilters.bedrooms,
-          newFilters.budget.min,
-          newFilters.budget.max
-        );
-      }
-    },
-    [properties, handlePropertiesSearch]
-  );
-
   const navigate = useNavigate();
 
   const handlePropertyClick = (property) => {
+    console.log("🔄 Handling property click for:", property.title);
     if (!property || !property.coordinates) {
       console.error("Invalid property or missing coordinates");
       return;
@@ -1037,153 +1019,12 @@ function AirbnbMapClone() {
     // Center map on the property location
     if (mapInstance) {
       mapInstance.setView([latitude, longitude], 15);
+      console.log("✅ Map view updated to property location");
     }
 
     // Navigate to the property detail page with the property data
     navigate(`/property/${property._id}`, { state: { property } });
   };
-
-  const handleFilterChange = useCallback(
-    (filters) => {
-      if (filters) {
-        setIsFetchingLimited(false);
-
-        const newFilters = {
-          propertyType: filters.propertyTypes || [],
-          bedrooms: filters.bhk || [],
-          budget: {
-            min: filters.minBudget || 0,
-            max: filters.maxBudget || 10000000,
-          },
-          state: filters.state || "",
-          city: filters.city || "",
-          amenities: filters.amenities || "",
-        };
-
-        setActiveFilters(newFilters);
-
-        setFiltersVisible(false);
-
-        if (filters.state) {
-          setCurrentStateCity({
-            state: filters.state,
-            city: filters.city || "",
-          });
-
-          handlePropertiesSearch(
-            filters.state,
-            filters.city,
-            newFilters.propertyType,
-            newFilters.bedrooms,
-            newFilters.budget.min,
-            newFilters.budget.max
-          );
-        } else if (properties.length > 0 && properties[0]?.state) {
-          handlePropertiesSearch(
-            properties[0].state,
-            properties[0].city,
-            newFilters.propertyType,
-            newFilters.bedrooms,
-            newFilters.budget.min,
-            newFilters.budget.max
-          );
-        }
-      }
-    },
-    [
-      handlePropertiesSearch,
-      properties,
-      setActiveFilters,
-      setCurrentStateCity,
-      setFiltersVisible,
-      setIsFetchingLimited,
-    ]
-  );
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const autoSearch = searchParams.get("autoSearch");
-    const propertyTypes = searchParams.get("propertyTypes");
-    const bhk = searchParams.get("bhk");
-    const minBudget = searchParams.get("minBudget");
-    const maxBudget = searchParams.get("maxBudget");
-    const city = searchParams.get("city");
-
-    if (autoSearch === "true") {
-      const newFilters = {
-        propertyType: [],
-        bedrooms: [],
-        budget: { min: 0, max: 10000000 },
-      };
-
-      if (propertyTypes) {
-        newFilters.propertyType = propertyTypes.split(",");
-      }
-
-      if (bhk) {
-        newFilters.bedrooms = bhk.split(",");
-      }
-
-      if (minBudget) {
-        newFilters.budget.min = parseInt(minBudget, 10);
-      }
-
-      if (maxBudget) {
-        newFilters.budget.max = parseInt(maxBudget, 10);
-      }
-
-      setActiveFilters(newFilters);
-
-      if (city) {
-        handlePropertiesSearch(
-          "Delhi",
-          city,
-          newFilters.propertyType,
-          newFilters.bedrooms,
-          newFilters.budget.min,
-          newFilters.budget.max
-        );
-      } else {
-        handlePropertiesSearch(
-          "Delhi",
-          "",
-          newFilters.propertyType,
-          newFilters.bedrooms,
-          newFilters.budget.min,
-          newFilters.budget.max
-        );
-      }
-    }
-  }, [location.search, handlePropertiesSearch]);
-
-  // Effect to handle marker click events
-  useEffect(() => {
-    // Avoid trying to attach listeners if no property is selected
-    if (!selectedProperty || !selectedProperty._id) return () => {};
-
-    const markerId = `marker-${selectedProperty._id}`;
-    const marker = document.getElementById(markerId);
-
-    if (!marker) return () => {};
-
-    // Create a handler that doesn't depend on the selectedProperty closure
-    // to avoid stale references in the event listener
-    const handleMarkerClick = () => {
-      // This just logs the click, actual selection is handled elsewhere
-      console.log("Marker clicked:", selectedProperty.title || "Property");
-    };
-
-    marker.addEventListener("click", handleMarkerClick);
-
-    // Return cleanup function
-    return () => {
-      // Need to find the marker again when cleaning up
-      const markerElement = document.getElementById(markerId);
-      if (markerElement) {
-        markerElement.removeEventListener("click", handleMarkerClick);
-      }
-    };
-  }, [selectedProperty]); // Include the full selectedProperty to satisfy the linter
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -1191,16 +1032,16 @@ function AirbnbMapClone() {
       <FiltersPanel
         isVisible={filtersVisible}
         onClose={handleCloseFilters}
-        onApplyFilters={handleApplyFilters}
+        onApplyFilters={handleFilterChange}
         initialFilters={{
           tab: "buy",
-          propertyTypes: activeFilters.propertyType,
-          bhk: activeFilters.bedrooms,
-          minBudget: activeFilters.budget?.min,
-          maxBudget: activeFilters.budget?.max,
+          propertyTypes: filters.propertyType,
+          bhk: filters.bhk,
+          minBudget: filters.minBudget,
+          maxBudget: filters.maxBudget,
           state: currentStateCity.state,
           city: currentStateCity.city,
-          amenities: activeFilters.amenities || [],
+          amenities: filters.amenities || [],
         }}
         statesData={statesData}
       />
@@ -1374,7 +1215,7 @@ function AirbnbMapClone() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {/* Add user location marker */}
-            {userLocation && (
+            {userLocation && userLocation.lat && userLocation.lng && (
               <Marker
                 position={[userLocation.lat, userLocation.lng]}
                 icon={userLocationIcon}
