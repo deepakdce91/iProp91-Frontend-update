@@ -27,61 +27,86 @@ const categories = [
     title: "Owner Properties",
     description: "Verified listings from property owners",
     image: "/images/propcat.jpg",
-    link: "/owner-properties",
+    link: "/property-listing",
     count: "15,800+ Properties",
+    filters: {
+      category: "verified_owner",
+    },
   },
   {
     title: "New Projects",
     description: "Upcoming and ongoing projects",
     image: "/images/propcat.jpg",
-    link: "/new-projects",
+    link: "/property-listing",
     count: "1,200+ Properties",
+    filters: {
+      category: "new_project",
+    },
   },
   {
     title: "Ready to Move",
     description: "Immediate possession properties",
     image: "/images/propcat.jpg",
-    link: "/ready-to-move",
+    link: "/property-listing",
     count: "8,500+ Properties",
+    filters: {
+      category: "ready_to_move",
+    },
   },
   {
     title: "Budget Homes",
     description: "Affordable housing options",
     image: "/images/propcat.jpg",
-    link: "/budget-homes",
+    link: "/property-listing",
     count: "3,200+ Properties",
+    filters: {
+      category: "budget_homes",
+    },
   },
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
     image: "/images/propcat.jpg",
-    link: "/pre-launch-projects",
+    link: "/property-listing",
     count: "1,500+ Properties",
+    filters: {
+      category: "pre_launch",
+    },
   },
   {
     title: "Verified Owner Properties",
     description: "Direct from property owners",
     image: "/images/propcat.jpg",
-    link: "/verified-owner-properties",
+    link: "/property-listing",
     count: "10,000+ Properties",
+    filters: {
+      category: "verified_owner",
+    },
   },
   {
     title: "New Sale Properties",
     description: "Fresh properties for sale",
     image: "/images/propcat.jpg",
-    link: "/new-sale-properties",
+    link: "/property-listing",
     count: "5,000+ Properties",
+    filters: {
+      category: "new_sale",
+    },
   },
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
     image: "/images/propcat.jpg",
-    link: "/upcoming-projects",
+    link: "/property-listing",
     count: "2,000+ Properties",
+    filters: {
+      category: "upcoming_project",
+    },
   },
 ];
 
 const CategoryCarousel = ({ categories }) => {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
@@ -89,6 +114,18 @@ const CategoryCarousel = ({ categories }) => {
 
   // Create an array with duplicated cards for infinite effect
   const infiniteCategories = [...categories, ...categories, ...categories];
+
+  const handleCategoryClick = (category) => {
+    const searchParams = new URLSearchParams();
+
+    // Add category filter
+    if (category.filters.category) {
+      searchParams.append("category", category.filters.category);
+    }
+
+    // Navigate to property-listing with filters
+    navigate(`/property-listing?${searchParams.toString()}`);
+  };
 
   const resetTimer = () => {
     if (timerRef.current) {
@@ -170,7 +207,10 @@ const CategoryCarousel = ({ categories }) => {
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            <Link to={category.link} className="block">
+            <div
+              onClick={() => handleCategoryClick(category)}
+              className="block cursor-pointer"
+            >
               <motion.div
                 className="relative h-[35vh] rounded-xl overflow-hidden shadow-lg group"
                 whileHover={{ scale: 1.02 }}
@@ -212,7 +252,7 @@ const CategoryCarousel = ({ categories }) => {
                   </motion.span>
                 </motion.div>
               </motion.div>
-            </Link>
+            </div>
           </motion.div>
         ))}
       </div>

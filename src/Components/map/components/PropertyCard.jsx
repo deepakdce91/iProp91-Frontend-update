@@ -22,47 +22,6 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
-  useEffect(() => {
-    if (DEBUG) {
-      console.log("PropertyCard useEffect triggered");
-    }
-
-    // If we already have property data, use it
-    if (property) {
-      setPropertyData(property);
-      return;
-    }
-
-    // If propertyId is provided but no property data, fetch it
-    if (propertyId && !property) {
-      setFetchLoading(true);
-
-      const fetchPropertyData = async () => {
-        try {
-          // Use the same API endpoint as in PropertyDetailPage
-          const response = await axios.get(
-            `https://iprop-api.irentpro.com/api/v1/map-project/${propertyId}`
-          );
-
-          if (response.data && response.data.data) {
-            // Process the property using similar logic as in App.jsx
-            const processedProperty = processProperty(response.data.data);
-            setPropertyData(processedProperty);
-          } else {
-            setFetchError("Property data not found");
-          }
-        } catch (err) {
-          console.error("Error fetching property data:", err);
-          setFetchError("Failed to load property data");
-        } finally {
-          setFetchLoading(false);
-        }
-      };
-
-      fetchPropertyData();
-    }
-  }, [property, propertyId, processProperty]);
-
   // Function to process property data similar to App.jsx
   const processProperty = React.useCallback((rawProperty) => {
     return {
@@ -104,6 +63,47 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
         `${Math.floor(Math.random() * 500) + 50} kilometres away`,
     };
   }, []);
+
+  useEffect(() => {
+    if (DEBUG) {
+      console.log("PropertyCard useEffect triggered");
+    }
+
+    // If we already have property data, use it
+    if (property) {
+      setPropertyData(property);
+      return;
+    }
+
+    // If propertyId is provided but no property data, fetch it
+    if (propertyId && !property) {
+      setFetchLoading(true);
+
+      const fetchPropertyData = async () => {
+        try {
+          // Use the same API endpoint as in PropertyDetailPage
+          const response = await axios.get(
+            `https://iprop-api.irentpro.com/api/v1/map-project/${propertyId}`
+          );
+
+          if (response.data && response.data.data) {
+            // Process the property using similar logic as in App.jsx
+            const processedProperty = processProperty(response.data.data);
+            setPropertyData(processedProperty);
+          } else {
+            setFetchError("Property data not found");
+          }
+        } catch (err) {
+          console.error("Error fetching property data:", err);
+          setFetchError("Failed to load property data");
+        } finally {
+          setFetchLoading(false);
+        }
+      };
+
+      fetchPropertyData();
+    }
+  }, [property, propertyId, processProperty]);
 
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -226,6 +226,14 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
 
   // Create a proper absolute URL to ensure consistency
   const detailsUrl = propId ? `/property-details/${propId}` : null;
+
+  const handleViewClick = (e) => {
+    e.stopPropagation();
+    const propId = getPropertyId();
+    if (propId) {
+      navigate(`/property-details/${propId}`);
+    }
+  };
 
   return (
     <motion.div
@@ -364,12 +372,9 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
 
         <div className="flex justify-end items-center mt-4">
           {detailsUrl ? (
-            <a
-              href={detailsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="px-3 py-1.5 bg-black text-gold-500 rounded-md text-sm font-medium flex items-center hover:bg-gray-900 transition-colors"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleViewClick}
               aria-label={`View details of property in ${location}`}
             >
               View Details
@@ -387,7 +392,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
                   d="M9 5l7 7-7 7"
                 />
               </svg>
-            </a>
+            </button>
           ) : (
             <span className="text-gray-400 text-sm">No details available</span>
           )}

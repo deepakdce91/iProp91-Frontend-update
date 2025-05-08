@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 import "./style.css"; // Import your CSS file for styles
-import { motion } from "framer-motion";
 
 function toTitleCase(str) {
   return str
@@ -10,34 +9,37 @@ function toTitleCase(str) {
     .join(" "); // Join words with space
 }
 
-const RewardCard = ({ name, amount, status, icon }) => {
-  // Common image URL for all cards
-  const commonImageUrl = "/images/rewards-image.jpg";
+const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
+  // Use a random image for each card to ensure variety
+  const imageUrl =
+    Math.random() < 0.5
+      ? "/images/rewards-image.jpg"
+      : "/images/rewards-image2.jpg";
 
   return (
     <>
-      <div className="inline-block  lg:w-[350px]">
+      <div className="inline-block lg:w-[350px]">
         <div
           className="bg-white 
-        reward-card rounded-xl shadow-md 
-        transition-all duration-300 hover:scale-105 
+          reward-card rounded-xl shadow-md 
+          transition-all duration-300 hover:scale-105 
           max-w-xs overflow-hidden flex
-          flex-col mx-3 max-sm:mx-0 no-selection-effect "
+          flex-col mx-3 max-sm:mx-0 no-selection-effect h-[300px]"
         >
           {/* Image section with curved top corners */}
-          <div className="w-full bg-blue-800 rounded-t-xl  flex items-center justify-center h-[50%] relative">
+          <div className="w-full bg-blue-800 rounded-t-xl flex items-center justify-center h-[150px] relative">
             <img
-              src={commonImageUrl}
+              src={imageUrl}
               alt="Reward"
-              className="w-full h-full object-cover rounded-t-xl "
+              className="w-full h-full object-cover rounded-t-xl"
             />
           </div>
 
           {/* Content section */}
-          <div className="p-4">
+          <div className="p-4 flex-1">
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-wrap text-[#00008B] reward-card-title">
+                <h3 className="text-xl font-bold text-wrap text-[#0a0f19] reward-card-title">
                   {toTitleCase(name)}
                 </h3>
                 <span className="text-orange-500 font-semibold mt-4 text-lg">
@@ -253,18 +255,6 @@ const WeDoMore = () => {
   return (
     <section className="py-20 px-2 relative overflow-hidden max-sm:p-0 bg-black/90 border-y-[1px] border-y-white/30">
       <style jsx>{`
-        /* Default selection style for the section */
-        ::selection {
-          color: white;
-          background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Override selection style for cards */
-        .no-selection-effect::selection {
-          color: inherit;
-          background: rgba(0, 0, 0, 0.1);
-        }
-
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

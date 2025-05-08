@@ -6,53 +6,14 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import PropertyCards from "./components/propertyCards.jsx";
-import { useLocation } from "react-router-dom";
+import axios from "axios";
 
-function PropertyListing() {
-  const location = useLocation();
+function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
+  const [properties, setProperties] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState(() => {
-    // First check URL parameters
-    const searchParams = new URLSearchParams(location.search);
-    const urlFilters = {};
-
-    // Get category from URL
-    const category = searchParams.get("category");
-    if (category) {
-      urlFilters.category = category;
-    }
-
-    // Get property type from URL
-    const propertyType = searchParams.get("propertyType");
-    if (propertyType) {
-      urlFilters.propertyType = propertyType.split(",");
-    }
-
-    // Get BHK from URL
-    const bhk = searchParams.get("bhk");
-    if (bhk) {
-      urlFilters.bhk = bhk.split(",");
-    }
-
-    // Get budget range from URL
-    const minBudget = searchParams.get("minBudget");
-    const maxBudget = searchParams.get("maxBudget");
-    if (minBudget) urlFilters.minBudget = minBudget;
-    if (maxBudget) urlFilters.maxBudget = maxBudget;
-
-    // Get location from URL
-    const state = searchParams.get("state");
-    const city = searchParams.get("city");
-    if (state) urlFilters.state = state;
-    if (city) urlFilters.city = city;
-
-    // If URL has filters, use them
-    if (Object.keys(urlFilters).length > 0) {
-      return urlFilters;
-    }
-
-    // Otherwise, check localStorage
     const savedFilters = localStorage.getItem("propertyFilters");
     return savedFilters ? JSON.parse(savedFilters) : {};
   });
@@ -152,6 +113,54 @@ function PropertyListing() {
     ],
   };
 
+  // Load initial properties when component mounts
+  useEffect(() => {
+    const loadInitialProperties = async () => {
+      try {
+        // First check if we have stored properties
+        const storedProperties = localStorage.getItem("initialProperties");
+        const userCity = localStorage.getItem("userCity");
+        const userState = localStorage.getItem("userState");
+
+        if (storedProperties) {
+          // If we have stored properties, use them
+          setProperties(JSON.parse(storedProperties));
+          setIsLoading(false);
+        } else if (userCity && userState) {
+          // If we have location but no properties, fetch them
+          const response = await axios.get(
+            `https://iprop91new.onrender.com/api/projectsDataMaster?city=${encodeURIComponent(
+              userCity
+            )}&state=${encodeURIComponent(userState)}`
+          );
+
+          if (response.data?.data?.projects) {
+            setProperties(response.data.data.projects);
+            localStorage.setItem(
+              "initialProperties",
+              JSON.stringify(response.data.data.projects)
+            );
+          }
+        } else {
+          // If no location data, fetch properties for default location (e.g., Delhi)
+          const response = await axios.get(
+            "https://iprop91new.onrender.com/api/projectsDataMaster?city=Delhi&state=Delhi"
+          );
+
+          if (response.data?.data?.projects) {
+            setProperties(response.data.data.projects);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading initial properties:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInitialProperties();
+  }, []);
+
   // Load filters from localStorage on initial render
   useEffect(() => {
     const savedFilters = localStorage.getItem("propertyFilters");
@@ -196,27 +205,6 @@ function PropertyListing() {
     }
   }, [selectedCity]);
 
-  // Update useEffect to handle URL parameters
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const category = searchParams.get("category");
-
-    if (category) {
-      // Map URL category to activeCategory
-      const categoryMapping = {
-        verified_owner: "verified",
-        new_project: "new",
-        ready_to_move: "ready",
-        budget_homes: "budget",
-        pre_launch: "prelaunch",
-        new_sale: "sale",
-        upcoming_project: "upcoming",
-      };
-
-      setActiveCategory(categoryMapping[category] || "all");
-    }
-  }, [location.search]);
-
   const handleFilterChange = (newFilters) => {
     console.log("Before filter change:", filters); // Debug log
     console.log("New filters being applied:", newFilters); // Debug log
@@ -255,9 +243,82 @@ function PropertyListing() {
     setActiveCategory(categoryId);
   };
 
+  const handleSearch = async (searchParams) => {
+    try {
+      setIsLoading(true);
+      console.log("Search params:", searchParams);
+
+      // Destructure all filter parameters
+      const {
+        state,
+        stateCode,
+        city,
+        propertyType,
+        bhk,
+        minBudget,
+        maxBudget,
+        amenities,
+        furnishing,
+        age,
+        floor,
+        facing,
+        possession,
+        constructionStatus,
+        localities,
+      } = searchParams;
+
+      // Create query parameters object
+      const queryParams = {
+        state: state || "",
+        stateCode: stateCode || "",
+        city: city || "",
+        propertyType: propertyType?.join(",") || "",
+        bhk: bhk?.join(",") || "",
+        minBudget: minBudget || "",
+        maxBudget: maxBudget || "",
+        amenities: amenities?.join(",") || "",
+        furnishing: furnishing || "",
+        age: age || "",
+        floor: floor || "",
+        facing: facing || "",
+        possession: possession || "",
+        constructionStatus: constructionStatus || "",
+        localities: localities || "",
+      };
+
+      // Remove empty parameters
+      Object.keys(queryParams).forEach((key) => {
+        if (!queryParams[key]) {
+          delete queryParams[key];
+        }
+      });
+
+      console.log("Query parameters:", queryParams);
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster`,
+        {
+          params: queryParams,
+        }
+      );
+
+      console.log("Search response:", response.data);
+      if (response.data?.data?.projects) {
+        setProperties(response.data.data.projects);
+      } else {
+        setProperties([]);
+      }
+    } catch (error) {
+      console.error("Error searching properties:", error);
+      setProperties([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (selectedProperty) {
     return (
-      <div>
+      <div className="bg-black pt-[10vh]">
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[200] flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
@@ -332,89 +393,75 @@ function PropertyListing() {
   }
 
   return (
-    <div className="bg-black pt-[10vh]">
-      <div className="min-h-screen bg-gray-50 ">
-        {showSearchBar && (
+    <div className="min-h-screen bg-gray-50">
+      {showSearchBar && (
+        <div className="sticky top-0 z-50 bg-white shadow-md">
           <SearchBar
-            selectedState={selectedState}
-            setSelectedState={setSelectedState}
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
+            onSearch={handleSearch}
             onFilterChange={handleFilterChange}
             onOpenFilters={() => setShowFilters(true)}
-          />
-        )}
-        <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
-          <div className="relative mb-4 sm:mb-6 pb-2">
-            <Slider {...sliderSettings} className="px-2 sm:px-8">
-              {propertyCategories.map((category) => (
-                <div key={category.id} className="px-1 sm:px-2">
-                  <button
-                    onClick={() => handleCategoryClick(category.id)}
-                    className={`w-full flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
-                      activeCategory === category.id
-                        ? "bg-[#031273] text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {category.label}
-                    <span
-                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs ${
-                        activeCategory === category.id
-                          ? "bg-white/20"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      {category.count}
-                    </span>
-                  </button>
-                </div>
-              ))}
-            </Slider>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 text-sm">Sort by:</span>
-              <select
-                className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm bg-white"
-                value={sortBy}
-                onChange={handleSortChange}
-              >
-                <option value="relevance">Relevance</option>
-                <option value="price-low-to-high">Price - Low to High</option>
-                <option value="price-high-to-low">Price - High to Low</option>
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
-            </div>
-          </div>
-
-          <PropertyCards
-            filters={filters}
-            sortBy={sortBy}
-            activeCategory={activeCategory}
-            favorites={favorites}
-            onPropertyClick={handlePropertyClick}
+            selectedState={selectedState}
+            selectedCity={selectedCity}
+            setSelectedState={setSelectedState}
+            setSelectedCity={setSelectedCity}
           />
         </div>
+      )}
 
-        <FiltersPanel
-          isVisible={showFilters}
-          onClose={() => setShowFilters(false)}
-          onApplyFilters={handleFilterChange}
-          onVisibilityChange={(isVisible) => {
-            setShowFilters(isVisible);
-            setShowSearchBar(!isVisible);
-          }}
-          selectedState={selectedState}
-          setSelectedState={setSelectedState}
-          selectedCity={selectedCity}
-          setSelectedCity={setSelectedCity}
-        />
+      <FiltersPanel
+        isVisible={showFilters}
+        onClose={() => setShowFilters(false)}
+        onApplyFilters={handleFilterChange}
+        initialFilters={filters}
+      />
+
+      <div className="container mx-auto px-4 py-8">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-8">
+              <Slider {...sliderSettings}>
+                {propertyCategories.map((category) => (
+                  <div
+                    key={category.id}
+                    className={`px-4 py-2 cursor-pointer ${
+                      activeCategory === category.id
+                        ? "text-blue-600 font-semibold"
+                        : "text-gray-600"
+                    }`}
+                    onClick={() => handleCategoryClick(category.id)}
+                  >
+                    {category.label}
+                  </div>
+                ))}
+              </Slider>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {properties.map((property) => (
+                <PropertyCard
+                  key={property._id}
+                  property={property}
+                  isFavorite={favorites.includes(property._id)}
+                  onFavoriteToggle={() => {
+                    setFavorites((prev) =>
+                      prev.includes(property._id)
+                        ? prev.filter((id) => id !== property._id)
+                        : [...prev, property._id]
+                    );
+                  }}
+                  onClick={() => handlePropertyClick(property)}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-export default PropertyListing;
+export default App;
