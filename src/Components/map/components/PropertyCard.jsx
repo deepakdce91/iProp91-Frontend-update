@@ -227,6 +227,14 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
   // Create a proper absolute URL to ensure consistency
   const detailsUrl = propId ? `/property-details/${propId}` : null;
 
+  const handleViewClick = (e) => {
+    e.stopPropagation();
+    const propId = getPropertyId();
+    if (propId) {
+      navigate(`/property-details/${propId}`);
+    }
+  };
+
   return (
     <motion.div
       className="rounded-xl overflow-hidden shadow-md m-2 cursor-pointer bg-white h-auto"
@@ -364,12 +372,9 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
 
         <div className="flex justify-end items-center mt-4">
           {detailsUrl ? (
-            <a
-              href={detailsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="px-3 py-1.5 bg-black text-gold-500 rounded-md text-sm font-medium flex items-center hover:bg-gray-900 transition-colors"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleViewClick}
               aria-label={`View details of property in ${location}`}
             >
               View Details
@@ -387,7 +392,7 @@ function PropertyCard({ property, isLoading = false, onClick, propertyId }) {
                   d="M9 5l7 7-7 7"
                 />
               </svg>
-            </a>
+            </button>
           ) : (
             <span className="text-gray-400 text-sm">No details available</span>
           )}

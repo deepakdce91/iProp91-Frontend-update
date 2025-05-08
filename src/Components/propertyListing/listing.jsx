@@ -6,11 +6,53 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import PropertyCards from "./components/propertyCards.jsx";
+import { useLocation } from "react-router-dom";
 
 function PropertyListing() {
+  const location = useLocation();
   const [showFilters, setShowFilters] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [filters, setFilters] = useState(() => {
+    // First check URL parameters
+    const searchParams = new URLSearchParams(location.search);
+    const urlFilters = {};
+
+    // Get category from URL
+    const category = searchParams.get("category");
+    if (category) {
+      urlFilters.category = category;
+    }
+
+    // Get property type from URL
+    const propertyType = searchParams.get("propertyType");
+    if (propertyType) {
+      urlFilters.propertyType = propertyType.split(",");
+    }
+
+    // Get BHK from URL
+    const bhk = searchParams.get("bhk");
+    if (bhk) {
+      urlFilters.bhk = bhk.split(",");
+    }
+
+    // Get budget range from URL
+    const minBudget = searchParams.get("minBudget");
+    const maxBudget = searchParams.get("maxBudget");
+    if (minBudget) urlFilters.minBudget = minBudget;
+    if (maxBudget) urlFilters.maxBudget = maxBudget;
+
+    // Get location from URL
+    const state = searchParams.get("state");
+    const city = searchParams.get("city");
+    if (state) urlFilters.state = state;
+    if (city) urlFilters.city = city;
+
+    // If URL has filters, use them
+    if (Object.keys(urlFilters).length > 0) {
+      return urlFilters;
+    }
+
+    // Otherwise, check localStorage
     const savedFilters = localStorage.getItem("propertyFilters");
     return savedFilters ? JSON.parse(savedFilters) : {};
   });
@@ -153,6 +195,27 @@ function PropertyListing() {
       localStorage.removeItem("selectedCity");
     }
   }, [selectedCity]);
+
+  // Update useEffect to handle URL parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const category = searchParams.get("category");
+
+    if (category) {
+      // Map URL category to activeCategory
+      const categoryMapping = {
+        verified_owner: "verified",
+        new_project: "new",
+        ready_to_move: "ready",
+        budget_homes: "budget",
+        pre_launch: "prelaunch",
+        new_sale: "sale",
+        upcoming_project: "upcoming",
+      };
+
+      setActiveCategory(categoryMapping[category] || "all");
+    }
+  }, [location.search]);
 
   const handleFilterChange = (newFilters) => {
     console.log("Before filter change:", filters); // Debug log
