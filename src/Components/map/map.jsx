@@ -90,6 +90,13 @@ const ImageCarousel = ({ images }) => {
     );
   };
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth" // for smooth scrolling
+    });
+  }, []);
+
   return (
     <div className="relative w-full h-full overflow-hidden">
       <motion.img

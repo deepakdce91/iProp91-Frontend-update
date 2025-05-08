@@ -52,7 +52,7 @@ export default function ScrollAnimatedText() {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/heroText/fetchAllHeroTexts`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/heroText/fetchAllHeroTexts`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -62,6 +62,7 @@ export default function ScrollAnimatedText() {
         );
 
         if (response.data && response.data.length > 0) {
+          console.log("hero text data: ", response.data);
           setTextData({
             title: response.data[0].title || "",
             text: response.data[0].text || "",
@@ -100,7 +101,7 @@ export default function ScrollAnimatedText() {
   // Show loading state or render content
   return (
     <div
-      className="relative h-screen bg-black px-3 
+      className="relative h-screen lg:h-fit bg-black px-3 
             lg:py-10 
             between-md-lg:py-0 
             max-sm:py-0 
@@ -114,7 +115,7 @@ export default function ScrollAnimatedText() {
           <div className="text-white text-xl">Loading...</div>
         </div>
       ) : (
-        <section className="flex lg:h-[110vh] md:justify-start md:h-[70vh] lg:pb-28 items-center justify-center">
+        <section className="flex lg:h-fit md:justify-start md:h-[70vh] lg:pb-28 items-center justify-center">
           <div className="flex flex-col gap-8 items-center">
             <h1 className="lg:text-6xl font-semibold w-full lg:w-8/12 text-4xl text-white">
               {headingWords.map((word, index) => (
