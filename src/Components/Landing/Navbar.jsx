@@ -46,6 +46,9 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/laws/statelaw": false,
     "/laws/centrallaw": false,
     "/": true,
+    "/aboutUs": false,
+    "/privacyPolicy": false,
+    "/termsAndConditions": false,
     "/property-journey": false,
     "/rewards": true, // Added rewards route with dark background
   };
