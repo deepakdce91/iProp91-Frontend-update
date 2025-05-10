@@ -9,6 +9,7 @@ import { useInView } from "react-intersection-observer"
 
 import ContactUsForm from "../forms/ContactUs";
 
+
 const Footer = () => {
 
   const [isContactModalOpen, setContactModalOpen] = useState(false);

@@ -197,16 +197,16 @@ const CategoryCarousel = ({ categories }) => {
         }}
       >
         {infiniteCategories.map((category, index) => (
-          <motion.div
-            key={`${category.title}-${index}`}
-            className="w-[15%] flex-shrink-0"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+           <motion.div
+           key={`${category.title}-${index}`}
+           className="w-[12%] md:w-[12%] lg:w-[10%] flex-shrink-0"
+           initial={{ opacity: 0, scale: 0.9 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.9 }}
+           transition={{ duration: 0.3 }}
+           onMouseEnter={() => setIsPaused(true)}
+           onMouseLeave={() => setIsPaused(false)}
+         >
             <div
               onClick={() => handleCategoryClick(category)}
               className="block cursor-pointer"
@@ -243,13 +243,13 @@ const CategoryCarousel = ({ categories }) => {
                   >
                     {category.description}
                   </motion.p>
-                  <motion.span
+                  {/* <motion.span
                     className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded-full inline-block group-hover:bg-black/60"
                     whileHover={{ y: -5 }}
                     transition={{ duration: 0.3 }}
                   >
                     {category.count}
-                  </motion.span>
+                  </motion.span> */}
                 </motion.div>
               </motion.div>
             </div>

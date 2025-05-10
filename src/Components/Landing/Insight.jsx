@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -37,6 +37,7 @@ const SaleCard = ({ blog, onClick }) => {
 export default function Test() {
   const [blogs, setBlogs] = useState([]);
   const navigate = useNavigate();
+  const swiperRef = useRef(null);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -62,6 +63,18 @@ export default function Test() {
     return a.priority - b.priority; // Sort by priority
   });
 
+  const handleMouseEnter = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.stop();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (swiperRef.current && swiperRef.current.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  };
+
   return (
     <section className="bg-black py-24">
       <div className="w-4/5 mx-auto">
@@ -71,47 +84,55 @@ export default function Test() {
           </h1>
         </div>
 
-        <Swiper
-          spaceBetween={30}
-          centeredSlides={true}
-          autoplay={{
-            delay: 2500,
-            disableOnInteraction: false,
-          }}
-          pagination={{
-            clickable: true,
-          }}
-          modules={[Autoplay, Pagination]}
-          className="mySwiper"
-          breakpoints={{
-            640: {
-              slidesPerView: 1,
-              spaceBetween: 20,
-            },
-            768: {
-              slidesPerView: 2,
-              spaceBetween: 20,
-            },
-            1024: {
-              slidesPerView: 3,
-              spaceBetween: 30,
-            },
-          }}
+        <div 
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          {sortedBlogs.map((blog) => (
-            <SwiperSlide key={blog._id}>
-              <SaleCard
-                blog={blog}
-                onClick={() =>
-                  navigate(
-                    `/library/${blog.title.replace(/\s+/g, "-").toLowerCase()}`,
-                    { state: { blog } }
-                  )
-                } // Navigate to blog post
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <Swiper
+            spaceBetween={30}
+            centeredSlides={true}
+            autoplay={{
+              delay: 2500,
+              disableOnInteraction: false,
+            }}
+            pagination={{
+              clickable: true,
+            }}
+            modules={[Autoplay, Pagination]}
+            className="mySwiper"
+            breakpoints={{
+              640: {
+                slidesPerView: 1,
+                spaceBetween: 20,
+              },
+              768: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 30,
+              },
+            }}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
+          >
+            {sortedBlogs.map((blog) => (
+              <SwiperSlide key={blog._id}>
+                <SaleCard
+                  blog={blog}
+                  onClick={() =>
+                    navigate(
+                      `/library/${blog.title.replace(/\s+/g, "-").toLowerCase()}`,
+                      { state: { blog } }
+                    )
+                  } // Navigate to blog post
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
         <div className="w-full flex justify-end items-end mt-5 ">
           <Link
             className="text-white  text-sm lg:text-lg border-b-[1px] border-b-white"

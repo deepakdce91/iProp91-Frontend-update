@@ -32,7 +32,8 @@ const useAuthToken = (navigate) => {
           location.pathname.includes("/property-details") ||
           location.pathname.includes("/aboutUs") ||
           location.pathname.includes("/termsAndConditions") ||
-          location.pathname.includes("/privacyPolicy")
+          location.pathname.includes("/privacyPolicy") ||
+          location.pathname.includes("/services") 
         )
       ) {
         console.log("No token found, redirecting to login.");

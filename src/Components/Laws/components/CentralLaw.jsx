@@ -15,6 +15,13 @@ const CentralLaw = ({}) => {
   };
 
   useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth" // for smooth scrolling
+      });
+    }, []);
+
+  useEffect(() => {
     const fetchCentralLaws = async () => {
       try {
         const response = await axios.get(

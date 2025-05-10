@@ -41,6 +41,11 @@ import AboutUs from "../FrontendPages/AboutUs";
 import PrivacyPolicy from "../FrontendPages/PrivacyPolicy";
 import TermsAndConditions from "../FrontendPages/TermsAndConditions";
 
+import ServConci from "../services/Concierge";
+import ServOwnerClub from "../services/ownersClub";
+import ServSafe from "../services/safe";
+import ServListingCompo from "../services/listing";
+
 function LandingPage() {
   return (
     <>
@@ -150,7 +155,7 @@ function Landing({ setIsLoggedIn }) {
     <>
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
-        <Route path="/*" element={<TypingLandingPage />} />
+        <Route path="/" element={<TypingLandingPage />} />
         <Route path="/search-properties" element={<App />} />
         <Route path="/property-listing" element={<PropertyListing />} />
         <Route path="/property-details/:id" element={<PropertyDetails />} />
@@ -167,6 +172,15 @@ function Landing({ setIsLoggedIn }) {
         <Route path="/site-faqs" element={<SiteFaqs />} />
         <Route path="/rewards" element={<RedeemRewards />} />
         <Route path="/property-journey" element={<PropertyJouneyPage />} />
+
+        <Route path="/services/concierge" element={<ServConci />} />
+        <Route path="/services/owners-club" element={<ServOwnerClub />} />
+        <Route path="/services/safe" element={<ServSafe />} />
+        <Route
+          path="/services/verified-listings"
+          element={<ServListingCompo  />}
+        /> 
+
 
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />

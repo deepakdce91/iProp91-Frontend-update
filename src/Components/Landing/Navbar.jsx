@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaCaretDown, FaCaretUp, FaTimes } from "react-icons/fa";
-import { PiHandCoinsFill } from "react-icons/pi"; // Added import for PiHandCoinsFill
+import { PiHandCoinsFill } from "react-icons/pi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Profile from "../User/Profile/profile";
 import { jwtDecode } from "jwt-decode";
@@ -19,13 +19,13 @@ import {
   Lock,
   LogOut,
   Key,
-  Gift, // Added Gift icon for Rewards
+  Gift,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Navbar = ({ setIsLoggedIn }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for auth modal
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
   const [user, setUser] = useState();
@@ -33,6 +33,8 @@ const Navbar = ({ setIsLoggedIn }) => {
   const [isDarkBg, setIsDarkBg] = useState(true);
   const location = useLocation();
   const [serviceDown, setServiceDown] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const servicesDropdownRef = useRef(null);
 
   // Define routes that should have specific backgrounds
   const specificRoutes = {
@@ -50,6 +52,10 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/privacyPolicy": false,
     "/termsAndConditions": false,
     "/property-journey": false,
+    "/services/concierge": false,
+    "/services/owners-club": false,
+    "/services/safe": false,
+    "/services/verified-listings": false,
     "/rewards": true, // Added rewards route with dark background
   };
 
@@ -61,9 +67,11 @@ const Navbar = ({ setIsLoggedIn }) => {
     Advice: { icon: BookOpen, link: "/advice" },
     Lend: { icon: RefreshCw, link: "/lend" },
     NRI: { icon: Home, link: "/nri" },
-    Rewards: { icon: Gift, link: "/rewards" }, // Added Rewards to mobile menu
+    Rewards: { icon: Gift, link: "/rewards" },
     "Listing Page": { icon: Home, link: "/property-for-sale" },
   };
+
+  const [isServiceClickOpen, setIsServiceClickOpen] = useState(false);
 
   // Check if current route should override background detection
   const shouldOverrideBackground = () => {
@@ -75,6 +83,7 @@ const Navbar = ({ setIsLoggedIn }) => {
   };
 
   function handleServicesDropdown() {
+    setIsServiceClickOpen(!isServiceClickOpen);
     setServiceDown(!serviceDown);
   }
 
@@ -167,9 +176,20 @@ const Navbar = ({ setIsLoggedIn }) => {
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
   };
+  
   const handleClickOutside = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setIsMobileMenuOpen(false);
+    }
+    
+    // Close services dropdown when clicking outside, but only if it was opened by a click
+    if (
+      servicesDropdownRef.current && 
+      !servicesDropdownRef.current.contains(event.target) && 
+      isServiceClickOpen
+    ) {
+      setServiceDown(false);
+      setIsServiceClickOpen(false);
     }
   };
 
@@ -216,13 +236,26 @@ const Navbar = ({ setIsLoggedIn }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [scrollPos]);
 
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (isAuthModalOpen) {
-      document.body.style.overflow = "hidden"; // Prevent scrolling
+    if (isMobileMenuOpen || isAuthModalOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      // Add styles to lock the body
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
     } else {
-      document.body.style.overflow = "unset"; // Restore scrolling
+      // Get the scroll position from body top property
+      const scrollY = document.body.style.top;
+      // Remove styles
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      // Restore scroll position
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
-  }, [isAuthModalOpen]);
+  }, [isMobileMenuOpen, isAuthModalOpen]);
 
   return (
     <nav
@@ -252,65 +285,107 @@ const Navbar = ({ setIsLoggedIn }) => {
         />
         <p>iProp91</p>
       </Link>
+      
       {/* Desktop Links */}
       <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base">
-        <div className="hover:text-white/80 relative">
+        <div 
+          className="hover:text-white/80 relative"
+          ref={servicesDropdownRef}
+        >
           <div
             className="flex items-center cursor-pointer gap-1"
             onClick={() => handleServicesDropdown()}
+            onMouseEnter={() => setServiceDown(true)}
           >
-            <span className="whitespace-nowrap">Services</span>
+            <span className="whitespace-nowrap font-medium">Services</span>
             <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
           </div>
-          <div className="absolute top-10 flex items-center justify-start left-0 z-10 bg-white rounded-md">
-            {serviceDown && (
-              <div className="p-3 lg:p-4 text-black flex flex-col gap-2 whitespace-nowrap">
-                <Link to="/services/concierge" className="hover:text-gray-600">
+          
+          {/* Services Dropdown - Shows on hover or click with animation */}
+          <div 
+            className={`absolute top-8 left-0 z-10 transition-all duration-300 ease-in-out transform
+              ${serviceDown ? 
+                "opacity-100 translate-y-2 pointer-events-auto" : 
+                "opacity-0 translate-y-0 pointer-events-none"}`
+            }
+            onMouseEnter={() => setServiceDown(true)}
+            onMouseLeave={() => {
+              // Only close on mouse leave if it wasn't opened by a click
+              if (!isServiceClickOpen) {
+                setServiceDown(false);
+              }
+            }}
+          >
+            <div className="bg-white rounded-md shadow-lg overflow-hidden w-48">
+              <div className="p-3 lg:p-4 text-black flex flex-col gap-3 text-base">
+                <Link 
+                  to="/services/concierge" 
+                  className="hover:text-gray-600 transition-colors duration-200"
+                  onClick={() => {
+                    setServiceDown(false);
+                    setIsServiceClickOpen(false);
+                  }}
+                >
                   Concierge
                 </Link>
-                <Link
-                  to="/services/owners-club"
-                  className="hover:text-gray-600"
+                <div className="border-t border-gray-200 my-1"></div>
+                <Link 
+                  to="/services/owners-club" 
+                  className="hover:text-gray-600 transition-colors duration-200"
+                  onClick={() => setServiceDown(false)}
                 >
                   Owners' Club
                 </Link>
-                <Link to="/services/safe" className="hover:text-gray-600">
+                <div className="border-t border-gray-200 my-1"></div>
+                <Link 
+                  to="/services/safe" 
+                  className="hover:text-gray-600 transition-colors duration-200"
+                  onClick={() => setServiceDown(false)}
+                >
                   Safe
                 </Link>
-                <Link to="/services/listing" className="hover:text-gray-600">
+                <div className="border-t border-gray-200 my-1"></div>
+                <Link 
+                  to="/services/verified-listings" 
+                  className="hover:text-gray-600 transition-colors duration-200"
+                  onClick={() => setServiceDown(false)}
+                >
                   Listing
                 </Link>
               </div>
-            )}
+            </div>
           </div>
         </div>
-        <Link to="/nri" className="hover:text-white/80">
+        
+        <Link to="/nri" className="hover:text-white/80 font-medium">
           NRI
         </Link>
-        <Link to="/advice" className="hover:text-white/80">
+        <Link to="/advice" className="hover:text-white/80 font-medium">
           Advice
         </Link>
-        <Link to="/lend" className="hover:text-white/80">
+        <Link to="/lend" className="hover:text-white/80 font-medium">
           Lend
         </Link>
-        <Link to="/rewards" className="hover:text-white/80 flex items-center">
+        <Link to="/rewards" className="hover:text-white/80 flex items-center font-medium">
           <PiHandCoinsFill className="text-lg lg:text-xl" />
         </Link>
 
         {user ? (
           <Profile />
         ) : (
-          <button onClick={openAuthModal} className="whitespace-nowrap">
+          <button onClick={openAuthModal} className="whitespace-nowrap font-medium">
             Member login
           </button>
         )}
       </div>
+      
       {/* Mobile Menu Icon */}
       <div className="md:hidden flex items-center z-[100]">
         <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
+      
       {/* Mobile Menu Modal */}
       {isMobileMenuOpen && (
         <motion.div
@@ -318,7 +393,8 @@ const Navbar = ({ setIsLoggedIn }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: "-100%" }}
           transition={{ type: "tween", duration: 0.3 }}
-          className="z-[100] fixed  h-screen w-screen -top-4 -left-5  lg:hidden text-white transform transition-transform duration-300 ease-in-out"
+          className="z-[100] fixed h-screen w-screen -top-4 -left-5 lg:hidden text-white transform transition-transform duration-300 ease-in-out"
+          ref={mobileMenuRef}
         >
           <div
             className="w-full h-full flex flex-col z-[100]"
@@ -345,7 +421,7 @@ const Navbar = ({ setIsLoggedIn }) => {
                 />
               </button>
             </div>
-            <nav className="flex flex-col justify-evenly text-white z-[110]">
+            <nav className="flex flex-col justify-evenly text-white z-[110] overflow-y-auto">
               {Object.keys(SidebarIcons).map((key, index) => (
                 <Link
                   key={index}
@@ -360,6 +436,7 @@ const Navbar = ({ setIsLoggedIn }) => {
           </div>
         </motion.div>
       )}
+      
       {/* Auth Modal */}
       {isAuthModalOpen && (
         <Auth

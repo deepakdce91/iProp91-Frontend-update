@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useAnimation } from "framer-motion"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import axios from "axios"
@@ -11,6 +11,7 @@ function extractImageUrls(dataArray) {
 export default function Component({data}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
+  const [isPaused, setIsPaused] = useState(false)
   const controls = useAnimation()
   const [slides, setSlides] = useState([]);
   let navigate = useNavigate();
@@ -42,12 +43,16 @@ export default function Component({data}) {
   }, []);
   
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + direction + slides.length) % slides.length)
-    }, 3000)
+    let timer;
+    
+    if (!isPaused) {
+      timer = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + direction + slides.length) % slides.length)
+      }, 3000);
+    }
 
-    return () => clearInterval(timer)
-  }, [direction, slides.length])
+    return () => clearInterval(timer);
+  }, [direction, slides.length, isPaused]);
 
   const handleNext = () => {
     setDirection(1)
@@ -162,7 +167,11 @@ export default function Component({data}) {
   };
 
   return (
-    <section className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[110vh] w-full mb-32 md:mb-24">
+    <section 
+      className="relative min-h-[50vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[110vh] w-full mb-32 md:mb-24"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="absolute top-0 left-0 right-0 h-[100%] sm:h-[400px] md:h-[450px] lg:h-[600px]">
         <div className="relative h-full w-full mt-5">
           {slides.map((slide, index) => (

@@ -5,10 +5,10 @@ const OwnerCard = ({ list, title, discription, imageNumber }) => {
   return (
     <>
       <section className="mt-8 lg:mt-[10vh]">
-        <h1 className="font-bold text-start capitalize text-2xl lg:text-3xl mb-8 lg:mb-15">
+        <h1 className="font-bold text-start capitalize text-2xl lg:text-3xl mb-8 lg:mb-15 text-left">
           {title}
         </h1>
-        <p className="text-base lg:text-lg">{discription}</p>
+        <p className="text-base lg:text-lg text-left">{discription}</p>
         <ul className="mt-6 lg:mt-8">
           {list.map((items, index) => (
             <Card
@@ -20,11 +20,11 @@ const OwnerCard = ({ list, title, discription, imageNumber }) => {
             />
           ))}
         </ul>
-        <div className="mt-6 lg:mt-8">
+        <div className="mt-10 w-full flex justify-center mx-auto lg:mt-8">
           <img
-            src={`/public/owner-club/${imageNumber}.png`}
+            src={`/owner-club/${imageNumber}.png`}
             alt="image"
-            className="w-full"
+            className="w-full mt-5"
           />
         </div>
       </section>

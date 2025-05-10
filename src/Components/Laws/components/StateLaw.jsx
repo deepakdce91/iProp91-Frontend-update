@@ -118,6 +118,13 @@ const StateLaw = ({ onBack }) => {
     fetchLaws();
   }, []);
 
+  useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth" // for smooth scrolling
+      });
+    }, []);
+
   // Function to handle file download
   const handleDownload = async (myUrl) => {
     if (!myUrl) {
@@ -298,7 +305,7 @@ const formatContent = (content) => {
           {availableStates.map((state) => (
             <button
               key={state.id}
-              className={`flex flex-col min-w-[70px] items-center focus:outline-none ${
+              className={`flex flex-col min-w-[40px] max-w-[50px] items-center focus:outline-none ${
                 selectedLaw?.id === state.id ? "scale-110" : ""
               }`}
               onClick={() => handleSelectLaw(state)}
