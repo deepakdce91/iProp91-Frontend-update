@@ -14,8 +14,11 @@ export default function Faq() {
     setOpenIndex(openIndex === index ? null : index);
   };
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth" // for smooth scrolling
+        });
+      }, []);
 
   useEffect(() => {  
     const fetchData = async () => {

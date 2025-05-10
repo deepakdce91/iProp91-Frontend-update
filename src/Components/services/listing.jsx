@@ -1,103 +1,85 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Card from "./card";
 
 const ServicesListing = () => {
   const listingPoints = [
     {
       heading: "Verified Listings",
-      content: ` One of the most significant advantages of iProp91 is its strict policy of allowing only verified
- property owners to post listings. This verification process ensures that all listings are
- legitimate, reducing the risk of fraud and misrepresentation and significantly increasing the
- closing rate for transactions. Buyers and tenants can browse properties with peace of mind,
- knowing that they are dealing with genuine owners`,
-      image: "/public/listing/verified-listing.png",
+      content: `iProp91 allows only verified property owners to post listings, ensuring legitimacy and reducing fraud risk. This verification significantly increases transaction closing rates as buyers can trust they're dealing with genuine owners.`,
+      image: "/listing/verified-listing.png",
     },
     {
       heading: "Higher Weightage for Verified Title Documents",
-      content: ` iProp91 places a premium on transparency by giving higher weightage to listings that come
- with verified title documents. This feature not only boosts the credibility of the listings but
- also helps buyers make informed decisions reducing the possibilities of fake listings.
- Properties with verified titles are more likely to have clear ownership, reducing potential legal
- complications and resulting in faster closure of transactions`,
-      image: "/public/listing/height-weightage.png",
+      content: `iProp91 boosts credibility by prioritizing listings with verified title documents. This transparency helps buyers make informed decisions and reduces legal complications, leading to faster transaction closures.`,
+      image: "/listing/height-weightage.png",
     },
     {
       heading: "Concierge Services",
-      content: ` The concierge services offered by iProp91 add an extra layer of support for both buyers and
- sellers. From managing property viewings to handling communication with the prospective
- buyers/tenants, assisting with paperwork, the concierge team ensures a seamless experience
- throughout the transaction process. This personalized service is particularly beneficial for
- investors handling multiple properties`,
-      image: "/public/listing/concierge-services.png",
+      content: `iProp91's concierge services support both buyers and sellers through property viewings, communication management, and paperwork assistance. This personalized service is especially valuable for investors managing multiple properties.`,
+      image: "/listing/concierge-services.png",
     },
     {
       heading: "Enhanced User Experience",
-      content: ` With a focus on verified listings and concierge support, iProp91 provides an enhanced user
- experience. The platform is designed to be user-friendly, making it easy for property owners
- to list their properties and for buyers/tenants to navigate through available listings. This
- streamlined process encourages more engagement and satisfaction among users.`,
-      image: "/public/listing/enhance-user-experience.png",
+      content: `With verified listings and concierge support, iProp91 offers a user-friendly platform that simplifies property listing for owners and property discovery for buyers/tenants, encouraging greater engagement.`,
+      image: "/listing/enhance-user-experience.png",
     },
     {
       heading: "Building Trust in the Market",
-      content: ` By prioritizing verification and transparency, iProp91 is actively working to build trust in the
- real estate market. This commitment to authenticity not only attracts serious buyers but also
- encourages responsible selling practices among property owners. As a result, iProp91 is
- fostering a community where trust is paramount.`,
-      image: "/public/listing/trust.png",
+      content: `iProp91's focus on verification and transparency builds market trust, attracting serious buyers and encouraging responsible selling practices among property owners, fostering a community where trust is paramount.`,
+      image: "/listing/trust.png",
     },
   ];
 
-  return (
-    <>
-      <div className="w-full max-md:pr-[11rem] max-sm: md:w-[70%] pt-0 pb-0 px-4 md:pl-20 md:pr-40 box-border bg-white">
-        <section>
-          <div className="text-center mt-4 md:mt-8">
-            <h1 className="font-bold text-2xl md:text-4xl">iProp91 Listing</h1>
-            <p className="mt-4 text-base md:text-lg">
-              In the ever-evolving real estate market, the need for trust and
-              transparency has never been more critical. iProp91 stands out as a
-              unique platform that exclusively allows verified property owners
-              to post listings, ensuring that every transaction is backed by
-              authenticity. This advantage and distinctive features of iProp91,
-              particularly its verification process and concierge services,
-              collectively enhance the user experience and foster confidence
-              among buyers and sellers
-            </p>
-          </div>
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth" // for smooth scrolling
+    });
+  }, []);
 
-          <ul className="mt-6 md:mt-8">
-            {listingPoints.map((items, index) => (
-              <Card
-                key={index}
-                heading={items.heading}
-                content={items.content}
-                index={index}
-                image={items.image}
-              />
-            ))}
-          </ul>
-          <div className="mt-8 md:mt-15">
-            <img src="/public/listing/one.png" alt="image" className="w-full" />
-          </div>
-        </section>
-        <section>
-          <h1 className="font-bold text-2xl md:text-3xl mt-6 md:mt-8 mb-4 md:mb-8 capitalize">
-            conclusion
+  return (
+    <div className="w-full px-6 sm:px-16 md:px-20 lg:px-32 xl:px-40 2xl:px-64 py-6 md:py-12 pt-28 md:pt-28">
+      <section>
+        <div className="text-left">
+          <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl mb-4">
+            iProp91 Verified Listings
           </h1>
-          <p className="text-base md:text-lg">
-            iProp91 is redefining the real estate listing experience by
-            emphasizing verification, transparency, and personalized service.
-            With its commitment to allowing only verified property owners to
-            post listings and providing concierge support, iProp91 not only
-            enhances the buying and selling process but also builds a
-            trustworthy marketplace. As the platform continues to grow, it
-            promises to be a leader in fostering a secure and efficient real
-            estate environment.
+          <p className="text-base sm:text-lg md:text-lg text-gray-700 leading-relaxed mb-6">
+            In the ever-evolving real estate market, the need for trust and transparency has never been more critical. iProp91 stands out by exclusively allowing verified property owners to post listings, ensuring every transaction is backed by authenticity.
           </p>
-        </section>
-      </div>
-    </>
+        </div>
+
+        <ul className="space-y-8 md:space-y-10">
+          {listingPoints.map((items, index) => (
+            <Card
+              key={index}
+              heading={items.heading}
+              content={items.content}
+              index={index}
+              image={items.image}
+              isMobile={window.innerWidth < 768}
+            />
+          ))}
+        </ul>
+
+        <div className="mt-8 md:mt-12 flex justify-center">
+          <img
+            src="/listing/listing1.png"
+            alt="Verified listings illustration"
+            className="w-full max-w-xs sm:max-w-lg md:max-w-xl mx-auto"
+          />
+        </div>
+      </section>
+
+      <section className="mt-8 md:mt-12">
+        <h1 className="font-bold text-xl sm:text-2xl md:text-3xl mb-4 md:mb-6 text-left capitalize">
+          Conclusion
+        </h1>
+        <p className="text-base sm:text-lg md:text-lg text-gray-700 leading-relaxed">
+          iProp91 redefines real estate listings by emphasizing verification, transparency, and personalized service. With verified owners and concierge support, iProp91 enhances the buying/selling process while building a trustworthy marketplace, positioning itself as a leader in secure real estate transactions.
+        </p>
+      </section>
+    </div>
   );
 };
 

@@ -1,26 +1,20 @@
 import React from "react";
 
-const Card = (props) => {
+const Card = ({ heading, content, image, index, isMobile }) => {
   return (
-    <>
-      <div
-        className={
-          props.index % 2 == 0
-            ? "flex flex-col lg:flex-row-reverse gap-5 mb-8"
-            : "flex flex-col lg:flex-row gap-5 mb-8"
-        }
-      >
-        <div className="mt-4 shadow-lg shadow-[#e8e8e8] p-4 lg:p-5 flex flex-col gap-6 lg:gap-10">
-          <h1 className="font-bold text-xl lg:text-2xl text-gray-500 capitalize">
-            {props.heading}
-          </h1>
-          <p className="text-base lg:text-lg">{props.content}</p>
-        </div>
-        <div className="w-full lg:w-1/3 flex justify-center items-center">
-          <img src={props.image} alt="image" className="w-full lg:w-auto" />
-        </div>
+    <li className={`flex ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col items-center justify-between gap-4 md:gap-8`}>
+      <div className={`flex-1 ${isMobile ? 'w-full' : 'w-auto'}`}>
+        <h3 className="font-bold text-lg md:text-xl mb-2 md:mb-4">{heading}</h3>
+        <p className="text-sm md:text-base">{content}</p>
       </div>
-    </>
+      <div className={`flex-1 ${isMobile ? 'w-1/2' : 'w-auto'}`}>
+        <img 
+          src={image} 
+          alt={heading} 
+          className={`${isMobile ? 'max-w-[120px]' : 'max-w-[100px]'} mx-auto`}
+        />
+      </div>
+    </li>
   );
 };
 

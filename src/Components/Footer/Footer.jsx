@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../CompoCards/InputTag/simpleinput";
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton";
 import { Link } from "react-router-dom";
+
 const QuizLinks = {
   Features: {
     Concierge: {
@@ -62,6 +63,7 @@ const QuizLinks = {
   },
 };
 const Footer = () => {
+
   return (
     <footer className="bg-white py-10">
       <div className="max-w-[1500px]  mx-auto flex flex-col md:flex-row justify-between ">
@@ -126,6 +128,8 @@ const Footer = () => {
           © 2024 iProp91. All rights reserved.
         </p>
       </div>
+
+      
     </footer>
   );
 };
