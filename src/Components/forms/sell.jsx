@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -21,10 +21,77 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [titleDeeds, setTitleDeeds] = useState([]);
   const [propertyImages, setPropertyImages] = useState([]);
   const [propertyVideos, setPropertyVideos] = useState([]);
+
+  // Fetch property details when component mounts
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("You must be logged in to view property details");
+          return;
+        }
+
+        const tokenid = jwtDecode(token);
+        const userId = tokenid.userId;
+
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}`,
+          {
+            headers: { "auth-token": token },
+            params: { userId },
+          }
+        );
+
+        const propertyData = response.data;
+        
+        // Pre-fill form data from property details
+        setFormData({
+          unitNo: propertyData.unitNo || "",
+          size: propertyData.size || "",
+          expectedPrice: propertyData.defaultPrice || "",
+          propertyType: propertyData.propertyType || "",
+          noOfWashrooms: propertyData.noOfWashrooms || "",
+          numberOfFloors: propertyData.numberOfFloors || "",
+          numberOfParkings: propertyData.numberOfParkings || "",
+          numberOfBedrooms: propertyData.numberOfBedrooms || "",
+        });
+
+        // Check if property already has sell listing data
+        if (propertyData.sellListings && propertyData.sellListings.length > 0) {
+          const sellListing = propertyData.sellListings[0];
+          
+          setFormData({
+            unitNo: sellListing.unitNumber || propertyData.unitNo || "",
+            size: sellListing.size || propertyData.size || "",
+            expectedPrice: sellListing.expectedPrice || propertyData.defaultPrice || "",
+            propertyType: sellListing.type || propertyData.propertyType || "",
+            noOfWashrooms: sellListing.numberOfWashrooms || propertyData.noOfWashrooms || "",
+            numberOfFloors: sellListing.numberOfFloors || propertyData.numberOfFloors || "",
+            numberOfParkings: sellListing.numberOfParkings || propertyData.numberOfParkings || "",
+            numberOfBedrooms: sellListing.numberOfBedrooms || propertyData.numberOfBedrooms || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching property details:", error);
+        toast.error("Failed to load property details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (propertyId) {
+      fetchPropertyDetails();
+    } else {
+      setIsLoading(false);
+    }
+  }, [propertyId]);
 
   const handleMediaChange = async (e, type) => {
     const files = Array.from(e.target.files);
@@ -198,6 +265,20 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
+        <div className="absolute w-full h-full bg-black/40 backdrop-blur-sm" />
+        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] p-8 mx-4 animate-fadeIn">
+          <span className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </span>
+          <p className="text-center mt-4 text-gray-700">Loading property details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
       {/* Backdrop */}
@@ -208,7 +289,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
       <div className="relative bg-white h-[80vh] lg:h-[90vh] rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar mt-20 lg:mt-0 ">
         <form
           onSubmit={handleSubmit}
-          className="relative space-y-6   px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen "
+          className="relative space-y-6 px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen "
         >
           <span
             onClick={closeSellModal}
@@ -218,7 +299,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
           </span>
           {/* Personal Details Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Sell Form</h2>
+            <h2 className="text-lg font-semibold text-gray-900">List your property for sale</h2>
           </div>
 
           {/* Property Details Section */}
@@ -422,21 +503,22 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-5">
-          <button
-            type="submit"
-            disabled={isUploading}
-            className={`w-full bg-white border-[2px] border-black px-4 py-2 text-black rounded-xl  ${
-              isUploading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isUploading ? "Uploading..." : "Submit"}
-          </button>
-          <button onClick={closeSellModal}
-            className={`w-full bg-black   px-4 py-2 text-white rounded-xl 
-            `}
-          >
-            Cancel
-          </button>
+            <button
+              type="submit"
+              disabled={isUploading}
+              className={`w-full bg-white border-[2px] border-black px-4 py-2 text-black rounded-xl ${
+                isUploading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isUploading ? "Uploading..." : "Submit"}
+            </button>
+            <button 
+              type="button"
+              onClick={closeSellModal}
+              className="w-full bg-black px-4 py-2 text-white rounded-xl"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>

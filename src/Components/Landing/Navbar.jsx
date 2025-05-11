@@ -57,6 +57,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/services/safe": false,
     "/services/verified-listings": false,
     "/rewards": true, // Added rewards route with dark background
+    "/rewards/": true,
   };
 
   const SidebarIcons = {
@@ -432,6 +433,31 @@ const Navbar = ({ setIsLoggedIn }) => {
                   <p className="text-xl my-3 md:my-5">{key}</p>
                 </Link>
               ))}
+
+              {/* Added Login/Profile Button for Mobile */}
+              <div className="mt-6 px-7 py-4">
+                {user ? (
+                  <button 
+                    onClick={() => {
+                      toggleMobileMenu();
+                      navigate("/profile");
+                    }}
+                    className="flex items-center gap-2 text-xl py-3 px-5 bg-gold text-black rounded-xl w-full justify-center"
+                  >
+                    My Profile
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      toggleMobileMenu();
+                      openAuthModal();
+                    }}
+                    className="flex items-center gap-2 text-xl py-3 px-5 bg-gold text-black rounded-xl w-full justify-center"
+                  >
+                    Member Login
+                  </button>
+                )}
+              </div>
             </nav>
           </div>
         </motion.div>
@@ -442,7 +468,7 @@ const Navbar = ({ setIsLoggedIn }) => {
         <Auth
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
-          properties={`lg:mt-[1%] top-[60%] md:top-[55%] right-20 md:right-24 lg:right-44 z-50 transition-transform transform ${
+          properties={`lg:mt-[1%] top-[55%] md:top-[55%] right-14 md:right-24 lg:right-44 z-50 transition-transform transform ${
             isAuthModalOpen ? "translate-x-0" : "translate-x-full"
           }`}
         />

@@ -24,11 +24,11 @@ const SidebarIcons = {
   Concierge: { icon: Home, link: "/concierge" },
   "iProp91 Safe": { icon: Key, link: "/safe" },
   "Owners' Club": { icon: Users, link: "/family" },
-  "Real Insights": { icon: Lightbulb, link: "/realinsight" },
+  // "Real Insights": { icon: Lightbulb, link: "/realinsight" },
   Advice: { icon: BookOpen, link: "/advice" },
   Lend: { icon: RefreshCw, link: "/lend" },
   NRI: { icon: Home, link: "/nri" },
-  "Listing Page": { icon: Home, link: "/property-for-sale" },
+  "Verified Listings": { icon: Home, link: "/property-for-sale" },
   "Rewards": { icon: PiHandCoinsFill, link: "/rewards" },
 };
 

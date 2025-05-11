@@ -1177,109 +1177,117 @@ function Chats({
           })}
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
-      <footer className="border-t-[1px]  border-t-black/20   w-full">
-        {!fileToUpload && (
-          <div className="flex flex-col">
-            <div className="bg-gradient-to-r from-gray-500 to-gray-100  ">
-              <div className="flex items-center gap-4 px-2 py-2">
-                <div className="flex items-center">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileAdding}
-                  />
-                  <button className="ml-3" onClick={handleButtonClick}>
-                    <Plus className="w-6 h-6 text-gray-300" />
-                  </button>
-                </div>
-
-                <div className="flex-1 relative">
-                <style>
-            {`
-              .quill {
-                border: none;
-              }
-              .ql-container.ql-snow {
-                border: none;
-                font-size: 15px;
-                color: #282828;
-              }
-            `}
-          </style>
-                  <ReactQuill
-                    value={textMessage}
-                    onChange={handleTextMessageChange}
-                    onKeyDown={handleKeyDown}
-                    modules={{ toolbar: false }}
-                    formats={formats}
-                    placeholder="Type a message..."
-                    theme="snow"
-                    className="w-full text-black  bg-gradient-to-r from-gray-200 to-gray-50 text-gray-200 rounded-lg pl-10 outline-none placeholder-gray-500"
-                  />
-                  <button
-                    className="absolute -left-1 top-[6px]"
-                    onClick={() => setShowPicker(!showPicker)}
-                  >
-                    <p className="text-2xl ml-3">😊</p>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  className="text-gray-500 hover:text-gray-300 transition-colors"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addMessage();
-                  }}
-                  disabled={textMessage === "" ? true : false}
-                >
-                  <SendHorizonal className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-            {showPicker && (
-              <div id="emoji-picker" className="absolute bottom-[100px] right-[10%] md:right-[50%] ">
-                <EmojiPicker 
-                  pickerStyle={{ width: "70%" }}
-                  onEmojiClick={onEmojiClick}
-                  emojiStyle="native"
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {fileToUpload && showMediaPreview && (
-          <MediaPreviewModal
-            file={fileToUpload}
-            onClose={() => {
-              setShowMediaPreview(false);
-              setFileToUpload(null);
-            }}
-            onSend={handleSendMedia}
-          />
-        )}
-
-        {fileToUpload && !showMediaPreview && (
-          <div className="flex flex-row justify-around items-center">
-            <div className="flex flex-row items-center">
-              <button onClick={handleFileRemoving}>
-                <TiDelete className="h-7 w-7 text-red-400 hover:scale-110 hover:text-red-500 mr-4" />
-              </button>
-              <p className={`${theme.palette.mode === "dark" ? "text-white" : "text-gray-900"}`}>
-                {fileToUpload.name}
-              </p>
-            </div>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2"
-              onClick={addFile}
-            >
-              Send
+      {/* <!-- Chat Input --> */}
+<footer className="border-t-[1px] border-t-black/20 w-full bg-white sticky bottom-14 sm:bottom-0 left-0 right-0">
+  {!fileToUpload && (
+    <div className="flex flex-col w-full">
+      <div className="bg-gradient-to-r from-gray-500 to-gray-100 w-full">
+        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="flex items-center">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileAdding}
+            />
+            <button className="ml-1" onClick={handleButtonClick}>
+              <Plus className="w-5 h-5 text-gray-300" />
             </button>
           </div>
-        )}
-      </footer>
+
+          <div className="flex-1 relative">
+            <style>
+              {`
+                .quill {
+                  border: none;
+                }
+                .ql-container.ql-snow {
+                  border: none;
+                  font-size: 15px;
+                  color: #282828;
+                }
+                @media (max-width: 640px) {
+                  .quill {
+                    max-height: 80px;
+                    overflow-y: auto;
+                  }
+                }
+              `}
+            </style>
+            <ReactQuill
+              value={textMessage}
+              onChange={handleTextMessageChange}
+              onKeyDown={handleKeyDown}
+              modules={{ toolbar: false }}
+              formats={formats}
+              placeholder="Type a message..."
+              theme="snow"
+              className="w-full text-black bg-gradient-to-r from-gray-200 to-gray-50 text-gray-500 rounded-lg pl-10 outline-none"
+            />
+            <button
+              className="absolute left-0 top-[6px]"
+              onClick={() => setShowPicker(!showPicker)}
+            >
+              <p className="text-2xl ml-2">😊</p>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+            onClick={(e) => {
+              e.preventDefault();
+              addMessage();
+            }}
+            disabled={textMessage === "" ? true : false}
+          >
+            <SendHorizonal className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      {showPicker && (
+        <div id="emoji-picker" className="absolute bottom-16 right-2 z-50 w-64 md:w-auto">
+          <EmojiPicker 
+            onEmojiClick={onEmojiClick}
+            emojiStyle="native"
+            width="100%"
+            height="350px"
+          />
+        </div>
+      )}
+    </div>
+  )}
+
+  {fileToUpload && showMediaPreview && (
+    <MediaPreviewModal
+      file={fileToUpload}
+      onClose={() => {
+        setShowMediaPreview(false);
+        setFileToUpload(null);
+      }}
+      onSend={handleSendMedia}
+    />
+  )}
+
+  {fileToUpload && !showMediaPreview && (
+    <div className="flex flex-row justify-between items-center p-2 bg-white">
+      <div className="flex flex-row items-center max-w-[70%]">
+        <button onClick={handleFileRemoving}>
+          <TiDelete className="h-6 w-6 text-red-400 hover:scale-110 hover:text-red-500 mr-2 flex-shrink-0" />
+        </button>
+        <p className="text-gray-900 truncate text-sm">
+          {fileToUpload.name}
+        </p>
+      </div>
+      <button
+        className="bg-blue-500 text-white px-3 py-1 text-sm rounded-md ml-2 flex-shrink-0"
+        onClick={addFile}
+      >
+        Send
+      </button>
+    </div>
+  )}
+</footer>
     </>
   );
 }
