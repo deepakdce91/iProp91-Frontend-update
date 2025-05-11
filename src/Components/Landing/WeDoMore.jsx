@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 import "./style.css"; // Import your CSS file for styles
+import Auth from "../User/Login/Auth"; // Import your Auth component
 
 function toTitleCase(str) {
   return str
@@ -9,7 +10,7 @@ function toTitleCase(str) {
     .join(" "); // Join words with space
 }
 
-const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
+const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }) => {
   // Use a random image for each card to ensure variety
   const imageUrl =
     Math.random() < 0.5
@@ -18,7 +19,7 @@ const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
 
   return (
     <>
-      <div className="inline-block lg:w-[350px]">
+      <div className="w-[250px] flex-shrink-0">
         <div
           className="bg-white 
           reward-card rounded-xl shadow-md 
@@ -27,24 +28,33 @@ const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
           flex-col mx-3 max-sm:mx-0 no-selection-effect h-[300px]"
         >
           {/* Image section with curved top corners */}
-          <div className="w-full bg-blue-800 rounded-t-xl flex items-center justify-center h-[150px] relative">
+          <div className="w-full bg-blue-800 rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
             <img
-              src={imageUrl}
+              src="/reward-pic.jpg"
               alt="Reward"
-              className="w-full h-full object-cover rounded-t-xl"
+              className=" object-contain"
             />
           </div>
 
           {/* Content section */}
-          <div className="p-4 flex-1">
+          <div className="p-4 flex-1 h-[40%]">
             <div className="flex items-start justify-between">
               <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-wrap text-[#0a0f19] reward-card-title">
+                <h3 className="text-lg font-bold text-wrap text-[#0a0f19] reward-card-title">
                   {toTitleCase(name)}
                 </h3>
-                <span className="text-orange-500 font-semibold mt-4 text-lg">
+                {discountType === "percentage" ? (
+                  <span className="text-orange-500 font-semibold mt-2 text-lg">
+                    Get {amount} % Off
+                  </span>
+                ) : (
+                  <span className="text-orange-500 font-semibold mt-2 text-lg">
+                    Get {amount} coins
+                  </span>
+                )}
+                {/* <span className="text-orange-500 font-semibold mt-2 text-lg">
                   {amount} Coins
-                </span>
+                </span> */}
               </div>
               <div className="p-2">
                 <svg
@@ -192,11 +202,12 @@ const RewardsContainer = ({ cardsData }) => {
       <div className="width-full ">
         <div
           ref={scrollContainerRef}
-          className=" overflow-x-auto whitespace-nowrap scrollbar-hide  scroll-smooth space-x-4"
+          className="overflow-x-auto flex scroll-smooth space-x-4 scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {rewardsData.map((reward) => (
             <RewardCard
+            discountType={reward.discountType}
               key={reward.id}
               name={reward.name}
               amount={reward.amount}
@@ -234,8 +245,17 @@ const RewardsContainer = ({ cardsData }) => {
   );
 };
 
-const WeDoMore = () => {
+const WeDoMore = ({ setIsLoggedIn }) => {
   const [cardsData, setCardsData] = useState([]);
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+  const openAuthModal = () => {
+    setIsAuthModalOpen(true);
+  };
 
   useEffect(() => {
     axios
@@ -279,10 +299,33 @@ const WeDoMore = () => {
           <RewardsContainer />
         )}
 
+        <div className="pt-14">
+          <button
+            onClick={() => {
+              openAuthModal();
+              console.log("clicked");
+            }}
+            className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
+          >
+            Get Started
+          </button>
+        </div>
+
         <div className="absolute -z-10 md:z-10 md:block -right-14 -bottom-20">
           <img src="/images/domore.png" className="w-full h-[300px]" alt="ss" />
         </div>
       </div>
+
+      {/* Auth Modal */}
+      {isAuthModalOpen === true && (
+        <Auth
+          onClose={closeAuthModal}
+          setIsLoggedIn={setIsLoggedIn}
+          properties={`absolute top-0 right-0 z-50 transition-transform transform ${
+            isAuthModalOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        />
+      )}
     </section>
   );
 };

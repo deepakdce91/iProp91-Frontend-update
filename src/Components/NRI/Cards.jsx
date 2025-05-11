@@ -104,7 +104,7 @@ export default function Cards() {
                 </p>
                 <div className="space-y-1">
                 <p className="lg:text-2xl max-w-2xl lg:w-full text-start text-xl text-black font-semibold">
-                IProp91&apos;s Customized Services for NRIs-
+                iProp91&apos;s Customized Services for NRIs-
                 </p>
                 <ul className="md:text-lg space-y-2 text-gray-700 md:px-2">
                   <li className="flex items-center">

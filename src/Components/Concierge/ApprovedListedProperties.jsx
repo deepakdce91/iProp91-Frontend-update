@@ -4,9 +4,24 @@ import {jwtDecode} from 'jwt-decode';
 import ListedPropertyCard from '../CompoCards/Cards/ListedCards';
 import { Link } from 'react-router-dom';
 
+import { GoInfo } from "react-icons/go";
+
 const ApprovedListedProperties = ({ propertyData }) => {
+
+  const [showInfo, setShowInfo] = useState(false);
+
   const [listings, setListings] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
+
+  const handleShowInfo = () => {
+    setShowInfo(true);
+
+    setTimeout(() => {
+      setShowInfo(false);
+    }
+    , 3000);
+
+  };
   
 
   const fetchListings = async () => {
@@ -160,11 +175,18 @@ const ApprovedListedProperties = ({ propertyData }) => {
 
   return (
     <section className='border-t-[1px] border-t-gray-500 w-full '>
-      <p className='text-2xl font-bold text-primary mt-5 mx-5'>My Listings</p>
+      <div className='flex items-center justify-start relative'>
+     
+      <p className='text-2xl font-bold text-primary mt-5 mx-5 mr-3'>My Listings</p>
+      <GoInfo className='text-black w-6 h-6 mt-5' onClick={handleShowInfo}/>
+      {showInfo === true && <p className='px-5 absolute left-52 bottom-1 border border-1 border-black'>Properties listed for sale or rent will be displayed here.</p>}
+      </div>
+
+    
       <div className='grid grid-cols-1 gap-5 md:p-5 p-3'>
         {filteredListings.length === 0 ? (
           <div className="flex  items-center p-5 border border-dashed border-gray-300 rounded-lg">
-            <span className="text-lg text-gray-600 flex flex-col gap-2 md:flex-row">No approved listings available. <p className="text-blue-500 underline">Add listings to render here.</p></span>
+            <span className="text-lg text-gray-600 flex flex-col gap-2 md:flex-row">No approved listings available. </span>
           </div>
         ) : (
           filteredListings.map((listing) => (
