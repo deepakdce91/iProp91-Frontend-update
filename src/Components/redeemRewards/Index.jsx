@@ -112,7 +112,7 @@ export default function FirstSafe() {
       let tokenid = jwtDecode(token);
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRedemptionRewards?userId=${tokenid.userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchAllActiveRedemptionRewards?userId=${tokenid.userId}`,
           {
             method: "GET",
             headers: {
