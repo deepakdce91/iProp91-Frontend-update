@@ -46,13 +46,13 @@ import ServOwnerClub from "../services/ownersClub";
 import ServSafe from "../services/safe";
 import ServListingCompo from "../services/listing";
 
-function LandingPage({setIsLoggedIn}) {
+function LandingPage() {
   return (
     <>
       <HeroSection />
       <AboutSection />
       <Comparision />
-      <WeDoMore setIsLoggedIn = {setIsLoggedIn}/>
+      <WeDoMore/>
       <MobileScreen />
       <Number />
       <BrandMarquee />
@@ -67,7 +67,7 @@ function LandingPage({setIsLoggedIn}) {
   );
 }
 
-const TypingLandingPage = ({setIsLoggedIn}) => {
+const TypingLandingPage = () => {
   const [showMessage, setShowMessage] = useState(true);
   const [showNavbar, setShowNavbar] = useState(false);
   const [showFooter, setShowFooter] = useState(false);
@@ -115,7 +115,7 @@ const TypingLandingPage = ({setIsLoggedIn}) => {
 
   return (
     <>
-      {showNavbar && showFooter && <LandingPage setIsLoggedIn = {setIsLoggedIn} />}
+      {showNavbar && showFooter && <LandingPage  />}
       {!showNavbar &&
         !showFooter &&
         hasVisited === null && ( // Only show message if hasVisited is null
@@ -151,11 +151,11 @@ function Landing({ setIsLoggedIn }) {
     }
   }, []);
 
-  return (
+  return ( 
     <>
       <Navbar setIsLoggedIn={setIsLoggedIn} />
       <Routes>
-        <Route path="/" element={<TypingLandingPage setIsLoggedIn = {setIsLoggedIn}/>} />
+        <Route path="/" element={<TypingLandingPage />} />
         <Route path="/search-properties" element={<App />} />
         <Route path="/property-listing" element={<PropertyListing />} />
         <Route path="/property-details/:id" element={<PropertyDetails />} />

@@ -245,17 +245,16 @@ const RewardsContainer = ({ cardsData }) => {
   );
 };
 
-const WeDoMore = ({ setIsLoggedIn }) => {
+const WeDoMore = () => {
   const [cardsData, setCardsData] = useState([]);
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
-  const openAuthModal = () => {
-    setIsAuthModalOpen(true);
-  };
+  // const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  // const closeAuthModal = () => {
+  //   setIsAuthModalOpen(false);
+  // };
+  // const openAuthModal = () => {
+  //   setIsAuthModalOpen(true);
+  // };
 
   useEffect(() => {
     axios
@@ -302,7 +301,7 @@ const WeDoMore = ({ setIsLoggedIn }) => {
         <div className="pt-14">
           <button
             onClick={() => {
-              openAuthModal();
+              // openAuthModal();
               console.log("clicked");
             }}
             className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
@@ -317,7 +316,7 @@ const WeDoMore = ({ setIsLoggedIn }) => {
       </div>
 
       {/* Auth Modal */}
-      {isAuthModalOpen === true && (
+      {/* {isAuthModalOpen === true && (
         <Auth
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
@@ -325,7 +324,7 @@ const WeDoMore = ({ setIsLoggedIn }) => {
             isAuthModalOpen ? "translate-x-0" : "translate-x-full"
           }`}
         />
-      )}
+      )} */}
     </section>
   );
 };
