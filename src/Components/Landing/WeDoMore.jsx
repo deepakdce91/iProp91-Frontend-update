@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 import "./style.css"; // Import your CSS file for styles
 import Auth from "../User/Login/Auth"; // Import your Auth component
+import { useAuth } from "../../context/AuthContext";
+import { useLocation } from "react-router-dom"; // Import useLocation to check current route
 
 function toTitleCase(str) {
   return str
@@ -207,7 +209,7 @@ const RewardsContainer = ({ cardsData }) => {
         >
           {rewardsData.map((reward) => (
             <RewardCard
-            discountType={reward.discountType}
+              discountType={reward.discountType}
               key={reward.id}
               name={reward.name}
               amount={reward.amount}
@@ -247,14 +249,9 @@ const RewardsContainer = ({ cardsData }) => {
 
 const WeDoMore = () => {
   const [cardsData, setCardsData] = useState([]);
-
-  // const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  // const closeAuthModal = () => {
-  //   setIsAuthModalOpen(false);
-  // };
-  // const openAuthModal = () => {
-  //   setIsAuthModalOpen(true);
-  // };
+  const { openAuthModal } = useAuth();
+  const location = useLocation(); // Get current location
+  const isRewardsRoute = location.pathname === "/rewards" || location.pathname === "/rewards/"; // Check if current route is /rewards
 
   useEffect(() => {
     axios
@@ -271,8 +268,17 @@ const WeDoMore = () => {
       });
   }, []);
 
+  // Apply conditional styling based on route
+  const sectionClasses = isRewardsRoute
+    ? "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-white pt-32" // White theme with extra top padding for /rewards
+    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-black/90 border-y-[1px] border-y-white/30"; // Original styling for other routes
+
+  // Adjust text color based on theme
+  const textColorClasses = isRewardsRoute ? "text-black" : "text-white";
+  const subTextColorClasses = isRewardsRoute ? "text-gray-700" : "text-gray-500";
+
   return (
-    <section className="py-20 px-2 relative overflow-hidden max-sm:p-0 bg-black/90 border-y-[1px] border-y-white/30">
+    <section className={sectionClasses}>
       <style jsx>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
@@ -280,11 +286,11 @@ const WeDoMore = () => {
         }
       `}</style>
       <div className="flex flex-col items-center px-10 max-sm:px-2 max-sm:py-20 lg:px-32 pb-20">
-        <div className="flex flex-col gap-5 text-white w-full md:w-full mb-6 lg:mb-8">
+        <div className={`flex flex-col gap-5 ${textColorClasses} w-full md:w-full mb-6 lg:mb-8`}>
           <p className="lg:text-6xl md:text-4xl text-3xl font-semibold">
             do more with <br /> your real estate assets
           </p>
-          <p className="text-lg md:text-2xl text-gray-500">
+          <p className={`text-lg md:text-2xl ${subTextColorClasses}`}>
             Join exclusive club of verified owners of your project, manage all
             your real estate documents well, earn reward points, get access to
             expert views & other owner reviews, understand your documents, stay
@@ -300,31 +306,19 @@ const WeDoMore = () => {
 
         <div className="pt-14">
           <button
-            onClick={() => {
-              // openAuthModal();
-              console.log("clicked");
-            }}
-            className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
+            onClick={openAuthModal}
+            className={`${isRewardsRoute ? 'text-white bg-gray-800 hover:bg-black' : 'text-black animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]'} text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105`}
           >
             Get Started
           </button>
         </div>
 
-        <div className="absolute -z-10 md:z-10 md:block -right-14 -bottom-20">
-          <img src="/images/domore.png" className="w-full h-[300px]" alt="ss" />
-        </div>
+        {!isRewardsRoute && (
+          <div className="absolute -z-10 md:z-10 md:block -right-14 -bottom-20">
+            <img src="/images/domore.png" className="w-full h-[300px]" alt="ss" />
+          </div>
+        )}
       </div>
-
-      {/* Auth Modal */}
-      {/* {isAuthModalOpen === true && (
-        <Auth
-          onClose={closeAuthModal}
-          setIsLoggedIn={setIsLoggedIn}
-          properties={`absolute top-0 right-0 z-50 transition-transform transform ${
-            isAuthModalOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        />
-      )} */}
     </section>
   );
 };
