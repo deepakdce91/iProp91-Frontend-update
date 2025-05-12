@@ -33,6 +33,7 @@
     "json2mq": "^0.2.0",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.456.0",
     "mapbox-gl": "^3.10.0",

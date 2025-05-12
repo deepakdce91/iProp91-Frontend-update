@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   Phone,
   Heart,
@@ -29,10 +30,15 @@ import {
   Clock,
 } from "lucide-react";
 // Import the gold theme CSS
-import "../styles/goldTheme.css";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
-export default function PropertyDetail({ property, onBack }) {
+export default function PropertyDetail({ onBack }) {
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [property, setProperty] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -44,20 +50,107 @@ export default function PropertyDetail({ property, onBack }) {
   const [loanTenure, setLoanTenure] = useState(20);
   const [emi, setEmi] = useState(0);
 
-  // Similar properties section removed as requested
+  useEffect(() => {
+    console.log("PropertyDetail mounted with ID:", id);
+
+    const fetchPropertyDetails = async () => {
+      if (!id) {
+        console.error("No property ID provided");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        console.log("Fetching property details for ID:", id);
+
+        const response = await axios.get(
+          `https://iprop91new.onrender.com/api/projectsDataMaster/property/${id}`
+        );
+        console.log("API Response:", response.data);
+
+        if (response.data.status === "success" && response.data.data) {
+          const propertyData = response.data.data;
+          console.log("Processing property data:", propertyData);
+
+          const processedProperty = {
+            id: propertyData._id,
+            title: `${propertyData.bhk || ""} ${
+              propertyData.type || "Property"
+            } in ${propertyData.project || ""}`,
+            price: propertyData.minimumPrice
+              ? `₹${propertyData.minimumPrice}`
+              : "Price on Request",
+            location: `${propertyData.city}, ${propertyData.state}`,
+            coordinates: {
+              lat: propertyData.latitude || 0,
+              lng: propertyData.longitude || 0,
+            },
+            images: propertyData.images || [],
+            description: propertyData.overview || "",
+            amenities: propertyData.amenities || [],
+            features: propertyData.features || [],
+            bhk: propertyData.bhk,
+            type: propertyData.type,
+            area: propertyData.size,
+            status: propertyData.status,
+            bathrooms: propertyData.bathrooms,
+            balconies: propertyData.balconies,
+            flooring: propertyData.flooring,
+            electrical: propertyData.electrical,
+            doors: propertyData.doors,
+            possessionStatus:
+              propertyData.possessionStatus || propertyData.status,
+            furnishingStatus: propertyData.furnishingStatus,
+            pricePerSqft: propertyData.pricePerSqft,
+            parking: propertyData.parking,
+            transactionType: propertyData.transactionType,
+            category: propertyData.category,
+            // Add any additional fields you need
+          };
+
+          console.log("Setting processed property:", processedProperty);
+          setProperty(processedProperty);
+        } else {
+          console.error("Invalid API response format:", response.data);
+          toast.error("Failed to load property details");
+          setProperty(null);
+        }
+      } catch (error) {
+        console.error("Error fetching property details:", error);
+        toast.error("Failed to load property details");
+        setProperty(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPropertyDetails();
+  }, [id]); // Only depend on id
+
+  // Add debug logging for render
+  console.log("PropertyDetail rendering with:", { id, property, isLoading });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gold-500">Loading property details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!property) {
     return (
-      <div className="p-8 text-center bg-white">
-        <p className="text-gray-800">No property selected.</p>
-        {onBack && (
-          <button
-            className="mt-4 px-4 py-2 bg-black text-gold-500 rounded hover:bg-gray-900 transition"
-            onClick={onBack}
-          >
-            Back to Properties
-          </button>
-        )}
+      <div className="p-8 text-center bg-black">
+        <p className="text-gray-300">Property not found or failed to load.</p>
+        <button
+          className="mt-4 px-4 py-2 bg-gold-600 text-black rounded hover:bg-gold-500 transition"
+          onClick={() => navigate("/")}
+        >
+          Back to Properties
+        </button>
       </div>
     );
   }

@@ -147,3 +147,67 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Leaflet Map Styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  touch-action: auto !important;
+}
+
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  touch-action: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Fix touch interaction issues on mobile */
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  touch-action: auto !important;
+}
+
+.leaflet-pane,
+.leaflet-control,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: auto;
+  pointer-events: auto !important;
+}
+
+.leaflet-top {
+  z-index: 1000;
+}
+
+.leaflet-popup-content {
+  margin: 8px;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+/* Ensure map takes full height of container */
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Selected property styles */
+.selected-property {
+  border: 2px solid #031273;
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Selected marker styles */
+.selected-marker {
+  z-index: 1000 !important;
+}
+
+.selected-marker .leaflet-marker-icon {
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}

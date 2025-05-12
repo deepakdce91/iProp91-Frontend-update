@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Phone,
   Heart,
@@ -134,20 +136,19 @@ const SwimmingPoolIcon = ({ size = 16 }) => (
   </svg>
 );
 
-export default function PropertyDetails({ property = {}, onBack = () => {} }) {
-  // State management for UI interactions
+export default function PropertyDetails({ onBack = () => {} }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [property, setProperty] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showContact, setShowContact] = useState(false);
-
-  // State for loan calculator
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState("8.5");
   const [loanTenure, setLoanTenure] = useState("20");
   const [emi, setEmi] = useState(null);
-
-  // For contact form
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -158,28 +159,41 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Mock user authentication - replace with your actual auth context
-  const isAuthenticated = false; // Replace with actual auth check
-  const user = null; // Replace with actual user data
+  const isAuthenticated = false;
+  const user = null;
+
+  // Error handling for image loading
+  const handleImageError = useCallback((e) => {
+    e.target.src = "/assets/images/fallback-image.jpg";
+    e.target.alt = "Image not available";
+  }, []);
+
+  // Image carousel functions
+  const nextImage = useCallback((totalImages) => {
+    setActiveImage(prev => (prev + 1) % totalImages);
+  }, []);
+
+  const prevImage = useCallback((totalImages) => {
+    setActiveImage((prev) => (prev - 1 + totalImages) % totalImages);
+  }, []);
 
   // Calculate EMI function
-  const calculateEmi = () => {
+  const calculateEmi = useCallback(() => {
     if (!loanAmount || !interestRate || !loanTenure) {
       alert("Please fill all loan details");
       return;
     }
 
     try {
-      // Parse loan amount - remove commas and other formatting
       const principal = parseFloat(loanAmount.replace(/[^0-9.]/g, ""));
-      const rate = parseFloat(interestRate) / 100 / 12; // Monthly rate
-      const time = parseFloat(loanTenure) * 12; // Term in months
+      const rate = parseFloat(interestRate) / 100 / 12;
+      const time = parseFloat(loanTenure) * 12;
 
       if (isNaN(principal) || isNaN(rate) || isNaN(time)) {
         alert("Please enter valid numbers");
         return;
       }
 
-      // EMI formula: P * r * (1+r)^n / ((1+r)^n - 1)
       const emiValue =
         (principal * rate * Math.pow(1 + rate, time)) /
         (Math.pow(1 + rate, time) - 1);
@@ -188,38 +202,28 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
       console.error("EMI calculation error:", error);
       alert("Error calculating EMI");
     }
-  };
-
-  // Update form data when user changes
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-      }));
-    }
-  }, [user]);
+  }, [loanAmount, interestRate, loanTenure]);
 
   // Handle form input changes
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user starts typing
-    if (formErrors[name]) {
-      setFormErrors((prev) => ({
+  const handleFormChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
         ...prev,
-        [name]: "",
+        [name]: value,
       }));
-    }
-  };
+      if (formErrors[name]) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
+      }
+    },
+    [formErrors]
+  );
 
   // Validate form
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const errors = {};
 
     if (!formData.name.trim()) {
@@ -243,130 +247,217 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [formData, isAuthenticated]);
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
 
-    if (!validateForm()) {
-      return;
+      if (!validateForm()) {
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        alert("Your inquiry has been submitted successfully!");
+        setShowContact(false);
+        setFormData({
+          name: user?.name || "",
+          email: user?.email || "",
+          phone: user?.phone || "",
+          message: "",
+        });
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("There was an error submitting your inquiry. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [validateForm, user]
+  );
+
+  // UI interaction handlers
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab);
+  }, []);
+
+  const toggleContact = useCallback(() => {
+    setShowContact((prev) => !prev);
+  }, []);
+
+  // Fetch property details
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      if (!id) {
+        console.error("No property ID provided");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        console.log("Fetching property details for ID:", id);
+
+        const response = await axios.get(
+          `https://iprop91new.onrender.com/api/projectsDataMaster?id=${id}`
+        );
+        console.log("API Response:", response.data);
+
+        if (
+          response.data.status === "success" &&
+          response.data.data &&
+          response.data.data.projects &&
+          response.data.data.projects.length > 0
+        ) {
+          const propertyData = response.data.data.projects[0]; // Get the first property from projects array
+          console.log("Processing property data:", propertyData);
+
+          setProperty({
+            _id: propertyData._id || id,
+            title:
+              propertyData.title ||
+              `${propertyData.bhk || ""} ${
+                propertyData.type || "Property"
+              } in ${propertyData.project || ""}`,
+            price: propertyData.minimumPrice
+              ? `₹${propertyData.minimumPrice}`
+              : "Price on Request",
+            location: `${propertyData.city || ""}, ${
+              propertyData.state || ""
+            }`.trim(),
+            coordinates: {
+              latitude: propertyData.coordinates
+                ? propertyData.coordinates[0]
+                : 0,
+              longitude: propertyData.coordinates
+                ? propertyData.coordinates[1]
+                : 0,
+            },
+            images: Array.isArray(propertyData.images)
+              ? propertyData.images
+              : [],
+            description: propertyData.overview || "",
+            amenities: Array.isArray(propertyData.amenities)
+              ? propertyData.amenities
+              : [],
+            features: Array.isArray(propertyData.features)
+              ? propertyData.features
+              : [],
+            bhk: propertyData.bhk || "",
+            type: propertyData.type || "Residential",
+            area: propertyData.size || "N/A",
+            status: propertyData.status || "N/A",
+            bathrooms: propertyData.numberOfBathrooms || "N/A",
+            balconies: propertyData.balconies || "N/A",
+            flooring: propertyData.flooring || "N/A",
+            electrical: propertyData.electrical || "N/A",
+            doors: propertyData.doors || "N/A",
+            possessionStatus: propertyData.status || "N/A",
+            furnishingStatus: propertyData.furnishingStatus || "N/A",
+            pricePerSqft: propertyData.pricePerSqft || "N/A",
+            parking: propertyData.numberOfParkings || "N/A",
+            transactionType: propertyData.availableFor || "N/A",
+            category: propertyData.category || "N/A",
+            overview: propertyData.overview || "No description available",
+            project: propertyData.project || "N/A",
+            totalFloors: propertyData.numberOfFloors || "N/A",
+            floorNumber: propertyData.floorNumber || "N/A",
+            age: propertyData.age || "N/A",
+          });
+          console.log("Property data set successfully");
+        } else {
+          console.error("Invalid API response format:", response.data);
+          setProperty(null);
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching property details:",
+          error.response || error
+        );
+        setProperty(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPropertyDetails();
+  }, [id]);
+
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      }));
     }
+  }, [user]);
 
-    setIsSubmitting(true);
-    try {
-      // Here you would typically make an API call to submit the form
-      // For example:
-      // await axios.post('/api/contact', {
-      //   ...formData,
-      //   propertyId: property._id,
-      //   userId: user?._id
-      // });
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
 
-      // Show success message
-      alert("Your inquiry has been submitted successfully!");
-      setShowContact(false);
-      setFormData({
-        name: user?.name || "",
-        email: user?.email || "",
-        phone: user?.phone || "",
-        message: "",
-      });
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("There was an error submitting your inquiry. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Render a message if no property data is available
-  if (!property) {
+  // Render loading state
+  if (isLoading) {
     return (
-      <div className="p-8 text-center bg-white">
-        <p className="text-gray-800">No property selected.</p>
-        {onBack && (
-          <button
-            className="mt-4 px-4 py-2 bg-black text-gold-500 rounded hover:bg-gray-900 transition"
-            onClick={onBack}
-            aria-label="Back to properties list"
-          >
-            Back to Properties
-          </button>
-        )}
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gold-500">Loading property details...</p>
+        </div>
       </div>
     );
   }
 
-  // Use property data with fallbacks
+  // Render error state
+  if (!property) {
+    return (
+      <div className="p-8 text-center bg-black">
+        <p className="text-gray-300">Property not found or failed to load.</p>
+        <button
+          className="mt-4 px-4 py-2 bg-gold-600 text-black rounded hover:bg-gold-500 transition"
+          onClick={() => navigate("/")}
+        >
+          Back to Properties
+        </button>
+      </div>
+    );
+  }
+
+  // Extract property details with fallbacks
   const images =
     property.images && property.images.length > 0
       ? property.images
-      : [
-          // Use real local image paths for your project
-          "/assets/images/property-placeholder-1.jpg",
-          "/assets/images/property-placeholder-2.jpg",
-          "/assets/images/property-placeholder-3.jpg",
-        ];
+      : ["/assets/images/property-placeholder-1.jpg"];
 
-  // Error handling for image loading
-  const handleImageError = (e) => {
-    e.target.src = "/assets/images/fallback-image.jpg";
-    e.target.alt = "Image not available";
-  };
-
-  // Extract property details with fallbacks
   const propertyType = property.type || "Residential";
-  const propertySize = property.size || property.area || "1350 Sq.ft.";
-  const bhkInfo = property.bhk || "3 BHK";
-  const propertyPrice = property.price || "₹75.5 L";
-  const propertyLocation =
-    property.location || property.address || "Sector 25 Rohini, New Delhi";
-  const amenities = property.amenities || [
-    "Lift",
-    "Power Backup",
-    "Car Parking",
-    "Park",
-    "Security",
-    "Visitor Parking",
-    "Swimming Pool",
-    "Gym",
-    "Club House",
-  ];
-  const possessionStatus =
-    property.possessionStatus || property.possession || "Ready to Move";
-  const furnishingStatus =
-    property.furnishingStatus || property.furnishing || "Semi-Furnished";
-
-  // Image carousel functions
-  const nextImage = () => {
-    setActiveImage((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setActiveImage((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  // UI interaction handlers
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  const toggleContact = () => {
-    setShowContact((prev) => !prev);
-  };
+  const propertySize = property.area || "N/A";
+  const bhkInfo = property.bhk || "N/A";
+  const propertyPrice = property.price || "Price on Request";
+  const propertyLocation = property.location || "Location not available";
+  const amenities =
+    Array.isArray(property.amenities) && property.amenities.length > 0
+      ? property.amenities
+      : ["Basic Amenities"];
+  const possessionStatus = property.possessionStatus || "N/A";
+  const furnishingStatus = property.furnishingStatus || "N/A";
 
   return (
     <div className="bg-black pt-[14vh]">
-      <div className="bg-white text-gray-800 min-h-screen ">
+      <div className="bg-white text-gray-800 min-h-screen">
         {/* Header */}
-
-        {/* Main content */}
-        <div className=" pb-2">
+        <div className="pb-2">
           {/* Image carousel */}
           <div className="relative h-[25vh] md:h-[30vh] bg-black">
             <img
-              src={"/images/logo.svg"}
+              src={images[activeImage]}
               alt={`Property ${activeImage + 1}`}
               className="w-full h-full object-cover"
               onError={handleImageError}
@@ -375,21 +466,18 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
                 images.length
               }`}
             />
-
             <button
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white"
-              onClick={prevImage}
+              onClick={() => prevImage(images.length)}
             >
               <ChevronLeft size={24} className="text-gray-700" />
             </button>
-
             <button
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white"
-              onClick={nextImage}
+              onClick={() => nextImage(images.length)}
             >
               <ChevronRight size={24} className="text-gray-700" />
             </button>
-
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
               {images.map((_, index) => (
                 <div
@@ -1215,7 +1303,7 @@ export default function PropertyDetails({ property = {}, onBack = () => {} }) {
             <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-2xl">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-gray-900">
-                  Contact Property Agent
+                  More Information
                 </h3>
                 <button
                   onClick={toggleContact}

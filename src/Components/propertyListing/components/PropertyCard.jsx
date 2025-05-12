@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaShareAlt,
   FaRulerCombined,
@@ -15,6 +15,12 @@ import { MdLocationOn } from "react-icons/md";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+// Import map navigation utilities
+import { 
+  dispatchPropertyCardClick, 
+  injectPropertyCardStyles 
+} from "../../map/utils/PropertyMapNavigation";
+
 // Create custom house marker icon
 const createHouseIcon = () => {
   const svgTemplate = `
@@ -45,10 +51,20 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [coordinates, setCoordinates] = useState(null);
   const [houseIcon] = useState(createHouseIcon);
+  const [mapNavigationAttempted, setMapNavigationAttempted] = useState(false);
+  const [mapNavigationError, setMapNavigationError] = useState(null);
+  const [isHighlighted, setIsHighlighted] = useState(false);
+  const hoverTimerRef = useRef(null);
 
   const navigate = useNavigate();
+
+  // Inject CSS styles for card highlighting (only once)
+  useEffect(() => {
+    injectPropertyCardStyles();
+  }, []);
 
   useEffect(() => {
     if (property) {
@@ -107,6 +123,29 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
     }
   }, [propertyData?.location]);
 
+  // Listen for marker clicks to highlight this card if it matches
+  useEffect(() => {
+    const handleMarkerClick = (event) => {
+      const { propertyId } = event.detail;
+      if (propertyId && propertyData && 
+          (propertyId === propertyData._id || propertyId === propertyData.id)) {
+        // Highlight this card
+        setIsHighlighted(true);
+        
+        // Remove highlight after some time
+        setTimeout(() => {
+          setIsHighlighted(false);
+        }, 3000);
+      }
+    };
+    
+    window.addEventListener('property-marker-clicked', handleMarkerClick);
+    
+    return () => {
+      window.removeEventListener('property-marker-clicked', handleMarkerClick);
+    };
+  }, [propertyData]);
+
   const getImageUrl = (image) => {
     if (!image) return "/iPropLogo.6ed8e014.svg";
     if (image.startsWith("http")) return image;
@@ -115,14 +154,45 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
     }${image}`;
   };
 
+  // Modified function to handle details page navigation
   function handleDetailsPage(e) {
-    e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     if (propertyData?._id) {
-      navigate(`/property-details/${propertyData._id}`, {
+      navigate(`/property/${propertyData._id}`, {
         state: { property: propertyData },
       });
     }
   }
+
+  // Redirect to map page with the property location
+  const navigateToMapPage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!propertyData?._id) return;
+    
+    // Navigate to the map page with property ID in query params
+    navigate(`/search-properties?propertyId=${propertyData._id}`, {
+      state: { 
+        focusedProperty: propertyData._id,
+        location: propertyData.location,
+        coordinates: coordinates
+      }
+    });
+  };
+  
+  // Handle the entire card click - navigate to map by default
+  const handleCardClick = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      // If modifier key is pressed, navigate to details
+      handleDetailsPage(e); 
+    } else {
+      // Otherwise go to map
+      navigateToMapPage(e);
+    }
+  };
 
   const processProperty = (rawProperty) => {
     return {
@@ -194,6 +264,39 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
     }
   };
 
+  // Handle hover start with delay
+  const handleHoverStart = () => {
+    setIsHovered(true);
+    // Clear any existing timer
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+    }
+    // Set a new timer to show the map after 2 seconds
+    hoverTimerRef.current = setTimeout(() => {
+      setShowMap(true);
+    }, 2000);
+  };
+
+  // Handle hover end
+  const handleHoverEnd = () => {
+    setIsHovered(false);
+    setShowMap(false);
+    // Clear the timer if it exists
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  };
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+      }
+    };
+  }, []);
+
   if (isLoading || fetchLoading) {
     return (
       <div className="border rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 m-2">
@@ -227,19 +330,26 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden relative w-full"
+      onHoverStart={handleHoverStart}
+      onHoverEnd={handleHoverEnd}
+      onClick={handleCardClick}
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden relative w-full cursor-pointer"
+      data-property-id={propertyData?._id}
     >
+    
+
       <div className="relative">
         <AnimatePresence>
-          {isHovered && coordinates ? (
+          {showMap && coordinates ? (
             <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-10"
             >
+              <div className="absolute top-0 left-0 bg-black/70 text-white text-xs px-2 py-1 rounded-br z-20">
+                Map Preview
+              </div>
               <MapContainer
                 center={coordinates}
                 zoom={15}
@@ -299,6 +409,7 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
             <FaShareAlt className="text-lg text-gray-600" />
           </Motion.button>
         </div>
+          
         <img
           src={getImageUrl(
             propertyData?.images?.[activeImageIndex] || propertyData?.imageUrl
@@ -307,6 +418,16 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
           className="w-full h-[160px] object-contain bg-gray-50"
           onError={() => setImageError(true)}
         />
+
+        {isHovered && !showMap && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
+            <div className="text-center">
+              <p className="text-sm">Hover for 2 seconds</p>
+              <p className="text-xs">to see location on map</p>
+            </div>
+          </div>
+        )}
+          
         {imageError && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
             <img
@@ -328,17 +449,14 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
               {propertyData?.price}
             </h2>
           </div>
-          <a
-            href={`/property-details/${
-              propertyData?._id || propertyData?.id || ""
-            }`}
+          <Link
+            to={`/property-details/${propertyData?._id || propertyData?.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs cursor-pointer font-medium hover:bg-red-600 transition-colors"
-            onClick={(e) => e.stopPropagation()}
           >
             View Details
-          </a>
+          </Link>
         </div>
 
         <h3 className="text-base font-medium text-gray-800 mb-1">
@@ -377,6 +495,20 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
             {propertyData?.description}
           </p>
         </div>
+
+        <div className="mt-4">
+          <button
+            onClick={navigateToMapPage}
+            className="mt-3 flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <FaMapMarkerAlt className="mr-1" />
+            <span>View on Map</span>
+          </button>
+        </div>
+        
+        {mapNavigationAttempted && mapNavigationError && (
+          <p className="text-xs text-red-500 mt-1">{mapNavigationError}</p>
+        )}
       </div>
     </Motion.div>
   );

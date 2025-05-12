@@ -9,76 +9,40 @@ function toTitleCase(str) {
     .join(" "); // Join words with space
 }
 
-const RewardCard = ({ name, amount, status, icon, commonImageUrl }) => {
-  // Use a random image for each card to ensure variety
-  const imageUrl = "/images/rewards-image.jpg";
-
-  // Normalize the name for comparison
-  const normalized = (str) => str.trim().toLowerCase();
-  const bonusNames = [
-    "buy property through us test",
-    "sell property through us",
-    "rent property through us",
-  ];
-  const showBonus = bonusNames.some(
-    (target) => normalized(name) === normalized(target)
-  );
-
+const RewardCard = ({ name, amount, status, icon }) => {
   return (
-    <>
-      <div className="inline-block lg:w-[400px]">
-        <div
-          className="bg-white 
-          reward-card rounded-xl shadow-lg 
-          transition-all duration-300 hover:scale-105 
-          max-w-xs overflow-hidden flex
-          flex-col mx-3 max-sm:mx-0 no-selection-effect h-[400px]"
-        >
-          {/* Image section with curved top corners */}
-          <div className="w-full bg-gradient-to-r from-blue-800 to-blue-600 rounded-t-xl flex items-center justify-center h-[250px] relative overflow-hidden">
-            <img
-              src={imageUrl}
-              alt="Reward"
-              className="w-full h-full object-cover rounded-t-xl hover:scale-110 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-all duration-300"></div>
-            {showBonus && (
-              <div className="absolute top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
-                Get 25% bonus
-              </div>
-            )}
-          </div>
-
-          {/* Content section */}
-          <div className="p-6 flex-1 bg-gradient-to-b from-white to-gray-50">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-2xl font-bold text-wrap text-[#0a0f19] reward-card-title">
-                  {toTitleCase(name)}
-                </h3>
-                <span className="text-orange-500 font-semibold mt-4 text-xl">
-                  Get {amount} Coins
-                </span>
-              </div>
-              <div className="p-2 bg-blue-50 rounded-full">
-                <svg
-                  className="w-7 h-7 text-blue-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+    <div className="inline-block h-full w-[160px] sm:w-[200px] md:w-[250px] lg:w-[280px]">
+      <div className="bg-white rounded-xl shadow-md transition-all duration-300 hover:scale-105 overflow-hidden flex flex-col h-full mx-2 no-selection-effect">
+        {/* Image section with proper aspect ratio */}
+        <div className="w-full max-sm:h-[75%] bg-gray-100 relative pt-[75%] overflow-hidden">
+          {" "}
+          {/* 4:3 aspect ratio */}
+          <img
+            src="/images/rewards-image.jpg"
+            alt="Reward"
+            className="absolute top-0 left-0 w-full h-full object-cover  "
+          />
+          {/* Badge for special offers like in the design */}
+          {status === "offer" && (
+            <div className="absolute bottom-2 right-2 bg-yellow-500 text-xs font-bold text-black px-2 py-1 rounded">
+              Offer
             </div>
+          )}
+        </div>
+
+        {/* Content section */}
+        <div className="p-3 flex-1 flex flex-col justify-between">
+          <h3 className="text-lg font-bold text-gray-800 line-clamp-2">
+            {toTitleCase(name)}
+          </h3>
+          <div className="mt-2 text-sm text-gray-600">
+            <span className="text-orange-500 font-semibold text-base">
+              Get {amount} Coins
+            </span>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -88,7 +52,7 @@ const RewardsContainer = ({ cardsData }) => {
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
-  // Sample data array - updated with name and amount
+  // Sample data array with status field added for "offer" badges
   const rewardsData = cardsData
     ? cardsData
     : [
@@ -96,6 +60,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 1,
           name: "Sign Up on our website",
           amount: 5000,
+          status: "offer",
         },
         {
           id: 2,
@@ -106,6 +71,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 3,
           name: "Make first purchase",
           amount: 10000,
+          status: "offer",
         },
         {
           id: 4,
@@ -132,7 +98,9 @@ const RewardsContainer = ({ cardsData }) => {
   // Function to handle scrolling
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -300 : 300;
+      // Calculate scroll amount based on card width to ensure smooth scrolling to next card
+      const cardWidth = 180; // Approximate width of a card including margin
+      const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
       scrollContainerRef.current.scrollBy({
         left: scrollAmount,
         behavior: "smooth",
@@ -147,7 +115,7 @@ const RewardsContainer = ({ cardsData }) => {
         scrollContainerRef.current;
 
       // Show left arrow if we've scrolled to the right
-      setShowLeftArrow(scrollLeft > 0);
+      setShowLeftArrow(scrollLeft > 10);
 
       // Show right arrow if there's more content to scroll to
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
@@ -177,73 +145,88 @@ const RewardsContainer = ({ cardsData }) => {
   }, []);
 
   return (
-    <div className="relative w-full px-14 reward-cards ">
-      {/* Left navigation arrow - positioned outside the container */}
-      {showLeftArrow && (
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 scroll-left-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
-          aria-label="Scroll left"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-      )}
-
-      {/* Scrollable container */}
-      <div className="width-full ">
-        <div
-          ref={scrollContainerRef}
-          className=" overflow-x-auto whitespace-nowrap scrollbar-hide  scroll-smooth space-x-2"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {rewardsData.map((reward) => (
-            <RewardCard
-              key={reward.id}
-              name={reward.name}
-              amount={reward.amount}
-              status={reward.status}
-              icon={reward.icon}
-            />
-          ))}
-        </div>
+    <div className="w-full">
+      {/* Section Heading similar to MagicBricks design */}
+      <div className="px-4 mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Property Services</h2>
+        <div className="w-10 h-1 bg-red-500 mt-1"></div>
       </div>
 
-      {/* Right navigation arrow - positioned outside the container */}
-      {showRightArrow && (
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 scroll-right-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
-          aria-label="Scroll right"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+      {/* Cards Container with Navigation */}
+      <div className="relative w-full px-4 sm:px-6 h-[18rem] sm:h-[20rem]">
+        {/* Left navigation arrow */}
+        {showLeftArrow && (
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+            aria-label="Scroll left"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-      )}
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+        )}
+
+        {/* Scrollable container */}
+        <div className="w-full h-full overflow-hidden">
+          <div
+            ref={scrollContainerRef}
+            className="overflow-x-auto h-full whitespace-nowrap scrollbar-hide scroll-smooth pb-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {/* Add left padding to first card for better spacing */}
+            <div className="inline-block w-2"></div>
+
+            {rewardsData.map((reward) => (
+              <RewardCard
+                key={reward.id}
+                name={reward.name}
+                amount={reward.amount}
+                status={reward.status}
+                icon={reward.icon}
+              />
+            ))}
+
+            {/* Add right padding to last card for better spacing */}
+            <div className="inline-block w-2"></div>
+          </div>
+        </div>
+
+        {/* Right navigation arrow */}
+        {showRightArrow && (
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+            aria-label="Scroll right"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

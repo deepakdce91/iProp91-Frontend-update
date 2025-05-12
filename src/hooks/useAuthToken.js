@@ -30,6 +30,7 @@ const useAuthToken = (navigate) => {
           location.pathname.includes("/search-properties") ||
           location.pathname.includes("/property-listing") ||
           location.pathname.includes("/property-details") ||
+          location.pathname.includes("/property") ||
           location.pathname.includes("/aboutUs") ||
           location.pathname.includes("/termsAndConditions") ||
           location.pathname.includes("/privacyPolicy")

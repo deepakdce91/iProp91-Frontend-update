@@ -36,10 +36,11 @@ import PropertyJouneyPage from "../PropertyJourneyPage/page";
 import RedeemRewards from "../redeemRewards/Index";
 import App from "../map/map";
 import PropertyListing from "../propertyListing/listing";
-import PropertyDetails from "../map/components/PropertyDetails";
+import PropertyDetail from "../property-detail/PropertyDetail";
 import AboutUs from "../FrontendPages/AboutUs";
 import PrivacyPolicy from "../FrontendPages/PrivacyPolicy";
 import TermsAndConditions from "../FrontendPages/TermsAndConditions";
+import PropertyDetails from "../property-detail/PropertyDetails";
 
 function LandingPage() {
   return (
@@ -152,8 +153,9 @@ function Landing({ setIsLoggedIn }) {
       <Routes>
         <Route path="/*" element={<TypingLandingPage />} />
         <Route path="/search-properties" element={<App />} />
-        <Route path="/property-listing" element={<PropertyListing />} />
         <Route path="/property-details/:id" element={<PropertyDetails />} />
+        <Route path="/property-listing" element={<PropertyListing />} />
+        <Route path="/property/:id" element={<PropertyDetail />} />
         <Route path="/library" element={<Library />} />
         <Route path="/faqs" element={<Faq />} />
         <Route path="/case-laws" element={<CaseLaws />} />
