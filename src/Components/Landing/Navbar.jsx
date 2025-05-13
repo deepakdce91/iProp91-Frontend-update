@@ -36,6 +36,7 @@ const Navbar = ({ setIsLoggedIn }) => {
   const mobileMenuRef = useRef(null);
   const servicesDropdownRef = useRef(null);
   const { isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
+  const dropdownTimeoutRef = useRef(null);
 
   // Define routes that should have specific backgrounds
   const specificRoutes = {
@@ -88,6 +89,21 @@ const Navbar = ({ setIsLoggedIn }) => {
     setIsServiceClickOpen(!isServiceClickOpen);
     setServiceDown(!serviceDown);
   }
+
+  // Function to handle closing dropdown with delay
+  const handleCloseDropdown = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setServiceDown(false);
+      setIsServiceClickOpen(false);
+    }, 500);
+  };
+
+  // Function to cancel dropdown closing if needed
+  const handleCancelCloseDropdown = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+  };
 
   // Function to check background color
   const checkBackgroundColor = () => {
@@ -175,15 +191,7 @@ const Navbar = ({ setIsLoggedIn }) => {
       setIsMobileMenuOpen(false);
     }
     
-    // Close services dropdown when clicking outside, but only if it was opened by a click
-    if (
-      servicesDropdownRef.current && 
-      !servicesDropdownRef.current.contains(event.target) && 
-      isServiceClickOpen
-    ) {
-      setServiceDown(false);
-      setIsServiceClickOpen(false);
-    }
+    // For services dropdown, we'll use onBlur instead of this click handler
   };
 
   useEffect(() => {
@@ -228,6 +236,15 @@ const Navbar = ({ setIsLoggedIn }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [scrollPos]);
+
+  // Clean up any pending timeouts when component unmounts
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) {
+        clearTimeout(dropdownTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -284,11 +301,16 @@ const Navbar = ({ setIsLoggedIn }) => {
         <div 
           className="hover:text-white/80 relative"
           ref={servicesDropdownRef}
+          onBlur={handleCloseDropdown}
+          tabIndex={0}
         >
           <div
             className="flex items-center cursor-pointer gap-1"
             onClick={() => handleServicesDropdown()}
-            onMouseEnter={() => setServiceDown(true)}
+            onMouseEnter={() => {
+              handleCancelCloseDropdown();
+              setServiceDown(true);
+            }}
           >
             <span className="whitespace-nowrap font-medium">Services</span>
             <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
@@ -301,12 +323,13 @@ const Navbar = ({ setIsLoggedIn }) => {
                 "opacity-100 translate-y-2 pointer-events-auto" : 
                 "opacity-0 translate-y-0 pointer-events-none"}`
             }
-            onMouseEnter={() => setServiceDown(true)}
+            onMouseEnter={() => {
+              handleCancelCloseDropdown();
+              setServiceDown(true);
+            }}
             onMouseLeave={() => {
-              // Only close on mouse leave if it wasn't opened by a click
-              if (!isServiceClickOpen) {
-                setServiceDown(false);
-              }
+              // Use the delayed close
+              handleCloseDropdown();
             }}
           >
             <div className="bg-white rounded-md shadow-lg overflow-hidden w-48">

@@ -81,7 +81,7 @@ const HeroSection = () => {
           Your Trusted <br /> Real Estate Manager
         </motion.h1>
         <motion.p // {{ edit_6 }}
-          className="text-gray-400 text-md lg:text-xl sm:p-3"
+          className="text-gray-300 text-md lg:text-xl sm:p-3"
           initial={{ opacity: 0, y: -50 }} // {{ edit_7 }}
           animate={{ opacity: 1, y: 0 }} // {{ edit_8 }}
           transition={{ duration: 1, delay: 0.5 }} // {{ edit_9 }}
