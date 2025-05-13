@@ -208,9 +208,26 @@ export default function Comparison() {
           .swiper-slide-active {
             z-index: 10;
           }
+          
+          /* Remove any background color/images from swiper slides */
+          .swiper-slide {
+            background-color: transparent !important;
+            background-image: none !important;
+          }
+          
+          /* Fix for coverflow effect shadows */
+          .swiper-slide-shadow-left,
+          .swiper-slide-shadow-right {
+            display: none !important;
+          }
+          
+          /* Style for wrapper div */
+          .swiper-slide-wrapper {
+            background-color: transparent !important;
+          }
         `}
       </style>
-      <div className="slider-container relative pb-24 bg-black pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
+      <div className="slider-container relative pb-24 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)] pt-28 flex flex-col items-center border-y-[1px] border-y-white/40">
         <p className="text-center text-3xl lg:text-6xl lg:max-w-5xl font-semibold text-white mb-10">
           The minimum you deserve and we're coming up with more
         </p>
@@ -237,7 +254,7 @@ export default function Comparison() {
               stretch: 0,
               depth: 300,
               modifier: 2.5,
-              slideShadows: true,
+              slideShadows: false, // Turn off slide shadows
             }}
             modules={[EffectCoverflow, Navigation, Autoplay]}
             className="mySwiper"
@@ -257,8 +274,9 @@ export default function Comparison() {
                   onClick={() => handleSlideClick(index)}
                   onMouseEnter={() => handleSlideHover(index)}
                   onMouseLeave={handleSlideHoverExit}
+                  className="bg-transparent"
                 >
-                  <div className="swiper-slide-wrapper py-10">
+                  <div className="swiper-slide-wrapper py-10 bg-transparent">
                     <CompComponent item={item} />
                   </div>
                 </SwiperSlide>
@@ -294,8 +312,9 @@ export default function Comparison() {
                 onClick={() => handleSlideClick(index)}
                 onMouseEnter={() => handleSlideHover(index)}
                 onMouseLeave={handleSlideHoverExit}
+                className="bg-transparent"
               >
-                <div className="py-10 px-3 z-50">
+                <div className="py-10 px-3 z-50 bg-transparent">
                   <CompComponent item={item} />
                 </div>
               </SwiperSlide>

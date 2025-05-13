@@ -49,8 +49,11 @@ import ServListingCompo from "../services/listing";
 function LandingPage() {
   return (
     <>
-      <HeroSection />
-      <AboutSection />
+    <div  className="bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]">
+    <HeroSection />
+    <AboutSection />
+    </div>
+      
       <Comparision />
       <WeDoMore/>
       <MobileScreen />
@@ -58,9 +61,13 @@ function LandingPage() {
       <BrandMarquee />
       <Knowledge />
       <ListingCompo />
+
+      <div  className="bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]">
       <Insight />
       <Testimonials />
       <Call />
+      </div>
+
 
       {/* <ContactUs /> */}
     </>

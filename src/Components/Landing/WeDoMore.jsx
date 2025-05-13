@@ -271,7 +271,7 @@ const WeDoMore = () => {
   // Apply conditional styling based on route
   const sectionClasses = isRewardsRoute
     ? "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-white pt-32" // White theme with extra top padding for /rewards
-    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-black/90 border-y-[1px] border-y-white/30"; // Original styling for other routes
+    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)] "; // Original styling for other routes
 
   // Adjust text color based on theme
   const textColorClasses = isRewardsRoute ? "text-black" : "text-white";

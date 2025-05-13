@@ -996,108 +996,130 @@ function Chats({
   };
 
   return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden">
-      {/* Top search and share buttons */}
-      <div className="relative flex-shrink-0 py-5">
-    <div
-      className={`md:flex absolute top-5 right-[17%] hidden md:right-[37%] lg:right-[26%] items-center overflow-hidden transition-all duration-300 ease-in-out ${
-        isExpanded ? "w-48 border-b-[1px] border-b-black/20" : "w-6"
-      }`}
-    >
-          <button
-            onClick={handleToggle}
-            className="mr-3 focus:outline-none"
-            aria-label={isExpanded ? "Collapse search" : "Expand search"}
-          >
-            <Search className="w-6 h-6 text-black" />
-          </button>
-          <input
-            ref={inputRef}
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search"
-            className={`w-full outline-none bg-transparent text-black text-sm transition-all duration-300 ${
-              isExpanded ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ pointerEvents: isExpanded ? "auto" : "none" }}
-          />
-        </div>
-        <div className="absolute block lg:top-5 top-[12%] right-[10%] lg:right-[23%]">
-          <button
-            onClick={handleShareClick}
-            className="inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-900"
-          >
-            <Share2 className="w-6 h-6" />
-          </button>
-        </div>
+    <>
+      <div
+        className={`md:flex absolute top-5 right-[17%] hidden  md:right-[37%] lg:right-[26%] items-center  overflow-hidden transition-all duration-300 ease-in-out ${
+          isExpanded ? "w-48 border-b-[1px] border-b-black/20  " : "w-6"
+        }`}
+      >
+        <button
+          onClick={handleToggle}
+          className="mr-3 focus:outline-none"
+          aria-label={isExpanded ? "Collapse search" : "Expand search"}
+        >
+          <Search className="w-6 h-6 text-black" />
+        </button>
+        <input
+          ref={inputRef}
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search"
+          className={`w-full outline-none bg-transparent text-black text-sm transition-all duration-300 ${
+            isExpanded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ pointerEvents: isExpanded ? "auto" : "none" }}
+        />
       </div>
+      <div className="absolute block lg:top-5 top-[12%] right-[10%]  lg:right-[23%] ">
+        <button
+          onClick={handleShareClick}
+          className="inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-900"
+        >
+          <Share2 className="w-6 h-6" />
+        </button>
 
-      {/* Messages area - flex-grow to take available space */}
-      <div className="flex-grow overflow-hidden relative">
-      <ScrollToBottom className="h-full overflow-y-auto px-4">
-          {filteredMessages.messages?.length > 0 &&
-            filteredMessages.messages?.map((msg, index) => {
-              // msg daywise seperator logic
-              const currentMessageDate = format(
-                new Date(msg.createdAt),
-                "yyyy-MM-dd"
-              );
-              const isNewDay = lastMessageDate !== currentMessageDate;
-              lastMessageDate = currentMessageDate;
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg">
+              {/* Modal header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">Share</h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-              const isGroupAdmin = isAdmin(msg.userId, currentGroupDetails);
-
-              return (
-                <div key={`msg-${index}`}>
-                  {isNewDay && (
-                    // date wise seperator
-                    <div className="text-center text-sm text-black">
-                      {format(new Date(msg.createdAt), "yyyy-MM-dd") ===
-                      format(new Date(), "yyyy-MM-dd")
-                        ? "Today"
-                        : getDate(msg.createdAt)}
-                    </div>
-                  )}
-                  {msg.userId === userId ? (
-                    msg.file ? (
-                      <OutgoingMessage
-                        createdAt={msg.createdAt}
-                        _id={msg._id}
-                        flag={msg.flag}
-                        userProfilePicture={msg.userProfilePicture}
-                        userId={userId}
-                        senderId={msg.userId}
-                        file={msg.file}
-                        removeMessage={removeMessage}
-                        flagMessage={flagMessage}
-                        unflagMessage={unflagMessage}
-                        isGroupAdmin={isGroupAdmin}
-                      />
+              {/* Modal content */}
+              <div className="p-4 space-y-4">
+                {/* Copy link section */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1 truncate text-sm text-gray-500">
+                    {getCurrentInviteUrl()}
+                  </div>
+                  <button
+                    onClick={copyToClipboard}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50"
+                  >
+                    {copied ? (
+                      "Copied!"
                     ) : (
-                      <OutgoingMessage
-                        createdAt={msg.createdAt}
-                        flag={msg.flag}
-                        _id={msg._id}
-                        senderId={msg.userId}
-                        userId={userId}
-                        userProfilePicture={msg.userProfilePicture}
-                        text={msg.text}
-                        removeMessage={removeMessage}
-                        flagMessage={flagMessage}
-                        unflagMessage={unflagMessage}
-                        isGroupAdmin={isGroupAdmin}
-                      />
-                    )
-                  ) : msg.file ? (
-                    <IncomingMessage
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Share options */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={shareToWhatsApp}
+                    className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    <WhatsApp className="w-5 h-5 text-green-600" />
+                    <span className="text-sm font-medium">WhatsApp</span>
+                  </button>
+                  <button
+                    onClick={shareToEmail}
+                    className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <Mail className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm font-medium">Email</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <ScrollToBottom className="h-screen overflow-y-auto px-4 ">
+        {filteredMessages.messages?.length > 0 &&
+          filteredMessages.messages?.map((msg, index) => {
+            // msg daywise seperator logic
+            const currentMessageDate = format(
+              new Date(msg.createdAt),
+              "yyyy-MM-dd"
+            );
+            const isNewDay = lastMessageDate !== currentMessageDate;
+            lastMessageDate = currentMessageDate;
+
+            const isGroupAdmin = isAdmin(msg.userId, currentGroupDetails);
+
+            return (
+              <div key={`msg-${index}`}>
+                {isNewDay && (
+                  // date wise seperator
+                  <div className="text-center text-sm text-black ">
+                    {format(new Date(msg.createdAt), "yyyy-MM-dd") ===
+                    format(new Date(), "yyyy-MM-dd")
+                      ? "Today"
+                      : getDate(msg.createdAt)}
+                  </div>
+                )}
+                {msg.userId === userId ? (
+                  msg.file ? (
+                    <OutgoingMessage
                       createdAt={msg.createdAt}
-                      userId={userId}
-                      flag={msg.flag}
-                      senderId={msg.userId}
                       _id={msg._id}
+                      flag={msg.flag}
                       userProfilePicture={msg.userProfilePicture}
-                      userName={msg.userName}
+                      userId={userId}
+                      senderId={msg.userId}
                       file={msg.file}
                       removeMessage={removeMessage}
                       flagMessage={flagMessage}
@@ -1105,198 +1127,168 @@ function Chats({
                       isGroupAdmin={isGroupAdmin}
                     />
                   ) : (
-                    <IncomingMessage
+                    <OutgoingMessage
                       createdAt={msg.createdAt}
-                      userId={userId}
                       flag={msg.flag}
                       _id={msg._id}
                       senderId={msg.userId}
+                      userId={userId}
                       userProfilePicture={msg.userProfilePicture}
-                      userName={msg.userName}
                       text={msg.text}
                       removeMessage={removeMessage}
                       flagMessage={flagMessage}
                       unflagMessage={unflagMessage}
                       isGroupAdmin={isGroupAdmin}
                     />
-                  )}
-                </div>
-              );
-            })}
-        </ScrollToBottom>
-      </div>
-
-      {/* Footer - always at the bottom */}
-      <div className="flex-shrink-0 w-full border-t border-t-black/20 bg-white mt-auto">
-        {!fileToUpload && (
-          <div className="flex flex-col w-full">
-            <div className="bg-gradient-to-r from-gray-500 to-gray-100 w-full">
-              <div className="flex items-center gap-2 px-2 py-2">
-                <div className="flex items-center">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileAdding}
+                  )
+                ) : msg.file ? (
+                  <IncomingMessage
+                    createdAt={msg.createdAt}
+                    userId={userId}
+                    flag={msg.flag}
+                    senderId={msg.userId}
+                    _id={msg._id}
+                    userProfilePicture={msg.userProfilePicture}
+                    userName={msg.userName}
+                    file={msg.file}
+                    removeMessage={removeMessage}
+                    flagMessage={flagMessage}
+                    unflagMessage={unflagMessage}
+                    isGroupAdmin={isGroupAdmin}
                   />
-                  <button className="ml-1" onClick={handleButtonClick}>
-                    <Plus className="w-5 h-5 text-gray-300" />
-                  </button>
-                </div>
-
-                <div className="flex-1 relative">
-                  <style>
-                    {`
-                      .quill {
-                        border: none;
-                      }
-                      .ql-container.ql-snow {
-                        border: none;
-                        font-size: 15px;
-                        color: #282828;
-                      }
-                      @media (max-width: 640px) {
-                        .quill {
-                          max-height: 80px;
-                          overflow-y: auto;
-                        }
-                      }
-                    `}
-                  </style>
-                  <ReactQuill
-                    value={textMessage}
-                    onChange={handleTextMessageChange}
-                    onKeyDown={handleKeyDown}
-                    modules={{ toolbar: false }}
-                    formats={formats}
-                    placeholder="Type a message..."
-                    theme="snow"
-                    className="w-full text-black bg-gradient-to-r from-gray-200 to-gray-50 text-gray-500 rounded-lg pl-10 outline-none"
+                ) : (
+                  <IncomingMessage
+                    createdAt={msg.createdAt}
+                    userId={userId}
+                    flag={msg.flag}
+                    _id={msg._id}
+                    senderId={msg.userId}
+                    userProfilePicture={msg.userProfilePicture}
+                    userName={msg.userName}
+                    text={msg.text}
+                    removeMessage={removeMessage}
+                    flagMessage={flagMessage}
+                    unflagMessage={unflagMessage}
+                    isGroupAdmin={isGroupAdmin}
                   />
-                  <button
-                    className="absolute left-0 top-[6px]"
-                    onClick={() => setShowPicker(!showPicker)}
-                  >
-                    <p className="text-2xl ml-2">😊</p>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addMessage();
-                  }}
-                  disabled={textMessage === "" ? true : false}
-                >
-                  <SendHorizonal className="w-5 h-5" />
-                </button>
+                )}
               </div>
-            </div>
-            {showPicker && (
-              <div id="emoji-picker" className="absolute bottom-16 right-2 z-50 w-64 md:w-auto">
-                <EmojiPicker 
-                  onEmojiClick={onEmojiClick}
-                  emojiStyle="native"
-                  width="100%"
-                  height="350px"
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {fileToUpload && showMediaPreview && (
-          <MediaPreviewModal
-            file={fileToUpload}
-            onClose={() => {
-              setShowMediaPreview(false);
-              setFileToUpload(null);
-            }}
-            onSend={handleSendMedia}
-          />
-        )}
-
-        {fileToUpload && !showMediaPreview && (
-          <div className="flex flex-row justify-between items-center p-2 bg-white">
-            <div className="flex flex-row items-center max-w-[70%]">
-              <button onClick={handleFileRemoving}>
-                <TiDelete className="h-6 w-6 text-red-400 hover:scale-110 hover:text-red-500 mr-2 flex-shrink-0" />
-              </button>
-              <p className="text-gray-900 truncate text-sm">
-                {fileToUpload.name}
-              </p>
-            </div>
-            <button
-              className="bg-blue-500 text-white px-3 py-1 text-sm rounded-md ml-2 flex-shrink-0"
-              onClick={addFile}
-            >
-              Send
+            );
+          })}
+      </ScrollToBottom>
+      {/* <!-- Chat Input --> */}
+      {/* <!-- Chat Input --> */}
+<footer className="border-t-[1px] border-t-black/20 w-full bg-white sticky bottom-14 sm:bottom-0 left-0 right-0">
+  {!fileToUpload && (
+    <div className="flex flex-col w-full">
+      <div className="bg-gradient-to-r from-gray-500 to-gray-100 w-full">
+        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="flex items-center">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileAdding}
+            />
+            <button className="ml-1" onClick={handleButtonClick}>
+              <Plus className="w-5 h-5 text-gray-300" />
             </button>
           </div>
-        )}
-      </div>
 
-      {/* Share Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-lg">
-            {/* Modal header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Share</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal content */}
-            <div className="p-4 space-y-4">
-              {/* Copy link section */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="flex-1 truncate text-sm text-gray-500">
-                  {getCurrentInviteUrl()}
-                </div>
-                <button
-                  onClick={copyToClipboard}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50"
-                >
-                  {copied ? (
-                    "Copied!"
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Share options */}
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={shareToWhatsApp}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  <WhatsApp className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium">WhatsApp</span>
-                </button>
-                <button
-                  onClick={shareToEmail}
-                  className="flex items-center justify-center gap-2 p-3 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium">Email</span>
-                </button>
-              </div>
-            </div>
+          <div className="flex-1 relative">
+            <style>
+              {`
+                .quill {
+                  border: none;
+                }
+                .ql-container.ql-snow {
+                  border: none;
+                  font-size: 15px;
+                  color: #282828;
+                }
+                @media (max-width: 640px) {
+                  .quill {
+                    max-height: 80px;
+                    overflow-y: auto;
+                  }
+                }
+              `}
+            </style>
+            <ReactQuill
+              value={textMessage}
+              onChange={handleTextMessageChange}
+              onKeyDown={handleKeyDown}
+              modules={{ toolbar: false }}
+              formats={formats}
+              placeholder="Type a message..."
+              theme="snow"
+              className="w-full text-black bg-gradient-to-r from-gray-200 to-gray-50 text-gray-500 rounded-lg pl-10 outline-none"
+            />
+            <button
+              className="absolute left-0 top-[6px]"
+              onClick={() => setShowPicker(!showPicker)}
+            >
+              <p className="text-2xl ml-2">😊</p>
+            </button>
           </div>
+
+          <button
+            type="button"
+            className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+            onClick={(e) => {
+              e.preventDefault();
+              addMessage();
+            }}
+            disabled={textMessage === "" ? true : false}
+          >
+            <SendHorizonal className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      {showPicker && (
+        <div id="emoji-picker" className="absolute bottom-16 right-2 z-50 w-64 md:w-auto">
+          <EmojiPicker 
+            onEmojiClick={onEmojiClick}
+            emojiStyle="native"
+            width="100%"
+            height="350px"
+          />
         </div>
       )}
     </div>
+  )}
+
+  {fileToUpload && showMediaPreview && (
+    <MediaPreviewModal
+      file={fileToUpload}
+      onClose={() => {
+        setShowMediaPreview(false);
+        setFileToUpload(null);
+      }}
+      onSend={handleSendMedia}
+    />
+  )}
+
+  {fileToUpload && !showMediaPreview && (
+    <div className="flex flex-row justify-between items-center p-2 bg-white">
+      <div className="flex flex-row items-center max-w-[70%]">
+        <button onClick={handleFileRemoving}>
+          <TiDelete className="h-6 w-6 text-red-400 hover:scale-110 hover:text-red-500 mr-2 flex-shrink-0" />
+        </button>
+        <p className="text-gray-900 truncate text-sm">
+          {fileToUpload.name}
+        </p>
+      </div>
+      <button
+        className="bg-blue-500 text-white px-3 py-1 text-sm rounded-md ml-2 flex-shrink-0"
+        onClick={addFile}
+      >
+        Send
+      </button>
+    </div>
+  )}
+</footer>
+    </>
   );
 }
 

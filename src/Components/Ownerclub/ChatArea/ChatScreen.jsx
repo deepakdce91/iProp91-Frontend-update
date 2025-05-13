@@ -574,7 +574,7 @@ function ChatScreen() {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto h-full pb-20">
+        <div className=" overflow-scroll h-full pb-20">
           {/* Media Panel */}
           <div className="p-4 border-b">
             <MediaPanel messages={messages} />
