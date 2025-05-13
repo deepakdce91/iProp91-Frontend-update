@@ -18,7 +18,7 @@ const Stats = () => {
   return (
     <div
       ref={ref}
-      className="flex bg-[#212121] border-y-[1px] border-y-white/40 flex-col md:flex-row items-center justify-around p-6 md:p-10  space-y-6 md:space-y-0 py-4"
+      className="flex bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)] border-y-[1px] border-y-white/40 flex-col md:flex-row items-center justify-around p-6 md:p-10  space-y-6 md:space-y-0 py-4"
     >
       {statsData.map((stat, index) => (
         <div key={index} className="text-center my-4">

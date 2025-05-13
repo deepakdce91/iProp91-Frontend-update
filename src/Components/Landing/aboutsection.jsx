@@ -101,7 +101,7 @@ export default function ScrollAnimatedText() {
   // Show loading state or render content
   return (
     <div
-      className="relative h-screen lg:h-fit bg-black px-3 
+      className="relative h-screen lg:h-fit bg-transparent px-3 
             lg:py-10 
             between-md-lg:py-0 
             max-sm:py-0 

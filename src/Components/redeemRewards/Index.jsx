@@ -8,7 +8,9 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 import Breadcrumb from "../Landing/Breadcrumb";
 
+
 import { BiCoin } from "react-icons/bi";
+import WeDoMore from "../Landing/WeDoMore";
 
 function toTitleCase(str) {
   return str
@@ -112,7 +114,7 @@ export default function FirstSafe() {
       let tokenid = jwtDecode(token);
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchRedemptionRewards?userId=${tokenid.userId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/rewards/fetchAllActiveRedemptionRewards?userId=${tokenid.userId}`,
           {
             method: "GET",
             headers: {
@@ -483,10 +485,14 @@ export default function FirstSafe() {
         </div>
       ) : ( 
         // REWARDS FAQ SECTION FOR NON-LOGGED IN USERS
-        <div className="flex relative text-black py-28 px-3 md:px-8 bg-white min-h-screen lg:px-32 pt-5 md:pt-10">
-          <div className="flex flex-col md:flex-row justify-center h-full lg:items-start mt-32">
+        <>
+        <WeDoMore  />
+        <div className="flex relative text-black  pb-28 px-3 md:px-8 bg-white min-h-screen lg:px-32 pt-5 md:pt-10">
+          
+
+          <div className="flex flex-col md:flex-row justify-center h-full lg:items-start mt-10">
             <div className="md:w-1/3 flex flex-col gap-3">
-              <p className="lg:text-7xl mb-6 text-5xl text-yellow-600 font-bold text-start">
+              <p className="lg:text-6xl mb-6 text-4xl text-yellow-600 font-bold text-start">
                 Rewards
               </p>
               <p className="text-lg">
@@ -570,6 +576,7 @@ export default function FirstSafe() {
             </div>
           </div>
         </div>
+        </>
       )}
     </>
   );

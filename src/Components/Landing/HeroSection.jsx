@@ -70,7 +70,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black overflow-hidden sm:h-[100vh]">
+    <div className="h-screen flex items-center justify-center bg-transparent overflow-hidden sm:h-[100vh]">
       <div className="text-center">
         <motion.h1 // {{ edit_2 }}
           className="text-4xl lg:text-7xl font-bold py-4 text-white"

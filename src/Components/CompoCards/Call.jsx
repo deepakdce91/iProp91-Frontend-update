@@ -45,7 +45,7 @@ const ExpertContact = () => {
     <>
       <div
         ref={containerRef}
-        className="flex flex-col items-center justify-center  bg-black text-white   m-auto py-20"
+        className="flex flex-col items-center justify-center  bg-transparent text-white   m-auto py-20"
       >
         <div className="flex flex-row items-center justify-center w-full px-10 mt-10">
           

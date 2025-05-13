@@ -54,7 +54,7 @@ import {
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transportOptions: ["websocket"],
-});
+})
 
 function isValidURL(text) {
   const urlPattern = new RegExp(

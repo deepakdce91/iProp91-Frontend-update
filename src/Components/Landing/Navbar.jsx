@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import Auth from "../User/Login/Auth";
 import useAuthToken from "../../hooks/useAuthToken";
+import { useAuth } from "../../context/AuthContext";
 import {
   Home,
   Shield,
@@ -25,7 +26,6 @@ import { motion } from "framer-motion";
 
 const Navbar = ({ setIsLoggedIn }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
   const [user, setUser] = useState();
@@ -35,6 +35,7 @@ const Navbar = ({ setIsLoggedIn }) => {
   const [serviceDown, setServiceDown] = useState(false);
   const mobileMenuRef = useRef(null);
   const servicesDropdownRef = useRef(null);
+  const { isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
 
   // Define routes that should have specific backgrounds
   const specificRoutes = {
@@ -169,15 +170,6 @@ const Navbar = ({ setIsLoggedIn }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const openAuthModal = () => {
-    setIsAuthModalOpen(true);
-    setIsMobileMenuOpen(false); // Close mobile menu when opening modal
-  };
-
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
-  
   const handleClickOutside = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setIsMobileMenuOpen(false);
@@ -468,7 +460,7 @@ const Navbar = ({ setIsLoggedIn }) => {
         <Auth
           onClose={closeAuthModal}
           setIsLoggedIn={setIsLoggedIn}
-          properties={`lg:mt-[1%] top-[55%] md:top-[55%] right-14 md:right-24 lg:right-44 z-50 transition-transform transform ${
+          properties={`lg:mt-[1%] top-[55%] md:top-[52%] right-14 md:right-24 lg:right-44 z-50 transition-transform transform ${
             isAuthModalOpen ? "translate-x-0" : "translate-x-full"
           }`}
         />

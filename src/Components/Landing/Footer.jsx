@@ -109,26 +109,26 @@ const Footer = () => {
   }
 
   return (
-    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-black shadow-lg" ref={inViewRef}>
+    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)] shadow-lg" ref={inViewRef}>
       <div className="flex flex-col lg:flex-row justify-between mb-4 w-full px-4 mx-auto">
         <div className="flex justify-center my-1">
           <h1 className="font-semibold text-primary text-2xl">iProp91</h1>
         </div>
         <div className="flex justify-center space-x-4 my-1">
           <Link to="#" aria-label="LinkedIn">
-            <i className="fab fa-linkedin text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-linkedin text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Facebook">
-            <i className="fab fa-facebook text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-facebook text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Instagram">
-            <i className="fab fa-instagram text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-instagram text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Twitter">
-            <i className="fab fa-twitter text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-twitter text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="YouTube">
-            <i className="fab fa-youtube text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-youtube text-2xl text-white hover:text-primary"></i>
           </Link>
         </div>
       </div>

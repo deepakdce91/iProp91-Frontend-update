@@ -120,7 +120,7 @@ const Knowledge = () => {
   }, [location]);
 
   return (
-    <div id="knowledge-section" className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-black">
+    <div id="knowledge-section" className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]">
       <h1 className="text-3xl text-center md:text-6xl font-semibold text-white py-6 ">
         Empowering your ownership <br /> experience with knowledge
       </h1>

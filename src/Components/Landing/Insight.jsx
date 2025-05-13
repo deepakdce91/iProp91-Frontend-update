@@ -76,7 +76,7 @@ export default function Test() {
   };
 
   return (
-    <section className="bg-black py-24">
+    <section className="bg-transparent py-24">
       <div className="w-4/5 mx-auto">
         <div className="my-10">
           <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">
