@@ -5,7 +5,6 @@ import Auth from "../User/Login/Auth"; // Import your Auth component
 import { useAuth } from "../../context/AuthContext";
 import { useLocation } from "react-router-dom"; // Import useLocation to check current route
 
-
 const toTitleCase = (str) => {
   return str
     .split("_")
@@ -77,7 +76,7 @@ const RewardsContainer = ({ cardsData }) => {
   const [showRightArrow, setShowRightArrow] = useState(true);
   const [cardWidth, setCardWidth] = useState(250); // Default card width
 
-  // Sample data array - updated with name and amount
+  // Sample data array with status field added for "offer" badges
   const rewardsData = cardsData
     ? cardsData
     : [
@@ -85,6 +84,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 1,
           name: "Sign Up on our website",
           amount: 5000,
+          status: "offer",
         },
         {
           id: 2,
@@ -95,6 +95,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 3,
           name: "Make first purchase",
           amount: 10000,
+          status: "offer",
         },
         {
           id: 4,
@@ -136,7 +137,7 @@ const RewardsContainer = ({ cardsData }) => {
         scrollContainerRef.current;
 
       // Show left arrow if we've scrolled to the right
-      setShowLeftArrow(scrollLeft > 0);
+      setShowLeftArrow(scrollLeft > 10);
 
       // Show right arrow if there's more content to scroll to
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
@@ -190,31 +191,7 @@ const RewardsContainer = ({ cardsData }) => {
   }, []);
 
   return (
-    <div className="relative h-fit w-full  md:px-14 reward-cards">
-      {/* Left navigation arrow - positioned outside the container */}
-      {showLeftArrow && (
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 scroll-left-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
-          aria-label="Scroll left"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-      )}
-
+    <div className="relative h-fit w-full md:px-14 reward-cards">
       {/* Scrollable container */}
       <div className="width-full">
         <div
@@ -226,7 +203,7 @@ const RewardsContainer = ({ cardsData }) => {
             padding: "0.5rem 0" // Add some padding for mobile
           }}
         >
-          {rewardsData.map((reward, index) => (
+          {rewardsData.map((reward) => (
             <div 
               key={reward.id} 
               className="flex-shrink-0" 
@@ -246,11 +223,35 @@ const RewardsContainer = ({ cardsData }) => {
         </div>
       </div>
 
-      {/* Right navigation arrow - positioned outside the container */}
+      {/* Left navigation arrow - positioned outside the container */}
+      {showLeftArrow && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+          aria-label="Scroll left"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
+
+      {/* Right navigation arrow */}
       {showRightArrow && (
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 scroll-right-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
           aria-label="Scroll right"
         >
           <svg
@@ -267,12 +268,11 @@ const RewardsContainer = ({ cardsData }) => {
               d="M9 5l7 7-7 7"
             />
           </svg>
-        </button>
+          </button>
       )}
     </div>
   );
 };
-
 
 const WeDoMore = () => {
   const [cardsData, setCardsData] = useState([]);
@@ -298,7 +298,7 @@ const WeDoMore = () => {
   // Apply conditional styling based on route
   const sectionClasses = isRewardsRoute
     ? "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-white pt-32" // White theme with extra top padding for /rewards
-    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)] "; // Original styling for other routes
+    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)]"; // Original styling for other routes
 
   // Adjust text color based on theme
   const textColorClasses = isRewardsRoute ? "text-black" : "text-white";
@@ -306,7 +306,7 @@ const WeDoMore = () => {
 
   return (
     <section className={sectionClasses}>
-      <style jsx>{`
+      <style>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

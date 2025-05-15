@@ -1,174 +1,54 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import {
-  Home,
-  Star,
-  Heart,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import {
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import SearchBar from "./components/searchbar";
-import PropertyCardComponent from "./components/PropertyCard";
-import FiltersPanel from "./pages/FiltersPage";
-import ErrorBoundary from "./components/ErrorBoundary";
-import PropertyDetailPage from "./pages/PropertyDetailPage";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import React, { useState, useEffect } from "react";
+import SearchBar from "./components/searchbar.jsx";
+import FiltersPanel from "./components/FiltersPage.jsx";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import PropertyCards from "./components/propertyCards.jsx";
+import { useLocation } from "react-router-dom";
+import MapComponent from "./components/MapComponent.jsx";
+import Navbar from "../Landing/Navbar.jsx";
 
-// Debounce function to limit API calls
-function debounce(func, wait) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
-
-// Fix Leaflet marker icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-
-// Create custom house icon
-const houseIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-// Create custom user location icon
-const userLocationIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
-
-// Image Carousel Component
-const ImageCarousel = ({ images }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handleNext = (e) => {
-    e.stopPropagation();
-    setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const handlePrev = (e) => {
-    e.stopPropagation();
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
-
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth" // for smooth scrolling
-    });
-  }, []);
-
-  return (
-    <div className="relative w-full h-full overflow-hidden">
-      <motion.img
-        key={currentIndex}
-        src={images[currentIndex]}
-        alt={`Property image ${currentIndex + 1}`}
-        className="w-full h-full object-cover"
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -100 }}
-        transition={{ duration: 0.3 }}
-      />
-
-      <button
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 p-1 rounded-full hover:bg-white"
-        onClick={handlePrev}
-      >
-        <ChevronLeft size={20} className="text-gray-700" />
-      </button>
-
-      <button
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/70 p-1 rounded-full hover:bg-white"
-        onClick={handleNext}
-      >
-        <ChevronRight size={20} className="text-gray-700" />
-      </button>
-
-      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-        {images.map((_, index) => (
-          <div
-            key={index}
-            className={`w-1.5 h-1.5 rounded-full ${
-              currentIndex === index ? "bg-white" : "bg-white/50"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
+// Add this style fix function to ensure property cards are visible
+const ensurePropertiesVisible = () => {
+  // Create a style tag
+  const style = document.createElement('style');
+  style.setAttribute('id', 'properties-visibility-fix');
+  style.textContent = `
+    .property-cards-container {
+      visibility: visible !important;
+      opacity: 1 !important;
+      display: block !important;
+      z-index: 10 !important;
+    }
+    
+    .property-card {
+      visibility: visible !important;
+      opacity: 1 !important;
+      display: block !important;
+    }
+    
+    /* Fix any potential z-index issues */
+    .map-container {
+      z-index: 5;
+    }
+  `;
+  
+  // Remove any existing fix
+  const existingStyle = document.getElementById('properties-visibility-fix');
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+  
+  // Add the style to the head
+  document.head.appendChild(style);
 };
 
-// Main app component
-export default function App() {
-  return (
-    <div className="pt-[14vh] bg-black">
-      <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<AirbnbMapClone />} />
-          <Route path="/property/:id" element={<PropertyDetailPage />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </ErrorBoundary>
-    </div>
-  );
-}
-
-function AirbnbMapClone() {
+function App() {
   const location = useLocation();
-  const [mapInstance, setMapInstance] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(true);
   const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [isFetchingLimited, setIsFetchingLimited] = useState(false);
-  const [lastFetchTime, setLastFetchTime] = useState(0);
-  const [currentStateCity, setCurrentStateCity] = useState({
-    state: "",
-    city: "",
-  });
   const [filters, setFilters] = useState(() => {
     // First check URL parameters
     const searchParams = new URLSearchParams(location.search);
@@ -214,89 +94,105 @@ function AirbnbMapClone() {
     return savedFilters ? JSON.parse(savedFilters) : {};
   });
   const [sortBy, setSortBy] = useState("relevance");
+  const [favorites, setFavorites] = useState([]);
+  const [selectedProperty, setSelectedProperty] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
-  const [panelState, setPanelState] = useState("half");
-  const panelRef = useRef(null);
-  const startYRef = useRef(0);
-  const currentYRef = useRef(0);
+  const [propertyCategories] = useState([
+    { id: "all", label: "All Properties", count: 0 },
+    { id: "owner", label: "Owner's Property", count: 0 },
+    { id: "new", label: "New Projects", count: 0 },
+    { id: "ready", label: "Ready to Move", count: 0 },
+    { id: "budget", label: "Budget Homes", count: 0 },
+    { id: "prelaunch", label: "Pre Launch Homes", count: 0 },
+    { id: "verified", label: "Verified Owner Properties", count: 0 },
+    { id: "sale", label: "New Sale Properties", count: 0 },
+    { id: "upcoming", label: "Upcoming Projects", count: 0 },
+  ]);
+  const [selectedState, setSelectedState] = useState(() => {
+    const savedState = localStorage.getItem("selectedState");
+    return savedState ? JSON.parse(savedState) : null;
+  });
+  const [selectedCity, setSelectedCity] = useState(() => {
+    const savedCity = localStorage.getItem("selectedCity");
+    return savedCity ? JSON.parse(savedCity) : null;
+  });
+  const [selectedMapProperty, setSelectedMapProperty] = useState(null);
+  const [mapProperties, setMapProperties] = useState([]);
+  const [nearbyProperties, setNearbyProperties] = useState([]);
+  const [showNearby, setShowNearby] = useState(false);
 
-  // State data from API
-  const [statesData, setStatesData] = useState([]);
+  console.log("filters in app.jsx" + filters);
 
-  // Function to fetch properties with filters - matching listing.jsx logic
-  const fetchProperties = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const queryParams = new URLSearchParams();
+  const PrevArrow = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 text-gray-600 hover:text-[#031273] transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </button>
+  );
 
-      // Add all filter parameters if they exist
-      if (filters.state) queryParams.append("state", filters.state);
-      if (filters.city) queryParams.append("city", filters.city);
-      if (filters.propertyType?.length)
-        queryParams.append("propertyType", filters.propertyType.join(","));
-      if (filters.bhk?.length) queryParams.append("bhk", filters.bhk.join(","));
-      if (filters.minBudget) queryParams.append("minBudget", filters.minBudget);
-      if (filters.maxBudget) queryParams.append("maxBudget", filters.maxBudget);
-      if (filters.amenities?.length)
-        queryParams.append("amenities", filters.amenities.join(","));
+  const NextArrow = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 text-gray-600 hover:text-[#031273] transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </button>
+  );
 
-      // Always add these parameters
-      if (activeCategory && activeCategory !== "all") {
-        queryParams.append("category", activeCategory);
-      }
-
-      // Add sort parameter
-      if (sortBy) {
-        queryParams.append("sort", sortBy);
-      }
-
-      // Add pagination parameters
-      queryParams.append("page", "1");
-      queryParams.append("limit", "100"); // Increased limit for map view
-
-      const apiUrl = `https://iprop91new.onrender.com/api/projectsDataMaster?${queryParams.toString()}`;
-      console.log("Fetching properties with URL:", apiUrl);
-
-      const response = await axios.get(apiUrl);
-
-      if (response.data.status === "success" && response.data.data?.projects) {
-        const processedProperties = response.data.data.projects.map(
-          (property) => ({
-            id: property._id,
-            title: `${property.bhk || ""} ${property.type || "Property"} in ${
-              property.project || ""
-            }`,
-            price: property.minimumPrice
-              ? `₹${property.minimumPrice}`
-              : "Price on Request",
-            location: `${property.city}, ${property.state}`,
-            coordinates: {
-              lat: property.latitude || 0,
-              lng: property.longitude || 0,
-            },
-            images: property.images || [],
-            description: property.overview || "",
-            amenities: property.amenities || [],
-            features: property.features || [],
-            bhk: property.bhk,
-            type: property.type,
-            area: property.size,
-            status: property.status,
-          })
-        );
-
-        setProperties(processedProperties);
-      } else {
-        console.error("Invalid API response format:", response.data);
-        setProperties([]);
-      }
-    } catch (error) {
-      console.error("Error fetching properties:", error);
-      setProperties([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters, sortBy, activeCategory]);
+  const sliderSettings = {
+    dots: false,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 2,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    responsive: [
+      {
+        breakpoint: 1536,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
 
   // Load filters from localStorage on initial render
   useEffect(() => {
@@ -310,6 +206,153 @@ function AirbnbMapClone() {
   useEffect(() => {
     localStorage.setItem("propertyFilters", JSON.stringify(filters));
   }, [filters]);
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("propertyFavorites");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem("propertyFavorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Save selectedState to localStorage
+  useEffect(() => {
+    if (selectedState) {
+      localStorage.setItem("selectedState", JSON.stringify(selectedState));
+    } else {
+      localStorage.removeItem("selectedState");
+    }
+  }, [selectedState]);
+
+  // Save selectedCity to localStorage
+  useEffect(() => {
+    if (selectedCity) {
+      localStorage.setItem("selectedCity", JSON.stringify(selectedCity));
+    } else {
+      localStorage.removeItem("selectedCity");
+    }
+  }, [selectedCity]);
+  
+  // Add CSS for responsive layout
+  useEffect(() => {
+    const styleId = 'map-layout-styles';
+    if (!document.getElementById(styleId)) {
+      const styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        html, body, #root {
+          height: 100%;
+        }
+        
+        .map-container {
+          position: sticky !important;
+          height: 100% !important;
+          width: 100% !important;
+          z-index: 5;
+        }
+        
+        @media (max-width: 639px) {
+          .search-container {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+          }
+          
+          .property-list {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            height: 60vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease-out;
+            z-index: 30;
+            transform: translateY(0);
+            padding-bottom: 50px;
+          }
+          
+          .property-list.collapsed {
+            transform: translateY(calc(100% - 80px));
+          }
+          
+          .drag-handle {
+            width: 40px;
+            height: 5px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            margin: 10px auto;
+            cursor: grab;
+          }
+          
+          .map-container {
+            height: calc(100vh - 76px) !important;
+            position: fixed !important;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            transition: height 0.3s ease-out;
+          }
+          
+          .property-list.collapsed ~ .map-container {
+            height: calc(100vh - 156px) !important;
+          }
+        }
+        
+        @media (min-width: 640px) and (max-width: 768px) {
+          .search-container {
+            position: sticky;
+            top: 76px;
+            left: 0;
+            right: 0;
+            z-index: 20;
+          }
+          
+          .property-list {
+            overflow-y: auto;
+            max-height: calc(100vh - 230px);
+          }
+          
+          .map-container {
+            height: 40vh !important;
+            position: sticky !important;
+            top: 0;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .property-list {
+            overflow-y: auto;
+            height: calc(100vh - 230px);
+          }
+          
+          .map-container {
+            height: calc(100vh - 156px) !important;
+            position: sticky !important;
+            top: 76px;
+          }
+        }
+      `;
+      document.head.appendChild(styleEl);
+      
+      return () => {
+        const styleElement = document.getElementById(styleId);
+        if (styleElement) {
+          document.head.removeChild(styleElement);
+        }
+      };
+    }
+  }, []);
 
   // Update useEffect to handle URL parameters
   useEffect(() => {
@@ -332,1016 +375,520 @@ function AirbnbMapClone() {
     }
   }, [location.search]);
 
-  // Fetch properties when filters change
+  // Add useEffect to fetch properties
   useEffect(() => {
-    fetchProperties();
-  }, [filters, sortBy, activeCategory, fetchProperties]);
-
-  // Handle filter changes - matching listing.jsx logic
-  const handleFilterChange = useCallback(
-    (newFilters) => {
-      console.log("Before filter change:", filters);
-      console.log("New filters being applied:", newFilters);
-
-      setFilters((prevFilters) => {
-        const updatedFilters = {
-          ...prevFilters,
-          ...newFilters,
-        };
-
-        console.log("Updated filters:", updatedFilters);
-        return updatedFilters;
-      });
-    },
-    [filters]
-  );
-
-  // Handle search - matching listing.jsx logic
-  const handlePropertiesSearch = useCallback(
-    async (state, city, propertyType, bedrooms, minBudget, maxBudget) => {
-      const now = Date.now();
-      if (isFetchingLimited && now - lastFetchTime < 2000) {
-        console.log("Throttling search requests");
-        return;
-      }
-
+    // This is a placeholder. Replace with your actual API call
+    const fetchProperties = async () => {
       try {
-        setIsLoading(true);
-        setLastFetchTime(Date.now());
-
-        setCurrentStateCity({
-          state: state || "",
-          city: city || "",
-        });
-
-        const newFilters = {
-          ...filters,
-          state: state || "",
-          city: city || "",
-          propertyType: propertyType || [],
-          bhk: bedrooms || [],
-          minBudget: minBudget || 0,
-          maxBudget: maxBudget || 10000000,
-        };
-
-        setFilters(newFilters);
+        // Replace this with your actual API endpoint
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projectDataMaster`);
+        console.log("response in app.jsx" + response);
+        const data = await response.json();
+        
+        // Add latitude and longitude if they don't exist
+        const propertiesWithCoords = data.projects.map(property => ({
+          ...property,
+          latitude: property.coordinates[0] || 20.5937 + (Math.random() - 0.5) * 10,
+          longitude: property.coordinates[1] || 78.9629 + (Math.random() - 0.5) * 10
+        }));
+        
+        setProperties(propertiesWithCoords);
       } catch (error) {
-        console.error("Error in search:", error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error fetching properties:', error);
       }
-    },
-    [filters, isFetchingLimited, lastFetchTime]
-  );
+    };
 
-  // Handle sort changes
+    fetchProperties();
+  }, [filters, activeCategory, sortBy]);
+
+  // Update useEffect to set mapProperties in window object with array coordinates
+  useEffect(() => {
+    // Add properties to window object so map component can access them
+    window.mapProperties = properties.map(property => ({
+      id: property.id,
+      title: property.title || 'Property',
+      price: property.price || 'Contact for price',
+      location: property.location || 'Unknown location',
+      // Format coordinates as [lat, lng] array for Leaflet
+      coordinates: [
+        property.latitude,
+        property.longitude
+      ]
+    }));
+  }, [properties]);
+
+  // Add drag functionality for mobile view
+  useEffect(() => {
+    const handleDrag = () => {
+      const propertyList = document.getElementById('mobile-property-list');
+      const dragHandle = document.getElementById('drag-handle');
+      
+      if (!propertyList || !dragHandle) return;
+      
+      // Initialize in semi-collapsed state
+      setTimeout(() => {
+        propertyList.classList.add('collapsed');
+      }, 500);
+      
+      let startY = 0;
+      let currentY = 0;
+      let initialHeight = 0;
+      let isDragging = false;
+      
+      // Toggle collapsed state when clicking the handle
+      dragHandle.addEventListener('click', (e) => {
+        if (!isDragging) {
+          propertyList.classList.toggle('collapsed');
+        }
+      });
+      
+      // Handle touch start
+      dragHandle.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startY = e.touches[0].clientY;
+        initialHeight = propertyList.offsetHeight;
+        propertyList.style.transition = 'none';
+      });
+      
+      // Handle touch move
+      document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        
+        const touchY = e.touches[0].clientY;
+        currentY = touchY - startY;
+        
+        // Calculate the new transform value
+        const translateY = Math.max(0, Math.min(currentY, window.innerHeight - 80));
+        propertyList.style.transform = `translateY(${translateY}px)`;
+      });
+      
+      // Handle touch end
+      document.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        propertyList.style.transition = 'transform 0.3s ease-out';
+        
+        // If dragged more than 30% down, collapse the panel
+        if (currentY > window.innerHeight * 0.3) {
+          propertyList.classList.add('collapsed');
+        } else {
+          propertyList.classList.remove('collapsed');
+        }
+        
+        // Reset currentY
+        currentY = 0;
+      });
+    };
+    
+    // Only initialize drag on mobile devices
+    if (window.innerWidth < 640) {
+      handleDrag();
+    }
+    
+    return () => {
+      // Cleanup event listeners if needed
+      const dragHandle = document.getElementById('drag-handle');
+      if (dragHandle) {
+        dragHandle.removeEventListener('touchstart', () => {});
+        document.removeEventListener('touchmove', () => {});
+        document.removeEventListener('touchend', () => {});
+      }
+    };
+  }, []);
+
+  // Check for nearby properties from the map component
+  useEffect(() => {
+    const checkForNearbyProperties = () => {
+      if (window.nearbyProperties && window.nearbyProperties.length > 0) {
+        setNearbyProperties(window.nearbyProperties);
+        // If we find nearby properties for the first time, show them
+        if (window.nearbyProperties.length > 0 && !showNearby) {
+          setShowNearby(true);
+        }
+      }
+    };
+    
+    // Check for nearby properties every second
+    const intervalId = setInterval(checkForNearbyProperties, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [showNearby]);
+
+  const handleFilterChange = (newFilters) => {
+    console.log("Before filter change:", filters); // Debug log
+    console.log("New filters being applied:", newFilters); // Debug log
+
+    setFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        ...newFilters,
+      };
+
+      // For debugging
+      console.log("Updated filters:", updatedFilters);
+
+      return updatedFilters;
+    });
+  };
+
+  // Debug effect to log when filters change
+  useEffect(() => {
+    console.log("Filters updated in App state:", filters);
+  }, [filters]);
+
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
   };
 
-  // Handle category changes
+  const handlePropertyClick = (property) => {
+    setSelectedProperty(property);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedProperty(null);
+  };
+
   const handleCategoryClick = (categoryId) => {
     setActiveCategory(categoryId);
   };
 
-  // Function to fetch states data from API
-  const fetchStatesData = async () => {
-    console.log("🔄 Starting to fetch states data...");
-    try {
-      const response = await axios.get(
-        `https://api.countrystatecity.in/v1/countries/IN/states`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
-            "auth-token": localStorage.getItem("token"),
-          },
-        }
-      );
-      setStatesData(response.data.sort((a, b) => a.name.localeCompare(b.name)));
-      console.log(
-        "✅ States data fetched successfully:",
-        response.data.length,
-        "states"
-      );
-    } catch (error) {
-      console.error("❌ Error fetching states data:", error);
-      toast.error("Failed to fetch states data");
-    }
-  };
-
-  // Fetch states data on component mount
-  // We're using useRef to ensure it only runs once on mount, avoiding the dependency issue completely
-  const statesDataFetchedRef = useRef(false);
+  // Call the function to ensure properties are visible
   useEffect(() => {
-    if (!statesDataFetchedRef.current) {
-      statesDataFetchedRef.current = true;
-      fetchStatesData();
-    }
-  }, []);
-
-  // Utility function to process property data - memoized with useCallback
-  const processProperties = useCallback(
-    (propertiesArray, latitude, longitude) => {
-      // Add distance and coordinates for each property
-      const propertiesWithCoordinates = propertiesArray.map((property) => {
-        // Check if coordinates array is empty or undefined
-        let propertyCoordinates;
-
-        if (property.coordinates) {
-          propertyCoordinates = {
-            latitude: parseFloat(property.coordinates.latitude),
-            longitude: parseFloat(property.coordinates.longitude),
-          };
-        } else {
-          // If no valid coordinates, add random coordinates near the center
-          propertyCoordinates = {
-            latitude: latitude + (Math.random() - 0.5) * 0.05,
-            longitude: longitude + (Math.random() - 0.5) * 0.05,
-          };
-        }
-
-        // Calculate distance from center (simplified)
-        const distance =
-          Math.sqrt(
-            Math.pow(propertyCoordinates.latitude - latitude, 2) +
-              Math.pow(propertyCoordinates.longitude - longitude, 2)
-          ) * 111; // Rough conversion to kilometers
-
-        // Create a complete property object with all fields from the API response
-        return {
-          ...property,
-          coordinates: propertyCoordinates,
-          title:
-            property.title || property.project || `Property ${property._id}`,
-          price:
-            property.price ||
-            (property.minimumPrice
-              ? property.maximumPrice
-                ? `${property.minimumPrice} - ${property.maximumPrice}`
-                : property.minimumPrice
-              : "Price on request"),
-          location: [
-            property.address,
-            property.sector,
-            property.city,
-            property.state,
-            property.pincode,
-          ]
-            .filter(Boolean)
-            .join(", "),
-          images:
-            Array.isArray(property.images) && property.images.length > 0
-              ? property.images
-              : ["/dummy-image.png"], // Using image from public folder
-          propertyType: property.type || "Residential",
-          bedrooms: property.bhk || property.numberOfBedrooms || "",
-          bathrooms: property.numberOfBathrooms || "",
-          washrooms: property.numberOfWashrooms || "",
-          floors: property.numberOfFloors || "",
-          parkings: property.numberOfParkings || "",
-          area: property.size ? `${property.size} sq.ft` : "",
-          description: property.overview || "",
-          distance: `${Math.round(distance)} kilometres away`,
-        };
-      });
-
-      // Sort by distance
-      propertiesWithCoordinates.sort((a, b) => {
-        const distA = parseInt(a.distance);
-        const distB = parseInt(b.distance);
-        return distA - distB;
-      });
-
-      setProperties(propertiesWithCoordinates);
-
-      // Automatically select the first property
-      if (propertiesWithCoordinates.length > 0) {
-        setSelectedProperty(propertiesWithCoordinates[0]);
-      }
-    },
-    [setProperties, setSelectedProperty]
-  );
-
-  // Function to get user location
-  const getUserLocation = () => {
-    console.log("🔄 Getting user location...");
-    if (!navigator.geolocation) {
-      console.log("❌ Geolocation is not supported by this browser");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        console.log("✅ User location obtained successfully");
-        const { latitude, longitude } = position.coords;
-        // Ensure coordinates are valid numbers
-        if (
-          typeof latitude === "number" &&
-          typeof longitude === "number" &&
-          !isNaN(latitude) &&
-          !isNaN(longitude)
-        ) {
-          setUserLocation({ lat: latitude, lng: longitude });
-          setCurrentLocation({ lat: latitude, lng: longitude });
-        } else {
-          console.error("❌ Invalid coordinates received:", {
-            latitude,
-            longitude,
-          });
-          toast.error("Invalid location coordinates received");
-        }
-      },
-      (error) => {
-        console.error("❌ Error getting user location:", error);
-        toast.error("Failed to get your location");
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-  };
-
-  // Get user's geolocation and fetch nearby properties on component mount
-  useEffect(() => {
-    getUserLocation();
-  }, [mapInstance]); // Removed fetchPropertiesNearLocation from dependencies
-
-  // Use the ref instead of the function directly to avoid dependency cycles
-  useEffect(() => {}, [currentLocation, properties.length]);
-
-  // Track screen size for responsive UI adjustments
-  const isSmallScreen = viewportWidth < 768;
-
-  // State for controlling FiltersPanel visibility
-  const [filtersVisible, setFiltersVisible] = useState(false);
-
-  // Handler for opening filters panel
-  const handleOpenFilters = useCallback(() => {
-    setFiltersVisible(true);
-  }, []);
-
-  // Handler for closing filters panel
-  const handleCloseFilters = useCallback(() => {
-    setFiltersVisible(false);
-  }, []);
-
-  const panelAnimations = {
-    full: { height: "85vh" },
-    half: { height: "50vh" },
-    minimized: { height: "4rem" },
-  };
-
-  // Handle touch start event for panel dragging
-  const handleTouchStart = (e) => {
-    console.log("🔄 Touch start detected");
-    startYRef.current = e.touches[0].clientY;
-    currentYRef.current = e.touches[0].clientY;
-  };
-
-  // Handle touch move event for panel dragging
-  const handleTouchMove = (e) => {
-    console.log("🔄 Touch move detected");
-    currentYRef.current = e.touches[0].clientY;
-    const deltaY = currentYRef.current - startYRef.current;
-
-    if (deltaY > 50) {
-      console.log("✅ Panel state changed to: full");
-      setPanelState("full");
-    } else if (deltaY < -50) {
-      console.log("✅ Panel state changed to: half");
-      setPanelState("half");
-    }
-  };
-
-  // Function to fetch properties within map bounds
-  const fetchPropertiesInBounds = useCallback(
-    async (latitude, longitude, bounds) => {
-      const now = Date.now();
-      // Increase the cooldown time to 3 seconds and check isLoading state
-      if (isLoading || now - lastFetchTime < 3000) {
-        console.log("⏳ Throttling map bounds fetch requests");
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        setLastFetchTime(Date.now());
-
-        // Get the northeast and southwest corners of the bounds
-        const ne = bounds.getNorthEast();
-        const sw = bounds.getSouthWest();
-
-        // Calculate radius based on the bounds (approximate)
-        const latDiff = Math.abs(ne.lat - sw.lat);
-        const lngDiff = Math.abs(ne.lng - sw.lng);
-        const radius = (Math.max(latDiff, lngDiff) * 111) / 2; // Convert to km
-
-        let url = "https://iprop91new.onrender.com/api/projectsDataMaster";
-        console.log("🌐 Initial API URL:", url);
-
-        try {
-          // First, try a minimal request without coordinates to check if the server is responding
-          console.log("🔍 Checking server availability...");
-          await axios.get(url, {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            timeout: 10000,
-          });
-          console.log("✅ Server is responding");
-
-          // If we got here, the server is up. Now build our query with filters
-          const params = new URLSearchParams();
-
-          // *** IMPORTANT: We're using city/state search instead of lat/lng since that works ***
-          // Only add lat/lng as fallback
-          try {
-            // Use OpenStreetMap's Nominatim service for reverse geocoding
-            const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`;
-            console.log("🗺️ Geocoding URL:", geocodeUrl);
-
-            const geocodeResponse = await axios.get(geocodeUrl, {
-              headers: {
-                Accept: "application/json",
-                "User-Agent": "iProp Web Application",
-              },
-            });
-
-            const result = geocodeResponse.data;
-            console.log("📍 Geocoding result:", result);
-
-            // Extract city and state from geocoding result
-            let city = null;
-            let state = null;
-
-            if (result && result.address) {
-              // Extract city and state from Nominatim response
-              city =
-                result.address.city ||
-                result.address.town ||
-                result.address.village;
-              state = result.address.state || result.address.county;
-              console.log("🏙️ Extracted location:", { city, state });
-            }
-
-            // Add city and state if found
-            if (city) params.append("city", city);
-            if (state) params.append("state", state);
-
-            // If geocoding failed or no city/state found, fall back to coordinates
-            if (!city && !state) {
-              console.log(
-                "⚠️ No city/state found, falling back to coordinates"
-              );
-              params.append("lat", latitude);
-              params.append("lng", longitude);
-              params.append("radius", Math.ceil(radius));
-            }
-          } catch (geocodeError) {
-            console.error("❌ Geocoding error:", geocodeError);
-            // Fall back to coordinates
-            params.append("lat", latitude);
-            params.append("lng", longitude);
-            params.append("radius", Math.ceil(radius));
-          }
-
-          // Add filter parameters
-          if (filters?.propertyType?.length > 0) {
-            params.append("propertyType", filters.propertyType.join(","));
-          }
-
-          if (filters?.bhk?.length > 0) {
-            params.append("bhk", filters.bhk.join(","));
-          }
-
-          if (filters?.minBudget && filters.minBudget > 0) {
-            params.append("minBudget", filters.minBudget);
-          }
-
-          if (filters?.maxBudget && filters.maxBudget < 10000000) {
-            params.append("maxBudget", filters.maxBudget);
-          }
-
-          if (selectedAmenities.length > 0) {
-            params.append("amenities", selectedAmenities.join(","));
-          }
-
-          const finalUrl = `${url}?${params.toString()}`;
-          console.log("🔗 Final API URL with parameters:", finalUrl);
-
-          const response = await axios.get(finalUrl, {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            timeout: 10000,
-          });
-
-          const propertiesData = response.data;
-          console.log("📦 API Response:", {
-            totalProperties: propertiesData.data?.projects?.length || 0,
-            firstProperty: propertiesData.data?.projects?.[0],
-            responseStatus: response.status,
-            responseHeaders: response.headers,
-          });
-
-          const propertiesArray = propertiesData.data?.projects || [];
-
-          if (propertiesArray.length > 0) {
-            console.log("✅ Processing", propertiesArray.length, "properties");
-            processProperties(propertiesArray, latitude, longitude);
-          } else {
-            console.log("ℹ️ No properties found in the response");
-            setProperties([]);
-          }
-        } catch (apiError) {
-          console.error("❌ API error when fetching properties:", {
-            error: apiError,
-            message: apiError.message,
-            response: apiError.response?.data,
-          });
-
-          // Use hardcoded sample data as fallback when server fails
-          try {
-            console.log("🔄 Using fallback sample property data");
-            const sampleProperty = {
-              _id: "IPMP0005",
-              thumbnail: null,
-              propertyId: "IPP00120",
-              listingId: "IPL00045",
-              state: "Haryana",
-              city: "Sonipat",
-              coordinates: [latitude, longitude],
-              builder: "Sample Builder",
-              project: "Sample Project",
-              tower: "Tower A",
-              unit: "3333",
-              size: "2223",
-              status: "under-construction",
-              type: "residential",
-            };
-
-            processProperties([sampleProperty], latitude, longitude);
-          } catch (fallbackError) {
-            console.error("❌ Error using fallback data:", fallbackError);
-            setProperties([]);
-          }
-        }
-      } catch (error) {
-        console.error("❌ Error in fetchPropertiesInBounds:", error);
-        setProperties([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [lastFetchTime, filters, selectedAmenities, processProperties, isLoading]
-  );
-
-  // Create a debounced version of fetchPropertiesInBounds
-  const debouncedFetch = useCallback(() => {
-    // Using an inline function rather than passing debounce directly
-    const debouncedFn = debounce((lat, lng, bounds) => {
-      if (!isLoading) {
-        fetchPropertiesInBounds(lat, lng, bounds);
-      }
+    ensurePropertiesVisible();
+    
+    // Set a timeout to apply it again after a short delay
+    // This handles cases where other scripts might be changing visibility
+    const timer = setTimeout(() => {
+      ensurePropertiesVisible();
     }, 1000);
-    return debouncedFn;
-  }, [fetchPropertiesInBounds, isLoading])();
-
-  // Re-initialize the debounced function when its dependencies change
-  useEffect(() => {
-    // This ensures the debounced function is properly updated
-    window.debouncedMapFetch = debouncedFetch;
-  }, [debouncedFetch]);
-
-  // Store fetch function in window object for the MapController to access
-  useEffect(() => {
-    if (fetchPropertiesInBounds && typeof window !== "undefined") {
-      // Store reference to fetchPropertiesInBounds in window object
-      window.mapFetchPropertiesInBounds = fetchPropertiesInBounds;
-    }
-
+    
     return () => {
-      if (typeof window !== "undefined") {
-        window.mapFetchPropertiesInBounds = null;
-      }
-    };
-  }, [fetchPropertiesInBounds]);
-
-  // Cleanup for debouncedFetch reference
-  useEffect(() => {
-    return () => {
-      if (typeof window !== "undefined") {
-        window.debouncedMapFetch = null;
-      }
+      clearTimeout(timer);
     };
   }, []);
 
-  // Update viewport width when window resizes
-  useEffect(() => {
-    const handleResize = () => {
-      console.log("🔄 Handling window resize");
-      setViewportWidth(window.innerWidth);
-      console.log("✅ Viewport width updated:", window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  function MapController() {
-    const map = useMap();
-    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
-
-    useEffect(() => {
-      setMapInstance(map);
-      window.mapInstance = map;
-
-      // Add keyboard event listeners for Control key
-      const handleKeyDown = (e) => {
-        if (e.key === "Control") {
-          setIsCtrlPressed(true);
-        }
-      };
-
-      const handleKeyUp = (e) => {
-        if (e.key === "Control") {
-          setIsCtrlPressed(false);
-        }
-      };
-
-      window.addEventListener("keydown", handleKeyDown);
-      window.addEventListener("keyup", handleKeyUp);
-
-      return () => {
-        window.mapInstance = null;
-        window.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("keyup", handleKeyUp);
-      };
-    }, [map]);
-
-    // Add event listener for zoom end events to fetch properties in the visible area
-    useEffect(() => {
-      // Function to fetch properties in the current map bounds
-      const handleMapZoomEnd = () => {
-        console.log("🔄 Map zoom ended");
-        const currentZoom = map.getZoom();
-        console.log("✅ Current zoom level:", currentZoom);
-        const bounds = map.getBounds();
-        const center = bounds.getCenter();
-        const northEast = bounds.getNorthEast();
-        const southWest = bounds.getSouthWest();
-
-        console.log("Map zoomed or panned. New bounds:", {
-          center: [center.lat, center.lng],
-          ne: [northEast.lat, northEast.lng],
-          sw: [southWest.lat, southWest.lng],
-          zoom: map.getZoom(),
-        });
-
-        // Use the debounced fetch function from window instead
-        if (window.debouncedMapFetch) {
-          window.debouncedMapFetch(center.lat, center.lng, bounds);
-        }
-      };
-
-      // Only add event listener for zoom end events, not for position changes
-      map.on("zoomend", handleMapZoomEnd);
-
-      // Add wheel event listener to check for Control key
-      const handleWheel = (e) => {
-        if (!isCtrlPressed) {
-          e.preventDefault();
-          return;
-        }
-      };
-
-      map
-        .getContainer()
-        .addEventListener("wheel", handleWheel, { passive: false });
-
-      // Clean up event listeners when component unmounts
-      return () => {
-        map.off("zoomend", handleMapZoomEnd);
-        map.getContainer().removeEventListener("wheel", handleWheel);
-      };
-    }, [map, isCtrlPressed]);
-
-    useEffect(() => {
-      if (selectedProperty && selectedProperty.coordinates) {
-        const timer = setTimeout(() => {
-          map.setView(
-            [
-              selectedProperty.coordinates.latitude,
-              selectedProperty.coordinates.longitude,
-            ],
-            13
-          );
-        }, 300);
-        return () => clearTimeout(timer);
-      }
-    }, [map, selectedProperty]);
-
-    return null;
-  }
-
-  const CustomMarker = memo(({ property, onSelect }) => {
-    if (
-      !property.coordinates ||
-      !property.coordinates.latitude ||
-      !property.coordinates.longitude ||
-      isNaN(property.coordinates.latitude) ||
-      isNaN(property.coordinates.longitude)
-    ) {
-      console.warn(
-        `Property ${property._id || "unknown"} has invalid coordinates:`,
-        property.coordinates
-      );
-      return null;
-    }
-
+  if (selectedProperty) {
     return (
-      <Marker
-        position={[
-          property.coordinates.latitude,
-          property.coordinates.longitude,
-        ]}
-        id={`marker-${property._id}`}
-        icon={houseIcon}
-        eventHandlers={{
-          click: () => {
-            onSelect(property);
-          },
-        }}
-      >
-        <Popup>
-          <div className="p-2 text-center">
-            <h3 className="font-semibold">{property.title || "Property"}</h3>
-            <p className="text-sm">{property.price || "Price not available"}</p>
+      <div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold">{selectedProperty.title}</h2>
+                <button
+                  onClick={handleCloseDetails}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <img
+                    src={selectedProperty.image}
+                    alt={selectedProperty.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold">Description</h3>
+                    <p className="text-gray-600 mt-2">
+                      {selectedProperty.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Property Details
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-gray-600">Type</p>
+                        <p className="font-medium">{selectedProperty.type}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">BHK</p>
+                        <p className="font-medium">{selectedProperty.bhk}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Area</p>
+                        <p className="font-medium">
+                          {selectedProperty.area} sq.ft
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Price</p>
+                        <p className="font-medium">{selectedProperty.price}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Location</p>
+                        <p className="font-medium">
+                          {selectedProperty.location}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Status</p>
+                        <p className="font-medium">{selectedProperty.status}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </Popup>
-      </Marker>
-    );
-  });
-
-  const getPanelClasses = (state) => {
-    const baseClasses = "bg-white rounded-t-xl shadow-2xl overflow-hidden";
-
-    switch (state) {
-      case "full":
-        return `${baseClasses} h-5/6`;
-      case "half":
-        return `${baseClasses} h-1/2`;
-      case "minimized":
-        return `${baseClasses} h-16`;
-      default:
-        return `${baseClasses} h-1/2`;
-    }
-  };
-
-  const navigate = useNavigate();
-
-  const handlePropertyClick = (property) => {
-    console.log("🔄 Handling property click for:", property.title);
-    if (!property || !property.coordinates) {
-      console.error("Invalid property or missing coordinates");
-      return;
-    }
-
-    const { latitude, longitude } = property.coordinates;
-
-    // Validate coordinates
-    if (
-      typeof latitude !== "number" ||
-      typeof longitude !== "number" ||
-      isNaN(latitude) ||
-      isNaN(longitude)
-    ) {
-      console.error("Invalid coordinates:", { latitude, longitude });
-      return;
-    }
-
-    setSelectedProperty(property);
-
-    // Center map on the property location
-    if (mapInstance) {
-      mapInstance.setView([latitude, longitude], 15);
-      console.log("✅ Map view updated to property location");
-    }
-
-    // Navigate to the property detail page with the property data
-    navigate(`/property/${property._id}`, { state: { property } });
-  };
-
-  return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Filters Panel with states data from API */}
-      <FiltersPanel
-        isVisible={filtersVisible}
-        onClose={handleCloseFilters}
-        onApplyFilters={handleFilterChange}
-        initialFilters={{
-          tab: "buy",
-          propertyTypes: filters.propertyType,
-          bhk: filters.bhk,
-          minBudget: filters.minBudget,
-          maxBudget: filters.maxBudget,
-          state: currentStateCity.state,
-          city: currentStateCity.city,
-          amenities: filters.amenities || [],
-        }}
-        statesData={statesData}
-      />
-
-      {/* Header with search bar - black background with gold accents */}
-      <div className="bg-black text-white shadow-md z-10 sticky top-0 border-b border-gold-500">
-        <div className="max-w-7xl mx-auto">
-          <SearchBar
-            search={handlePropertiesSearch}
-            onFilterChange={handleFilterChange}
-            onOpenFilters={handleOpenFilters}
-            currentStateCity={currentStateCity}
-          />
         </div>
       </div>
+    );
+  }
 
-      {/* Main content area - white background */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-white">
-        {/* Property listings panel for desktop (lg and above) */}
-        <div className="hidden lg:flex lg:w-2/5 xl:w-1/3 h-full overflow-y-auto p-4 flex-col bg-white lg:border-r">
-          <div className="mb-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-black">
-              <span className="text-gold-600">{properties.length}</span>{" "}
-              Properties{" "}
-              {currentStateCity.city && `in ${currentStateCity.city}`}
-            </h2>
-          </div>
-
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-64">
-              <div className="w-12 h-12 border-t-2 border-b-2 border-gold-500 rounded-full animate-spin"></div>
-              <p className="mt-4 text-gray-600">Loading properties...</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {properties.length > 0 ? (
-                properties.map((property) => (
-                  <PropertyCardComponent
-                    key={property._id}
-                    property={property}
-                    isSelected={
-                      selectedProperty && selectedProperty._id === property._id
-                    }
-                    onClick={() => handlePropertyClick(property)}
-                  />
-                ))
-              ) : (
-                <div className="bg-gray-50 p-6 rounded-lg text-center">
-                  <div className="w-16 h-16 mx-auto bg-gold-100 rounded-full flex items-center justify-center mb-4">
-                    <Home className="w-8 h-8 text-gold-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-700 mb-2">
-                    No properties found
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Try adjusting your filters or search for a different
-                    location
-                  </p>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    Reset Filters
-                  </button>
-                </div>
-              )}
-            </div>
+  return (
+    <>
+      {/* Navbar */}
+      <Navbar />
+      
+      <div className="bg-black pt-[13vh]">
+      <div className="min-h-screen bg-white">
+        {/* Search Bar */}
+        <div className="search-container z-20">
+          {showSearchBar && (
+            <SearchBar
+              selectedState={selectedState}
+              setSelectedState={setSelectedState}
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              onFilterChange={handleFilterChange}
+              onOpenFilters={() => setShowFilters(true)}
+            />
           )}
         </div>
 
-        {/* Map area */}
-        <div className="flex-1 relative">
-          {/* Slidable panel for mobile (max-md) */}
-          <motion.div
-            ref={panelRef}
-            className={`absolute bottom-0 left-0 right-0 z-10 ${
-              isSmallScreen ? "" : "lg:hidden"
-            } ${getPanelClasses(panelState)}`}
-            initial="half"
-            animate={panelState}
-            variants={panelAnimations}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.2}
-            dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
-            onDragEnd={(e, info) => {
-              if (info.offset.y < -50) {
-                setPanelState(panelState === "half" ? "full" : "half");
-              } else if (info.offset.y > 50) {
-                setPanelState(panelState === "full" ? "half" : "minimized");
-              }
-            }}
-          >
-            {/* Handle for dragging */}
-            <div className="w-full flex justify-center p-2">
-              <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
-            </div>
+        {/* Main content - Side by side layout */}
+        <div className="flex flex-col md:flex-row">
+          {/* Left side - Property listings */}
+          <div className="w-full md:w-1/2 md:border-r border-gray-200">
+            <div className="p-4 sm:block hidden">
+              {/* Property Categories */}
+              <div className="mb-4 bg-white rounded-xl shadow-sm p-1">
+                <Slider {...sliderSettings} className="px-2 py-1">
+                  {propertyCategories.map((category) => (
+                    <div key={category.id} className="px-1">
+                      <button
+                        onClick={() => handleCategoryClick(category.id)}
+                        className={`w-full min-w-max whitespace-nowrap flex items-center justify-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                          activeCategory === category.id
+                            ? "bg-[#031273] text-white shadow-sm"
+                            : "text-gray-700 bg-gray-100 hover:bg-gray-200"
+                        }`}
+                      >
+                        <span className="whitespace-nowrap text-center">{category.label}</span>
+                        <span
+                          className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs min-w-[1.5rem] ${
+                            activeCategory === category.id
+                              ? "bg-white/20"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {category.count}
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+                </Slider>
+              </div>
 
-            {/* Panel header */}
-            <div className="px-4 py-2 flex justify-between items-center">
-              <h2 className="text-xl font-bold">
-                {properties.length} Properties{" "}
-                {currentStateCity.city && `in ${currentStateCity.city}`}
-              </h2>
-              <div className="flex space-x-2">
-                <button onClick={() => setPanelState("half")}>
-                  {panelState === "minimized" ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
+              {/* Sort and Filter Controls */}
+              <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-xl shadow-sm">
+                <div className="flex-1">
+                  <select
+                    className="w-full md:w-auto border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
+                    value={sortBy}
+                    onChange={handleSortChange}
+                  >
+                    <option value="relevance">Sort: Relevance</option>
+                    <option value="price-low-to-high">Sort: Price Low to High</option>
+                    <option value="price-high-to-low">Sort: Price High to Low</option>
+                    <option value="newest">Sort: Newest First</option>
+                  </select>
+                </div>
+                
+                <button
+                  onClick={() => setShowFilters(true)}
+                  className="flex items-center gap-1.5 ml-2 bg-[#031273] text-white rounded-lg px-3 py-2 text-sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filters
                 </button>
               </div>
-            </div>
 
-            {/* Panel content */}
-            {panelState !== "minimized" && (
-              <div className="overflow-y-auto h-full p-4">
-                {isLoading ? (
-                  <div className="flex flex-col items-center justify-center h-64">
-                    <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
-                    <p className="mt-4 text-gray-600">Loading properties...</p>
+              {/* Nearby Properties Section */}
+              {showNearby && nearbyProperties.length > 0 && (
+                <div className="mb-4 bg-gradient-to-r from-teal-50 to-blue-50 p-3 rounded-xl shadow-sm">
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-base font-semibold text-teal-700 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                      Nearby Properties
+                    </h2>
+                    <div className="text-xs text-teal-600 font-medium bg-teal-50 px-2 py-1 rounded-full">
+                      {nearbyProperties.length} found
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {properties.length > 0 ? (
-                      properties.map((property) => (
-                        <PropertyCardComponent
-                          key={property._id}
-                          property={property}
-                          isSelected={
-                            selectedProperty &&
-                            selectedProperty._id === property._id
-                          }
-                          onClick={() => handlePropertyClick(property)}
-                        />
-                      ))
-                    ) : (
-                      <div className="bg-gray-50 p-6 rounded-lg text-center">
-                        <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                          <Home className="w-8 h-8 text-gray-400" />
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {nearbyProperties.slice(0, 2).map((property) => (
+                      <div 
+                        key={property.id || property.title} 
+                        className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-all"
+                        onClick={() => handlePropertyClick(property)}
+                      >
+                        <div className="p-2">
+                          <h3 className="font-semibold text-sm truncate">{property.title}</h3>
+                          <p className="text-xs text-gray-600">{property.price}</p>
+                          <p className="text-xs text-teal-600 mt-1">
+                            {property.distance} km away
+                          </p>
                         </div>
-                        <h3 className="font-semibold text-gray-700 mb-2">
-                          No properties found
-                        </h3>
-                        <p className="text-sm text-gray-500 mb-4">
-                          Try adjusting your filters or search for a different
-                          location.
-                        </p>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm hover:bg-blue-700 transition-colors">
-                          Reset Filters
-                        </button>
                       </div>
-                    )}
+                    ))}
                   </div>
-                )}
-              </div>
-            )}
-          </motion.div>
-          <MapContainer
-            center={[28.6139, 77.209]}
-            zoom={10}
-            style={{ height: "100%", width: "100%" }}
-            className="z-0"
-            whenCreated={(map) => {
-              setMapInstance(map);
-              window.mapInstance = map;
-            }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {/* Add user location marker */}
-            {userLocation && userLocation.lat && userLocation.lng && (
-              <Marker
-                position={[userLocation.lat, userLocation.lng]}
-                icon={userLocationIcon}
-              >
-                <Popup>You are here</Popup>
-              </Marker>
-            )}
-            {Array.isArray(properties) &&
-              properties.map((property) => (
-                <CustomMarker
-                  key={property._id || Math.random().toString(36).substr(2, 9)}
-                  property={property}
-                  onSelect={setSelectedProperty}
-                />
-              ))}
-            <MapController />
-          </MapContainer>
+                  
+                  {nearbyProperties.length > 2 && (
+                    <button 
+                      className="w-full mt-2 py-1.5 text-xs text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg"
+                      onClick={() => setActiveCategory('nearby')}
+                    >
+                      View all {nearbyProperties.length} nearby properties
+                    </button>
+                  )}
+                </div>
+              )}
 
-          {/* Map overlay controls with enhanced styling */}
-          <div className="absolute top-4 right-4 z-[1000]">
-            <div className="bg-black border border-gold-500 rounded-full shadow-lg p-2 flex flex-col space-y-2">
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
-                title="Zoom In (Hold Control)"
-                onClick={() => {
-                  if (window.mapInstance) {
-                    window.mapInstance.zoomIn();
-                  }
-                }}
-              >
-                <svg
-                  className="w-5 h-5 text-gold-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  ></path>
-                </svg>
-              </button>
-              <div className="h-px bg-gray-200 w-full"></div>
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
-                title="Zoom Out (Hold Control)"
-                onClick={() => {
-                  if (window.mapInstance) {
-                    window.mapInstance.zoomOut();
-                  }
-                }}
-              >
-                <svg
-                  className="w-5 h-5 text-gold-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M18 12H6"
-                  ></path>
-                </svg>
-              </button>
+              {/* Property Listings (non-mobile) */}
+              <div className="property-list pb-8 sm:block hidden">
+                <PropertyCards
+                  filters={filters}
+                  sortBy={sortBy}
+                  activeCategory={activeCategory}
+                  favorites={favorites}
+                  onPropertyClick={handlePropertyClick}
+                  onPropertySelect={setSelectedMapProperty}
+                  nearbyProperties={nearbyProperties}
+                  showNearby={showNearby && activeCategory === 'nearby'}
+                />
+              </div>
             </div>
-            <div className="mt-2 bg-black border border-gold-500 rounded-full shadow-lg p-2">
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-900 text-gold-500 transition-colors"
-                title="My Location"
-                onClick={() => {
-                  if (navigator.geolocation && window.mapInstance) {
-                    navigator.geolocation.getCurrentPosition(
-                      (position) => {
-                        const { latitude, longitude } = position.coords;
-                        window.mapInstance.setView([latitude, longitude], 13);
-                      },
-                      (error) => {
-                        console.error("Error getting location:", error);
-                        alert(
-                          "Could not get your location. Please check your browser permissions."
-                        );
-                      }
-                    );
-                  } else {
-                    alert("Geolocation is not supported by your browser.");
-                  }
-                }}
-              >
-                <svg
-                  className="w-5 h-5 text-gold-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  ></path>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
-              </button>
+          </div>
+
+          {/* Right side - Map */}
+          <div className="w-full md:w-1/2">
+            <div className="map-container sticky top-0 md:top-20 h-[calc(100vh-156px)]">
+              <MapComponent />
             </div>
           </div>
         </div>
+
+        {/* Mobile draggable property list */}
+        <div className="property-list max-sm:block hidden" id="mobile-property-list">
+          <div className="drag-handle" id="drag-handle"></div>
+          <div className="flex justify-between items-center px-4 py-1">
+            <h2 className="text-sm font-medium text-gray-700">Available Properties</h2>
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">
+              {properties.length} properties
+            </span>
+          </div>
+          <div className="p-4">
+            {/* Mobile Property Categories */}
+            <div className="mb-4 bg-white rounded-xl shadow-sm p-1">
+              <Slider {...sliderSettings} className="px-2 py-1">
+                {propertyCategories.map((category) => (
+                  <div key={category.id} className="px-1">
+                    <button
+                      onClick={() => handleCategoryClick(category.id)}
+                      className={`w-full min-w-max whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                        activeCategory === category.id
+                          ? "bg-[#031273] text-white shadow-sm"
+                          : "text-gray-700 bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      <span className="whitespace-nowrap text-center">{category.label}</span>
+                      <span
+                        className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs min-w-[1.5rem] ${
+                          activeCategory === category.id
+                            ? "bg-white/20"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {category.count}
+                      </span>
+                    </button>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+
+            {/* Mobile Sort and Filter Controls */}
+            <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-xl shadow-sm">
+              <div className="flex-1">
+                <select
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
+                  value={sortBy}
+                  onChange={handleSortChange}
+                >
+                  <option value="relevance">Sort: Relevance</option>
+                  <option value="price-low-to-high">Sort: Price Low to High</option>
+                  <option value="price-high-to-low">Sort: Price High to Low</option>
+                  <option value="newest">Sort: Newest First</option>
+                </select>
+              </div>
+              
+              <button
+                onClick={() => setShowFilters(true)}
+                className="flex items-center gap-1.5 ml-2 bg-[#031273] text-white rounded-lg px-3 py-2 text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                Filters
+              </button>
+            </div>
+
+            {/* Property Listings (mobile) */}
+            <PropertyCards
+              filters={filters}
+              sortBy={sortBy}
+              activeCategory={activeCategory}
+              favorites={favorites}
+              onPropertyClick={handlePropertyClick}
+              onPropertySelect={setSelectedMapProperty}
+              nearbyProperties={nearbyProperties}
+              showNearby={showNearby && activeCategory === 'nearby'}
+            />
+          </div>
+        </div>
+
+        {/* Filters Panel */}
+        <FiltersPanel
+          isVisible={showFilters}
+          onClose={() => setShowFilters(false)}
+          onApplyFilters={handleFilterChange}
+          onVisibilityChange={(isVisible) => {
+            setShowFilters(isVisible);
+            setShowSearchBar(!isVisible);
+          }}
+          selectedState={selectedState}
+          setSelectedState={setSelectedState}
+          selectedCity={selectedCity}
+          setSelectedCity={setSelectedCity}
+        />
       </div>
-    </div>
+      </div>
+    </>
   );
 }
+
+export default App;

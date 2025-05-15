@@ -21,7 +21,7 @@ const Call = lazy(() => import("../CompoCards/Call"));
 // Lazy load route components
 const App = lazy(() => import("../map/map"));
 const PropertyListing = lazy(() => import("../propertyListing/listing"));
-const PropertyDetails = lazy(() => import("../map/components/PropertyDetails"));
+const PropertyDetails = lazy(() => import("../listingpage/id/page"));
 const Library = lazy(() => import("../Library/library"));
 const Faq = lazy(() => import("../Faq/faq"));
 const CaseLaws = lazy(() => import("../CaseLaws/caselaws"));

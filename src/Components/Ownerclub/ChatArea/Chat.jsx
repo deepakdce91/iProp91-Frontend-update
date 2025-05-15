@@ -1250,6 +1250,8 @@ function Chats({
       <footer className="border-t-[1px] border-t-black/20 w-full bg-white sticky left-0 right-0" style={{ 
   bottom: (() => {
     const h = window.innerHeight;
+    const w = window.innerWidth;
+    // if (w  < 450 ) return '0'; // desktop
     if (h <= 667) return '0'; // iPhone SE, smaller phones
     if (h >= 844 && h < 900) return '0'; // iPhone 12/13/14
     if (h >= 932) return '4.4rem'; // iPhone 14 Pro Max, larger phones
