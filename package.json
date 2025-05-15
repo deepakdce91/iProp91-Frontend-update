@@ -57,6 +57,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
+    "react-scroll": "^1.9.3",
     "react-scroll-parallax": "^3.4.5",
     "react-scroll-to-bottom": "^4.2.0",
     "react-slick": "^0.30.2",

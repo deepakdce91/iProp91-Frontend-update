@@ -45,7 +45,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/advice": false, // false means light background
     "/case-laws": false,
     "/library": false,
-    "/faqs": false,
+    "/faqs": true,
     "/laws": false,
     "/laws/statelaw": false,
     "/laws/centrallaw": false,
