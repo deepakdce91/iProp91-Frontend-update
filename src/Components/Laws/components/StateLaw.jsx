@@ -162,7 +162,7 @@ const StateLaw = ({ onBack }) => {
       console.error("Error downloading file:", error);
       alert("Failed to download file. Please try again later.");
     }
-  };
+  }; 
 
 // Function to format content with proper styling for tables, links, and bullet points
 const formatContent = (content) => {

@@ -183,9 +183,9 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     <section className="flex items-center justify-center">
       <div className="bg-black min-h-screen h-[100vh] p-8 w-full px-6 sm:px-32 lg:px-[25vw] xl:px-[30vw] pt-[17vh] overflow-y-auto">
         <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
-          <p className="md:text-3xl text-2xl text-white font-bold mb-5">
+          {/* <p className="md:text-3xl text-2xl text-white font-bold mb-5">
             Add {formType === "buy" ? "Buy" : "Rent"} Query Details
-          </p>
+          </p> */}
 
           {/* Form Fields */}
           <div className="flex flex-col w-full">

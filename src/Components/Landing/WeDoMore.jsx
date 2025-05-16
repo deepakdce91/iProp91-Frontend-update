@@ -5,78 +5,67 @@ import Auth from "../User/Login/Auth"; // Import your Auth component
 import { useAuth } from "../../context/AuthContext";
 import { useLocation } from "react-router-dom"; // Import useLocation to check current route
 
-function toTitleCase(str) {
+const toTitleCase = (str) => {
   return str
-    .split("_") // Split by underscore
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter of each word
-    .join(" "); // Join words with space
-}
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }) => {
-  // Use a random image for each card to ensure variety
-  const imageUrl =
-    Math.random() < 0.5
-      ? "/images/rewards-image.jpg"
-      : "/images/rewards-image2.jpg";
-
   return (
-    <>
-      <div className="w-[250px] flex-shrink-0">
-        <div
-          className="bg-white 
-          reward-card rounded-xl shadow-md 
-          transition-all duration-300 hover:scale-105 
-          max-w-xs overflow-hidden flex
-          flex-col mx-3 max-sm:mx-0 no-selection-effect h-[300px]"
-        >
-          {/* Image section with curved top corners */}
-          <div className="w-full bg-blue-800 rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
-            <img
-              src="/reward-pic.jpg"
-              alt="Reward"
-              className=" object-contain"
-            />
-          </div>
+    <div className="w-[250px] flex-shrink-0">
+      <div
+        className="bg-white 
+        reward-card rounded-xl shadow-md 
+        transition-all duration-300 hover:scale-105 
+        max-w-xs overflow-hidden flex
+        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[380px] sm:h-[300px]"
+      >
+        {/* Image section with curved top corners */}
+        <div className="w-full bg-blue-800 rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
+          <img
+            src="/reward-pic.jpg"
+            alt="Reward"
+            className="object-contain"
+          />
+        </div>
 
-          {/* Content section */}
-          <div className="p-4 flex-1 h-[40%]">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-lg font-bold text-wrap text-[#0a0f19] reward-card-title">
-                  {toTitleCase(name)}
-                </h3>
-                {discountType === "percentage" ? (
-                  <span className="text-orange-500 font-semibold mt-2 text-lg">
-                    Get {amount} % Off
-                  </span>
-                ) : (
-                  <span className="text-orange-500 font-semibold mt-2 text-lg">
-                    Get {amount} coins
-                  </span>
-                )}
-                {/* <span className="text-orange-500 font-semibold mt-2 text-lg">
-                  {amount} Coins
-                </span> */}
-              </div>
-              <div className="p-2">
-                <svg
-                  className="w-6 h-6 text-blue-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+        {/* Content section */}
+        <div className="p-4 flex-1 h-[40%]">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <h3 className="text-sm sm:text-lg font-bold text-wrap text-[#0a0f19] reward-card-title">
+                {toTitleCase(name)}
+              </h3>
+              {discountType === "percentage" ? (
+                <span className="text-orange-500 font-semibold mt-2 text-sm sm:text-lg">
+                  Get {amount} % Off
+                </span>
+              ) : (
+                <span className="text-orange-500 font-semibold mt-2 text-sm sm:text-lg">
+                  Get {amount} coins
+                </span>
+              )}
+            </div>
+            <div className="p-2">
+              <svg
+                className="w-6 h-6 text-blue-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -85,8 +74,9 @@ const RewardsContainer = ({ cardsData }) => {
   const scrollContainerRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const [cardWidth, setCardWidth] = useState(250); // Default card width
 
-  // Sample data array - updated with name and amount
+  // Sample data array with status field added for "offer" badges
   const rewardsData = cardsData
     ? cardsData
     : [
@@ -94,6 +84,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 1,
           name: "Sign Up on our website",
           amount: 5000,
+          status: "offer",
         },
         {
           id: 2,
@@ -104,6 +95,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 3,
           name: "Make first purchase",
           amount: 10000,
+          status: "offer",
         },
         {
           id: 4,
@@ -130,7 +122,7 @@ const RewardsContainer = ({ cardsData }) => {
   // Function to handle scrolling
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -300 : 300;
+      const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
       scrollContainerRef.current.scrollBy({
         left: scrollAmount,
         behavior: "smooth",
@@ -145,12 +137,44 @@ const RewardsContainer = ({ cardsData }) => {
         scrollContainerRef.current;
 
       // Show left arrow if we've scrolled to the right
-      setShowLeftArrow(scrollLeft > 0);
+      setShowLeftArrow(scrollLeft > 10);
 
       // Show right arrow if there's more content to scroll to
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
     }
   };
+
+  // Calculate proper card width and set initial scroll for mobile view
+  useEffect(() => {
+    const updateLayout = () => {
+      if (scrollContainerRef.current) {
+        const containerWidth = scrollContainerRef.current.clientWidth;
+        const isMobile = window.innerWidth < 640;
+        
+        // For mobile, we want to show 1.5 cards
+        if (isMobile) {
+          const newCardWidth = containerWidth * 0.65; // Show one card + partial of next
+          setCardWidth(newCardWidth);
+          
+          // Set initial scroll position to show exactly 1.5 cards
+          // No need to scroll initially as the container will naturally show this
+        }
+        else {
+          // Reset to default for larger screens
+          setCardWidth(250);
+        }
+        
+        checkScrollPosition();
+      }
+    };
+
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, []);
 
   // Add scroll event listener
   useEffect(() => {
@@ -166,21 +190,44 @@ const RewardsContainer = ({ cardsData }) => {
     }
   }, []);
 
-  // Check on window resize
-  useEffect(() => {
-    window.addEventListener("resize", checkScrollPosition);
-    return () => {
-      window.removeEventListener("resize", checkScrollPosition);
-    };
-  }, []);
-
   return (
-    <div className="relative w-full px-14 reward-cards ">
+    <div className="relative h-fit w-full md:px-14 reward-cards">
+      {/* Scrollable container */}
+      <div className="width-full">
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto flex scroll-smooth space-x-4 scrollbar-hide pb-4"
+          style={{ 
+            scrollbarWidth: "none", 
+            msOverflowStyle: "none",
+            padding: "0.5rem 0" // Add some padding for mobile
+          }}
+        >
+          {rewardsData.map((reward) => (
+            <div 
+              key={reward.id} 
+              className="flex-shrink-0" 
+              style={{
+                width: window.innerWidth < 640 ? `200px` : '250px'
+              }}
+            >
+              <RewardCard
+                discountType={reward.discountType}
+                name={reward.name}
+                amount={reward.amount}
+                status={reward.status}
+                icon={reward.icon}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Left navigation arrow - positioned outside the container */}
       {showLeftArrow && (
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 scroll-left-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
           aria-label="Scroll left"
         >
           <svg
@@ -200,31 +247,11 @@ const RewardsContainer = ({ cardsData }) => {
         </button>
       )}
 
-      {/* Scrollable container */}
-      <div className="width-full ">
-        <div
-          ref={scrollContainerRef}
-          className="overflow-x-auto flex scroll-smooth space-x-4 scrollbar-hide"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {rewardsData.map((reward) => (
-            <RewardCard
-              discountType={reward.discountType}
-              key={reward.id}
-              name={reward.name}
-              amount={reward.amount}
-              status={reward.status}
-              icon={reward.icon}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Right navigation arrow - positioned outside the container */}
+      {/* Right navigation arrow */}
       {showRightArrow && (
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 scroll-right-arrow top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-lg text-gray-800 hover:bg-white"
           aria-label="Scroll right"
         >
           <svg
@@ -241,7 +268,7 @@ const RewardsContainer = ({ cardsData }) => {
               d="M9 5l7 7-7 7"
             />
           </svg>
-        </button>
+          </button>
       )}
     </div>
   );
@@ -271,7 +298,7 @@ const WeDoMore = () => {
   // Apply conditional styling based on route
   const sectionClasses = isRewardsRoute
     ? "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-white pt-32" // White theme with extra top padding for /rewards
-    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)] "; // Original styling for other routes
+    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)]"; // Original styling for other routes
 
   // Adjust text color based on theme
   const textColorClasses = isRewardsRoute ? "text-black" : "text-white";
@@ -279,7 +306,7 @@ const WeDoMore = () => {
 
   return (
     <section className={sectionClasses}>
-      <style jsx>{`
+      <style>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

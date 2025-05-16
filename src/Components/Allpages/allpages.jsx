@@ -38,7 +38,7 @@ export default function AllPage() {
       setIsLoggedIn(true);
     }
   }, [location.pathname]);
-  return (
+  return ( 
     <>
       <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />

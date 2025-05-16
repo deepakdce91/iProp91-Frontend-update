@@ -136,6 +136,20 @@ function hasWordExtension(filename) {
   );
 }
 
+// Helper function to generate initials from a name
+const getInitials = (name) => {
+  if (!name) return "UN"; // Default for unnamed users
+  
+  const names = name.trim().split(" ");
+  if (names.length === 1) {
+    // If only one name, take up to first two letters
+    return names[0].substring(0, 2).toUpperCase();
+  } else {
+    // Take first letter of first name and first letter of last name
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  }
+};
+
 function IncomingMessage({
   userId,
   _id,
@@ -152,16 +166,42 @@ function IncomingMessage({
   isGroupAdmin,
 }) {
   const theme = useTheme();
+  const hasValidProfilePic = userProfilePicture && 
+    userProfilePicture !== "/images/default.png" && 
+    !userProfilePicture.includes("default") &&
+    userProfilePicture !== "/admin-avatar.jpg";
+  
+  const initials = getInitials(userName);
+  const randomColor = React.useMemo(() => {
+    // Generate a consistent color based on the user ID or name
+    const hash = (senderId || userName || "").split("").reduce((acc, char) => {
+      return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+    
+    // Generate a hue between 0 and 360
+    const hue = Math.abs(hash % 360);
+    // Use a consistent saturation and lightness for better readability
+    return `hsl(${hue}, 65%, 65%)`;
+  }, [senderId, userName]);
 
   return (
-    <div className="flex flex-col  cursor-pointer group">
+    <div className="flex flex-col cursor-pointer group">
       <div className="flex items-center">
-        <div className="w-9 h-9 relative mb-4 rounded-full flex items-center justify-center ">
-          <img
-            src={userProfilePicture}
-            alt="User Avatar"
-            className="w-8 h-8 rounded-full"
-          />
+        <div className="w-9 h-9 relative mb-4 rounded-full flex items-center justify-center">
+          {hasValidProfilePic ? (
+            <img
+              src={userProfilePicture}
+              alt={userName || "User"}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium"
+              style={{ backgroundColor: randomColor }}
+            >
+              {initials}
+            </div>
+          )}
           {isGroupAdmin && (
             <img
               src="/star-badge.svg"
@@ -272,18 +312,47 @@ function OutgoingMessage({
   unflagMessage,
   createdAt,
   isGroupAdmin,
+  userName,
 }) {
   const theme = useTheme();
+  const hasValidProfilePic = userProfilePicture && 
+    userProfilePicture !== "/images/default.png" && 
+    !userProfilePicture.includes("default") &&
+    userProfilePicture !== "/admin-avatar.jpg";
+  
+  // For outgoing messages, use "You" for display but actual name for initials
+  const actualName = userName || "You";
+  const initials = getInitials(actualName);
+  const randomColor = React.useMemo(() => {
+    // Generate a consistent color based on the user ID or name
+    const hash = (senderId || userId || "").split("").reduce((acc, char) => {
+      return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+    
+    // Generate a hue between 0 and 360
+    const hue = Math.abs(hash % 360);
+    // Use a consistent saturation and lightness for better readability
+    return `hsl(${hue}, 65%, 65%)`;
+  }, [senderId, userId]);
 
   return (
-    <div className="flex flex-col  cursor-pointer group">
+    <div className="flex flex-col cursor-pointer group">
       <div className="flex">
-        <div className="w-9 h-9 mb-4 relative rounded-full flex items-center justify-center ">
-          <img
-            src={userProfilePicture}
-            alt="My Avatar"
-            className="w-8 h-8 rounded-full"
-          />
+        <div className="w-9 h-9 mb-4 relative rounded-full flex items-center justify-center">
+          {hasValidProfilePic ? (
+            <img
+              src={userProfilePicture}
+              alt="My Avatar"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium"
+              style={{ backgroundColor: randomColor }}
+            >
+              {initials}
+            </div>
+          )}
           {isGroupAdmin && (
             <img
               src="/star-badge.svg"
@@ -1178,116 +1247,133 @@ function Chats({
       </ScrollToBottom>
       {/* <!-- Chat Input --> */}
       {/* <!-- Chat Input --> */}
-<footer className="border-t-[1px] border-t-black/20 w-full bg-white sticky bottom-14 sm:bottom-0 left-0 right-0">
-  {!fileToUpload && (
-    <div className="flex flex-col w-full">
-      <div className="bg-gradient-to-r from-gray-500 to-gray-100 w-full">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex items-center">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileAdding}
-            />
-            <button className="ml-1" onClick={handleButtonClick}>
-              <Plus className="w-5 h-5 text-gray-300" />
-            </button>
-          </div>
+      <footer 
+      className="border-t border-black/20 w-full bg-white" 
+      style={{ 
+        position: 'sticky',
+        left: 0,
+        right: 0,
+        bottom: (() => {
+          const h = window.innerHeight;
+          const w = window.innerWidth;
+          if (w >= 768) return '0'; // Desktop view
+          if (h <= 667) return '0'; // iPhone SE, smaller phones
+          if (h >= 844 && h < 900) return '0'; // iPhone 12/13/14
+          if (h >= 932) return '4.4rem'; // iPhone 14 Pro Max, larger phones
+          return '1rem'; // Default for other sizes
+        })(),
+        zIndex: 10
+      }}
+    >
+      {!fileToUpload && (
+        <div className="flex flex-col w-full">
+          <div className="bg-gradient-to-r from-gray-500 to-gray-100 w-full">
+            <div className="flex items-center gap-2 px-2 py-2">
+              <div className="flex items-center">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileAdding}
+                />
+                <button className="ml-1" onClick={handleButtonClick}>
+                  <Plus className="w-5 h-5 text-gray-300" />
+                </button>
+              </div>
 
-          <div className="flex-1 relative">
-            <style>
-              {`
-                .quill {
-                  border: none;
-                }
-                .ql-container.ql-snow {
-                  border: none;
-                  font-size: 15px;
-                  color: #282828;
-                }
-                @media (max-width: 640px) {
-                  .quill {
-                    max-height: 80px;
-                    overflow-y: auto;
-                  }
-                }
-              `}
-            </style>
-            <ReactQuill
-              value={textMessage}
-              onChange={handleTextMessageChange}
-              onKeyDown={handleKeyDown}
-              modules={{ toolbar: false }}
-              formats={formats}
-              placeholder="Type a message..."
-              theme="snow"
-              className="w-full text-black bg-gradient-to-r from-gray-200 to-gray-50 text-gray-500 rounded-lg pl-10 outline-none"
-            />
-            <button
-              className="absolute left-0 top-[6px]"
-              onClick={() => setShowPicker(!showPicker)}
-            >
-              <p className="text-2xl ml-2">😊</p>
-            </button>
-          </div>
+              <div className="flex-1 relative">
+                <style>
+                  {`
+                    .quill {
+                      border: none;
+                    }
+                    .ql-container.ql-snow {
+                      border: none;
+                      font-size: 15px;
+                      color: #282828;
+                    }
+                    @media (max-width: 640px) {
+                      .quill {
+                        max-height: 80px;
+                        overflow-y: auto;
+                      }
+                    }
+                  `}
+                </style>
+                <ReactQuill
+                  value={textMessage}
+                  onChange={handleTextMessageChange}
+                  onKeyDown={handleKeyDown}
+                  modules={{ toolbar: false }}
+                  formats={formats}
+                  placeholder="Type a message..."
+                  theme="snow"
+                  className="w-full text-black bg-gradient-to-r from-gray-200 to-gray-50 text-gray-500 rounded-lg pl-10 outline-none"
+                />
+                <button
+                  className="absolute left-0 top-[6px]"
+                  onClick={() => setShowPicker(!showPicker)}
+                >
+                  <p className="text-2xl ml-2">😊</p>
+                </button>
+              </div>
 
-          <button
-            type="button"
-            className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
-            onClick={(e) => {
-              e.preventDefault();
-              addMessage();
-            }}
-            disabled={textMessage === "" ? true : false}
-          >
-            <SendHorizonal className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-      {showPicker && (
-        <div id="emoji-picker" className="absolute bottom-16 right-2 z-50 w-64 md:w-auto">
-          <EmojiPicker 
-            onEmojiClick={onEmojiClick}
-            emojiStyle="native"
-            width="100%"
-            height="350px"
-          />
+              <button
+                type="button"
+                className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  addMessage();
+                }}
+                disabled={textMessage === "" ? true : false}
+              >
+                <SendHorizonal className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          {showPicker && (
+            <div id="emoji-picker" className="absolute bottom-16 right-2 z-50 w-64 md:w-auto">
+              <EmojiPicker 
+                onEmojiClick={onEmojiClick}
+                emojiStyle="native"
+                width="100%"
+                height="350px"
+              />
+            </div>
+          )}
         </div>
       )}
-    </div>
-  )}
 
-  {fileToUpload && showMediaPreview && (
-    <MediaPreviewModal
-      file={fileToUpload}
-      onClose={() => {
-        setShowMediaPreview(false);
-        setFileToUpload(null);
-      }}
-      onSend={handleSendMedia}
-    />
-  )}
+      {fileToUpload && showMediaPreview && (
+        <MediaPreviewModal
+          file={fileToUpload}
+          onClose={() => {
+            setShowMediaPreview(false);
+            setFileToUpload(null);
+          }}
+          onSend={handleSendMedia}
+        />
+      )}
 
-  {fileToUpload && !showMediaPreview && (
-    <div className="flex flex-row justify-between items-center p-2 bg-white">
-      <div className="flex flex-row items-center max-w-[70%]">
-        <button onClick={handleFileRemoving}>
-          <TiDelete className="h-6 w-6 text-red-400 hover:scale-110 hover:text-red-500 mr-2 flex-shrink-0" />
-        </button>
-        <p className="text-gray-900 truncate text-sm">
-          {fileToUpload.name}
-        </p>
-      </div>
-      <button
-        className="bg-blue-500 text-white px-3 py-1 text-sm rounded-md ml-2 flex-shrink-0"
-        onClick={addFile}
-      >
-        Send
-      </button>
-    </div>
-  )}
-</footer>
+      {fileToUpload && !showMediaPreview && (
+        <div className="flex flex-row justify-between items-center p-2 bg-white">
+          <div className="flex flex-row items-center max-w-[70%]">
+            <button onClick={handleFileRemoving}>
+              <TiDelete className="h-6 w-6 text-red-400 hover:scale-110 hover:text-red-500 mr-2 flex-shrink-0" />
+            </button>
+            <p className="text-gray-900 truncate text-sm">
+              {fileToUpload.name}
+            </p>
+          </div>
+          <button
+            className="bg-blue-500 text-white px-3 py-1 text-sm rounded-md ml-2 flex-shrink-0"
+            onClick={addFile}
+          >
+            Send
+          </button>
+        </div>
+      )}
+    </footer>
     </>
   );
 }

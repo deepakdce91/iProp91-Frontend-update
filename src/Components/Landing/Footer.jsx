@@ -148,7 +148,7 @@ const Footer = () => {
               placeholder={status === 'idle' ? "Email address" : ""}
               value={getInputDisplay()}
               onChange={handleInputChange}
-              className="text-white bg-black px-3 py-2 w-full outline-none placeholder-gray-800"
+              className="text-white bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)] px-3 py-2 w-full outline-none placeholder-gray-800"
               disabled={status === 'sending' || status === 'done'}
             />
             
@@ -194,10 +194,10 @@ const Footer = () => {
 
         {/* Rest of the footer sections */}
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Quick Links
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
               <Link to="/aboutUs" className="hover:text-primary">
                 About Us
@@ -232,10 +232,10 @@ const Footer = () => {
         </div>
 
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Our Services
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
               <Link to="/safe" className="hover:text-primary">
                 iProp91 Safe
@@ -270,10 +270,10 @@ const Footer = () => {
         </div>
 
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Knowledge Center
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
               <Link to="/faqs" className="hover:text-primary">
                 FAQs
