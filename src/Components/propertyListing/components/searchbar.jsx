@@ -284,7 +284,7 @@ export default function SearchBar({
   };
 
   return (
-    <div className="bg-gradient-to-r from-gray-900 to-black shadow-lg">
+    <div className="shadow-lg " style={{ background: '#0a0f19' }}>
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row gap-4 items-center">
           {/* Location Search with State and City */}
@@ -294,7 +294,7 @@ export default function SearchBar({
               type="button"
               onClick={getCurrentLocation}
               disabled={isLocating}
-              className="px-4 py-3 rounded-xl border-2 border-gold-400 text-white font-medium flex items-center justify-center gap-2 hover:bg-gold-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-3 rounded-xl border-2 border-gold-400 text-white font-medium flex items-center justify-center gap-2 hover:bg-[#23283a]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaLocationArrow
                 className={`text-lg text-white ${
@@ -314,22 +314,22 @@ export default function SearchBar({
                 onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${
                   selectedState
-                    ? "border-gold-400 bg-gold-400/5 text-white"
-                    : "border-gold-400 text-white hover:bg-gold-400/10 bg-gray-800/50"
+                    ? "border-gold-400 bg-[#23283a] text-white"
+                    : "border-gold-400 text-white hover:bg-[#23283a]/80 bg-[#0a0f19]"
                 }`}
               >
                 {selectedState ? selectedState.name : "Select State"}
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
               </button>
               {stateDropdownOpen && (
-                <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border-2 border-gold-400 max-h-60 overflow-y-auto">
-                  <div className="sticky top-0 bg-white p-2 border-b-2 border-gold-400">
+                <div className="absolute z-10 w-full mt-2 bg-[#181c27] text-white rounded-xl shadow-xl border-2 border-gold-400 max-h-60 overflow-y-auto">
+                  <div className="sticky top-0 bg-[#181c27] text-white p-2 border-b-2 border-gold-400">
                     <input
                       type="text"
                       placeholder="Search states..."
                       value={stateSearch}
                       onChange={(e) => setStateSearch(e.target.value)}
-                      className="w-full p-2 bg-gray-50 border-2 border-gold-400 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gold-400"
+                      className="w-full p-2 bg-[#23283a] text-white placeholder-gray-300 border-2 border-gold-400 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-400"
                     />
                   </div>
                   {filteredStates.map((state) => (
@@ -337,7 +337,7 @@ export default function SearchBar({
                       key={state.iso2}
                       type="button"
                       onClick={() => handleStateSelect(state)}
-                      className="w-full px-4 py-3 text-left hover:bg-gold-400/10 transition-colors text-gray-900"
+                      className="w-full px-4 py-3 text-left hover:bg-[#23283a]/80 transition-colors text-white"
                     >
                       {state.name}
                     </button>
@@ -358,8 +358,8 @@ export default function SearchBar({
                 }
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${
                   selectedCity
-                    ? "border-gold-400 bg-gold-400/5 text-white"
-                    : "border-gold-400 text-white hover:bg-gold-400/10 bg-gray-800/50"
+                    ? "border-gold-400 bg-[#23283a] text-white"
+                    : "border-gold-400 text-white hover:bg-[#23283a]/80 bg-[#0a0f19]"
                 } ${!selectedState ? "opacity-50 cursor-not-allowed" : ""}`}
                 disabled={!selectedState}
               >
@@ -367,14 +367,14 @@ export default function SearchBar({
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
               </button>
               {cityDropdownOpen && (
-                <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-xl border-2 border-gold-400 max-h-60 overflow-y-auto">
-                  <div className="sticky top-0 bg-white p-2 border-b-2 border-gold-400">
+                <div className="absolute z-10 w-full mt-2 bg-[#181c27] text-white rounded-xl shadow-xl border-2 border-gold-400 max-h-60 overflow-y-auto">
+                  <div className="sticky top-0 bg-[#181c27] text-white p-2 border-b-2 border-gold-400">
                     <input
                       type="text"
                       placeholder="Search cities..."
                       value={citySearch}
                       onChange={(e) => setCitySearch(e.target.value)}
-                      className="w-full p-2 bg-gray-50 border-2 border-gold-400 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gold-400"
+                      className="w-full p-2 bg-[#23283a] text-white placeholder-gray-300 border-2 border-gold-400 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-400"
                     />
                   </div>
                   {filteredCities.map((city) => (
@@ -382,7 +382,7 @@ export default function SearchBar({
                       key={city.id}
                       type="button"
                       onClick={() => handleCitySelect(city)}
-                      className="w-full px-4 py-3 text-left hover:bg-gold-400/10 transition-colors text-gray-900"
+                      className="w-full px-4 py-3 text-left hover:bg-[#23283a]/80 transition-colors text-white"
                     >
                       {city.name}
                     </button>
@@ -395,7 +395,7 @@ export default function SearchBar({
           {/* Filter Button */}
           <button
             type="button"
-            className="w-full md:w-auto px-8 py-3 border-2 border-gold-400 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gold-400/10 transition-colors"
+            className="w-full md:w-auto px-8 py-3 border-2 border-gold-400 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-[#23283a]/80 transition-colors"
             onClick={onOpenFilters}
           >
             <svg

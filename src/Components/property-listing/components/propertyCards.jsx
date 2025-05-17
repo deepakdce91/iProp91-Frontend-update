@@ -329,7 +329,7 @@ const PropertyCards = ({
   return (
     <div>
       <h1 className="text-lg sm:text-xl font-medium text-gray-900 mb-4">
-        {totalProperties} Properties for Sale in {getLocationLabel()}
+        {properties.length} Properties for Sale in {getLocationLabel()}
       </h1>
       {properties.length === 0 ? (
         <div className="text-center py-8 text-gray-500">

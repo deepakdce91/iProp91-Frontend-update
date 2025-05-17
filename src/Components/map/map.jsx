@@ -6,7 +6,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import PropertyCards from "./components/propertyCards.jsx";
 import { useLocation } from "react-router-dom";
-import MapComponent from "./components/mapComponent.jsx";
+import MapComponent from "./components/MapComponent.jsx";
+import MapBoundsHandler from "./components/MapBoundsHandler.jsx";
+import { getCurrentMapBounds } from "./utils/AirbnbFetchHelper.js";
 import Navbar from "../Landing/Navbar.jsx";
 
 // Add this style fix function to ensure property cards are visible
@@ -45,10 +47,34 @@ const ensurePropertiesVisible = () => {
 };
 
 function App() {
+  // Call the style fix function to ensure property cards are visible
+  useEffect(() => {
+    ensurePropertiesVisible();
+  }, []);
+  
+  // Add property categories state for updateCategoryCounts
+  const [propertyCategories, setPropertyCategories] = useState([
+    { id: 0, label: 'All', count: 0 },
+    { id: 1, label: 'Owner', count: 0 },
+    { id: 2, label: 'New', count: 0 },
+    { id: 3, label: 'Ready to Move', count: 0 },
+    { id: 4, label: 'Budget', count: 0 },
+    { id: 5, label: 'Pre-Launch', count: 0 },
+    { id: 6, label: 'Verified', count: 0 },
+    { id: 7, label: 'Sale', count: 0 },
+    { id: 8, label: 'Upcoming', count: 0 },
+  ]);
+
   const location = useLocation();
   const [showFilters, setShowFilters] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [properties, setProperties] = useState([]);
+  // Airbnb-like map fetching states
+  const [lastCursor, setLastCursor] = useState(null);
+  const [hasMoreProperties, setHasMoreProperties] = useState(true);
+  const [mapBounds, setMapBounds] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [searchAsIMove, setSearchAsIMove] = useState(true);
   const [filters, setFilters] = useState(() => {
     // First check URL parameters
     const searchParams = new URLSearchParams(location.search);
@@ -97,17 +123,7 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
-  const [propertyCategories] = useState([
-    { id: "all", label: "All Properties", count: 0 },
-    { id: "owner", label: "Owner's Property", count: 0 },
-    { id: "new", label: "New Projects", count: 0 },
-    { id: "ready", label: "Ready to Move", count: 0 },
-    { id: "budget", label: "Budget Homes", count: 0 },
-    { id: "prelaunch", label: "Pre Launch Homes", count: 0 },
-    { id: "verified", label: "Verified Owner Properties", count: 0 },
-    { id: "sale", label: "New Sale Properties", count: 0 },
-    { id: "upcoming", label: "Upcoming Projects", count: 0 },
-  ]);
+
   const [selectedState, setSelectedState] = useState(() => {
     const savedState = localStorage.getItem("selectedState");
     return savedState ? JSON.parse(savedState) : null;
@@ -375,33 +391,163 @@ function App() {
     }
   }, [location.search]);
 
+  // Function to update category counts based on properties
+  const updateCategoryCounts = (propertiesData) => {
+    // Create a copy of the categories
+    const updatedCategories = [...propertyCategories];
+    
+    // Reset all counts
+    updatedCategories.forEach(category => {
+      category.count = 0;
+    });
+    
+    // Count properties in each category
+    propertiesData.forEach(property => {
+      // All properties count
+      updatedCategories[0].count++;
+      
+      // Count by category
+      if (property.owner === 'owner') updatedCategories[1].count++;
+      if (property.isNew) updatedCategories[2].count++;
+      if (property.readyToMove) updatedCategories[3].count++;
+      if (property.isBudget) updatedCategories[4].count++;
+      if (property.isPreLaunch) updatedCategories[5].count++;
+      if (property.isVerified) updatedCategories[6].count++;
+      if (property.isSale) updatedCategories[7].count++;
+      if (property.isUpcoming) updatedCategories[8].count++;
+    });
+    
+    // Update state
+    setPropertyCategories(updatedCategories);
+  };
+  
+  // Function to handle map bounds change
+  const handleMapBoundsChange = (bounds) => {
+    // Update map bounds state
+    setMapBounds(bounds);
+    
+    // If automatic searching is disabled, don't fetch properties
+    if (!searchAsIMove) return;
+    
+    // Fetch properties for the new bounds
+    fetchProperties(bounds);
+  };
+  
+  // Function to handle properties fetched from the map
+  const handlePropertiesFetched = (propertiesData, isLoadMore, total) => {
+    if (isLoadMore) {
+      // Append to existing properties
+      setProperties(prevProperties => [...prevProperties, ...propertiesData]);
+    } else {
+      // Replace all properties
+      setProperties(propertiesData);
+    }
+    
+    // Update category counts
+    updateCategoryCounts(propertiesData);
+    
+    console.log(`Fetched ${propertiesData.length} properties. Total: ${total}`);
+  };
+  
   // Add useEffect to fetch properties
   useEffect(() => {
-    // This is a placeholder. Replace with your actual API call
-    const fetchProperties = async () => {
+    // Only fetch initially if we don't have bounds yet (will fetch again when map is ready)
+    if (!mapBounds) {
+      fetchProperties();
+    }
+  }, []);
+  
+  // Main property fetching function with Airbnb-like behavior
+  const fetchProperties = async (bounds = null, isLoadMore = false, cursor = null) => {
+    try {
+      setIsFetching(true);
+      // --- inner try block begins below ---
       try {
-        // Replace this with your actual API endpoint
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projectDataMaster`);
-        console.log("response in app.jsx" + response);
+        // Prepare URL and query parameters
+        let url = `${process.env.REACT_APP_API_URL}/api/projectDataMaster`;
+        const queryParams = new URLSearchParams();
+        
+        // Add map bounds if available
+        if (bounds) {
+          url = `${process.env.REACT_APP_API_URL}/api/projectDataMaster/inBounds`;
+          queryParams.append('swLat', bounds.southWest.lat);
+          queryParams.append('swLng', bounds.southWest.lng);
+          queryParams.append('neLat', bounds.northEast.lat);
+          queryParams.append('neLng', bounds.northEast.lng);
+        }
+        
+        // Add filters
+        if (filters.category) queryParams.append('category', filters.category);
+        if (filters.propertyType) queryParams.append('propertyType', Array.isArray(filters.propertyType) ? filters.propertyType.join(',') : filters.propertyType);
+        if (filters.bhk) queryParams.append('bhk', Array.isArray(filters.bhk) ? filters.bhk.join(',') : filters.bhk);
+        if (filters.minBudget) queryParams.append('minBudget', filters.minBudget);
+        if (filters.maxBudget) queryParams.append('maxBudget', filters.maxBudget);
+        if (filters.state) queryParams.append('state', filters.state);
+        if (filters.city) queryParams.append('city', filters.city);
+        
+        // Add pagination parameters
+        queryParams.append('limit', 20); // Number of properties per request
+        if (cursor) {
+          queryParams.append('cursor', cursor);
+        }
+        
+        // Make the API request
+        const response = await fetch(`${url}?${queryParams.toString()}`);
+        console.log("API request to:", `${url}?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        
         const data = await response.json();
         
-        // Add latitude and longitude if they don't exist
+        // Process the data to ensure all properties have coordinates
         const propertiesWithCoords = data.projects.map(property => ({
           ...property,
-          latitude: property.coordinates[0] || 20.5937 + (Math.random() - 0.5) * 10,
-          longitude: property.coordinates[1] || 78.9629 + (Math.random() - 0.5) * 10
+          latitude: property.coordinates?.[0] || property.latitude || 20.5937 + (Math.random() - 0.5) * 10,
+          longitude: property.coordinates?.[1] || property.longitude || 78.9629 + (Math.random() - 0.5) * 10,
+          coordinates: property.coordinates && property.coordinates.length === 2 
+            ? property.coordinates 
+            : [property.latitude || 20.5937 + (Math.random() - 0.5) * 10, 
+               property.longitude || 78.9629 + (Math.random() - 0.5) * 10]
         }));
         
-        setProperties(propertiesWithCoords);
+        // If this is a load more operation, append to existing properties
+        if (isLoadMore) {
+          setProperties(prevProperties => [...prevProperties, ...propertiesWithCoords]);
+        } else {
+          setProperties(propertiesWithCoords);
+        }
+        
+        // Store cursor for pagination
+        setLastCursor(data.nextCursor || null);
+        setHasMoreProperties(!!data.nextCursor);
+        
+        // Update category counts
+        updateCategoryCounts(propertiesWithCoords);
+        
+        // Return the result data
+        return {
+          properties: propertiesWithCoords,
+          nextCursor: data.nextCursor,
+          total: data.total || data.projects.length
+        };
       } catch (error) {
         console.error('Error fetching properties:', error);
+        // Return empty data on error to prevent app from crashing
+        return { properties: [], nextCursor: null, total: 0 };
       }
-    };
+      setIsFetching(false);
+    } catch (outerError) {
+      console.error('Unexpected error in fetchProperties:', outerError);
+      setIsFetching(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProperties();
   }, [filters, activeCategory, sortBy]);
 
-  // Update useEffect to set mapProperties in window object with array coordinates
   useEffect(() => {
     // Add properties to window object so map component can access them
     window.mapProperties = properties.map(property => ({

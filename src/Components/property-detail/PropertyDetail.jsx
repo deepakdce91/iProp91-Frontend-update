@@ -35,7 +35,6 @@ import { toast } from "react-hot-toast";
 
 export default function PropertyDetail({ onBack }) {
   const { id } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +63,7 @@ export default function PropertyDetail({ onBack }) {
         console.log("Fetching property details for ID:", id);
 
         const response = await axios.get(
-          `https://iprop91new.onrender.com/api/projectsDataMaster/property/${id}`
+          `${process.env.REACT_APP_API_URL}/api/projectsDataMaster/${id}`
         );
         console.log("API Response:", response.data);
 
@@ -73,30 +72,63 @@ export default function PropertyDetail({ onBack }) {
           console.log("Processing property data:", propertyData);
 
           const processedProperty = {
+        id: propertyData._id,
+        propertyId: propertyData.propertyId,
+        listingId: propertyData.listingId,
+        state: propertyData.state,
+        city: propertyData.city,
+        builder: propertyData.builder,
+        project: propertyData.project,
+        overview: propertyData.overview,
+        address: propertyData.address,
+        pincode: propertyData.pincode,
+        status: propertyData.status,
+        type: propertyData.type,
+        availableFor: propertyData.availableFor,
+        category: propertyData.category,
+        minimumPrice: propertyData.minimumPrice,
+        maximumPrice: propertyData.maximumPrice,
+        bhk: propertyData.bhk,
+        appartmentType: propertyData.appartmentType || [],
+        appartmentSubType: propertyData.appartmentSubType || [],
+        features: propertyData.features || [],
+        amenities: propertyData.amenities || [],
+        commercialHubs: propertyData.commercialHubs || [],
+        hospitals: propertyData.hospitals || [],
+        hotels: propertyData.hotels || [],
+        shoppingCentres: propertyData.shoppingCentres || [],
+        transportationHubs: propertyData.transportationHubs || [],
+        educationalInstitutions: propertyData.educationalInstitutions || [],
+        images: propertyData.images || [],
+        floorPlan: propertyData.floorPlan || [],
+        enable: propertyData.enable,
+        isViewed: propertyData.isViewed,
+        createdAt: propertyData.createdAt,
+        updatedAt: propertyData.updatedAt,
+        floorNumber: propertyData.floorNumber,
+        houseNumber: propertyData.houseNumber,
+        isTitleDeedVerified: propertyData.isTitleDeedVerified,
+        numberOfBathrooms: propertyData.numberOfBathrooms,
+        numberOfBedrooms: propertyData.numberOfBedrooms,
+        numberOfFloors: propertyData.numberOfFloors,
+        numberOfParkings: propertyData.numberOfParkings,
+        numberOfWashrooms: propertyData.numberOfWashrooms,
+        sector: propertyData.sector,
+        size: propertyData.size,
+        thumbnail: propertyData.thumbnail,
             id: propertyData._id,
-            title: `${propertyData.bhk || ""} ${
-              propertyData.type || "Property"
-            } in ${propertyData.project || ""}`,
-            price: propertyData.minimumPrice
-              ? `₹${propertyData.minimumPrice}`
-              : "Price on Request",
-            location: `${propertyData.city}, ${propertyData.state}`,
-            coordinates: {
-              lat: propertyData.latitude || 0,
-              lng: propertyData.longitude || 0,
-            },
-            images: propertyData.images || [],
-            description: propertyData.overview || "",
-            amenities: propertyData.amenities || [],
-            features: propertyData.features || [],
-            bhk: propertyData.bhk,
-            type: propertyData.type,
-            area: propertyData.size,
+            propertyId: propertyData.propertyId,
+            listingId: propertyData.listingId,
+            state: propertyData.state,
+            city: propertyData.city,
+            builder: propertyData.builder,
+            project: propertyData.project,
+            overview: propertyData.overview,
+            address: propertyData.address,
+            pincode: propertyData.pincode,
             status: propertyData.status,
-            bathrooms: propertyData.bathrooms,
-            balconies: propertyData.balconies,
-            flooring: propertyData.flooring,
-            electrical: propertyData.electrical,
+            type: propertyData.type,
+            availableFor: propertyData.availableFor,
             doors: propertyData.doors,
             possessionStatus:
               propertyData.possessionStatus || propertyData.status,

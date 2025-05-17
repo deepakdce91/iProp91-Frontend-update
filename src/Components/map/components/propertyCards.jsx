@@ -16,7 +16,7 @@ const PropertyCards = ({
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
+  const [/* error */, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalProperties, setTotalProperties] = useState(0);
@@ -240,27 +240,24 @@ const PropertyCards = ({
     };
   }, [hasMore, loadingMore, loadMore]);
 
-  // Store properties in window object for map access
+  // Store properties in window object for map access with better interface
   useEffect(() => {
     if (properties.length > 0) {
       // Make properties available for the map component
       window.mapProperties = properties;
+      
+      // Log properties with coordinates for debugging
+      console.log('Properties with coordinates available:', 
+        properties.filter(p => p.coordinates && Array.isArray(p.coordinates) && p.coordinates.length === 2).length,
+        'out of', properties.length);
+      
+      // Create a custom event that the map component can listen for
+      const event = new CustomEvent('properties-updated', {
+        detail: { properties }
+      });
+      window.dispatchEvent(event);
     }
   }, [properties]);
-
-  // Animation variants for staggered card entrance - simplified to ensure visibility
-  const containerVariants = {
-    visible: {
-      opacity: 1,
-    }
-  };
-  
-  const itemVariants = {
-    visible: {
-      opacity: 1,
-      y: 0,
-    }
-  };
 
   // Force visibility by running animation immediately
   useEffect(() => {
@@ -269,7 +266,6 @@ const PropertyCards = ({
 
   // Determine which properties to display
   const displayProperties = showNearby ? nearbyProperties : properties;
-  const displayTotal = showNearby ? nearbyProperties.length : totalProperties;
   const displayTitle = showNearby ? 
     `${nearbyProperties.length} Properties Near You` : 
     `${totalProperties} Properties for Sale in ${getLocationLabel()}`;
@@ -329,6 +325,7 @@ const PropertyCards = ({
           <div
             key={`${property.id || index}-card`}
             style={forceVisibleStyle}
+            className="min-h-[340px] flex flex-col justify-between"
           >
             <PropertyCard
               property={{
@@ -337,18 +334,9 @@ const PropertyCards = ({
                   distanceText: `${property.distance} km from your location`
                 })
               }}
+              isLoading={loading}
+              propertyId={property._id || property.id}
               onPropertySelect={onPropertySelect}
-              onClick={() => {
-                if (property.onClick) {
-                  property.onClick();
-                } else if (onPropertyClick) {
-                  onPropertyClick(property);
-                }
-                
-                if (onPropertySelect) {
-                  onPropertySelect(property);
-                }
-              }}
             />
           </div>
         ))}

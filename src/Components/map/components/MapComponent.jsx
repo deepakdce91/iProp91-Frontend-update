@@ -5,13 +5,61 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import { 
-
   createNearbyHouseIcon, 
   createActiveHouseIcon, 
   createUserLocationIcon,
-  createBlackHouseIcon,
-
+  createHouseIcon,
 } from '../utils/HouseIcons';
+
+// No longer needed - using internal implementations
+// import MapBoundsHandler from './MapBoundsHandler';
+// import SearchThisAreaButton from './SearchThisAreaButton';
+// import SearchAsIMoveToggle from './SearchAsIMoveToggle';
+
+// SearchThisAreaButton component implementation
+const SearchThisAreaButton = ({ map, onClick }) => {
+  const [visible, setVisible] = useState(true); // Starting visible by default
+  
+  // Function to handle the click
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClick) onClick();
+  };
+  
+  // Update visibility based on map movement
+  useEffect(() => {
+    if (!map) return;
+    
+    const handleMoveEnd = () => {
+      setVisible(true);
+    };
+    
+    map.on('moveend', handleMoveEnd);
+    
+    return () => {
+      if (map) {
+        map.off('moveend', handleMoveEnd);
+      }
+    };
+  }, [map]);
+  
+  return (
+    <div className={`absolute top-2 left-0 right-0 mx-auto w-max z-[999] ${visible ? 'block' : 'hidden'}`}>
+      <button 
+        onClick={handleClick}
+        className="bg-white py-2 px-4 rounded-full shadow-md hover:bg-gray-100 focus:outline-none border border-gray-300"
+      >
+        <span className="flex items-center text-sm font-medium text-gray-700">
+          <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search this area
+        </span>
+      </button>
+    </div>
+  );
+};
 
 // Custom CSS for active markers
 const activeMarkerStyle = `
@@ -151,6 +199,275 @@ const MapInteractionHandler = ({ onMapReady }) => {
   return null;
 };
 
+// Enhanced MapBoundsHandler component
+const EnhancedMapBoundsHandler = ({ onBoundsChange, onPropertiesFetched, filters, searchAsIMove }) => {
+  const map = useMap();
+  const [isFetching, setIsFetching] = useState(false);
+  const [hasMoreProperties, setHasMoreProperties] = useState(true);
+  const [lastCursor, setLastCursor] = useState(null);
+  const [isInitialFetch, setIsInitialFetch] = useState(true);
+  
+  // Helper function to get current map bounds
+  const getCurrentMapBounds = (mapInstance) => {
+    const bounds = mapInstance.getBounds();
+    return {
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+      east: bounds.getEast(),
+      west: bounds.getWest(),
+      zoom: mapInstance.getZoom()
+    };
+  };
+  
+  // Function to clear cache of results
+  const clearResultsCache = () => {
+    // Implement if needed
+    console.log('Clearing results cache');
+  };
+  
+  // Fetch properties in bounds from API
+  const fetchPropertiesInBounds = async (bounds, filters) => {
+    console.log('Fetching properties in bounds', bounds, filters);
+    try {
+      // Convert bounds to query parameters
+      const queryParams = new URLSearchParams();
+      
+      // Add bounds parameters
+      queryParams.append("north", bounds.north);
+      queryParams.append("south", bounds.south);
+      queryParams.append("east", bounds.east);
+      queryParams.append("west", bounds.west);
+      queryParams.append("zoom", bounds.zoom);
+      
+      // Add additional filters
+      if (filters.state) queryParams.append("state", filters.state);
+      if (filters.city) queryParams.append("city", filters.city);
+      if (filters.propertyType?.length) queryParams.append("propertyType", filters.propertyType.join(","));
+      if (filters.bhk?.length) queryParams.append("bhk", filters.bhk.join(","));
+      if (filters.minBudget) queryParams.append("minBudget", filters.minBudget);
+      if (filters.maxBudget) queryParams.append("maxBudget", filters.maxBudget);
+      if (filters.amenities?.length) queryParams.append("amenities", filters.amenities.join(","));
+      
+      // Always add pagination parameters
+      queryParams.append("page", "1");
+      queryParams.append("limit", "20");
+      
+      console.log("Query params for map bounds:", queryParams.toString());
+      
+      // Make API call
+      const response = await fetch(`https://iprop91new.onrender.com/api/projectsDataMaster?${queryParams.toString()}`);
+      const data = await response.json();
+      
+      console.log('API response:', data);
+      
+      if (data.success) {
+        return { 
+          properties: data.docs || [], 
+          nextCursor: data.hasNextPage ? data.nextPage.toString() : null, 
+          total: data.totalDocs || 0 
+        };
+      } else {
+        console.error('API returned error:', data.message);
+        return { properties: [], nextCursor: null, total: 0 };
+      }
+    } catch (error) {
+      console.error('Error fetching properties for bounds:', error);
+      return { properties: [], nextCursor: null, total: 0 };
+    }
+  };
+  
+  // Load more properties function
+  const loadMoreProperties = async (cursor, bounds, filters) => {
+    console.log('Loading more properties', cursor, bounds, filters);
+    try {
+      // Convert bounds to query parameters
+      const queryParams = new URLSearchParams();
+      
+      // Add bounds parameters
+      queryParams.append("north", bounds.north);
+      queryParams.append("south", bounds.south);
+      queryParams.append("east", bounds.east);
+      queryParams.append("west", bounds.west);
+      queryParams.append("zoom", bounds.zoom);
+      
+      // Add additional filters
+      if (filters.state) queryParams.append("state", filters.state);
+      if (filters.city) queryParams.append("city", filters.city);
+      if (filters.propertyType?.length) queryParams.append("propertyType", filters.propertyType.join(","));
+      if (filters.bhk?.length) queryParams.append("bhk", filters.bhk.join(","));
+      if (filters.minBudget) queryParams.append("minBudget", filters.minBudget);
+      if (filters.maxBudget) queryParams.append("maxBudget", filters.maxBudget);
+      if (filters.amenities?.length) queryParams.append("amenities", filters.amenities.join(","));
+      
+      // Add pagination parameters
+      queryParams.append("page", cursor);
+      queryParams.append("limit", "20");
+      
+      console.log("Query params for loading more:", queryParams.toString());
+      
+      // Make API call
+      const response = await fetch(`https://iprop91new.onrender.com/api/projectsDataMaster?${queryParams.toString()}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return { 
+          properties: data.docs || [], 
+          nextCursor: data.hasNextPage ? data.nextPage.toString() : null, 
+          total: data.totalDocs || 0 
+        };
+      } else {
+        console.error('API returned error:', data.message);
+        return { properties: [], nextCursor: null, total: 0 };
+      }
+    } catch (error) {
+      console.error('Error loading more properties:', error);
+      return { properties: [], nextCursor: null, total: 0 };
+    }
+  };
+  
+  // Use real debounce function to prevent excessive API calls during map interaction
+  const debounce = (func, wait) => {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  };
+  
+  // Debounced version of fetch properties
+  const debouncedFetchPropertiesInBoundsRef = useRef(debounce(async (bounds, filters) => {
+    console.log('Debounced fetch executing with bounds:', bounds);
+    const result = await fetchPropertiesInBounds(bounds, filters);
+    if (onPropertiesFetched) {
+      onPropertiesFetched(result.properties, false, result.total);
+    }
+    setLastCursor(result.nextCursor);
+    setHasMoreProperties(!!result.nextCursor);
+  }, 500));
+  
+  // Expose for use in event handlers
+  const debouncedFetchPropertiesInBounds = useCallback((bounds, filters) => {
+    console.log('Debounced fetch properties called');
+    debouncedFetchPropertiesInBoundsRef.current(bounds, filters);
+    // Return a promise for backwards compatibility
+    return Promise.resolve({ properties: [], nextCursor: null, total: 0 });
+  }, []);
+  
+  // Function to fetch properties based on current bounds
+  const fetchPropertiesForCurrentBounds = useCallback(async (isLoadMore = false) => {
+    if (!map || (!isLoadMore && isFetching)) return;
+    
+    try {
+      setIsFetching(true);
+      const bounds = getCurrentMapBounds(map);
+      
+      if (onBoundsChange) {
+        onBoundsChange(bounds);
+      }
+      
+      // If loading more, use cursor-based pagination
+      let result;
+      if (isLoadMore && lastCursor) {
+        result = await loadMoreProperties(lastCursor, bounds, filters);
+      } else {
+        // Initial fetch or bounds change fetch
+        result = await fetchPropertiesInBounds(bounds, filters);
+      }
+      
+      // Process results
+      const { properties, nextCursor, total } = result;
+      
+      // Update state
+      setLastCursor(nextCursor);
+      setHasMoreProperties(!!nextCursor);
+      
+      // Notify parent component
+      if (onPropertiesFetched) {
+        onPropertiesFetched(properties, isLoadMore, total);
+      }
+      
+      setIsInitialFetch(false);
+    } catch (error) {
+      console.error('Error fetching properties for bounds:', error);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [map, filters, isFetching, lastCursor, onBoundsChange, onPropertiesFetched]);
+  
+  // Handle initial load and filter changes
+  useEffect(() => {
+    if (map && (isInitialFetch || filters)) {
+      // Reset pagination on filter changes
+      setLastCursor(null);
+      setHasMoreProperties(true);
+      
+      // Clear cache when filters change significantly
+      clearResultsCache();
+      
+      // Fetch properties with the new filters
+      fetchPropertiesForCurrentBounds();
+    }
+  }, [map, filters, fetchPropertiesForCurrentBounds, isInitialFetch]);
+  
+  useMapEvents({
+    moveend: () => {
+      // Only fetch on moveend if searchAsIMove is enabled
+      if (searchAsIMove) {
+        // Use debounced version to prevent too many requests during panning
+        debouncedFetchPropertiesInBounds(
+          getCurrentMapBounds(map), 
+          filters
+        ).then(result => {
+          if (onPropertiesFetched) {
+            onPropertiesFetched(result.properties, false, result.total);
+          }
+          setLastCursor(result.nextCursor);
+          setHasMoreProperties(!!result.nextCursor);
+        });
+      }
+    },
+    zoomend: () => {
+      // Always fetch on zoom changes as this impacts the granularity of results
+      if (searchAsIMove) {
+        debouncedFetchPropertiesInBounds(
+          getCurrentMapBounds(map), 
+          filters
+        ).then(result => {
+          if (onPropertiesFetched) {
+            onPropertiesFetched(result.properties, false, result.total);
+          }
+          setLastCursor(result.nextCursor);
+          setHasMoreProperties(!!result.nextCursor);
+        });
+      }
+    }
+  });
+  
+  // Method to manually load more properties
+  const loadMore = useCallback(() => {
+    if (hasMoreProperties && !isFetching) {
+      fetchPropertiesForCurrentBounds(true);
+    }
+  }, [hasMoreProperties, isFetching, fetchPropertiesForCurrentBounds]);
+  
+  // Method to manually trigger a search for the current bounds
+  const searchThisArea = useCallback(() => {
+    setLastCursor(null);
+    fetchPropertiesForCurrentBounds();
+  }, [fetchPropertiesForCurrentBounds]);
+  
+  // Expose methods to parent component through ref
+  useEffect(() => {
+    if (map) {
+      // Attach methods to map instance for external access
+      map.loadMoreProperties = loadMore;
+      map.searchThisArea = searchThisArea;
+    }
+  }, [map, loadMore, searchThisArea]);
+  
+  return null;
+};
+
 // Separate component to handle map events
 const MapEventLogger = () => {
   // Log when interactions happen to verify they're working
@@ -198,90 +515,134 @@ const LocationButton = ({ onFindLocation }) => {
     </button>
   );
 };
-
-// Component for rendering the pulsing ring animation on active markers
+// Active Marker Ring component for animated ring around active marker
 const ActiveMarkerRing = ({ position }) => {
-  const map = useMap();
-  const [pixel, setPixel] = useState(null);
-  
-  useEffect(() => {
-    // Add safety check for position
-    if (!map || !position || !Array.isArray(position) || position.length !== 2) {
-      console.warn("Invalid position for ActiveMarkerRing:", position);
-      return;
-    }
-    
-    // Convert lat/lng to pixel coordinates
-    const updatePixel = () => {
-      try {
-        const point = map.latLngToContainerPoint(position);
-        setPixel(point);
-      } catch (error) {
-        console.error("Error converting latlng to pixel:", error);
-      }
-    };
-    
-    // Update immediately
-    updatePixel();
-    
-    // Update on map move/zoom
-    map.on('zoom', updatePixel);
-    map.on('move', updatePixel);
-    
-    return () => {
-      map.off('zoom', updatePixel);
-      map.off('move', updatePixel);
-    };
-  }, [map, position]);
-  
-  if (!pixel) return null;
-  
   return (
     <div 
       className="active-marker-ring"
-      style={{ 
-        left: `${pixel.x}px`, 
-        top: `${pixel.y}px` 
+      style={{
+        left: position[1],
+        top: position[0]
       }}
     />
   );
 };
 
-// Main map component
-const MapComponent = () => {
-  // Use useMemo for values that shouldn't change between renders
-  const defaultCenter = useMemo(() => [20.5937, 78.9629], []); // Center of India
-  const userLocationIcon = useMemo(() => createUserLocationIcon(), []);
-  const blackHouseIcon = useMemo(() => createBlackHouseIcon(), []);
-  const nearbyHouseIcon = useMemo(() => createNearbyHouseIcon(), []);
-  const activeHouseIcon = useMemo(() => createActiveHouseIcon(), []);
-  
+// Main Map Component
+const MapComponent = ({ defaultCenter = [20.5937, 78.9629], searchRadius = 5, filters = {} }) => {
+  // State variables
   const [properties, setProperties] = useState([]);
-  const [userLocation, setUserLocation] = useState(null);
   const [nearbyProperties, setNearbyProperties] = useState([]);
-  const [searchRadius, setSearchRadius] = useState(10);
+  const [userLocation, setUserLocation] = useState(null);
   const [activePropertyId, setActivePropertyId] = useState(null);
+  
+  // Refs
   const mapRef = useRef(null);
-  
-  // New ref to track if we've already zoomed to the user's location
   const initialLocationZoomDoneRef = useRef(false);
-  
-  // Use a ref to track if we've already loaded properties to avoid changing coordinates
   const propertiesLoadedRef = useRef(false);
   
+  // Create map icons
+  const houseIcon = useMemo(() => createHouseIcon(), []);
+  const nearbyHouseIcon = useMemo(() => createNearbyHouseIcon(), []);
+  const activeHouseIcon = useMemo(() => createActiveHouseIcon(), []);
+  const userLocationIcon = useMemo(() => createUserLocationIcon(), []);
+  
+  // Function to handle properties with inconsistent coordinate formats
+  const processLegacyProperties = useCallback((properties) => {
+    if (!Array.isArray(properties)) {
+      console.warn("Properties is not an array:", properties);
+      return;
+    }
+    
+    const propertiesWithCoords = properties.map((property) => {
+      if (!property) {
+        console.warn("Encountered null or undefined property in properties");
+        return null;
+      }
+      let validCoordinates = false;
+      // Case 1: Property already has coordinates in the correct format
+      if (property.coordinates && Array.isArray(property.coordinates) && property.coordinates.length === 2) {
+        const [lat, lng] = property.coordinates;
+        if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          validCoordinates = true;
+          return property;
+        } else {
+          console.warn(`Property ${property.id || property.title} has invalid array coordinates:`, property.coordinates);
+        }
+      }
+      // Case 2: Property has coordinates in object format
+      if (!validCoordinates && property.coordinates && typeof property.coordinates === 'object' && property.coordinates.lat !== undefined && property.coordinates.lng !== undefined) {
+        const lat = parseFloat(property.coordinates.lat);
+        const lng = parseFloat(property.coordinates.lng);
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          validCoordinates = true;
+          return {
+            ...property,
+            coordinates: [lat, lng]
+          };
+        } else {
+          console.warn(`Property ${property.id || property.title} has invalid object coordinates:`, property.coordinates);
+        }
+      }
+      // Case 3: Property has separate latitude and longitude properties
+      if (!validCoordinates && property.latitude !== undefined && property.longitude !== undefined) {
+        const lat = parseFloat(property.latitude);
+        const lng = parseFloat(property.longitude);
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          validCoordinates = true;
+          return {
+            ...property,
+            coordinates: [lat, lng]
+          };
+        } else {
+          console.warn(`Property ${property.id || property.title} has invalid lat/lng values:`, {lat: property.latitude, lng: property.longitude});
+        }
+      }
+      // Case 4: As a last resort, generate deterministic coordinates
+      const consistentCoords = generateConsistentCoordinates(property, defaultCenter);
+      console.log(`Property ${property.id || property.title} using consistent generated coordinates:`, consistentCoords);
+      return {
+        ...property,
+        coordinates: consistentCoords
+      };
+    });
+    const validProperties = propertiesWithCoords.filter(p => p !== null);
+    console.log("Final property data with coordinates:", validProperties.length, "valid properties");
+    setProperties(validProperties);
+    propertiesLoadedRef.current = true;
+  }, [defaultCenter]);
+  
+  // Listen for property updates from propertyCards component
   useEffect(() => {
-    // TODO: Implement periodic property fetching if needed
-    // const intervalId = setInterval(() => {
-    //   // Always try to fetch properties again
-    //   if (typeof checkForProperties === 'function') {
-    //     checkForProperties();
-    //   }
-    // }, 20000);
-    const intervalId = setInterval(() => {
-      // No-op: implement property fetching here if needed
-    }, 20000);
-    return () => clearInterval(intervalId);
-  }, []);
+    // Create handlers with the current value of processLegacyProperties
+    const handlePropertiesUpdated = (event) => {
+      const { properties } = event.detail;
+      console.log('Map received properties update:', properties.length, 'properties');
+      processLegacyProperties(properties);
+    };
+    
+    // Also check for global window.mapProperties
+    const checkGlobalProperties = () => {
+      if (window.mapProperties && Array.isArray(window.mapProperties) && window.mapProperties.length > 0) {
+        console.log('Map found global mapProperties:', window.mapProperties.length, 'properties');
+        processLegacyProperties(window.mapProperties);
+      }
+    };
+    
+    // Initial check for global properties
+    checkGlobalProperties();
+    
+    // Listen for future updates
+    window.addEventListener('properties-updated', handlePropertiesUpdated);
+    
+    // Set up an interval to check for global properties updates as a fallback
+    const intervalId = setInterval(checkGlobalProperties, 3000);
+    
+    return () => {
+      window.removeEventListener('properties-updated', handlePropertiesUpdated);
+      clearInterval(intervalId);
+    };
+  }, [processLegacyProperties]); // Added processLegacyProperties as a dependency
   
   // Calculate nearby properties
   useEffect(() => {
@@ -629,7 +990,9 @@ const MapComponent = () => {
   }, [activePropertyId]);
   
   // Define processApiProperties function
-  const processApiProperties = (projects) => {
+  // Process API properties function - used for handling properties from API
+// Used when fetching properties from API endpoints
+const processApiProperties = useCallback((projects) => {
     if (!Array.isArray(projects)) {
       console.error("Projects is not an array:", projects);
       return;
@@ -682,9 +1045,11 @@ const MapComponent = () => {
         }
       }
       // Case 3: Property has location.coordinates (nested structure)
-      if (!validCoordinates && property.location && property.location.coordinates && Array.isArray(property.location.coordinates) && property.location.coordinates.length === 2) {
+      if (!validCoordinates && property.location && property.location.coordinates && 
+          Array.isArray(property.location.coordinates) && property.location.coordinates.length === 2) {
         const [lat, lng] = property.location.coordinates;
-        if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        if (typeof lat === 'number' && typeof lng === 'number' && 
+            !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
           validCoordinates = true;
           return {
             ...propertyData,
@@ -701,70 +1066,9 @@ const MapComponent = () => {
     });
     setProperties(propertiesWithCoords);
     propertiesLoadedRef.current = true;
-  };
+  }, [defaultCenter]);
 
-  // Function to handle properties with inconsistent coordinate formats
-  const processLegacyProperties = (properties) => {
-    if (!Array.isArray(properties)) {
-      console.warn("Properties is not an array:", properties);
-      return;
-    }
-    
-    const propertiesWithCoords = properties.map((property) => {
-      if (!property) {
-        console.warn("Encountered null or undefined property in properties");
-        return null;
-      }
-      let validCoordinates = false;
-      // Case 1: Property already has coordinates in the correct format
-      if (property.coordinates && Array.isArray(property.coordinates) && property.coordinates.length === 2) {
-        const [lat, lng] = property.coordinates;
-        if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-          return property;
-        } else {
-          console.warn(`Property ${property.id || property.title} has invalid array coordinates:`, property.coordinates);
-        }
-      }
-      // Case 2: Property has coordinates in object format
-      if (!validCoordinates && property.coordinates && typeof property.coordinates === 'object' && property.coordinates.lat !== undefined && property.coordinates.lng !== undefined) {
-        const lat = parseFloat(property.coordinates.lat);
-        const lng = parseFloat(property.coordinates.lng);
-        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-          return {
-            ...property,
-            coordinates: [lat, lng]
-          };
-        } else {
-          console.warn(`Property ${property.id || property.title} has invalid object coordinates:`, property.coordinates);
-        }
-      }
-      // Case 3: Property has separate latitude and longitude properties
-      if (!validCoordinates && property.latitude !== undefined && property.longitude !== undefined) {
-        const lat = parseFloat(property.latitude);
-        const lng = parseFloat(property.longitude);
-        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-          validCoordinates = true;
-          return {
-            ...property,
-            coordinates: [lat, lng]
-          };
-        } else {
-          console.warn(`Property ${property.id || property.title} has invalid lat/lng values:`, {lat: property.latitude, lng: property.longitude});
-        }
-      }
-      // Case 4: As a last resort, generate deterministic coordinates
-      const consistentCoords = generateConsistentCoordinates(property, defaultCenter);
-      console.log(`Property ${property.id || property.title} using consistent generated coordinates:`, consistentCoords);
-      return {
-        ...property,
-        coordinates: consistentCoords
-      };
-    });
-    const validProperties = propertiesWithCoords.filter(p => p !== null);
-    console.log("Final property data with coordinates:", validProperties);
-    setProperties(validProperties);
-    propertiesLoadedRef.current = true;
-  };
+
 
   return (
     <div className="relative h-full w-full">
@@ -784,11 +1088,43 @@ const MapComponent = () => {
       >
         <MapInteractionHandler onMapReady={handleMapReady} />
         <MapEventLogger />
+        <EnhancedMapBoundsHandler 
+          searchAsIMove={true} 
+          filters={filters} 
+          onBoundsChange={(bounds) => console.log('Bounds changed', bounds)} 
+          onPropertiesFetched={(props, isLoadMore, total) => {
+            if (props && Array.isArray(props)) {
+              if (props[0] && (props[0].project || props[0].propertyId)) {
+                // Data is from API in projectsDataMaster format
+                processApiProperties(props);
+              } else {
+                // Handle legacy format properties
+                processLegacyProperties(props);
+              }
+            }
+          }}
+        />
         
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        
+        {/* Add the Search This Area button */}
+        {mapRef.current && (
+          <SearchThisAreaButton 
+            map={mapRef.current} 
+            onClick={() => {
+              console.log('Search this area clicked');
+              // Call your search function here
+              if (mapRef.current) {
+                const bounds = mapRef.current.getBounds();
+                console.log('Current map bounds:', bounds);
+                // Implement searchThisArea functionality
+              }
+            }} 
+          />
+        )}
         
         {userLocation && (
           <>
@@ -856,7 +1192,7 @@ const MapComponent = () => {
             <Marker
               key={property.id || `property-${index}`}
               position={property.coordinates}
-              icon={blackHouseIcon}
+              icon={houseIcon}
               eventHandlers={{
                 click: (e) => {
                   const id = property.id || property._id;
@@ -935,8 +1271,4 @@ const MapComponent = () => {
   );
 };
 
-// Periodically re-fetch properties every 20 seconds
-
 export default MapComponent;
-
-  

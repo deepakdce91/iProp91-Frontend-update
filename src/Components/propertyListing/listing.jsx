@@ -258,14 +258,14 @@ function PropertyListing() {
   if (selectedProperty) {
     return (
       <div>
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-[#0a0f19] bg-opacity-50 z-[200] flex items-center justify-center p-4">
+          <div className="bg-[#0a0f19] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold">{selectedProperty.title}</h2>
                 <button
                   onClick={handleCloseDetails}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-white hover:text-gray-700"
                 >
                   ✕
                 </button>
@@ -287,7 +287,7 @@ function PropertyListing() {
                 </div>
 
                 <div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-[#0a0f19] p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-4">
                       Property Details
                     </h3>

@@ -89,6 +89,36 @@ const PropertyCards = ({
           response.data.status === "success" &&
           response.data.data?.projects
         ) {
+          const getCoordinates = (property) => {
+            // If property has coordinates, use them
+            if (
+              property.location &&
+              property.location.coordinates &&
+              Array.isArray(property.location.coordinates)
+            ) {
+              return property.location.coordinates;
+            }
+            // Fallback: use a deterministic generator based on id/city/state
+            // This should match the logic in mapComponent.jsx (generateConsistentCoordinates)
+            const defaultCenter = [20.5937, 78.9629]; // Center of India
+            const propertyId =
+              property._id ||
+              property.id ||
+              property.title ||
+              JSON.stringify({
+                title: property.title,
+                price: property.minimumPrice,
+                location: property.location,
+              });
+            const hash = propertyId
+              .toString()
+              .split("")
+              .reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) % 10000, 0);
+            const offsetLat = ((hash % 100) / 50 - 1) * 2;
+            const offsetLng = ((Math.floor(hash / 100) % 100) / 50 - 1) * 2;
+            return [defaultCenter[0] + offsetLat, defaultCenter[1] + offsetLng];
+          };
+
           const newProperties = response.data.data.projects.map((property) => ({
             id: property._id,
             title: `${property.bhk || ""} ${property.type || "Property"} in ${
@@ -103,6 +133,7 @@ const PropertyCards = ({
                 )}`
               : "",
             location: `${property.city}, ${property.state}`,
+            coordinates: getCoordinates(property),
             area: property.size || "",
             floor: property.floorNumber
               ? `${property.floorNumber} out of ${property.numberOfFloors}`
@@ -211,7 +242,7 @@ const PropertyCards = ({
   return (
     <div>
       <h1 className="text-lg sm:text-xl font-medium text-gray-900 mb-4">
-        {totalProperties} Properties for Sale in {getLocationLabel()}
+        {properties.length} Properties for Sale in {getLocationLabel()}
       </h1>
       {properties.length === 0 ? (
         <div className="text-center py-8 text-gray-500">

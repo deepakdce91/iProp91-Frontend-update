@@ -141,8 +141,8 @@ export default function PropertyDetails({ onBack = () => {} }) {
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const [activeImage, setActiveImage] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showContact, setShowContact] = useState(false);
   const [loanAmount, setLoanAmount] = useState("");
@@ -300,52 +300,66 @@ export default function PropertyDetails({ onBack = () => {} }) {
         console.log("Fetching property details for ID:", id);
 
         const response = await axios.get(
-          `https://iprop91new.onrender.com/api/projectsDataMaster?id=${id}`
+          `https://iprop91new.onrender.com/api/projectsDataMaster/${id}`
         );
         console.log("API Response:", response.data);
 
         if (
           response.data.status === "success" &&
-          response.data.data &&
-          response.data.data.projects &&
-          response.data.data.projects.length > 0
+          response.data.data
         ) {
-          const propertyData = response.data.data.projects[0]; // Get the first property from projects array
+          const propertyData = response.data.data; // Directly use the returned property object
           console.log("Processing property data:", propertyData);
 
           setProperty({
-            _id: propertyData._id || id,
-            title:
-              propertyData.title ||
-              `${propertyData.bhk || ""} ${
-                propertyData.type || "Property"
-              } in ${propertyData.project || ""}`,
-            price: propertyData.minimumPrice
-              ? `₹${propertyData.minimumPrice}`
-              : "Price on Request",
-            location: `${propertyData.city || ""}, ${
-              propertyData.state || ""
-            }`.trim(),
-            coordinates: {
-              latitude: propertyData.coordinates
-                ? propertyData.coordinates[0]
-                : 0,
-              longitude: propertyData.coordinates
-                ? propertyData.coordinates[1]
-                : 0,
-            },
-            images: Array.isArray(propertyData.images)
-              ? propertyData.images
-              : [],
-            description: propertyData.overview || "",
-            amenities: Array.isArray(propertyData.amenities)
-              ? propertyData.amenities
-              : [],
-            features: Array.isArray(propertyData.features)
-              ? propertyData.features
-              : [],
-            bhk: propertyData.bhk || "",
-            type: propertyData.type || "Residential",
+            id: propertyData._id,
+            propertyId: propertyData.propertyId,
+            listingId: propertyData.listingId,
+            state: propertyData.state,
+            city: propertyData.city,
+            builder: propertyData.builder,
+            project: propertyData.project,
+            overview: propertyData.overview,
+            address: propertyData.address,
+            pincode: propertyData.pincode,
+            status: propertyData.status,
+            type: propertyData.type,
+            availableFor: propertyData.availableFor,
+            category: propertyData.category,
+            minimumPrice: propertyData.minimumPrice,
+            maximumPrice: propertyData.maximumPrice,
+            bhk: propertyData.bhk,
+            appartmentType: propertyData.appartmentType || [],
+            appartmentSubType: propertyData.appartmentSubType || [],
+            features: propertyData.features || [],
+            amenities: propertyData.amenities || [],
+            commercialHubs: propertyData.commercialHubs || [],
+            hospitals: propertyData.hospitals || [],
+            hotels: propertyData.hotels || [],
+            shoppingCentres: propertyData.shoppingCentres || [],
+            transportationHubs: propertyData.transportationHubs || [],
+            educationalInstitutions: propertyData.educationalInstitutions || [],
+            images: propertyData.images || [],
+            floorPlan: propertyData.floorPlan || [],
+            enable: propertyData.enable,
+            isViewed: propertyData.isViewed,
+            createdAt: propertyData.createdAt,
+            updatedAt: propertyData.updatedAt,
+            floorNumber: propertyData.floorNumber,
+            houseNumber: propertyData.houseNumber,
+            isTitleDeedVerified: propertyData.isTitleDeedVerified,
+            numberOfBathrooms: propertyData.numberOfBathrooms,
+            numberOfBedrooms: propertyData.numberOfBedrooms,
+            numberOfFloors: propertyData.numberOfFloors,
+            numberOfParkings: propertyData.numberOfParkings,
+            numberOfWashrooms: propertyData.numberOfWashrooms,
+            sector: propertyData.sector,
+            size: propertyData.size,
+            thumbnail: propertyData.thumbnail,
+            tower: propertyData.tower,
+            unit: propertyData.unit,
+            videos: propertyData.videos || [],
+            coordinates: Array.isArray(propertyData.coordinates) && propertyData.coordinates.length === 2 ? propertyData.coordinates : [0,0],
             area: propertyData.size || "N/A",
             status: propertyData.status || "N/A",
             bathrooms: propertyData.numberOfBathrooms || "N/A",
