@@ -84,27 +84,27 @@ const categoryTypes = [
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
-    type: "pre_launch",
+    type: "pre_launch", // This remains the same
   },
   {
     title: "Verified Owner Properties",
     description: "Direct from property owners",
-    type: "verified_owner",
+    type: "verified_owner", // This remains the same
   },
   {
     title: "New Projects",
     description: "Latest property launches",
-    type: "new_projects",
+    type: "new_projects", // Change to plural or change the above to singular
   },
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
-    type: "upcoming_projects",
+    type: "upcoming_projects", // Change to plural or change the above to singular
   },
   {
     title: "New Sale Properties",
     description: "Fresh properties for sale",
-    type: "new_sale",
+    type: "new_sale", // This remains the same
   },
 ];
 
@@ -263,7 +263,7 @@ export default function MainListingPage() {
 
     setFilteredProjects(filtered);
 
-    // Update categorized projects
+    // Update categorized projects - FIX: match the category names with categoryTypes
     if (filtered.length > 0) {
       const categorized = {
         pre_launch: filtered.filter(
@@ -272,10 +272,10 @@ export default function MainListingPage() {
         verified_owner: filtered.filter(
           (project) => project.category === "verified_owner"
         ),
-        new_project: filtered.filter(
+        new_projects: filtered.filter(
           (project) => project.category === "new_project"
         ),
-        upcoming_project: filtered.filter(
+        upcoming_projects: filtered.filter(
           (project) => project.category === "upcoming_project"
         ),
         new_sale: filtered.filter((project) => project.category === "new_sale"),
@@ -306,7 +306,7 @@ export default function MainListingPage() {
     const fetchProjects = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/projectsDataMaster/fetchAllProjects`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -319,6 +319,7 @@ export default function MainListingPage() {
           setAllFetchedProjects(allProjects);
           console.log(allProjects);
 
+          // In your useEffect where fetchProjects is defined:
           if (allProjects) {
             const categorized = {
               pre_launch: allProjects.filter(
@@ -327,10 +328,10 @@ export default function MainListingPage() {
               verified_owner: allProjects.filter(
                 (project) => project.category === "verified_owner"
               ),
-              new_project: allProjects.filter(
+              new_projects: allProjects.filter(
                 (project) => project.category === "new_project"
               ),
-              upcoming_project: allProjects.filter(
+              upcoming_projects: allProjects.filter(
                 (project) => project.category === "upcoming_project"
               ),
               new_sale: allProjects.filter(

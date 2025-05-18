@@ -66,46 +66,46 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="app">
-        <div className="Poppins">
-          {" "}
-          {/* <Footer /> */}{" "}
-          <Routes>
-            {/* Public routes accessible to all */}
-            <Route path="/welcome/:token" element={<WelcomePage />} />
-            <Route path="/invite/:token" element={<InvitationPage />} />
-            {/* Unauthenticated routes */}
-            {isLoggedIn === false && (
-              <Route
-                path="/*"
-                element={<Landing setIsLoggedIn={setIsLoggedIn} />}
-              />
-            )}
+    <div className="app">
+      <div className="Poppins">
+        {" "}
+        {/* <Footer /> */}{" "}
+        <Routes>
+          {/* Public routes accessible to all */}
+          <Route path="/welcome/:token" element={<WelcomePage />} />
+          <Route path="/invite/:token" element={<InvitationPage />} />
+          {/* Unauthenticated routes */}
+          {isLoggedIn === false && (
             <Route
-              path="/authenticate"
-              element={<Auth setIsLoggedIn={setIsLoggedIn} authPage={true} />}
+              path="/*"
+              element={<Landing setIsLoggedIn={setIsLoggedIn} />}
             />
-            <Route path="/name" element={<AskName />} />
-            {/* Protected routes */}
-            {isLoggedIn === true && (
-              <Route
-                path="/*"
-                element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
-              />
-            )}
-            {/* <Footer/> */}{" "}
-          </Routes>{" "}
-        </div>{" "}
-        <ToastContainer
-          position="top-center"
-          autoClose={2000} // Ensure toasts auto-close
-          hideProgressBar={false} // Show the progress bar
-          newestOnTop={true}
-          closeOnClick
-          pauseOnHover
-          draggable
-        />
-      </div>
+          )}
+          <Route
+            path="/authenticate"
+            element={<Auth setIsLoggedIn={setIsLoggedIn} authPage={true} />}
+          />
+          <Route path="/name" element={<AskName />} />
+          {/* Protected routes */}
+          {isLoggedIn === true && (
+            <Route
+              path="/*"
+              element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
+            />
+          )}
+          {/* <Footer/> */}{" "}
+        </Routes>{" "}
+      </div>{" "}
+      <ToastContainer
+        position="top-center"
+        autoClose={2000} // Ensure toasts auto-close
+        hideProgressBar={false} // Show the progress bar
+        newestOnTop={true}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
+    </div>
     </AuthProvider>
   );
 }
