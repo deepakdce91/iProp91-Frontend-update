@@ -102,43 +102,5 @@ const PropertyCards = ({
   );
 };
 
-// Route 11: Get array of unique city names
-router.get("/cities/unique", async (req, res) => {
-  try {
-    // Aggregate to get distinct city values
-    const cities = await ProjectsDataMaster.aggregate([
-      // Match only enabled projects if needed (you can remove this if you want all cities)
-      { $match: { enable: "true" } },
-      
-      // Project only the city field
-      { $project: { city: 1 } },
-      
-      // Group by city name to get distinct values
-      { $group: { _id: "$city" } },
-      
-      // Filter out null or empty values
-      { $match: { _id: { $ne: null, $ne: "" } } },
-      
-      // Sort alphabetically
-      { $sort: { _id: 1 } },
-      
-      // Format the output
-      { $project: { _id: 0, name: "$_id" } }
-    ]);
-    
-    // Return the array of unique city names
-    res.status(200).json({
-      status: "success",
-      data: cities.map(city => city.name)
-    });
-  } catch (error) {
-    console.error("Error fetching unique cities:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Failed to fetch unique cities",
-      error: error.message
-    });
-  }
-});
 
 export default PropertyCards;
