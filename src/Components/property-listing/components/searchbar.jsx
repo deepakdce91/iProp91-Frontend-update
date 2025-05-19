@@ -53,110 +53,42 @@ export default function SearchBar({
         return position.coords;
       };
 
-      // 2. Fetch states from API
-      const fetchStates = async () => {
-        const response = await axios.get(
-          "https://iprop-api.irentpro.com/api/v1/states",
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        return response.data;
-      };
-
-      // 3. Update state based on location
-      const updateState = async (coords, statesList) => {
-        const locationResponse = await axios.get(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`
-        );
-        const { principalSubdivision } = locationResponse.data;
-        const matchingState = statesList.find(
-          (state) =>
-            state.name.toLowerCase() === principalSubdivision.toLowerCase()
-        );
-        if (!matchingState) {
-          throw new Error("State not found");
-        }
-        return matchingState;
-      };
-
-      // 4. Fetch cities for the state
-      const fetchCities = async (stateCode) => {
-        const response = await axios.get(
-          `https://iprop-api.irentpro.com/api/v1/cities/${stateCode}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
-            },
-          }
-        );
-        return response.data;
-      };
-
-      // 5. Update city based on location
-      const updateCity = async (coords, citiesList) => {
+      // 2. Get city directly from geolocation
+      const getCityFromCoords = async (coords) => {
         const locationResponse = await axios.get(
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`
         );
         const { city } = locationResponse.data;
-        const matchingCity = citiesList.find(
-          (c) => c.name.toLowerCase() === city.toLowerCase()
-        );
-        if (!matchingCity) {
-          throw new Error("City not found");
+        if (!city) {
+          throw new Error("City not found from location");
         }
-        return matchingCity;
-      };
-
-      // 6. Fetch properties based on location
-      const fetchProperties = async (state, city) => {
-        const response = await axios.get(
-          `https://iprop-api.irentpro.com/api/v1/projects`,
-          {
-            params: {
-              state: state.name,
-              city: city.name,
-              ...searchParams,
-            },
-          }
-        );
-        return response.data;
+        return city;
       };
 
       // Execute the flow
       const coords = await getUserLocation();
-      const statesList = await fetchStates();
-      const matchedState = await updateState(coords, statesList);
-      setSelectedState(matchedState);
-
-      const citiesList = await fetchCities(matchedState.iso2);
-      const matchedCity = await updateCity(coords, citiesList);
-      setSelectedCity(matchedCity);
-
-      const properties = await fetchProperties(matchedState, matchedCity);
+      const cityName = await getCityFromCoords(coords);
+      setSelectedCity(cityName);
 
       // Update search parameters
       setSearchParams((prev) => ({
         ...prev,
-        state: matchedState.name,
-        stateCode: matchedState.iso2,
-        city: matchedCity.name,
+        city: cityName,
+        state: '',
+        stateCode: '',
       }));
 
-      // Trigger search with new parameters
+      // Trigger search with only city
       if (onSearch) {
         onSearch({
-          state: matchedState.name,
-          stateCode: matchedState.iso2,
-          city: matchedCity.name,
+          city: cityName,
           ...searchParams,
+          state: '',
+          stateCode: '',
         });
       }
 
-      return properties;
+      // No need to return properties as in the old flow
     } catch (error) {
       console.error("Error in location-based search:", error);
       throw error;
@@ -164,6 +96,7 @@ export default function SearchBar({
       setIsLocating(false);
     }
   };
+
 
   // Add a button to trigger location-based search
   const handleLocationClick = () => {

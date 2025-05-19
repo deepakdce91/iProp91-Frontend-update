@@ -10,12 +10,14 @@ export default function SearchBar({
   setSelectedCity,
   onFilterChange,
   onOpenFilters,
+  setProperties,
+  initialFilters = {},
+  transactionType = "buy",
 }) {
-  const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
-  const [stateSearch, setStateSearch] = useState("");
+  // const [stateSearch, setStateSearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
   const [isLocating, setIsLocating] = useState(false);
 
@@ -24,86 +26,35 @@ export default function SearchBar({
   const cityDropdownRef = useRef(null);
 
   // Helper function to sort array by name
-  const sortArrayByName = useCallback((array) => {
-    return array.sort((a, b) => a.name.localeCompare(b.name));
-  }, []);
 
-  // Function to fetch all states from API
-  const fetchAllStates = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        "https://api.countrystatecity.in/v1/countries/IN/states",
-        {
-          headers: {
-            "X-CSCAPI-KEY":
-              "WVQzaUdWbEFnQVNQcnppdjRoUDdNZVo2eXR2QWRpbUR2ZnZmUGUwUw==",
-          },
-          timeout: 8000,
-        }
-      );
 
-      if (response.data && response.data.length > 0) {
-        setStates(sortArrayByName(response.data));
-      } else {
-        setStates([]);
-      }
-    } catch (error) {
-      console.error("Error fetching states:", error);
-      setStates([]);
-    }
-  }, [sortArrayByName]);
 
   // Function to fetch cities by state code
   const fetchCitiesByState = useCallback(
     async (currentStateCode) => {
       try {
         const response = await axios.get(
-          `https://api.countrystatecity.in/v1/countries/IN/states/${currentStateCode}/cities`,
-          {
-            headers: {
-              "X-CSCAPI-KEY":
-                "WVQzaUdWbEFnQVNQcnppdjRoUDdNZVo2eXR2QWRpbUR2ZnZmUGUwUw==",
-            },
-            timeout: 8000,
-          }
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/cities/unique`,
         );
 
-        if (response.data && response.data.length > 0) {
-          setCities(sortArrayByName(response.data));
-        } else {
-          setCities([]);
-        }
+        console.log(response.data);
+        console.log(response.data.data)
+
+       if(response.data.status === "success"){
+        setCities(response.data.data);
+       }
       } catch (error) {
         console.error("Error fetching cities:", error);
-        setCities([]);
       }
     },
-    [sortArrayByName]
+    []
   );
-
-  // Fetch states when dropdown is opened
-  useEffect(() => {
-    if (stateDropdownOpen && states.length === 0) {
-      fetchAllStates();
-    }
-  }, [stateDropdownOpen, states.length, fetchAllStates]);
 
   // Fetch cities when state changes
   useEffect(() => {
-    if (selectedState) {
-      const selectedStateObj = states.find(
-        (state) => state.name === selectedState.name
-      );
-
-      if (selectedStateObj) {
-        fetchCitiesByState(selectedStateObj.iso2);
-      } else {
-        setCities([]);
-      }
-    } else {
-      setCities([]);
-    }
-  }, [selectedState, states, fetchCitiesByState]);
+   
+    fetchCitiesByState();
+  }, []);
 
   // Click outside handler for dropdowns
   useEffect(() => {
@@ -128,53 +79,30 @@ export default function SearchBar({
     };
   }, []);
 
-  const handleStateSelect = (state) => {
-    setSelectedState(state); // store the whole state object
-    setStateDropdownOpen(false);
-    setSelectedCity(null); // Reset city when state changes
 
-    // Apply filters immediately when state is selected, only including state
-    const locationFilters = {
-      state: state.name,
-      stateCode: state.iso2,
-      city: "",
-      propertyType: [], // Reset property type
-      bhk: [], // Reset BHK
-      minBudget: "", // Reset budget
-      maxBudget: "", // Reset budget
-      amenities: [], // Reset amenities
-    };
-    console.log("Applying state filters:", locationFilters);
-    onFilterChange(locationFilters);
-  };
 
   const handleCitySelect = (city) => {
     setSelectedCity(city); // store the whole city object
     setCityDropdownOpen(false);
 
-    // Apply filters immediately when city is selected, only including state and city
+    // Apply filters immediately when city is selected
+    // Merge with existing filters from URL/initialFilters
     const locationFilters = {
-      state: selectedState.name,
-      stateCode: selectedState.iso2,
-      city: city.name,
-      propertyType: [], // Reset property type
-      bhk: [], // Reset BHK
-      minBudget: "", // Reset budget
-      maxBudget: "", // Reset budget
-      amenities: [], // Reset amenities
+      ...initialFilters,
+      city: city,
     };
-    console.log("Applying city filters:", locationFilters);
+    console.log("Applying city filters with existing filters:", locationFilters);
     onFilterChange(locationFilters);
   };
 
-  // Filter states based on search
-  const filteredStates = states.filter((state) =>
-    state.name.toLowerCase().includes(stateSearch.toLowerCase())
-  );
+  // // Filter states based on search
+  // const filteredStates = states.filter((state) =>
+  //   state.name.toLowerCase().includes(stateSearch.toLowerCase())
+  // );
 
   // Filter cities based on search
   const filteredCities = cities.filter((city) =>
-    city.name.toLowerCase().includes(citySearch.toLowerCase())
+    city.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   // Function to fetch location from coordinates
@@ -185,69 +113,68 @@ export default function SearchBar({
       );
 
       if (response.data) {
-        const { city, principalSubdivision } = response.data;
+        // Extract city name from API response (prefer city, then locality, then principalSubdivision)
+        let cityName = response.data.city || response.data.locality || response.data.principalSubdivision;
         console.log("Location data:", response.data);
+        console.log("Detected city:", cityName);
 
-        // First fetch all states if not already loaded
-        if (states.length === 0) {
-          await fetchAllStates();
-        }
+        if (cityName) {
+          // Map common alternate names for better matching
+          const alternateNames = {
+            'gurugram': 'gurgaon',
+            'gurgaon': 'gurugram',
+            'bengaluru': 'bangalore',
+            'bangalore': 'bengaluru',
+            'mumbai': 'bombay',
+            'bombay': 'mumbai',
+            'chennai': 'madras',
+            'madras': 'chennai',
+            'kolkata': 'calcutta',
+            'calcutta': 'kolkata',
+          };
+          
+          // Check if we need to use an alternate name
+          const lowerCityName = cityName.toLowerCase();
+          if (alternateNames[lowerCityName]) {
+            console.log(`Using alternate name: ${alternateNames[lowerCityName]} for ${cityName}`);
+            cityName = alternateNames[lowerCityName];
+          }
 
-        // Find matching state in our states list
-        const matchedState = states.find(
-          (state) =>
-            state.name.toLowerCase() === principalSubdivision.toLowerCase()
-        );
+          // Set the selected city directly
+          setSelectedCity(cityName);
+          
+          // Apply filters with just the city
+          const locationFilters = {
+            city: cityName,
+            propertyType: [],
+            bhk: [],
+            minBudget: "",
+            maxBudget: "",
+            amenities: [],
+          };
+          console.log("Applying city-only filters:", locationFilters);
+          onFilterChange(locationFilters);
 
-        if (matchedState) {
-          console.log("Matched state:", matchedState);
-          setSelectedState(matchedState);
-
-          // Fetch cities for this state
-          await fetchCitiesByState(matchedState.iso2);
-
-          // Wait for cities to be loaded
-          setTimeout(async () => {
-            // Find matching city in our cities list
-            const matchedCity = cities.find(
-              (cityObj) => cityObj.name.toLowerCase() === city.toLowerCase()
+          // Fetch properties for the city
+          try {
+            const propsResponse = await axios.get(
+              `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster`,
+              {
+                params: { city: cityName }
+              }
             );
-
-            console.log("Matched city:", matchedCity);
-
-            if (matchedCity) {
-              setSelectedCity(matchedCity);
-              // Apply filters
-              const locationFilters = {
-                state: matchedState.name,
-                stateCode: matchedState.iso2,
-                city: matchedCity.name,
-                propertyType: [],
-                bhk: [],
-                minBudget: "",
-                maxBudget: "",
-                amenities: [],
-              };
-              console.log("Applying location filters:", locationFilters);
-              onFilterChange(locationFilters);
-            } else {
-              // If city not found, still apply state filter
-              const locationFilters = {
-                state: matchedState.name,
-                stateCode: matchedState.iso2,
-                city: "",
-                propertyType: [],
-                bhk: [],
-                minBudget: "",
-                maxBudget: "",
-                amenities: [],
-              };
-              console.log("Applying state-only filters:", locationFilters);
-              onFilterChange(locationFilters);
+            
+            if (propsResponse.data && propsResponse.data.data && propsResponse.data.data.projects) {
+              if (typeof setProperties === 'function') {
+                setProperties(propsResponse.data.data.projects);
+              }
+              console.log("Fetched properties for city:", cityName, propsResponse.data.data.projects);
             }
-          }, 1000); // Give time for cities to load
+          } catch (fetchErr) {
+            console.error("Error fetching properties for city:", cityName, fetchErr);
+          }
         } else {
-          console.log("No matching state found for:", principalSubdivision);
+          console.log("No city found in location data");
         }
       }
     } catch (error) {
@@ -303,48 +230,7 @@ export default function SearchBar({
               />
               <span>{isLocating ? "Locating..." : "Use My Location"}</span>
             </button>
-
-            {/* State Selection */}
-            <div className="relative flex-1" ref={stateDropdownRef}>
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <FaMapMarkerAlt className="text-white text-lg" />
-              </div>
-              <button
-                type="button"
-                onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
-                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${
-                  selectedState
-                    ? "border-gold-400 bg-[#23283a] text-white"
-                    : "border-gold-400 text-white hover:bg-[#23283a]/80 bg-[#0a0f19]"
-                }`}
-              >
-                {selectedState ? selectedState.name : "Select State"}
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
-              </button>
-              {stateDropdownOpen && (
-                <div className="absolute z-10 w-full mt-2 bg-[#181c27] text-white rounded-xl shadow-xl border-2 border-gold-400 max-h-60 overflow-y-auto">
-                  <div className="sticky top-0 bg-[#181c27] text-white p-2 border-b-2 border-gold-400">
-                    <input
-                      type="text"
-                      placeholder="Search states..."
-                      value={stateSearch}
-                      onChange={(e) => setStateSearch(e.target.value)}
-                      className="w-full p-2 bg-[#23283a] text-white placeholder-gray-300 border-2 border-gold-400 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-400"
-                    />
-                  </div>
-                  {filteredStates.map((state) => (
-                    <button
-                      key={state.iso2}
-                      type="button"
-                      onClick={() => handleStateSelect(state)}
-                      className="w-full px-4 py-3 text-left hover:bg-[#23283a]/80 transition-colors text-white"
-                    >
-                      {state.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            
 
             {/* City Selection */}
             <div className="relative flex-1" ref={cityDropdownRef}>
@@ -354,16 +240,15 @@ export default function SearchBar({
               <button
                 type="button"
                 onClick={() =>
-                  selectedState && setCityDropdownOpen(!cityDropdownOpen)
+                   setCityDropdownOpen(!cityDropdownOpen)
                 }
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${
                   selectedCity
                     ? "border-gold-400 bg-[#23283a] text-white"
                     : "border-gold-400 text-white hover:bg-[#23283a]/80 bg-[#0a0f19]"
-                } ${!selectedState ? "opacity-50 cursor-not-allowed" : ""}`}
-                disabled={!selectedState}
+                }`}
               >
-                {selectedCity ? selectedCity.name : "Select City"}
+                {selectedCity ? (typeof selectedCity === 'string' ? selectedCity : selectedCity.name || 'Selected City') : "Select City"}
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
               </button>
               {cityDropdownOpen && (
@@ -374,7 +259,7 @@ export default function SearchBar({
                       placeholder="Search cities..."
                       value={citySearch}
                       onChange={(e) => setCitySearch(e.target.value)}
-                      className="w-full p-2 bg-[#23283a] text-white placeholder-gray-300 border-2 border-gold-400 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-400"
+                      className="w-full p-2 bg-[#23283a] border-2 border-gold-400 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-400"
                     />
                   </div>
                   {filteredCities.map((city) => (
@@ -384,7 +269,7 @@ export default function SearchBar({
                       onClick={() => handleCitySelect(city)}
                       className="w-full px-4 py-3 text-left hover:bg-[#23283a]/80 transition-colors text-white"
                     >
-                      {city.name}
+                      {city}
                     </button>
                   ))}
                 </div>

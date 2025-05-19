@@ -23,7 +23,7 @@ function Home() {
   const fetchingRef = useRef(false); // Ref to track ongoing fetch operations
   const retryCountRef = useRef(0); // Ref to track retry count
 
-  const url = `${process.env.REACT_APP_BACKEND_URL || 'https://iprop91new.onrender.com'}/api/projectDataMaster`;
+  const url = `${process.env.REACT_APP_BACKEND_URL || 'https://iprop91new.onrender.com'}/api/projectsDataMaster`;
   const params = filters;
   const MAX_RETRIES = 3;
 

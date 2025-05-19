@@ -43,6 +43,9 @@ const createHouseIcon = () => {
   });
 };
 
+// Cache for coordinates to avoid duplicate requests
+const coordinatesCache = new Map();
+
 function PropertyCard({ property, isLoading = false, propertyId }) {
   const [propertyData, setPropertyData] = useState(property);
   const [fetchLoading, setFetchLoading] = useState(false);
@@ -58,6 +61,7 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
   const [mapNavigationError, setMapNavigationError] = useState(null);
   const [isHighlighted, setIsHighlighted] = useState(false);
   const hoverTimerRef = useRef(null);
+  const locationRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -100,28 +104,67 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
   }, [property, propertyId]);
 
   useEffect(() => {
+    // Update location reference
     if (propertyData?.location) {
-      // Fetch coordinates from location string using Nominatim API
-      const fetchCoordinates = async () => {
-        try {
-          const response = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-              propertyData.location
-            )}`
-          );
-          if (response.data && response.data[0]) {
-            setCoordinates([
-              parseFloat(response.data[0].lat),
-              parseFloat(response.data[0].lon),
-            ]);
-          }
-        } catch (error) {
-          console.error("Error fetching coordinates:", error);
-        }
-      };
-      fetchCoordinates();
+      locationRef.current = propertyData.location;
     }
-  }, [propertyData?.location]);
+    
+    // Check if we already have coordinates for this location in cache
+    if (propertyData?.location && coordinatesCache.has(propertyData.location)) {
+      setCoordinates(coordinatesCache.get(propertyData.location));
+      return;
+    }
+    
+    // Only fetch coordinates if we don't have them and location has changed
+    if (propertyData?.location && (!coordinates || locationRef.current !== propertyData.location)) {
+      // Add a delay to reduce API request frequency
+      const timeoutId = setTimeout(() => {
+        const fetchCoordinates = async () => {
+          try {
+            // Use a self-hosted or paid geocoding service instead of Nominatim for production
+            // This is just a rate-limited solution for development
+            const cachedCoords = coordinatesCache.get(propertyData.location);
+            if (cachedCoords) {
+              setCoordinates(cachedCoords);
+              return;
+            }
+            
+            // Add a random delay between 500-2000ms to further spread requests
+            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1500));
+            
+            const response = await axios.get(
+              `https://nominatim.openstreetmap.org/search`,
+              {
+                params: {
+                  format: 'json',
+                  q: propertyData.location,
+                  limit: 1
+                },
+                headers: {
+                  'User-Agent': 'iProp-PropertyApp/1.0'
+                }
+              }
+            );
+            
+            if (response.data && response.data[0]) {
+              const coords = [
+                parseFloat(response.data[0].lat),
+                parseFloat(response.data[0].lon),
+              ];
+              setCoordinates(coords);
+              // Cache this result
+              coordinatesCache.set(propertyData.location, coords);
+            }
+          } catch (error) {
+            console.error("Error fetching coordinates:", error);
+          }
+        };
+        fetchCoordinates();
+      }, 2000); // Delay requests by 2 seconds
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [propertyData?.location, coordinates]);
 
   // Listen for marker clicks to highlight this card if it matches
   useEffect(() => {
@@ -147,11 +190,10 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
   }, [propertyData]);
 
   const getImageUrl = (image) => {
+    console.log("image --------------------");
+console.log(image);
     if (!image) return "/iPropLogo.6ed8e014.svg";
-    if (image.startsWith("http")) return image;
-    return `https://iprop-api.irentpro.com${
-      image.startsWith("/") ? "" : "/"
-    }${image}`;
+    return image.path;
   };
 
   // Modified function to handle details page navigation
@@ -333,11 +375,10 @@ function PropertyCard({ property, isLoading = false, propertyId }) {
       onHoverStart={handleHoverStart}
       onHoverEnd={handleHoverEnd}
       onClick={handleCardClick}
-      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden relative w-full cursor-pointer"
+      className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden relative w-full cursor-pointer ${isHighlighted ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
       data-property-id={propertyData?._id}
     >
     
-
       <div className="relative">
         <AnimatePresence>
           {showMap && coordinates ? (

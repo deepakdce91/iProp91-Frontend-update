@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
+import axios from 'axios';
+import { sortArrayByName } from '../utils/sortArrey';
+
 
 const FiltersModal = ({ closeModal }) => {
   const [priceRange, setPriceRange] = useState([1000, 20000]);
@@ -8,6 +11,19 @@ const FiltersModal = ({ closeModal }) => {
   const [bathrooms, setBathrooms] = useState(0);
   const [propertyType, setPropertyType] = useState('Any');
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [city, setCity] = useState('Any');
+  const [state, setState] = useState('Any');
+
+  // Example lists, replace with your dynamic data if needed
+  const stateOptions = ['Any', 'Maharashtra', 'Karnataka', 'Delhi', 'Tamil Nadu', 'West Bengal'];
+  const cityOptions = {
+    Any: ['Any'],
+    Maharashtra: ['Any', 'Mumbai', 'Pune', 'Nagpur'],
+    Karnataka: ['Any', 'Bangalore', 'Mysore'],
+    Delhi: ['Any', 'New Delhi', 'Dwarka'],
+    'Tamil Nadu': ['Any', 'Chennai', 'Coimbatore'],
+    'West Bengal': ['Any', 'Kolkata', 'Howrah'],
+  };
   
   const minRangeRef = useRef(null);
   const maxRangeRef = useRef(null);
@@ -23,10 +39,58 @@ const FiltersModal = ({ closeModal }) => {
   const MIN_PRICE = 1000;
   const MAX_PRICE = 50000;
   const PRICE_GAP = 1000;
+
+  const filters = {
+    priceRange,
+    bedrooms,
+    bathrooms,
+    propertyType,
+    selectedAmenities,
+    city,
+    state,
+  }
+
+  useEffect(() => {
+    const fetchCitiesByState = (currentStateCode) => {
+      axios
+        .get(`https://api.countrystatecity.in/v1/countries/IN/states/${currentStateCode}/cities`, {
+          headers: {
+            'X-CSCAPI-KEY': process.env.REACT_APP_CSC_API,
+          },
+        })
+        .then((response) => {
+          setCity(sortArrayByName(response.data));
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    };
+    fetchCitiesByState(state);
+  }, [state]);
+  
+  useEffect(() => {
+    const fetchAllStates = () => {
+      axios
+        .get('https://api.countrystatecity.in/v1/countries/IN/states', {
+          headers: {
+            "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
+          },
+        })
+        .then((response) => {
+          setState(sortArrayByName(response.data));
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    };
+  
+    fetchAllStates();
+  }, []);
+  
   
   useEffect(() => {
     updateRangeProgress();
-  }, [priceRange]);
+  },[priceRange[0], priceRange[1]]);
   
   const handleMinPriceChange = (e) => {
     const minVal = parseInt(e.target.value);
@@ -200,6 +264,40 @@ const FiltersModal = ({ closeModal }) => {
           </section>
           
           <section className="mb-8">
+            <h3 className="text-lg font-medium mb-4">Location</h3>
+            <div className="flex flex-col md:flex-row gap-5">
+              <div className="flex-1">
+                <label className="block mb-2 text-sm font-medium text-gray-600">State</label>
+                <select
+                  className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  value={state}
+                  onChange={e => {
+                    setState(e.target.value);
+                    setCity('Any'); // Reset city if state changes
+                  }}
+                >
+                  {stateOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block mb-2 text-sm font-medium text-gray-600">City</label>
+                <select
+                  className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  disabled={state === 'Any'}
+                >
+                  {cityOptions[state]?.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section className="mb-8">
             <h3 className="text-lg font-medium mb-4">Property type</h3>
             <div className="flex flex-wrap gap-2.5">
               {propertyTypes.map(type => (
@@ -247,6 +345,8 @@ const FiltersModal = ({ closeModal }) => {
               setBathrooms(0);
               setPriceRange([MIN_PRICE, MAX_PRICE]);
               setSelectedAmenities([]);
+              setState('Any');
+              setCity('Any');
             }}
           >
             Clear all
