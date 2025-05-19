@@ -271,6 +271,8 @@ const ListingCompo = () => {
   const [location, setLocation] = useState("");
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [showBudgetDropdown, setShowBudgetDropdown] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState([]);
   const [selectedBhkTypes, setSelectedBhkTypes] = useState([]);
@@ -540,6 +542,56 @@ const ListingCompo = () => {
     navigate("/search-properties");
   };
 
+  // Add useEffect for fetching cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/cities/unique`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data) {
+          // console.log(response.data.data)
+          setCitySuggestions(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  // Add function to filter cities based on input
+  const filterCities = (input) => {
+    if (!input) {
+      setShowCitySuggestions(true);
+      return;
+    }
+    const filtered = citySuggestions.filter(city =>
+      city.toLowerCase().includes(input.toLowerCase())
+    );
+    setCitySuggestions(filtered);
+    setShowCitySuggestions(true);
+  };
+
+  // Add function to handle city selection
+  const handleCitySelect = (selectedCity) => {
+    setLocation(selectedCity);
+    setShowCitySuggestions(false);
+  };
+
+  // Add function to handle input blur
+  const handleInputBlur = () => {
+    // Delay hiding suggestions to allow for click on suggestion
+    setTimeout(() => {
+      setShowCitySuggestions(false);
+    }, 200);
+  };
+
   return (
     <main className="min-h-screen  relative bg-white py-10">
       {/* Hero Section with Enhanced Search */}
@@ -577,7 +629,7 @@ const ListingCompo = () => {
                 <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
 
                   {/* Location Input */}
-                  <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
+                  <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300 relative">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 text-black"
@@ -595,8 +647,29 @@ const ListingCompo = () => {
                       placeholder="Enter City"
                       className="w-full p-2 outline-none max-sm:p-0 max-sm:placeholder:text-sm"
                       value={location}
-                      onChange={(e) => setLocation(e.target.value)}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        filterCities(e.target.value);
+                      }}
+                      onFocus={() => {
+                        setShowCitySuggestions(true);
+                      }}
+                      onBlur={handleInputBlur}
                     />
+                    {/* City Suggestions Dropdown */}
+                    {showCitySuggestions && citySuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
+                        {citySuggestions.map((city, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                            onClick={() => handleCitySelect(city)}
+                          >
+                            {city}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Property Type Dropdown */}
