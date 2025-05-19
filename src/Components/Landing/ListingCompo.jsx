@@ -24,17 +24,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const categories = [
   {
-    title: "Owner Properties",
-    description: "Verified listings from property owners",
+    title: "New Projects",
+    description: "New Projects, ready to buy/rent.",
     image: "/images/propcat.jpg",
     link: "/property-listing",
     count: "15,800+ Properties",
     filters: {
-      category: "verified_owner",
+      category: "new_projects",
     },
   },
   {
-    title: "New Projects",
+    title: "Property Resale",
     description: "Upcoming and ongoing projects",
     image: "/images/propcat.jpg",
     link: "/property-listing",
@@ -43,26 +43,7 @@ const categories = [
       category: "property_resale",
     },
   },
-  {
-    title: "Ready to Move",
-    description: "Immediate possession properties",
-    image: "/images/propcat.jpg",
-    link: "/property-listing",
-    count: "8,500+ Properties",
-    filters: {
-      category: "ready_to_move",
-    },
-  },
-  {
-    title: "Budget Homes",
-    description: "Affordable housing options",
-    image: "/images/propcat.jpg",
-    link: "/property-listing",
-    count: "3,200+ Properties",
-    filters: {
-      category: "budget_homes",
-    },
-  },
+  
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
@@ -83,16 +64,7 @@ const categories = [
       category: "verified_owner",
     },
   },
-  {
-    title: "New Sale Properties",
-    description: "Fresh properties for sale",
-    image: "/images/propcat.jpg",
-    link: "/property-listing",
-    count: "5,000+ Properties",
-    filters: {
-      category: "new_sale",
-    },
-  },
+ 
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
@@ -100,7 +72,7 @@ const categories = [
     link: "/property-listing",
     count: "2,000+ Properties",
     filters: {
-      category: "upcoming_project",
+      category: "upcoming_projects",
     },
   },
 ];
@@ -515,7 +487,7 @@ const ListingCompo = () => {
     searchParams.append("availableFor", activeTab);
 
     // Navigate to search-properties with the parameters
-    navigate(`/search-properties?${searchParams.toString()}`);
+    navigate(`/property-listing?${searchParams.toString()}`);
   };
 
   useEffect(() => {
