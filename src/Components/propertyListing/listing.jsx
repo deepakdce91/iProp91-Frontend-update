@@ -7,14 +7,23 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import PropertyCards from "./components/propertyCards.jsx";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 function PropertyListing() {
   const location = useLocation();
   const [showFilters, setShowFilters] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
+  const [properties, setProperties] = useState([]);
+  
+  // Initialize URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  
+  // Get transaction type from URL (rent/buy)
+  const initialTransactionType = searchParams.get("transactionType") || "buy";
+  const [transactionType, setTransactionType] = useState(initialTransactionType);
+  
+  // Initialize filters from URL parameters
   const [filters, setFilters] = useState(() => {
-    // First check URL parameters
-    const searchParams = new URLSearchParams(location.search);
     const urlFilters = {};
 
     // Get category from URL
@@ -42,11 +51,17 @@ function PropertyListing() {
     if (maxBudget) urlFilters.maxBudget = maxBudget;
 
     // Get location from URL
-    const state = searchParams.get("state");
     const city = searchParams.get("city");
-    if (state) urlFilters.state = state;
     if (city) urlFilters.city = city;
+    
+    // Get amenities from URL
+    const amenities = searchParams.get("amenities");
+    if (amenities) {
+      urlFilters.amenities = amenities.split(",");
+    }
 
+    console.log("URL Filters:", urlFilters);
+    
     // If URL has filters, use them
     if (Object.keys(urlFilters).length > 0) {
       return urlFilters;
@@ -56,36 +71,58 @@ function PropertyListing() {
     const savedFilters = localStorage.getItem("propertyFilters");
     return savedFilters ? JSON.parse(savedFilters) : {};
   });
-  const [sortBy, setSortBy] = useState("relevance");
+  
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "relevance");
   const [favorites, setFavorites] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("all");
+  
+  // Set the active category from URL if present
+  const urlCategory = searchParams.get("category");
+  const [activeCategory, setActiveCategory] = useState(() => {
+    // Map URL category to local category ID
+    const categoryMapping = {
+      verified_owner: "verified",
+      new_project: "new",
+      pre_launch: "prelaunch",
+      new_sale: "sale",
+      upcoming_project: "upcoming",
+    };
+    return urlCategory ? (categoryMapping[urlCategory] || "all") : "all";
+  });
+  
   const [propertyCategories] = useState([
     { id: "all", label: "All Properties", count: 0 },
-    { id: "owner", label: "Owner's Property", count: 0 },
     { id: "new", label: "New Projects", count: 0 },
-    { id: "ready", label: "Ready to Move", count: 0 },
-    { id: "budget", label: "Budget Homes", count: 0 },
     { id: "prelaunch", label: "Pre Launch Homes", count: 0 },
     { id: "verified", label: "Verified Owner Properties", count: 0 },
     { id: "sale", label: "New Sale Properties", count: 0 },
     { id: "upcoming", label: "Upcoming Projects", count: 0 },
   ]);
+
+  // Get city from URL for selectedCity
+  const urlCity = searchParams.get("city");
+  const [selectedCity, setSelectedCity] = useState(() => {
+    if (urlCity) {
+      return urlCity; // Use city directly from URL
+    }
+    const savedCity = localStorage.getItem("selectedCity");
+    return savedCity ? JSON.parse(savedCity) : null;
+  });
+  
+  // Get state from URL for selectedState (if needed)
   const [selectedState, setSelectedState] = useState(() => {
     const savedState = localStorage.getItem("selectedState");
     return savedState ? JSON.parse(savedState) : null;
   });
-  const [selectedCity, setSelectedCity] = useState(() => {
-    const savedCity = localStorage.getItem("selectedCity");
-    return savedCity ? JSON.parse(savedCity) : null;
-  });
 
-  console.log("filters in app.jsx" + filters);
+  console.log("Filters:", filters);
+  console.log("Selected City:", selectedCity);
+  console.log("Transaction Type:", transactionType);
 
   const PrevArrow = ({ onClick }) => (
     <button
       onClick={onClick}
-      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 text-gray-600 hover:text-[#031273] transition-colors"
+      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2.5 text-gray-600 hover:text-white hover:bg-[#031273] transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#031273]/50 -ml-2 sm:ml-0"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +142,7 @@ function PropertyListing() {
   const NextArrow = ({ onClick }) => (
     <button
       onClick={onClick}
-      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 text-gray-600 hover:text-[#031273] transition-colors"
+      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2.5 text-gray-600 hover:text-white hover:bg-[#031273] transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#031273]/50 -mr-2 sm:mr-0"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -122,31 +159,70 @@ function PropertyListing() {
     </button>
   );
 
+  const handleFetchAllProperties = () => {
+    axios
+      .get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster`
+      )
+      .then((res) => {
+        setProperties(res.data.data.projects);
+        console.log(res.data.data.projects);
+      })
+      .catch((err) => console.log(err));
+    
+  }
+
   const sliderSettings = {
-    dots: false,
+    dots: true,
+    dotsClass: "slick-dots custom-dots",
     infinite: false,
-    speed: 500,
+    speed: 600,
     slidesToShow: 8,
-    slidesToScroll: 1,
+    slidesToScroll: 2,
     prevArrow: <PrevArrow />,
     nextArrow: <NextArrow />,
+    swipeToSlide: true,
+    touchThreshold: 8,
+    cssEase: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     responsive: [
+      {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 6,
+          slidesToScroll: 2,
+        },
+      },
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 6,
+          slidesToShow: 5,
+          slidesToScroll: 2,
         },
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 4,
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          dots: true,
         },
       },
       {
         breakpoint: 640,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 2,
+          slidesToScroll: 1,
+          dots: true,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1.5,
+          slidesToScroll: 1,
+          dots: true,
+          centerMode: true,
+          centerPadding: "20px",
         },
       },
     ],
@@ -196,26 +272,77 @@ function PropertyListing() {
     }
   }, [selectedCity]);
 
-  // Update useEffect to handle URL parameters
+  // Update state when URL parameters change
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
+    
+    // Update category
     const category = searchParams.get("category");
-
     if (category) {
-      // Map URL category to activeCategory
       const categoryMapping = {
         verified_owner: "verified",
         new_project: "new",
-        ready_to_move: "ready",
-        budget_homes: "budget",
         pre_launch: "prelaunch",
         new_sale: "sale",
         upcoming_project: "upcoming",
       };
-
       setActiveCategory(categoryMapping[category] || "all");
     }
-  }, [location.search]);
+    
+    // Update city
+    const city = searchParams.get("city");
+    if (city && city !== selectedCity) {
+      setSelectedCity(city);
+    }
+    
+    // Update filters if parameters exist
+    const newFilters = {};
+    let hasNewFilters = false;
+    
+    // Property type
+    const propertyType = searchParams.get("propertyType");
+    if (propertyType) {
+      newFilters.propertyType = propertyType.split(",");
+      hasNewFilters = true;
+    }
+    
+    // BHK
+    const bhk = searchParams.get("bhk");
+    if (bhk) {
+      newFilters.bhk = bhk.split(",");
+      hasNewFilters = true;
+    }
+    
+    // Budget
+    const minBudget = searchParams.get("minBudget");
+    const maxBudget = searchParams.get("maxBudget");
+    if (minBudget) {
+      newFilters.minBudget = minBudget;
+      hasNewFilters = true;
+    }
+    if (maxBudget) {
+      newFilters.maxBudget = maxBudget;
+      hasNewFilters = true;
+    }
+    
+    // Transaction type
+    const transType = searchParams.get("transactionType");
+    if (transType) {
+      setTransactionType(transType);
+    }
+    
+    // Apply new filters if any were found
+    if (hasNewFilters) {
+      // Keep existing filters that aren't being updated
+      setFilters(prev => ({ ...prev, ...newFilters }));
+    }
+    
+    // Update sort parameter
+    const sort = searchParams.get("sort");
+    if (sort) {
+      setSortBy(sort);
+    }
+  }, [location.search, selectedCity]);
 
   const handleFilterChange = (newFilters) => {
     console.log("Before filter change:", filters); // Debug log
@@ -258,14 +385,14 @@ function PropertyListing() {
   if (selectedProperty) {
     return (
       <div>
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-[#0a0f19] bg-opacity-50 z-[200] flex items-center justify-center p-4">
+          <div className="bg-[#0a0f19] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold">{selectedProperty.title}</h2>
                 <button
                   onClick={handleCloseDetails}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-white hover:text-gray-700"
                 >
                   ✕
                 </button>
@@ -287,7 +414,7 @@ function PropertyListing() {
                 </div>
 
                 <div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-[#0a0f19] p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-4">
                       Property Details
                     </h3>
@@ -336,33 +463,61 @@ function PropertyListing() {
       <div className="min-h-screen bg-gray-50 ">
         {showSearchBar && (
           <SearchBar
-            selectedState={selectedState}
-            setSelectedState={setSelectedState}
             selectedCity={selectedCity}
             setSelectedCity={setSelectedCity}
             onFilterChange={handleFilterChange}
             onOpenFilters={() => setShowFilters(true)}
+            setProperties={setProperties}
+            initialFilters={filters}
+            transactionType={transactionType}
           />
         )}
         <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
-          <div className="relative mb-4 sm:mb-6 pb-2">
-            <Slider {...sliderSettings} className="px-2 sm:px-8">
+          <div className="relative mb-6 sm:mb-8 pb-6">
+            <style jsx>{`
+              .custom-dots {
+                bottom: -20px;
+                display: flex !important;
+                justify-content: center;
+                gap: 4px;
+                margin-top: 8px;
+              }
+              .custom-dots li {
+                margin: 0;
+              }
+              .custom-dots li button {
+                padding: 0;
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                background: #e2e8f0;
+                transition: all 0.3s ease;
+              }
+              .custom-dots li.slick-active button {
+                width: 20px;
+                background: #031273;
+              }
+              .slick-slide {
+                transition: transform 0.3s ease;
+              }
+            `}</style>
+            <Slider {...sliderSettings} className="px-2 sm:px-8 category-slider">
               {propertyCategories.map((category) => (
-                <div key={category.id} className="px-1 sm:px-2">
+                <div key={category.id} className="px-1.5 sm:px-2.5 py-2">
                   <button
                     onClick={() => handleCategoryClick(category.id)}
-                    className={`w-full flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
+                    className={`w-full flex justify-between items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium shadow-sm transition-all duration-300 transform ${
                       activeCategory === category.id
-                        ? "bg-[#031273] text-white"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-[#031273] text-nowrap text-white scale-105 shadow-md ring-2 ring-[#031273]/20"
+                        : "text-gray-700 text-nowrap bg-white hover:bg-gray-50 hover:shadow hover:scale-105"
                     }`}
                   >
                     {category.label}
                     <span
-                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs ${
+                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-semibold min-w-[20px] inline-flex justify-center ${
                         activeCategory === category.id
-                          ? "bg-white/20"
-                          : "bg-gray-100"
+                          ? "bg-white/20 text-white"
+                          : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {category.count}
@@ -388,14 +543,27 @@ function PropertyListing() {
                 <option value="oldest">Oldest First</option>
               </select>
             </div>
+            <div>
+              <button
+                className="px-4 py-2 text-white bg-[#031273] hover:bg-[#031273]/90 rounded-lg"
+                onClick={() => handleFetchAllProperties()} 
+              >
+                Fetch All Properties
+              </button>
+            </div>
           </div>
 
           <PropertyCards
+            propertyCategories={propertyCategories}
+            selectedCity={selectedCity}
+            properties={properties}
+            setProperties={setProperties}
             filters={filters}
             sortBy={sortBy}
             activeCategory={activeCategory}
             favorites={favorites}
             onPropertyClick={handlePropertyClick}
+            transactionType={transactionType}
           />
         </div>
 

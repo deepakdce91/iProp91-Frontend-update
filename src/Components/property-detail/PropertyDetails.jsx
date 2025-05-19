@@ -32,6 +32,7 @@ import {
   Car,
   Wifi,
   Shield,
+  ShieldCheck, Building2, Leaf, 
 } from "lucide-react";
 
 // Import the gold theme CSS if it exists, otherwise comment out
@@ -60,6 +61,64 @@ const VisitorParkingIcon = ({ size = 16 }) => (
     <path d="M16 14H8v3h8v-3z" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
+
+const amenities = [
+  { name: "Fire Safety System", category: "Building Features", available: true },
+  { name: "Power Backup", category: "Building Features", available: false },
+  { name: "Elevator", category: "Building Features", available: true },
+  { name: "Intercom Facility", category: "Building Features", available: true },
+  
+  { name: "Swimming Pool", category: "Common Areas", available: true },
+  { name: "Gym", category: "Common Areas", available: true },
+  { name: "Children's Play Area", category: "Common Areas", available: false },
+  { name: "Clubhouse", category: "Common Areas", available: false },
+  { name: "Garden", category: "Common Areas", available: true },
+  
+  { name: "Resident Parking", category: "Parking", available: true },
+  { name: "Visitor Parking", category: "Parking", available: false },
+  
+  { name: "High-Speed Internet", category: "Connectivity", available: true },
+  { name: "Nearby Shopping", category: "Connectivity", available: true },
+  { name: "Schools Within 1KM", category: "Connectivity", available: false },
+  
+  { name: "Green Spaces", category: "Environment", available: true },
+  { name: "Good Ventilation", category: "Environment", available: true },
+  { name: "Vaastu Compliant", category: "Environment", available: false }
+];
+
+// Category definitions with their icons
+const categoryDefinitions = {
+  "Building Features": { icon: Building2, iconColor: "text-amber-500" },
+  "Common Areas": { icon: Users, iconColor: "text-amber-500" },
+  "Parking": { icon: Car, iconColor: "text-amber-500" },
+  "Connectivity": { icon: Wifi, iconColor: "text-amber-500" },
+  "Environment": { icon: Leaf, iconColor: "text-amber-500" }
+};
+
+// Function to group amenities by category
+const groupByCategory = (amenitiesList) => {
+  const categories = [];
+  
+  // Get unique category names
+  const categoryNames = [...new Set(amenitiesList.map(item => item.category))];
+  
+  // Create category objects with their amenities
+  categoryNames.forEach(categoryName => {
+    if (categoryDefinitions[categoryName]) {
+      categories.push({
+        name: categoryName,
+        icon: categoryDefinitions[categoryName].icon,
+        iconColor: categoryDefinitions[categoryName].iconColor,
+        amenities: amenitiesList.filter(item => item.category === categoryName)
+      });
+    }
+  });
+  
+  return categories;
+};
+
+// Group amenities by category
+const categorizedAmenities = groupByCategory(amenities);
 
 const CoveredParkingIcon = ({ size = 16 }) => (
   <svg
@@ -141,8 +200,8 @@ export default function PropertyDetails({ onBack = () => {} }) {
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const [activeImage, setActiveImage] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showContact, setShowContact] = useState(false);
   const [loanAmount, setLoanAmount] = useState("");
@@ -300,52 +359,66 @@ export default function PropertyDetails({ onBack = () => {} }) {
         console.log("Fetching property details for ID:", id);
 
         const response = await axios.get(
-          `https://iprop91new.onrender.com/api/projectsDataMaster?id=${id}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/${id}`
         );
-        console.log("API Response:", response.data);
+        console.log("API Response:", response.data.data.project);
 
         if (
           response.data.status === "success" &&
-          response.data.data &&
-          response.data.data.projects &&
-          response.data.data.projects.length > 0
+          response.data.data.project
         ) {
-          const propertyData = response.data.data.projects[0]; // Get the first property from projects array
+          const propertyData = response.data.data.project; // Directly use the returned property object
           console.log("Processing property data:", propertyData);
 
           setProperty({
-            _id: propertyData._id || id,
-            title:
-              propertyData.title ||
-              `${propertyData.bhk || ""} ${
-                propertyData.type || "Property"
-              } in ${propertyData.project || ""}`,
-            price: propertyData.minimumPrice
-              ? `₹${propertyData.minimumPrice}`
-              : "Price on Request",
-            location: `${propertyData.city || ""}, ${
-              propertyData.state || ""
-            }`.trim(),
-            coordinates: {
-              latitude: propertyData.coordinates
-                ? propertyData.coordinates[0]
-                : 0,
-              longitude: propertyData.coordinates
-                ? propertyData.coordinates[1]
-                : 0,
-            },
-            images: Array.isArray(propertyData.images)
-              ? propertyData.images
-              : [],
-            description: propertyData.overview || "",
-            amenities: Array.isArray(propertyData.amenities)
-              ? propertyData.amenities
-              : [],
-            features: Array.isArray(propertyData.features)
-              ? propertyData.features
-              : [],
-            bhk: propertyData.bhk || "",
-            type: propertyData.type || "Residential",
+            id: propertyData._id,
+            propertyId: propertyData.propertyId,
+            listingId: propertyData.listingId,
+            state: propertyData.state,
+            city: propertyData.city,
+            builder: propertyData.builder,
+            project: propertyData.project,
+            overview: propertyData.overview,
+            address: propertyData.address,
+            pincode: propertyData.pincode,
+            status: propertyData.status,
+            type: propertyData.type,
+            availableFor: propertyData.availableFor,
+            category: propertyData.category,
+            minimumPrice: propertyData.minimumPrice,
+            maximumPrice: propertyData.maximumPrice,
+            bhk: propertyData.bhk,
+            appartmentType: propertyData.appartmentType || [],
+            appartmentSubType: propertyData.appartmentSubType || [],
+            features: propertyData.features || [],
+            amenities: propertyData.amenities || [],
+            commercialHubs: propertyData.commercialHubs || [],
+            hospitals: propertyData.hospitals || [],
+            hotels: propertyData.hotels || [],
+            shoppingCentres: propertyData.shoppingCentres || [],
+            transportationHubs: propertyData.transportationHubs || [],
+            educationalInstitutions: propertyData.educationalInstitutions || [],
+            images: propertyData.images || [],
+            floorPlan: propertyData.floorPlan || [],
+            enable: propertyData.enable,
+            isViewed: propertyData.isViewed,
+            createdAt: propertyData.createdAt,
+            updatedAt: propertyData.updatedAt,
+            floorNumber: propertyData.floorNumber,
+            houseNumber: propertyData.houseNumber,
+            isTitleDeedVerified: propertyData.isTitleDeedVerified,
+            numberOfBathrooms: propertyData.numberOfBathrooms,
+            numberOfBedrooms: propertyData.numberOfBedrooms,
+            numberOfFloors: propertyData.numberOfFloors,
+            numberOfParkings: propertyData.numberOfParkings,
+            numberOfWashrooms: propertyData.numberOfWashrooms,
+            sector: propertyData.sector,
+            size: propertyData.size,
+            thumbnail: propertyData.thumbnail,
+            tower: propertyData.tower,
+            unit: propertyData.unit,
+            videos: propertyData.videos || [],
+            coordinates: Array.isArray(propertyData.coordinates) && propertyData.coordinates.length === 2 ? propertyData.coordinates : [0,0],
             area: propertyData.size || "N/A",
             status: propertyData.status || "N/A",
             bathrooms: propertyData.numberOfBathrooms || "N/A",
@@ -672,521 +745,40 @@ export default function PropertyDetails({ onBack = () => {} }) {
                       Amenities & Features
                     </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                          <Building className="text-gold-500 mr-2" size={18} />
-                          Building Features
-                        </h4>
-                        <div className="space-y-2">
-                          {amenities
-                            .filter((a) =>
-                              [
-                                "Lift",
-                                "Power Backup",
-                                "Security",
-                                "Club House",
-                              ].includes(a)
-                            )
-                            .map((amenity, i) => {
-                              let AmenityIcon = Check;
-
-                              // Assign specific icons for each amenity
-                              if (amenity === "Lift") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <rect
-                                      x="5"
-                                      y="2"
-                                      width="14"
-                                      height="20"
-                                      rx="2"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                    />
-                                    <path
-                                      d="M12 2v20"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                    />
-                                    <path
-                                      d="M9 8l-2 2M9 10L7 8"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M16 14l-2 2M16 16l-2-2"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                );
-                              } else if (amenity === "Power Backup") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <path
-                                      d="M8 18h.02M12 18h.02M16 18h.02M12 2v6l3-3"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M12.56 6.06A10.97 10.97 0 0 0 3 16.44M21 16.44c0-3.6-1.86-6.95-4.87-8.85"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M3 10a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM17 10a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                );
-                              } else if (amenity === "Security") {
-                                AmenityIcon = Shield;
-                              } else if (amenity === "Club House") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <path
-                                      d="M5 18h14M5 14h14M5 10h14M5 6h14"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <rect
-                                      x="7"
-                                      y="4"
-                                      width="10"
-                                      height="16"
-                                      rx="1"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                    />
-                                  </svg>
-                                );
-                              }
-
-                              return (
-                                <div key={i} className="flex items-center">
-                                  <div className="text-gold-500 mr-2">
-                                    <AmenityIcon size={16} />
-                                  </div>
-                                  <span className="text-gray-600">
-                                    {amenity}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                          <Users className="text-gold-500 mr-2" size={18} />
-                          Common Areas
-                        </h4>
-                        <div className="space-y-2">
-                          {amenities
-                            .filter((a) =>
-                              [
-                                "Park",
-                                "Swimming Pool",
-                                "Gym",
-                                "Visitor Parking",
-                              ].includes(a)
-                            )
-                            .map((amenity, i) => {
-                              let AmenityIcon = Check;
-
-                              // Assign specific icons for each amenity
-                              if (amenity === "Park") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <path
-                                      d="M8 9l4-4 4 4"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M12 5v14"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M20 21H4"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                );
-                              } else if (amenity === "Swimming Pool") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <path
-                                      d="M2 15h20M14 5l1 5M10 5l-1 5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M7 15c2.33-3.5 7.67-3.5 10 0"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                );
-                              } else if (amenity === "Gym") {
-                                AmenityIcon = () => (
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="text-gold-500"
-                                  >
-                                    <path
-                                      d="M6.5 6.5h11v11h-11z"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                    />
-                                    <path
-                                      d="M19 14.5v-5m4 1.5v2m-20 0v-2m4 5v-5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                );
-                              } else if (amenity === "Visitor Parking") {
-                                AmenityIcon = VisitorParkingIcon;
-                              }
-
-                              return (
-                                <div key={i} className="flex items-center">
-                                  <div className="text-gold-500 mr-2">
-                                    <AmenityIcon size={16} />
-                                  </div>
-                                  <span className="text-gray-600">
-                                    {amenity}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                          <Car className="text-gold-500 mr-2" size={18} />
-                          Parking
-                        </h4>
-                        <div className="space-y-2">
-                          {["Car Parking", "Visitor Parking", "Covered Parking"]
-                            .filter((a) => amenities.includes(a))
-                            .map((amenity, i) => {
-                              let AmenityIcon = Check;
-
-                              // Assign specific icons for each amenity
-                              if (amenity === "Car Parking") {
-                                AmenityIcon = Car;
-                              } else if (amenity === "Visitor Parking") {
-                                AmenityIcon = VisitorParkingIcon; // Use the component we defined at the top
-                              } else if (amenity === "Covered Parking") {
-                                AmenityIcon = CoveredParkingIcon; // Use the component we defined at the top
-                              } else if (amenity === "Swimming Pool") {
-                                AmenityIcon = SwimmingPoolIcon;
-                              }
-
-                              return (
-                                <div key={i} className="flex items-center">
-                                  <div className="text-gold-500 mr-2">
-                                    <AmenityIcon size={16} />
-                                  </div>
-                                  <span className="text-gray-600">
-                                    {amenity}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                        </div>
-                      </div>
-
-                      {/* Adding two more sections for additional amenities */}
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                          <Wifi className="text-gold-500 mr-2" size={18} />
-                          Connectivity
-                        </h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <Wifi size={16} />
-                            </div>
-                            <span className="text-gray-600">
-                              High-Speed Internet
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="text-gold-500"
-                              >
-                                <path
-                                  d="M15.5 9h.01M6 19h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-1-3H9L8 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-gray-600">
-                              Nearby Shopping
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="text-gold-500"
-                              >
-                                <path
-                                  d="M22 9L12 5 2 9l10 4 10-4zM6 10.6v5.4a6 6 0 0 0 12 0v-5.4"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-gray-600">
-                              Schools Within 1KM
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="text-gold-500 mr-2"
-                          >
-                            <path
-                              d="M2 15h20M14 5l1 5M10 5l-1 5"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M12 20v-8"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <path
-                              d="M15 20c0-1.66-1.34-3-3-3s-3 1.34-3 3"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          Environment
-                        </h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="text-gold-500"
-                              >
-                                <path
-                                  d="M12 18v-3"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M10.07 2.82 12 8l1.93-5.18a1 1 0 0 0-1.93 0Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M4.18 10.18 8 12l-3.82 1.82a1 1 0 0 0 0 1.82Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M19.82 10.18 16 12l3.82 1.82a1 1 0 0 1 0 1.82Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M8 12s-1.165 1.15-1.8 1.1c-3-0.18-4.2 3.1-1.8 4.5 2.8 1.5 5.6-.1 5.6-.1"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M14 17.5s2.8 1.6 5.6.1c2.4-1.4 1.2-4.7-1.8-4.5-.635.05-1.8-1.1-1.8-1.1"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M12 19a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-gray-600">Green Spaces</span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="text-gold-500"
-                              >
-                                <path
-                                  d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2.5 2.5 0 1 1 19.5 12H2"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-gray-600">
-                              Good Ventilation
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="text-gold-500 mr-2">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="text-gold-500"
-                              >
-                                <circle
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                />
-                                <path
-                                  d="M12 2v20M2 12h20"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                />
-                                <path
-                                  d="M12 12L7 7M12 12l5-5M12 12l-5 5M12 12l5 5"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-gray-600">
-                              Vaastu Compliant
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {categorizedAmenities.map((category, i) => {
+          const CategoryIcon = category.icon;
+          
+          return (
+            <div key={i} className="flex flex-col">
+              <div className="flex items-center mb-4">
+                <div className={`${category.iconColor} mr-2`}>
+                  <CategoryIcon size={20} />
+                </div>
+                <span className="text-gray-800 font-medium">{category.name}</span>
+              </div>
+              
+              <div className="space-y-3">
+                {category.amenities.map((amenity, j) => (
+                  <div key={j} className="flex items-center">
+                    {amenity.available ? (
+                      <>
+                        <Check size={16} className="text-amber-500 mr-2" />
+                        <span className="text-gray-800">{amenity.name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} className="text-gray-300 mr-2" />
+                        <span className="text-gray-300">{amenity.name}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
                   </div>
                 </div>
               </div>

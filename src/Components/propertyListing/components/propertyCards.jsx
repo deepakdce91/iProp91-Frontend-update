@@ -3,13 +3,15 @@ import PropertyCard from "./PropertyCard";
 import axios from "axios";
 
 const PropertyCards = ({
+  selectedCity,
+  properties,
+  setProperties,
   filters,
   sortBy,
   activeCategory,
   favorites,
   onPropertyClick,
 }) => {
-  const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
@@ -40,11 +42,18 @@ const PropertyCards = ({
         const queryParams = new URLSearchParams();
 
         // Check if location filters (state and city) are applied
-        const hasLocationFilters = filters.state || filters.city;
+        // Consider selectedCity as a location filter as well
+        const hasLocationFilters = filters.city || selectedCity;
 
-        // Add all filter parameters if they exist
-        if (filters.state) queryParams.append("state", filters.state);
-        if (filters.city) queryParams.append("city", filters.city);
+        
+        // For city, prioritize selectedCity over filters.city
+        if (selectedCity && selectedCity.name) {
+          queryParams.append("city", selectedCity.name);
+          console.log("Using selectedCity for API query:", selectedCity.name);
+        } else if (filters.city) {
+          queryParams.append("city", filters.city);
+          console.log("Using filters.city for API query:", filters.city);
+        }
         if (filters.propertyType?.length)
           queryParams.append("propertyType", filters.propertyType.join(","));
         if (filters.bhk?.length)
@@ -83,12 +92,46 @@ const PropertyCards = ({
         console.log("API URL:", apiUrl);
 
         const response = await axios.get(apiUrl);
-        console.log("API Response:", response.data);
+        console.log("API Response>>>>>:", response.data);
 
         if (
           response.data.status === "success" &&
           response.data.data?.projects
         ) {
+
+          setProperties(response.data.data.projects);
+          console.log("Properties set:", properties);
+
+          const getCoordinates = (property) => {
+            // If property has coordinates, use them
+            if (
+              property.location &&
+              property.location.coordinates &&
+              Array.isArray(property.location.coordinates)
+            ) {
+              return property.location.coordinates;
+            }
+            // Fallback: use a deterministic generator based on id/city/state
+            // This should match the logic in mapComponent.jsx (generateConsistentCoordinates)
+            const defaultCenter = [20.5937, 78.9629]; // Center of India
+            const propertyId =
+              property._id ||
+              property.id ||
+              property.title ||
+              JSON.stringify({
+                title: property.title,
+                price: property.minimumPrice,
+                location: property.location,
+              });
+            const hash = propertyId
+              .toString()
+              .split("")
+              .reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) % 10000, 0);
+            const offsetLat = ((hash % 100) / 50 - 1) * 2;
+            const offsetLng = ((Math.floor(hash / 100) % 100) / 50 - 1) * 2;
+            return [defaultCenter[0] + offsetLat, defaultCenter[1] + offsetLng];
+          };
+
           const newProperties = response.data.data.projects.map((property) => ({
             id: property._id,
             title: `${property.bhk || ""} ${property.type || "Property"} in ${
@@ -103,6 +146,7 @@ const PropertyCards = ({
                 )}`
               : "",
             location: `${property.city}, ${property.state}`,
+            coordinates: getCoordinates(property),
             area: property.size || "",
             floor: property.floorNumber
               ? `${property.floorNumber} out of ${property.numberOfFloors}`
@@ -155,7 +199,7 @@ const PropertyCards = ({
         setLoadingMore(false);
       }
     },
-    [filters, sortBy, activeCategory, favorites, onPropertyClick]
+    [filters, selectedCity, sortBy, activeCategory] // Only include the filter-related props
   );
 
   // Initial data fetch
@@ -196,22 +240,10 @@ const PropertyCards = ({
     };
   }, [hasMore, loadingMore, loadMore]);
 
-  if (loading) {
-    return (
-      <div className="text-center py-8 text-gray-600">
-        Loading properties...
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-600">{error}</div>;
-  }
-
   return (
     <div>
       <h1 className="text-lg sm:text-xl font-medium text-gray-900 mb-4">
-        {totalProperties} Properties for Sale in {getLocationLabel()}
+        {properties.length} Properties for Sale in {selectedCity ? (typeof selectedCity === 'string' ? selectedCity : selectedCity.name || 'Selected Location') : getLocationLabel()}
       </h1>
       {properties.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
