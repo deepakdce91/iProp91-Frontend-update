@@ -8,12 +8,12 @@ import { AuthProvider } from "./context/AuthContext";
 const App = () => {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/search-properties/*" element={<AirbnbMapClone />} />
-        <Route path="/property/:id" element={<PropertyDetailPage />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/search-properties/*" element={<AirbnbMapClone />} />
+      <Route path="/property/:id" element={<PropertyDetailPage />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
     </AuthProvider>
   );
 };

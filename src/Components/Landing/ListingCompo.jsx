@@ -40,7 +40,7 @@ const categories = [
     link: "/property-listing",
     count: "1,200+ Properties",
     filters: {
-      category: "new_project",
+      category: "property_resale",
     },
   },
   {
@@ -455,8 +455,8 @@ const ListingCompo = () => {
         verified_owner: filtered.filter(
           (project) => project.category === "verified_owner"
         ),
-        new_project: filtered.filter(
-          (project) => project.category === "new_project"
+        property_resale: filtered.filter(
+          (project) => project.category === "property_resale"
         ),
         upcoming_project: filtered.filter(
           (project) => project.category === "upcoming_project"
@@ -488,12 +488,12 @@ const ListingCompo = () => {
 
     // Add location if provided
     if (location) {
-      searchParams.append("location", location);
+      searchParams.append("city", location);
     }
 
     // Add property types if selected
     if (selectedPropertyTypes.length > 0) {
-      searchParams.append("propertyTypes", selectedPropertyTypes.join(","));
+      searchParams.append("types", selectedPropertyTypes.join(","));
     }
 
     // Add BHK types if selected
@@ -503,16 +503,16 @@ const ListingCompo = () => {
 
     // Add min price if selected
     if (minPrice) {
-      searchParams.append("minBudget", minPrice.replace(/[₹,]/g, ""));
+      searchParams.append("minPrice", minPrice.replace(/[₹,]/g, ""));
     }
 
     // Add max price if selected
     if (maxPrice) {
-      searchParams.append("maxBudget", maxPrice.replace(/[₹,]/g, ""));
+      searchParams.append("maxPrice", maxPrice.replace(/[₹,]/g, ""));
     }
 
     // Add active tab
-    searchParams.append("tab", activeTab);
+    searchParams.append("availableFor", activeTab);
 
     // Navigate to search-properties with the parameters
     navigate(`/search-properties?${searchParams.toString()}`);
@@ -542,8 +542,8 @@ const ListingCompo = () => {
             verified_owner: allProjects.filter(
               (project) => project.category === "verified_owner"
             ),
-            new_project: allProjects.filter(
-              (project) => project.category === "new_project"
+            property_resale: allProjects.filter(
+              (project) => project.category === "property_resale"
             ),
             upcoming_project: allProjects.filter(
               (project) => project.category === "upcoming_project"
@@ -584,7 +584,26 @@ const ListingCompo = () => {
           {!showMap && (
             <div className="w-full max-w-5xl mx-auto space-y-4 ">
               <div className="w-full   max-w-7xl mx-auto">
+              <div className="flex flex-wrap border-b mx-auto justify-center">
+              {["Buy", "Rent"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-6 py-4 text-sm font-medium transition-colors
+                    ${
+                      activeTab === tab
+                        ? "text-gold border-b-2 border-gold"
+                        : "text-gray-600 hover:text-gold"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                )
+              )}
+            </div>
                 <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
+
                   {/* Location Input */}
                   <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300">
                     <svg
@@ -601,7 +620,7 @@ const ListingCompo = () => {
                     </svg>
                     <input
                       type="text"
-                      placeholder="Enter City, Locality, Project"
+                      placeholder="Enter City"
                       className="w-full p-2 outline-none max-sm:p-0 max-sm:placeholder:text-sm"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}

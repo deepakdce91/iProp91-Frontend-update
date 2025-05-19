@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import SearchBar from "./components/searchbar.jsx";
 import FiltersPanel from "./components/FiltersPage.jsx";
 import Slider from "react-slick";
@@ -8,6 +8,7 @@ import PropertyCards from "./components/propertyCards.jsx";
 import { useLocation } from "react-router-dom";
 import MapComponent from "./components/MapComponent.jsx";
 import Navbar from "../Landing/Navbar.jsx";
+import axios from "axios";
 
 // Add this style fix function to ensure property cards are visible
 const ensurePropertiesVisible = () => {
@@ -44,54 +45,19 @@ const ensurePropertiesVisible = () => {
   document.head.appendChild(style);
 };
 
-function App() {
+function Map() {
   const location = useLocation();
   const [showFilters, setShowFilters] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(true);
+  const [showSearchBar, setShowSearchBar] = useState(true); 
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState(() => {
-    // First check URL parameters
-    const searchParams = new URLSearchParams(location.search);
-    const urlFilters = {};
-
-    // Get category from URL
-    const category = searchParams.get("category");
-    if (category) {
-      urlFilters.category = category;
-    }
-
-    // Get property type from URL
-    const propertyType = searchParams.get("propertyType");
-    if (propertyType) {
-      urlFilters.propertyType = propertyType.split(",");
-    }
-
-    // Get BHK from URL
-    const bhk = searchParams.get("bhk");
-    if (bhk) {
-      urlFilters.bhk = bhk.split(",");
-    }
-
-    // Get budget range from URL
-    const minBudget = searchParams.get("minBudget");
-    const maxBudget = searchParams.get("maxBudget");
-    if (minBudget) urlFilters.minBudget = minBudget;
-    if (maxBudget) urlFilters.maxBudget = maxBudget;
-
-    // Get location from URL
-    const state = searchParams.get("state");
-    const city = searchParams.get("city");
-    if (state) urlFilters.state = state;
-    if (city) urlFilters.city = city;
-
-    // If URL has filters, use them
-    if (Object.keys(urlFilters).length > 0) {
-      return urlFilters;
-    }
-
-    // Otherwise, check localStorage
-    const savedFilters = localStorage.getItem("propertyFilters");
-    return savedFilters ? JSON.parse(savedFilters) : {};
+    // Clear any existing filters in localStorage
+    localStorage.removeItem("propertyFilters");
+    localStorage.removeItem("selectedState");
+    localStorage.removeItem("selectedCity");
+    
+    // Return empty filters object
+    return {};
   });
   const [sortBy, setSortBy] = useState("relevance");
   const [favorites, setFavorites] = useState([]);
@@ -108,14 +74,8 @@ function App() {
     { id: "sale", label: "New Sale Properties", count: 0 },
     { id: "upcoming", label: "Upcoming Projects", count: 0 },
   ]);
-  const [selectedState, setSelectedState] = useState(() => {
-    const savedState = localStorage.getItem("selectedState");
-    return savedState ? JSON.parse(savedState) : null;
-  });
-  const [selectedCity, setSelectedCity] = useState(() => {
-    const savedCity = localStorage.getItem("selectedCity");
-    return savedCity ? JSON.parse(savedCity) : null;
-  });
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [selectedMapProperty, setSelectedMapProperty] = useState(null);
   const [mapProperties, setMapProperties] = useState([]);
   const [nearbyProperties, setNearbyProperties] = useState([]);
@@ -377,29 +337,47 @@ function App() {
 
   // Add useEffect to fetch properties
   useEffect(() => {
-    // This is a placeholder. Replace with your actual API call
     const fetchProperties = async () => {
       try {
-        // Replace this with your actual API endpoint
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projectDataMaster`);
-        console.log("response in app.jsx" + response);
-        const data = await response.json();
+        console.log("fetching properties---------");
         
-        // Add latitude and longitude if they don't exist
-        const propertiesWithCoords = data.projects.map(property => ({
-          ...property,
-          latitude: property.coordinates[0] || 20.5937 + (Math.random() - 0.5) * 10,
-          longitude: property.coordinates[1] || 78.9629 + (Math.random() - 0.5) * 10
-        }));
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster`);
+        console.log("success fetch in app.jsx -----");
+        console.log("response in app.jsx", response.data);
         
-        setProperties(propertiesWithCoords);
+        if (response.data.status === "success" && response.data.data?.projects) {
+          const processedProperties = response.data.data.projects.map(property => ({
+            id: property._id,
+            title: `${property.bhk || ""} ${property.type || "Property"} in ${property.project || ""}`,
+            price: property.minimumPrice ? `₹${property.minimumPrice}` : "Price on Request",
+            pricePerSqft: property.size ? `₹${Math.round(parseInt(property.minimumPrice) / parseInt(property.size))}` : "",
+            location: `${property.city}, ${property.state}`,
+            area: property.size || "",
+            floor: property.floorNumber ? `${property.floorNumber} out of ${property.numberOfFloors}` : "",
+            photos: property.images?.length || 0,
+            coordinates: property.coordinates || [],
+            description: property.overview || "",
+            owner: property.builder || "Owner",
+            postedTime: property.updatedAt || new Date().toISOString(),
+            image: property.images?.[0]?.name || "",
+            amenities: property.amenities || [],
+            features: property.features || [],
+            isFavorite: favorites?.includes(property._id),
+            onFavoriteClick: property.onFavoriteClick,
+            onClick: () => handlePropertyClick(property),
+          }));
+          
+          setProperties(processedProperties);
+          setMapProperties(processedProperties);
+        }
       } catch (error) {
-        console.error('Error fetching properties:', error);
+        console.log("error in app.jsx -----");
+        console.error('Error fetching properties:', error.response?.data || error.message);
       }
     };
-
+  
     fetchProperties();
-  }, [filters, activeCategory, sortBy]);
+  }, []);
 
   // Update useEffect to set mapProperties in window object with array coordinates
   useEffect(() => {
@@ -537,7 +515,36 @@ function App() {
   }, [filters]);
 
   const handleSortChange = (e) => {
-    setSortBy(e.target.value);
+    const newSortBy = e.target.value;
+    setSortBy(newSortBy);
+    
+    // Sort properties locally
+    const sortedProperties = [...properties].sort((a, b) => {
+      switch (newSortBy) {
+        case 'price-low-to-high':
+          const priceA = parseInt(a.price.replace(/[^0-9]/g, '')) || 0;
+          const priceB = parseInt(b.price.replace(/[^0-9]/g, '')) || 0;
+          return priceA - priceB;
+          
+        case 'price-high-to-low':
+          const priceA2 = parseInt(a.price.replace(/[^0-9]/g, '')) || 0;
+          const priceB2 = parseInt(b.price.replace(/[^0-9]/g, '')) || 0;
+          return priceB2 - priceA2;
+          
+        case 'newest':
+          return new Date(b.postedTime) - new Date(a.postedTime);
+          
+        case 'oldest':
+          return new Date(a.postedTime) - new Date(b.postedTime);
+          
+        default: // 'relevance'
+          return 0; // Keep original order
+      }
+    });
+    
+    // Update both properties and mapProperties states
+    setProperties(sortedProperties);
+    setMapProperties(sortedProperties);
   };
 
   const handlePropertyClick = (property) => {
@@ -566,6 +573,75 @@ function App() {
       clearTimeout(timer);
     };
   }, []);
+
+  // Apply filters and sorting to properties
+  const getFilteredAndSortedProperties = useCallback(() => {
+    let filteredProperties = [...properties];
+
+    // Apply filters
+    if (filters.state) {
+      filteredProperties = filteredProperties.filter(p => p.location.includes(filters.state));
+    }
+    if (filters.city) {
+      filteredProperties = filteredProperties.filter(p => p.location.includes(filters.city));
+    }
+    if (filters.propertyType?.length) {
+      filteredProperties = filteredProperties.filter(p => 
+        filters.propertyType.some(type => p.title.toLowerCase().includes(type.toLowerCase()))
+      );
+    }
+    if (filters.bhk?.length) {
+      filteredProperties = filteredProperties.filter(p => 
+        filters.bhk.some(bhk => p.title.includes(bhk))
+      );
+    }
+    if (filters.minBudget) {
+      filteredProperties = filteredProperties.filter(p => {
+        const price = parseInt(p.price.replace(/[^0-9]/g, ''));
+        return price >= parseInt(filters.minBudget);
+      });
+    }
+    if (filters.maxBudget) {
+      filteredProperties = filteredProperties.filter(p => {
+        const price = parseInt(p.price.replace(/[^0-9]/g, ''));
+        return price <= parseInt(filters.maxBudget);
+      });
+    }
+    if (filters.amenities?.length) {
+      filteredProperties = filteredProperties.filter(p => 
+        filters.amenities.every(amenity => p.amenities?.includes(amenity))
+      );
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'price_asc':
+        filteredProperties.sort((a, b) => {
+          const priceA = parseInt(a.price.replace(/[^0-9]/g, '')) || 0;
+          const priceB = parseInt(b.price.replace(/[^0-9]/g, '')) || 0;
+          return priceA - priceB;
+        });
+        break;
+      case 'price_desc':
+        filteredProperties.sort((a, b) => {
+          const priceA = parseInt(a.price.replace(/[^0-9]/g, '')) || 0;
+          const priceB = parseInt(b.price.replace(/[^0-9]/g, '')) || 0;
+          return priceB - priceA;
+        });
+        break;
+      case 'newest':
+        filteredProperties.sort((a, b) => new Date(b.postedTime) - new Date(a.postedTime));
+        break;
+      case 'oldest':
+        filteredProperties.sort((a, b) => new Date(a.postedTime) - new Date(b.postedTime));
+        break;
+      default:
+        // Default sorting (relevance) - no change
+        break;
+    }
+
+    return filteredProperties;
+  }, [properties, filters, sortBy]);
 
   if (selectedProperty) {
     return (
@@ -710,6 +786,7 @@ function App() {
                     <option value="price-low-to-high">Sort: Price Low to High</option>
                     <option value="price-high-to-low">Sort: Price High to Low</option>
                     <option value="newest">Sort: Newest First</option>
+                    <option value="oldest">Sort: Oldest First</option>
                   </select>
                 </div>
                 
@@ -771,14 +848,12 @@ function App() {
               {/* Property Listings (non-mobile) */}
               <div className="property-list pb-8 sm:block hidden">
                 <PropertyCards
+                  properties={getFilteredAndSortedProperties()}
                   filters={filters}
                   sortBy={sortBy}
                   activeCategory={activeCategory}
                   favorites={favorites}
                   onPropertyClick={handlePropertyClick}
-                  onPropertySelect={setSelectedMapProperty}
-                  nearbyProperties={nearbyProperties}
-                  showNearby={showNearby && activeCategory === 'nearby'}
                 />
               </div>
             </div>
@@ -787,7 +862,11 @@ function App() {
           {/* Right side - Map */}
           <div className="w-full md:w-1/2">
             <div className="map-container sticky top-0 md:top-20 h-[calc(100vh-156px)]">
-              <MapComponent />
+              <MapComponent
+                properties={mapProperties}
+                selectedProperty={selectedProperty}
+                onPropertySelect={handlePropertyClick}
+              />
             </div>
           </div>
         </div>
@@ -843,6 +922,7 @@ function App() {
                   <option value="price-low-to-high">Sort: Price Low to High</option>
                   <option value="price-high-to-low">Sort: Price High to Low</option>
                   <option value="newest">Sort: Newest First</option>
+                  <option value="oldest">Sort: Oldest First</option>
                 </select>
               </div>
               
@@ -859,14 +939,12 @@ function App() {
 
             {/* Property Listings (mobile) */}
             <PropertyCards
+              properties={getFilteredAndSortedProperties()}
               filters={filters}
               sortBy={sortBy}
               activeCategory={activeCategory}
               favorites={favorites}
               onPropertyClick={handlePropertyClick}
-              onPropertySelect={setSelectedMapProperty}
-              nearbyProperties={nearbyProperties}
-              showNearby={showNearby && activeCategory === 'nearby'}
             />
           </div>
         </div>
@@ -891,4 +969,4 @@ function App() {
   );
 }
 
-export default App;
+export default Map;
