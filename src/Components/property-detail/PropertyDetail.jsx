@@ -208,17 +208,7 @@ export default function PropertyDetail({ onBack }) {
     property.location || property.address || "Sector 25 Rohini, New Delhi";
 
   // Amenities (either from API or fallbacks)
-  const amenities = property.amenities || [
-    "Lift",
-    "Power Backup",
-    "Car Parking",
-    "Park",
-    "Security",
-    "Visitor Parking",
-    "Swimming Pool",
-    "Gym",
-    "Club House",
-  ];
+  const amenities = property.amenities || ["no amenities available"];
 
   // Construction status
   const possessionStatus =
@@ -570,15 +560,42 @@ export default function PropertyDetail({ onBack }) {
                 Amenities
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {property.amenities?.map((amenity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-2 bg-gray-900 p-3 rounded-lg border border-gray-800 hover:border-yellow-800 transition"
-                  >
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-gray-300">{amenity}</span>
-                  </div>
-                ))}
+                {(() => {
+                  // Define a master list of possible amenities
+                  const masterAmenities = [
+                    "Lift",
+                    "Power Backup",
+                    "Car Parking",
+                    "Park",
+                    "Security",
+                    "Visitor Parking",
+                    "Swimming Pool",
+                    "Gym",
+                    "Club House",
+                    "Children Play Area",
+                    "Fire Safety",
+                    "CCTV",
+                    "Rain Water Harvesting",
+                    "Intercom",
+                    "Internet/Wi-Fi",
+                    "Maintenance Staff",
+                    "Vastu Compliant"
+                  ];
+                  const available = property.amenities || [];
+                  console.log("Available amenities:", available);
+                  return masterAmenities.map((amenity, index) => {
+                    const isAvailable = available.includes(amenity);
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 bg-gray-900 p-3 rounded-lg border border-gray-800 hover:border-yellow-800 transition"
+                      >
+                        <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-black' : 'bg-gray-400'}`}></div>
+                        <span className={isAvailable ? 'text-black font-semibold' : 'text-gray-400'}>{amenity}</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
