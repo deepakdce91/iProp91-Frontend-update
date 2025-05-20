@@ -12,6 +12,7 @@ export default function Component({data}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
+  const [isClicked, setIsClicked] = useState(false)
   const controls = useAnimation()
   const [slides, setSlides] = useState([]);
   let navigate = useNavigate();

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Map, Marker } from "pigeon-maps";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import {
   DollarSign,
   SquareIcon as SquareFootage,
@@ -15,16 +15,31 @@ import {
 } from "lucide-react";
 import CityStateSelector from "../GeneralUi/StateCityCompo";
 import { dummyLocations } from "./dummyData";
-import { motion, useAnimation } from "framer-motion";
 
 const EnhancedMapComponent = () => {
+  const controls = useAnimation();
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // India center
   const [zoom, setZoom] = useState(4);
-  const [filteredProperties, setFilteredProperties] = useState(dummyLocations); // Show all properties by default
+  const [filteredProperties, setFilteredProperties] = useState(dummyLocations);
   const [showNoDataMessage, setShowNoDataMessage] = useState(false);
-  const [hoveredProperty, setHoveredProperty] = useState(null); // State to track hovered property
-  const [isPanelExpanded, setIsPanelExpanded] = useState(true); // State to control panel expansion
+  const [hoveredProperty, setHoveredProperty] = useState(null);
+  const [panelState, setPanelState] = useState("mid"); // 'collapsed', 'mid', or 'expanded'
+  
+  // Animation variants for the panel
+  const panelVariants = {
+    collapsed: { y: '70%' },
+    mid: { y: '40%' },
+    expanded: { y: 0 }
+  };
+  
+  // Toggle panel state
+  const togglePanel = () => {
+    const newState = panelState === 'collapsed' ? 'mid' : 
+                     panelState === 'mid' ? 'expanded' : 'collapsed';
+    setPanelState(newState);
+    controls.start(newState);
+  };
 
   // useEffect(() => {
   //   const fetchProjects = async () => {
@@ -127,7 +142,7 @@ const EnhancedMapComponent = () => {
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* Map Container with dynamic height based on panel state */}
-      <div className={`absolute inset-0 transition-all duration-300 ${!isPanelExpanded ? 'bottom-24' : 'bottom-[40vh]'}`}>
+      <div className="absolute inset-0">
         <Map
           center={mapCenter}
           zoom={zoom}
@@ -168,22 +183,25 @@ const EnhancedMapComponent = () => {
       {/* Sliding Panel */}
       <AnimatePresence>
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: isPanelExpanded ? '60%' : '85%' }}
-          transition={{ type: 'spring', damping: 20 }}
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          onDragEnd={handleDragEnd}
+          animate={controls}
+          variants={panelVariants}
+          initial="mid"
           className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg z-10"
           style={{ height: '80vh' }}
         >
           {/* Panel Handle */}
           <div 
             className="absolute -top-2 left-0 right-0 flex flex-col items-center cursor-pointer py-4"
-            onClick={() => setIsPanelExpanded(!isPanelExpanded)}
+            onClick={togglePanel}
           >
             <div className="w-12 h-1.5 bg-gray-300 rounded-full mb-2" />
-            {isPanelExpanded ? (
-              <ChevronDown className="text-gray-500" />
-            ) : (
+            {panelState === 'collapsed' ? (
               <ChevronUp className="text-gray-500" />
+            ) : (
+              <ChevronDown className="text-gray-500" />
             )}
           </div>
 

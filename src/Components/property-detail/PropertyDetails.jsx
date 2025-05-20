@@ -359,14 +359,12 @@ export default function PropertyDetails({ onBack = () => {} }) {
         console.log("Fetching property details for ID:", id);
 
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/${id}`
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/${id}`,
         );
-        console.log("API Response:", response.data.data.project);
+        
+        console.log("API Response:", response.data.data?.project);
 
-        if (
-          response.data.status === "success" &&
-          response.data.data.project
-        ) {
+        if (response.data?.status === "success" && response.data.data?.project) {
           const propertyData = response.data.data.project; // Directly use the returned property object
           console.log("Processing property data:", propertyData);
 

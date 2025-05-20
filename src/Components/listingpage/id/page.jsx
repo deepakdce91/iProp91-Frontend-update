@@ -59,24 +59,24 @@ function PropertyDetail() {
   }, [id]);
 
   const fetchPropertyDetails = async () => {
-    const token = localStorage.getItem("token");
-    console.log(token);
-    const decoded = jwtDecode(token);
+    // const token = localStorage.getItem("token");
+    // console.log(token);
+    // const decoded = jwtDecode(token);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchProject/${id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/${id}`,
         {
-          params: {
-            userId: decoded.userId,
-          },
-          headers: {
+          // params: {
+          //   userId: decoded.userId,
+          // },
+        headers: {
             "Content-Type": "application/json",
-            "auth-token": token,
+            // "auth-token": token,
           },
         }
       );
-      setProperty(response.data);
-      console.log(response.data);
+      setProperty(response.data.data.project);
+      // console.log(response.data);
 
       setLoading(false);
     } catch (error) {
@@ -84,6 +84,8 @@ function PropertyDetail() {
       setLoading(false);
     }
   };
+
+
 
   useEffect(() => {
     const sections = document.querySelectorAll("section");
