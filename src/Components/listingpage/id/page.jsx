@@ -39,6 +39,7 @@ import {
   CheckCircle2,
   Star,
   StarHalf,
+  Book
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import Breadcrumb from "../../Landing/Breadcrumb";
@@ -57,6 +58,29 @@ function PropertyDetail() {
     window.scrollTo(0, 0);
     fetchPropertyDetails();
   }, [id]);
+
+
+  const allAmenities = [
+    { name: "Fire Safety System", category: "Building Features" },
+    { name: "Power Backup", category: "Building Features" },
+    { name: "Elevator", category: "Building Features" },
+    { name: "Intercom Facility", category: "Building Features" },
+    { name: "Swimming Pool", category: "Common Areas" },
+    { name: "Pool", category: "Common Areas" },
+    { name: "Gym", category: "Common Areas" },
+    { name: "Children's Play Area", category: "Common Areas" },
+    { name: "Clubhouse", category: "Common Areas" },
+    { name: "Garden", category: "Common Areas" },
+    { name: "Library", category: "Common Areas" },
+    { name: "Resident Parking", category: "Parking" },
+    { name: "Visitor Parking", category: "Parking" },
+    { name: "High-Speed Internet", category: "Connectivity" },
+    { name: "Nearby Shopping", category: "Connectivity" },
+    { name: "Schools Within 1KM", category: "Connectivity" },
+    { name: "Green Spaces", category: "Environment" },
+    { name: "Good Ventilation", category: "Environment" },
+    { name: "Vaastu Compliant", category: "Environment" }
+  ];
 
   const fetchPropertyDetails = async () => {
     // const token = localStorage.getItem("token");
@@ -200,7 +224,7 @@ function PropertyDetail() {
               <PropertyHeader property={mappedProperty} />
             </section>
             <section id="amenities">
-              <Amenities amenities={mappedProperty} />
+              <Amenities amenities={mappedProperty.amenities} />
             </section>
             <section id="about-project">
               <AboutProject about={mappedProperty} />
@@ -364,120 +388,210 @@ function PropertyHeader({ property }) {
 }
 
 // Amenities Section
-const Amenities = ({ amenities = [] }) => {
-  const [showAllAmenities, setShowAllAmenities] = useState(false);
-  const amenityIcons = {
-    "Power Back Up": Lightbulb,
-    "Swimming Pool": GlassWaterIcon,
-    Lift: ListFilter,
-    Security: Shield,
-    "Visitor Parking": Car,
-    Gymnasium: Dumbbell,
-    "Indoor Games Room": Gamepad2,
-    "Rain Water Harvesting": CloudRain,
-    "Water Storage": Droplet,
-    "Vaastu Compliant": Compass,
-    "Waste Disposal": Trash2,
-    "Multipurpose Hall": Building2,
-    "Kids play area": PlaySquare,
-    "Fire Fighting Equipment": FireExtinguisher,
-    "No Club House": Building,
-    "No Reserved Parking": CarTaxiFront,
-    "No Intercom Facility": Phone,
-    "No Maintenance Staff": Toolbar,
-    "No Bank & ATM": CreditCard,
-    "No Kids Club": Baby,
-  };
 
-  const allAmenitiesList = [
-    "Power Back Up",
-    "Swimming Pool",
-    "Lift",
-    "Security",
-    "Visitor Parking",
-    "Gymnasium",
-    "Indoor Games Room",
-    "Rain Water Harvesting",
-    "Water Storage",
-    "Vaastu Compliant",
-    "Waste Disposal",
-    "Multipurpose Hall",
-    "Kids play area",
-    "Fire Fighting Equipment",
-    "No Club House",
-    "No Reserved Parking",
-    "No Intercom Facility",
-    "No Maintenance Staff",
-    "No Bank & ATM",
-    "No Kids Club",
+const Amenities = ({ amenities = [] }) => {
+  // Define amenity categories with their icons and colors
+  const amenityCategories = [
+    { 
+      name: "Essential Services", 
+      icon: Lightbulb, 
+      iconColor: "text-amber-500" 
+    },
+    { 
+      name: "Recreation", 
+      icon: GlassWaterIcon, 
+      iconColor: "text-blue-500" 
+    },
+    { 
+      name: "Convenience", 
+      icon: Building2, 
+      iconColor: "text-green-500" 
+    },
+    { 
+      name: "Security", 
+      icon: Shield, 
+      iconColor: "text-red-500" 
+    },
+    { 
+      name: "Health & Fitness", 
+      icon: Dumbbell, 
+      iconColor: "text-purple-500" 
+    },
+    { 
+      name: "Parking", 
+      icon: Car, 
+      iconColor: "text-gray-500" 
+    }
   ];
 
-  const visibleAmenities = amenities.amenities.slice(0, 12);
-
-  const renderAmenityItem = (amenity, disabled = false) => {
-    const IconComponent = amenityIcons[amenity] || Building2;
-    return (
-      <div
-        key={amenity}
-        className={`flex flex-col items-center p-4 border border-black/20 rounded-lg ${
-          disabled ? "opacity-40" : "hover:shadow-md"
-        } transition-all duration-200`}
-      >
-        <IconComponent className="w-8 h-8 mb-2 text-gray-600" />
-        <span className="text-sm text-center text-gray-700">{amenity}</span>
-      </div>
-    );
+  // Map amenities to their categories - keeping original structure from the pasted code
+  const amenitiesByCategory = {
+    "Essential Services": [
+      "Power Back Up", 
+      "Water Storage", 
+      "Rain Water Harvesting", 
+      "Lift",
+      "Intercom Facility",
+      "Maintenance Staff"
+    ],
+    "Recreation": [
+      "Swimming Pool", 
+      "Indoor Games Room", 
+      "Kids play area", 
+      "Multipurpose Hall",
+      "Club House",
+      "Kids Club",
+      "Pool"
+    ],
+    "Convenience": [
+      "Waste Disposal", 
+      "Vaastu Compliant", 
+      "Bank & ATM"
+    ],
+    "Security": [
+      "Security", 
+      "Fire Fighting Equipment"
+    ],
+    "Health & Fitness": [
+      "Gymnasium",
+      "Library"
+    ],
+    "Parking": [
+      "Visitor Parking",
+      "Reserved Parking"
+    ]
   };
+
+  // Convert amenities array to lowercase for case-insensitive comparison
+  const availableAmenities = amenities.map(a => a.toLowerCase());
 
   return (
     <div className="relative bg-white rounded-xl shadow-sm">
-      {/* Main Amenities Display */}
-      <div className="p-6   shadow-sm lg:max-w-xl">
+      <div className="p-6 shadow-sm lg:max-w-xl">
         <h2 className="text-2xl font-semibold text-gray-800 mb-8 capitalize">
-          Amenities {amenities.project}
+          Amenities
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {visibleAmenities.map((amenity) => renderAmenityItem(amenity))}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {amenityCategories.map((category, i) => {
+            const CategoryIcon = category.icon;
+            const categoryAmenities = amenitiesByCategory[category.name] || [];
+            
+            // Only show categories that have at least one amenity
+            if (categoryAmenities.length === 0) return null;
+            
+            return (
+              <div key={i} className="flex flex-col">
+                <div className="flex items-center mb-4">
+                  <div className={`${category.iconColor} mr-2`}>
+                    <CategoryIcon size={20} />
+                  </div>
+                  <span className="text-gray-800 font-medium">{category.name}</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {categoryAmenities.map((amenity, j) => {
+                    // Check if this amenity is available by comparing with the supplied amenities prop
+                    const isAvailable = availableAmenities.some(a => 
+                      amenity.toLowerCase().includes(a) || a.includes(amenity.toLowerCase())
+                    );
+                    
+                    // Determine appropriate icon based on amenity name
+                    const getAmenityIcon = () => {
+                      if (amenity.toLowerCase().includes("power")) return <Lightbulb size={28} />;
+                      if (amenity.toLowerCase().includes("swimming") || amenity.toLowerCase() === "pool") return <GlassWaterIcon size={28} />;
+                      if (amenity.toLowerCase().includes("lift")) return <ArrowRight size={28} />;
+                      if (amenity.toLowerCase().includes("security")) return <Shield size={28} />;
+                      if (amenity.toLowerCase().includes("parking")) return <Car size={28} />;
+                      if (amenity.toLowerCase().includes("gymnasium") || amenity.toLowerCase().includes("gym")) return <Dumbbell size={28} />;
+                      if (amenity.toLowerCase().includes("games")) return <Gamepad2 size={28} />;
+                      if (amenity.toLowerCase().includes("rain water")) return <CloudRain size={28} />;
+                      if (amenity.toLowerCase().includes("water storage")) return <Droplet size={28} />;
+                      if (amenity.toLowerCase().includes("vaastu")) return <Compass size={28} />;
+                      if (amenity.toLowerCase().includes("waste")) return <Trash2 size={28} />;
+                      if (amenity.toLowerCase().includes("multipurpose")) return <PlaySquare size={28} />;
+                      if (amenity.toLowerCase().includes("fire")) return <FireExtinguisher size={28} />;
+                      if (amenity.toLowerCase().includes("club")) return <Building size={28} />;
+                      if (amenity.toLowerCase() === "library") return <Book size={28} />;
+                      return <CheckCircle2 size={28} />;
+                    };
+                    
+                    // Define color scheme based on category
+                    const getCategoryColor = () => {
+                      const categoryColors = {
+                        "Essential Services": "amber",
+                        "Recreation": "blue",
+                        "Convenience": "green",
+                        "Security": "red",
+                        "Health & Fitness": "purple",
+                        "Parking": "gray"
+                      };
+                      return categoryColors[category.name] || "amber";
+                    };
+                    
+                    const color = getCategoryColor();
+                    const colorMap = {
+                      amber: { bg: "bg-amber-50", border: "border-amber-100", text: "text-black", icon: "text-amber-500" },
+                      blue: { bg: "bg-blue-50", border: "border-blue-100", text: "text-black", icon: "text-blue-500" },
+                      green: { bg: "bg-green-50", border: "border-green-100", text: "text-black", icon: "text-green-500" },
+                      red: { bg: "bg-red-50", border: "border-red-100", text: "text-black", icon: "text-red-500" },
+                      purple: { bg: "bg-purple-50", border: "border-purple-100", text: "text-black", icon: "text-purple-500" },
+                      gray: { bg: "bg-gray-50", border: "border-gray-100", text: "text-black", icon: "text-gray-500" }
+                    };
+                    
+                    // Set darker styling for available amenities
+                    const colorStyle = isAvailable ? {
+                      bg: "bg-black",
+                      border: "border-gray-900",
+                      text: "text-white", // White text for contrast on black background
+                      icon: colorMap[color].icon, // Keep category-specific icon color
+                      shadow: "shadow-lg" // Stronger shadow for darker effect
+                    } : { 
+                      bg: "bg-gray-50", 
+                      border: "border-gray-100", 
+                      text: "text-gray-400", 
+                      icon: "text-gray-400",
+                      shadow: "shadow-sm"
+                    };
+
+                    return (
+                      <div 
+                        key={j} 
+                        className={`
+                          group relative overflow-hidden rounded-lg border ${colorStyle.shadow} hover:shadow-xl transition-all duration-300
+                          ${colorStyle.bg} ${colorStyle.border}
+                        `}
+                      >
+                        {/* Status indicator */}
+                        <div className="absolute top-2 right-2 z-10">
+                          {isAvailable ? (
+                            <CheckCircle2 size={16} className={colorStyle.icon} />
+                          ) : (
+                            <AlertCircle size={16} className="text-gray-400" />
+                          )}
+                        </div>
+                        
+                        <div className="px-5 py-6 flex flex-col items-center text-center h-full justify-center min-h-[120px]">
+                          <div className={`mb-4 ${isAvailable ? colorMap[color].icon : 'text-gray-400'} group-hover:scale-110 transition-transform duration-300`}>
+                            {getAmenityIcon()}
+                          </div>
+                          <span className={`text-sm font-medium ${colorStyle.text} mt-1`}>
+                            {amenity}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div className="mt-6 flex justify-between items-center">
-          <button
-            onClick={() => setShowAllAmenities(true)}
-            className="text-red-600 hover:text-red-700 transition-colors font-semibold text-sm"
-          >
-            Show all {allAmenitiesList.length} amenities
-          </button>
-        </div>
+        
         <button className="mt-6 w-full lg:w-[50%] bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors">
           Contact Builder
         </button>
       </div>
-
-      {/* All Amenities Sidebar Modal */}
-      {showAllAmenities && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity">
-          <div className="fixed inset-y-0 right-0 max-w-2xl w-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold">Amenities</h3>
-                <button
-                  onClick={() => setShowAllAmenities(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto max-h-[calc(100vh-120px)]">
-                {allAmenitiesList.map((amenity) =>
-                  renderAmenityItem(
-                    amenity,
-                    !amenities.amenities.includes(amenity)
-                  )
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -529,7 +643,7 @@ function SimilarProperties({ properties }) {
 }
 
 // About Project Section
-function AboutProject({ about }) {
+const AboutProject = ({ about }) => {
   const cardData = [
     {
       label: "Project Size",
@@ -693,57 +807,7 @@ function MoreDetails({ details }) {
 }
 
 // ListedCards Component
-function ListedCards({
-  size,
-  pricePerSqft,
-  developer,
-  project,
-  floors,
-  transactionType,
-  status,
-  facing,
-  ageOfConstruction,
-}) {
-  return (
-    <div className="grid grid-cols-4 gap-x-8 gap-y-4 py-4">
-      <div>
-        <p className="text-sm text-gray-500">Super Built-Up Area</p>
-        <p className="font-medium">
-          {size}{" "}
-          <span className="text-gray-500 text-sm">₹{pricePerSqft}/sqft</span>
-        </p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Developer</p>
-        <p className="font-medium">{developer}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Project</p>
-        <p className="font-medium">{project}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Floor</p>
-        <p className="font-medium">{floors}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Transaction Type</p>
-        <p className="font-medium">{transactionType}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Status</p>
-        <p className="font-medium">{status}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Facing</p>
-        <p className="font-medium">{facing}</p>
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">Age Of Construction</p>
-        <p className="font-medium">{ageOfConstruction}</p>
-      </div>
-    </div>
-  );
-}
+
 
 const LocationOverview = ({
   location,
