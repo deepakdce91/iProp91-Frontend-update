@@ -1,8 +1,8 @@
 'use client'
 import { Play } from 'lucide-react'
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
-import { useState } from 'react'
 import DisclaimerModal from './DisclaimerModal'
+import React, { useEffect, useState } from "react";
 
 
 export function Hero() {
@@ -15,6 +15,13 @@ const showDisclaimerModal = ()=>{
 const closeDisclaimerModal = ()=>{
   setShowDisclaimer(false);
 }
+
+useEffect(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth" // for smooth scrolling
+        });
+      }, []);
 
 
 
@@ -36,7 +43,7 @@ const closeDisclaimerModal = ()=>{
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span>Apply with IProp91 Partners</span>
+                <span>Apply with iProp91 Partners</span>
               </li>
               <li className="flex items-center gap-4">
                 <div className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center">

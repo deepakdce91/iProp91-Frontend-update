@@ -87,11 +87,11 @@ export function ProfileCompletionBanner() {
   }
 
   return (
-    <div className="w-full bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 relative">
+    <div className="w-full bg-white border border-black rounded-lg p-4 mb-6 relative">
       {/* Close Button */}
       <button
         onClick={handleClose}
-        className="absolute top-0 right-0 p-1 text-amber-600 hover:text-amber-800"
+        className="absolute top-0 right-0 p-1 text-black"
       >
         <X className="w-4 h-4" />
       </button>
@@ -109,7 +109,7 @@ export function ProfileCompletionBanner() {
                 stroke="currentColor"
                 strokeWidth="4"
                 fill="transparent"
-                className="text-amber-200"
+                className="text-green-200"
               />
               {/* Progress circle */}
               <circle
@@ -120,26 +120,26 @@ export function ProfileCompletionBanner() {
                 strokeWidth="4"
                 fill="transparent"
                 strokeLinecap="round"
-                className="text-amber-500"
+                className="text-green-500"
                 strokeDasharray={circumference}
                 strokeDashoffset={offset}
                 style={{ transition: "stroke-dashoffset 0.5s ease" }}
               />
             </svg>
-            <span className="absolute text-sm font-medium text-amber-700">
+            <span className="absolute text-sm font-medium text-green-700">
               {completionPercentage}%
             </span>
           </div>
 
           <div className="hidden md:block">
-            <h3 className="font-semibold text-amber-800">
+            <h3 className="font-semibold text-black">
               Complete Your Profile
             </h3>
             <span className="flex   gap-1">
-              <p className="text-sm text-amber-700">
+              <p className="text-sm text-gray-700">
                 Add the remaining details to maximise your account's potential.
               </p>
-              <Link to={"/profile"} className="text-blue-500 text-xs">
+              <Link to={"/profile"} className="text-blue-500 text-xs w-40">
                 (Complete Profile)
               </Link>
             </span>
@@ -177,10 +177,10 @@ export function ProfileCompletionBanner() {
                 {item.icon}
               </div>
               <div>
-                <p className="text-sm font-medium text-amber-800">
+                <p className="text-sm font-medium text-black">
                   {item.name}
                 </p>
-                <p className="text-xs text-amber-600">
+                <p className={`text-xs  ${item.completed ? "text-green-600" : "text-red-600"}`}>
                   {item.completed ? "Completed" : "Incomplete"}
                 </p>
               </div>

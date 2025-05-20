@@ -1,69 +1,71 @@
 import axios from "axios";
 import React, { useRef, useState, useEffect } from "react";
 import "./style.css"; // Import your CSS file for styles
-import { motion } from "framer-motion";
+import Auth from "../User/Login/Auth"; // Import your Auth component
+import { useAuth } from "../../context/AuthContext";
+import { useLocation } from "react-router-dom"; // Import useLocation to check current route
 
-function toTitleCase(str) {
+const toTitleCase = (str) => {
   return str
-    .split("_") // Split by underscore
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter of each word
-    .join(" "); // Join words with space
-}
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
-const RewardCard = ({ name, amount, status, icon }) => {
-  // Common image URL for all cards
-  const commonImageUrl =
-    "https://res.cloudinary.com/people-matters/image/upload/q_auto,f_auto/v1573711585/1573711584.jpg";
-
+const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }) => {
   return (
-    <>
-      <div className="inline-block  lg:w-[350px]">
-        <div
-          className="bg-white 
+    <div className="w-[250px] flex-shrink-0">
+      <div
+        className="bg-white 
         reward-card rounded-xl shadow-md 
         transition-all duration-300 hover:scale-105 
-          max-w-xs overflow-hidden flex
-          flex-col mx-3 max-sm:mx-0 no-selection-effect "
-        >
-          {/* Image section with curved top corners */}
-          <div className="w-full bg-blue-800 rounded-t-xl  flex items-center justify-center h-[50%] relative">
-            <img
-              src={commonImageUrl}
-              alt="Reward"
-              className="w-full h-full object-cover rounded-t-xl "
-            />
-          </div>
+        max-w-xs overflow-hidden flex
+        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[380px] sm:h-[300px]"
+      >
+        {/* Image section with curved top corners */}
+        <div className="w-full bg-blue-800 rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
+          <img
+            src="/reward-pic.jpg"
+            alt="Reward"
+            className="object-contain"
+          />
+        </div>
 
-          {/* Content section */}
-          <div className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-xl font-bold text-wrap text-gray-800 reward-card-title">
-                  {toTitleCase(name)}
-                </h3>
-                <span className="text-orange-500 font-semibold mt-4 text-lg">
-                  {amount} Coins
+        {/* Content section */}
+        <div className="p-4 flex-1 h-[40%]">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <h3 className="text-sm sm:text-lg font-bold text-wrap text-[#0a0f19] reward-card-title">
+                {toTitleCase(name)}
+              </h3>
+              {discountType === "percentage" ? (
+                <span className="text-orange-500 font-semibold mt-2 text-sm sm:text-lg">
+                  Get {amount} % Off
                 </span>
-              </div>
-              <div className="p-2">
-                <svg
-                  className="w-6 h-6 text-blue-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+              ) : (
+                <span className="text-orange-500 font-semibold mt-2 text-sm sm:text-lg">
+                  Get {amount} coins
+                </span>
+              )}
+            </div>
+            <div className="p-2">
+              <svg
+                className="w-6 h-6 text-blue-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -72,8 +74,9 @@ const RewardsContainer = ({ cardsData }) => {
   const scrollContainerRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const [cardWidth, setCardWidth] = useState(250); // Default card width
 
-  // Sample data array - updated with name and amount
+  // Sample data array with status field added for "offer" badges
   const rewardsData = cardsData
     ? cardsData
     : [
@@ -81,6 +84,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 1,
           name: "Sign Up on our website",
           amount: 5000,
+          status: "offer",
         },
         {
           id: 2,
@@ -91,6 +95,7 @@ const RewardsContainer = ({ cardsData }) => {
           id: 3,
           name: "Make first purchase",
           amount: 10000,
+          status: "offer",
         },
         {
           id: 4,
@@ -117,7 +122,7 @@ const RewardsContainer = ({ cardsData }) => {
   // Function to handle scrolling
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -300 : 300;
+      const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
       scrollContainerRef.current.scrollBy({
         left: scrollAmount,
         behavior: "smooth",
@@ -132,12 +137,44 @@ const RewardsContainer = ({ cardsData }) => {
         scrollContainerRef.current;
 
       // Show left arrow if we've scrolled to the right
-      setShowLeftArrow(scrollLeft > 0);
+      setShowLeftArrow(scrollLeft > 10);
 
       // Show right arrow if there's more content to scroll to
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
     }
   };
+
+  // Calculate proper card width and set initial scroll for mobile view
+  useEffect(() => {
+    const updateLayout = () => {
+      if (scrollContainerRef.current) {
+        const containerWidth = scrollContainerRef.current.clientWidth;
+        const isMobile = window.innerWidth < 640;
+        
+        // For mobile, we want to show 1.5 cards
+        if (isMobile) {
+          const newCardWidth = containerWidth * 0.65; // Show one card + partial of next
+          setCardWidth(newCardWidth);
+          
+          // Set initial scroll position to show exactly 1.5 cards
+          // No need to scroll initially as the container will naturally show this
+        }
+        else {
+          // Reset to default for larger screens
+          setCardWidth(250);
+        }
+        
+        checkScrollPosition();
+      }
+    };
+
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, []);
 
   // Add scroll event listener
   useEffect(() => {
@@ -153,16 +190,39 @@ const RewardsContainer = ({ cardsData }) => {
     }
   }, []);
 
-  // Check on window resize
-  useEffect(() => {
-    window.addEventListener("resize", checkScrollPosition);
-    return () => {
-      window.removeEventListener("resize", checkScrollPosition);
-    };
-  }, []);
-
   return (
-    <div className="relative w-full px-14 reward-cards ">
+    <div className="relative h-fit w-full md:px-14 reward-cards">
+      {/* Scrollable container */}
+      <div className="width-full">
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto flex scroll-smooth space-x-4 scrollbar-hide pb-4"
+          style={{ 
+            scrollbarWidth: "none", 
+            msOverflowStyle: "none",
+            padding: "0.5rem 0" // Add some padding for mobile
+          }}
+        >
+          {rewardsData.map((reward) => (
+            <div 
+              key={reward.id} 
+              className="flex-shrink-0" 
+              style={{
+                width: window.innerWidth < 640 ? `200px` : '250px'
+              }}
+            >
+              <RewardCard
+                discountType={reward.discountType}
+                name={reward.name}
+                amount={reward.amount}
+                status={reward.status}
+                icon={reward.icon}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Left navigation arrow - positioned outside the container */}
       {showLeftArrow && (
         <button
@@ -187,26 +247,7 @@ const RewardsContainer = ({ cardsData }) => {
         </button>
       )}
 
-      {/* Scrollable container */}
-      <div className="width-full ">
-        <div
-          ref={scrollContainerRef}
-          className=" overflow-x-auto whitespace-nowrap scrollbar-hide  scroll-smooth space-x-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {rewardsData.map((reward) => (
-            <RewardCard
-              key={reward.id}
-              name={reward.name}
-              amount={reward.amount}
-              status={reward.status}
-              icon={reward.icon}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Right navigation arrow - positioned outside the container */}
+      {/* Right navigation arrow */}
       {showRightArrow && (
         <button
           onClick={() => scroll("right")}
@@ -227,7 +268,7 @@ const RewardsContainer = ({ cardsData }) => {
               d="M9 5l7 7-7 7"
             />
           </svg>
-        </button>
+          </button>
       )}
     </div>
   );
@@ -235,6 +276,9 @@ const RewardsContainer = ({ cardsData }) => {
 
 const WeDoMore = () => {
   const [cardsData, setCardsData] = useState([]);
+  const { openAuthModal } = useAuth();
+  const location = useLocation(); // Get current location
+  const isRewardsRoute = location.pathname === "/rewards" || location.pathname === "/rewards/"; // Check if current route is /rewards
 
   useEffect(() => {
     axios
@@ -251,32 +295,29 @@ const WeDoMore = () => {
       });
   }, []);
 
+  // Apply conditional styling based on route
+  const sectionClasses = isRewardsRoute
+    ? "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-white pt-32" // White theme with extra top padding for /rewards
+    : "py-20 px-2 relative overflow-hidden max-sm:p-0 bg-[radial-gradient(circle_at_center,#2d445e_0%,#111c2c_50%,#0b0d1e_100%)]"; // Original styling for other routes
+
+  // Adjust text color based on theme
+  const textColorClasses = isRewardsRoute ? "text-black" : "text-white";
+  const subTextColorClasses = isRewardsRoute ? "text-gray-700" : "text-gray-500";
+
   return (
-    <section className="py-20 px-2 relative overflow-hidden max-sm:p-0 bg-black/90 border-y-[1px] border-y-white/30">
-      <style jsx>{`
-        /* Default selection style for the section */
-        ::selection {
-          color: white;
-          background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Override selection style for cards */
-        .no-selection-effect::selection {
-          color: inherit;
-          background: rgba(0, 0, 0, 0.1);
-        }
-
+    <section className={sectionClasses}>
+      <style>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
       `}</style>
       <div className="flex flex-col items-center px-10 max-sm:px-2 max-sm:py-20 lg:px-32 pb-20">
-        <div className="flex flex-col gap-5 text-white w-full md:w-full mb-6 lg:mb-8">
+        <div className={`flex flex-col gap-5 ${textColorClasses} w-full md:w-full mb-6 lg:mb-8`}>
           <p className="lg:text-6xl md:text-4xl text-3xl font-semibold">
             do more with <br /> your real estate assets
           </p>
-          <p className="text-lg md:text-2xl text-gray-500">
+          <p className={`text-lg md:text-2xl ${subTextColorClasses}`}>
             Join exclusive club of verified owners of your project, manage all
             your real estate documents well, earn reward points, get access to
             expert views & other owner reviews, understand your documents, stay
@@ -290,9 +331,20 @@ const WeDoMore = () => {
           <RewardsContainer />
         )}
 
-        <div className="absolute -z-10 md:z-10 md:block -right-14 -bottom-20">
-          <img src="/images/domore.png" className="w-full h-[300px]" alt="ss" />
+        <div className="pt-14">
+          <button
+            onClick={openAuthModal}
+            className={`${isRewardsRoute ? 'text-white bg-gray-800 hover:bg-black' : 'text-black animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]'} text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105`}
+          >
+            Get Started
+          </button>
         </div>
+
+        {!isRewardsRoute && (
+          <div className="absolute -z-10 md:z-10 md:block -right-14 -bottom-20">
+            <img src="/images/domore.png" className="w-full h-[300px]" alt="ss" />
+          </div>
+        )}
       </div>
     </section>
   );

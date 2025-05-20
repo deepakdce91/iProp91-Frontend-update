@@ -103,11 +103,16 @@ function EditUser() {
   const [rewardCount, setRewardCount] = useState(0);
 
   const defaultAvatars = [
-    "/avtar/polo.jpg",
-    "/avtar/ferrari.jpg",
-    "/avtar/golf.jpg",
-    "/avtar/pocker.jpg",
-    "/avtar/yatch.jpg",
+    "/avtar/polo.jpeg",
+    "/avtar/golf.jpeg",
+    "/avtar/football.jpeg",
+    "/avtar/cricket.jpeg",
+    "/avtar/pilates.jpeg",
+    "/avtar/whisky-tasting.jpeg",
+    "/avtar/badminton-tennis.jpeg",
+    "/avtar/runners.jpeg",
+    "/avtar/pickle-ball.jpeg",
+    "/avtar/motor-sports.jpeg"
   ];
 
   useEffect(() => {
@@ -349,12 +354,15 @@ function EditUser() {
                     {/* Current Avatar Display */}
                     <div className="flex justify-center mb-4">
                       <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-600">
-                        <img 
-                          src={avatar || defaultAvatars[0]} 
-                          alt="Current Avatar" 
-                          className="w-full h-full object-cover"
-                        />
-                        {!avatar && <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center text-white text-xs">No Avatar</div>}
+                        {avatar ? (
+                          <img 
+                            src={avatar} 
+                            alt="Current Avatar" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">No Avatar</div>
+                        )}
                       </div>
                     </div>
                     

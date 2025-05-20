@@ -4,7 +4,7 @@ import BookingAppointment from "../forms/BookingAppointment";
 import ContactUsForm from "../forms/ContactUs";
 import { Calendar, Phone } from "lucide-react";
 import { motion } from "framer-motion";
-
+ 
 
 
 const ExpertContact = () => {
@@ -45,7 +45,7 @@ const ExpertContact = () => {
     <>
       <div
         ref={containerRef}
-        className="flex flex-col items-center justify-center  bg-black text-white   m-auto py-20"
+        className="flex flex-col items-center justify-center  bg-transparent text-white   m-auto py-20"
       >
         <div className="flex flex-row items-center justify-center w-full px-10 mt-10">
           
@@ -89,9 +89,9 @@ const ExpertContact = () => {
             </div>
           </div>
         </div>
-        <p className="mt-10 md:text-xl font-400 text-center text-sm transition-colors duration-500">
+        {/* <p className="mt-10 md:text-xl font-400 text-center text-sm transition-colors duration-500">
           Just book a boom short demo we will contact you supasoon!
-        </p>
+        </p> */}
       </div>
 
       {/* Contact Us Modal */}

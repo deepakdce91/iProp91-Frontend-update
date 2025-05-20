@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-hot-toast";
 import {
   Phone,
   Heart,
@@ -23,16 +22,23 @@ import {
   BedDouble,
   Bath,
   Grid,
-  Building,
+  Square,
+  Ruler,
+  Cog,
   Camera,
   UserCheck,
-  Building2,
-  Leaf,
+  Building,
+  Clock,
   Car,
   Wifi,
+  Shield,
+  ShieldCheck, Building2, Leaf, 
 } from "lucide-react";
 
-// Custom icon components
+// Import the gold theme CSS if it exists, otherwise comment out
+// import '../styles/goldTheme.css';
+
+// Custom icon components properly defined with size prop
 const VisitorParkingIcon = ({ size = 16 }) => (
   <svg
     width={size}
@@ -56,35 +62,29 @@ const VisitorParkingIcon = ({ size = 16 }) => (
   </svg>
 );
 
-// Amenities data structure
-const getAmenitiesWithStatus = (propertyAmenities) => {
-  // Define all possible amenities
-  const allAmenities = [
-    { name: "Fire Safety System", category: "Building Features" },
-    { name: "Power Backup", category: "Building Features" },
-    { name: "Elevator", category: "Building Features" },
-    { name: "Intercom Facility", category: "Building Features" },
-    { name: "Swimming Pool", category: "Common Areas" },
-    { name: "Gym", category: "Common Areas" },
-    { name: "Children's Play Area", category: "Common Areas" },
-    { name: "Clubhouse", category: "Common Areas" },
-    { name: "Garden", category: "Common Areas" },
-    { name: "Resident Parking", category: "Parking" },
-    { name: "Visitor Parking", category: "Parking" },
-    { name: "High-Speed Internet", category: "Connectivity" },
-    { name: "Nearby Shopping", category: "Connectivity" },
-    { name: "Schools Within 1KM", category: "Connectivity" },
-    { name: "Green Spaces", category: "Environment" },
-    { name: "Good Ventilation", category: "Environment" },
-    { name: "Vaastu Compliant", category: "Environment" }
-  ];
-
-  // Map through all amenities and check if they exist in propertyAmenities
-  return allAmenities.map(amenity => ({
-    ...amenity,
-    available: Array.isArray(propertyAmenities) && propertyAmenities.includes(amenity.name)
-  }));
-};
+const amenities = [
+  { name: "Fire Safety System", category: "Building Features", available: true },
+  { name: "Power Backup", category: "Building Features", available: false },
+  { name: "Elevator", category: "Building Features", available: true },
+  { name: "Intercom Facility", category: "Building Features", available: true },
+  
+  { name: "Swimming Pool", category: "Common Areas", available: true },
+  { name: "Gym", category: "Common Areas", available: true },
+  { name: "Children's Play Area", category: "Common Areas", available: false },
+  { name: "Clubhouse", category: "Common Areas", available: false },
+  { name: "Garden", category: "Common Areas", available: true },
+  
+  { name: "Resident Parking", category: "Parking", available: true },
+  { name: "Visitor Parking", category: "Parking", available: false },
+  
+  { name: "High-Speed Internet", category: "Connectivity", available: true },
+  { name: "Nearby Shopping", category: "Connectivity", available: true },
+  { name: "Schools Within 1KM", category: "Connectivity", available: false },
+  
+  { name: "Green Spaces", category: "Environment", available: true },
+  { name: "Good Ventilation", category: "Environment", available: true },
+  { name: "Vaastu Compliant", category: "Environment", available: false }
+];
 
 // Category definitions with their icons
 const categoryDefinitions = {
@@ -95,11 +95,14 @@ const categoryDefinitions = {
   "Environment": { icon: Leaf, iconColor: "text-amber-500" }
 };
 
-// Utility functions
+// Function to group amenities by category
 const groupByCategory = (amenitiesList) => {
   const categories = [];
+  
+  // Get unique category names
   const categoryNames = [...new Set(amenitiesList.map(item => item.category))];
   
+  // Create category objects with their amenities
   categoryNames.forEach(categoryName => {
     if (categoryDefinitions[categoryName]) {
       categories.push({
@@ -114,28 +117,93 @@ const groupByCategory = (amenitiesList) => {
   return categories;
 };
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
 // Group amenities by category
-const categorizedAmenities = groupByCategory(getAmenitiesWithStatus([]));
+const categorizedAmenities = groupByCategory(amenities);
+
+const CoveredParkingIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-gold-500"
+  >
+    <rect
+      x="3"
+      y="5"
+      width="18"
+      height="14"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <path d="M3 10h18" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M7 10V5M17 10V5" stroke="currentColor" strokeWidth="1.5" />
+    <path
+      d="M3 5C3 4 4 2 6 2h12c2 0 3 2 3 3"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+const SwimmingPoolIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-gold-500"
+  >
+    <path
+      d="M2 13.5V12.5C3.667 12.5 5 11.5 5 10V3.5C5 2.83696 5.26339 2.20107 5.73223 1.73223C6.20107 1.26339 6.83696 1 7.5 1C8.16304 1 8.79893 1.26339 9.26777 1.73223C9.73661 2.20107 10 2.83696 10 3.5V4M2 20.5V19.5C3.667 19.5 5 18.5 5 17V15.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M14 11V6.5C14 5.83696 14.2634 5.20107 14.7322 4.73223C15.2011 4.26339 15.837 4 16.5 4C17.163 4 17.7989 4.26339 18.2678 4.73223C18.7366 5.20107 19 5.83696 19 6.5V7M14 18V15"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M22 13.5V12.5C20.333 12.5 19 11.5 19 10M22 20.5V19.5C20.333 19.5 19 18.5 19 17V15.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 4V10M10 18V15"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M2 15.5H22"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 export default function PropertyDetails({ onBack = () => {} }) {
-  // State management
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const [activeImage, setActiveImage] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [showContact, setShowContact] = useState(false);
-  const [phoneVisible, setPhoneVisible] = useState(false);
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState("8.5");
   const [loanTenure, setLoanTenure] = useState("20");
@@ -153,12 +221,13 @@ export default function PropertyDetails({ onBack = () => {} }) {
   const isAuthenticated = false;
   const user = null;
 
-  // Event handlers
+  // Error handling for image loading
   const handleImageError = useCallback((e) => {
     e.target.src = "/assets/images/fallback-image.jpg";
     e.target.alt = "Image not available";
   }, []);
 
+  // Image carousel functions
   const nextImage = useCallback((totalImages) => {
     setActiveImage(prev => (prev + 1) % totalImages);
   }, []);
@@ -167,9 +236,10 @@ export default function PropertyDetails({ onBack = () => {} }) {
     setActiveImage((prev) => (prev - 1 + totalImages) % totalImages);
   }, []);
 
+  // Calculate EMI function
   const calculateEmi = useCallback(() => {
     if (!loanAmount || !interestRate || !loanTenure) {
-      toast.error("Please fill all loan details");
+      alert("Please fill all loan details");
       return;
     }
 
@@ -179,7 +249,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
       const time = parseFloat(loanTenure) * 12;
 
       if (isNaN(principal) || isNaN(rate) || isNaN(time)) {
-        toast.error("Please enter valid numbers");
+        alert("Please enter valid numbers");
         return;
       }
 
@@ -189,10 +259,11 @@ export default function PropertyDetails({ onBack = () => {} }) {
       setEmi(emiValue.toFixed(2));
     } catch (error) {
       console.error("EMI calculation error:", error);
-      toast.error("Error calculating EMI");
+      alert("Error calculating EMI");
     }
   }, [loanAmount, interestRate, loanTenure]);
 
+  // Handle form input changes
   const handleFormChange = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -210,6 +281,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     [formErrors]
   );
 
+  // Validate form
   const validateForm = useCallback(() => {
     const errors = {};
 
@@ -236,6 +308,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     return Object.keys(errors).length === 0;
   }, [formData, isAuthenticated]);
 
+  // Handle form submission
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -246,7 +319,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
 
       setIsSubmitting(true);
       try {
-        toast.success("Your inquiry has been submitted successfully!");
+        alert("Your inquiry has been submitted successfully!");
         setShowContact(false);
         setFormData({
           name: user?.name || "",
@@ -256,7 +329,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
         });
       } catch (error) {
         console.error("Error submitting form:", error);
-        toast.error("There was an error submitting your inquiry. Please try again.");
+        alert("There was an error submitting your inquiry. Please try again.");
       } finally {
         setIsSubmitting(false);
       }
@@ -264,6 +337,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     [validateForm, user]
   );
 
+  // UI interaction handlers
   const handleTabChange = useCallback((tab) => {
     setActiveTab(tab);
   }, []);
@@ -272,11 +346,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     setShowContact((prev) => !prev);
   }, []);
 
-  const togglePhone = useCallback(() => {
-    setPhoneVisible((prev) => !prev);
-  }, []);
-
-  // Data fetching
+  // Fetch property details
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       if (!id) {
@@ -286,14 +356,21 @@ export default function PropertyDetails({ onBack = () => {} }) {
 
       try {
         setIsLoading(true);
+        console.log("Fetching property details for ID:", id);
+
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/${id}`
         );
+        console.log("API Response:", response.data.data.project);
 
-        if (response.data.status === "success" && response.data.data.project) {
-          console.log("Property data:", response.data.data.project);
-          const propertyData = response.data.data.project;
-          const processedProperty = {
+        if (
+          response.data.status === "success" &&
+          response.data.data.project
+        ) {
+          const propertyData = response.data.data.project; // Directly use the returned property object
+          console.log("Processing property data:", propertyData);
+
+          setProperty({
             id: propertyData._id,
             propertyId: propertyData.propertyId,
             listingId: propertyData.listingId,
@@ -360,17 +437,17 @@ export default function PropertyDetails({ onBack = () => {} }) {
             totalFloors: propertyData.numberOfFloors || "N/A",
             floorNumber: propertyData.floorNumber || "N/A",
             age: propertyData.age || "N/A",
-          };
-
-          setProperty(processedProperty);
+          });
+          console.log("Property data set successfully");
         } else {
           console.error("Invalid API response format:", response.data);
-          toast.error("Failed to load property details");
           setProperty(null);
         }
       } catch (error) {
-        console.error("Error fetching property details:", error);
-        toast.error("Failed to load property details");
+        console.error(
+          "Error fetching property details:",
+          error.response || error
+        );
         setProperty(null);
       } finally {
         setIsLoading(false);
@@ -400,7 +477,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     });
   }, []);
 
-  // Loading state
+  // Render loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
@@ -412,7 +489,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
     );
   }
 
-  // Error state
+  // Render error state
   if (!property) {
     return (
       <div className="p-8 text-center bg-black">
@@ -428,58 +505,29 @@ export default function PropertyDetails({ onBack = () => {} }) {
   }
 
   // Extract property details with fallbacks
-  const images = property.images && property.images.length > 0
-    ? property.images
-    : ["/assets/images/property-placeholder-1.jpg"];
+  const images =
+    property.images && property.images.length > 0
+      ? property.images
+      : ["/assets/images/property-placeholder-1.jpg"];
 
   const propertyType = property.type || "Residential";
   const propertySize = property.area || "N/A";
   const bhkInfo = property.bhk || "N/A";
   const propertyPrice = property.price || "Price on Request";
   const propertyLocation = property.location || "Location not available";
-  const amenities = Array.isArray(property.amenities) && property.amenities.length > 0
-    ? property.amenities
-    : ["Basic Amenities"];
+  const amenities =
+    Array.isArray(property.amenities) && property.amenities.length > 0
+      ? property.amenities
+      : ["Basic Amenities"];
   const possessionStatus = property.possessionStatus || "N/A";
   const furnishingStatus = property.furnishingStatus || "N/A";
 
-  console.log(property.amenities)
   return (
     <div className="bg-black pt-[14vh]">
       <div className="bg-white text-gray-800 min-h-screen">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 bg-black shadow-lg">
-          <div className="flex items-center justify-between px-6 py-4">
-            <button
-              onClick={onBack}
-              className="flex items-center text-yellow-400 hover:text-yellow-500"
-            >
-              <ChevronLeft className="mr-1" size={20} />
-              <span className="font-medium">Back to Search</span>
-            </button>
-            <div className="flex items-center gap-4">
-              <button className="flex items-center text-white hover:text-yellow-400 transition">
-                <Share size={18} className="mr-1" />
-                <span className="text-sm">Share</span>
-              </button>
-              <button
-                className="flex items-center hover:text-yellow-400 transition"
-                onClick={() => setLiked(!liked)}
-              >
-                <Heart
-                  className={`${
-                    liked ? "text-yellow-400 fill-yellow-400" : "text-white"
-                  } mr-1`}
-                  size={18}
-                />
-                <span className="text-sm">{liked ? "Saved" : "Save"}</span>
-              </button>
-            </div>
-          </div>
-        </header>
-
         <div className="pb-2">
-          {/* Image Gallery */}
+          {/* Image carousel */}
           <div className="relative h-[25vh] md:h-[30vh] bg-black">
             <img
               src={images[activeImage]}
@@ -487,7 +535,9 @@ export default function PropertyDetails({ onBack = () => {} }) {
               className="w-full h-full object-cover"
               onError={handleImageError}
               loading="lazy"
-              aria-label={`Property image ${activeImage + 1} of ${images.length}`}
+              aria-label={`Property image ${activeImage + 1} of ${
+                images.length
+              }`}
             />
             <button
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white"
@@ -513,12 +563,11 @@ export default function PropertyDetails({ onBack = () => {} }) {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Property details section */}
           <div className="max-w-6xl mx-auto px-4 py-2">
             <div className="flex flex-col lg:flex-row gap-4">
-              {/* Left Column - Property Details */}
+              {/* Main content column */}
               <div className="lg:w-2/3">
-                {/* Property Header */}
                 <div className="mb-3">
                   <div className="flex items-center mb-1">
                     <span className="bg-gold-100 text-gold-800 px-2 py-1 rounded text-sm font-medium mr-2">
@@ -537,7 +586,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
                   </p>
                 </div>
 
-                {/* Navigation Tabs */}
+                {/* Tabs navigation */}
                 <div className="border-b mb-3">
                   <div className="flex overflow-x-auto">
                     {["overview", "specifications", "amenities"].map((tab) => (
@@ -556,188 +605,186 @@ export default function PropertyDetails({ onBack = () => {} }) {
                   </div>
                 </div>
 
-                {/* Tab Content */}
+                {/* Tab contents */}
                 <div className="mb-2">
                   {/* Overview Tab */}
-                  {activeTab === "overview" && (
-                    <div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                        <div className="p-4 border rounded-lg flex flex-col items-center">
-                          <BedDouble className="text-gold-500 mb-2" size={24} />
-                          <p className="text-sm text-gray-600">Bedrooms</p>
-                          <p className="font-semibold">{bhkInfo.split(" ")[0]}</p>
-                        </div>
-                        <div className="p-4 border rounded-lg flex flex-col items-center">
-                          <Bath className="text-gold-500 mb-2" size={24} />
-                          <p className="text-sm text-gray-600">Bathrooms</p>
-                          <p className="font-semibold">
-                            {property.bathrooms || "2"}
-                          </p>
-                        </div>
-                        <div className="p-4 border rounded-lg flex flex-col items-center">
-                          <Grid className="text-gold-500 mb-2" size={24} />
-                          <p className="text-sm text-gray-600">Area</p>
-                          <p className="font-semibold">{propertySize}</p>
-                        </div>
-                        <div className="p-4 border rounded-lg flex flex-col items-center">
-                          <Building className="text-gold-500 mb-2" size={24} />
-                          <p className="text-sm text-gray-600">Furnishing</p>
-                          <p className="font-semibold">{furnishingStatus}</p>
-                        </div>
+                  <div
+                    className={activeTab === "overview" ? "block" : "hidden"}
+                  >
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                      <div className="p-4 border rounded-lg flex flex-col items-center">
+                        <BedDouble className="text-gold-500 mb-2" size={24} />
+                        <p className="text-sm text-gray-600">Bedrooms</p>
+                        <p className="font-semibold">{bhkInfo.split(" ")[0]}</p>
                       </div>
-
-                      <h3 className="text-xl font-semibold mb-4">
-                        About this property
-                      </h3>
-                      <p className="text-gray-600 mb-6">
-                        {property.description ||
-                          `This ${bhkInfo} ${propertyType.toLowerCase()} is located in ${propertyLocation}. 
-                        It offers a perfect blend of comfort and convenience with a total area of ${propertySize}.
-                        The property is ${furnishingStatus.toLowerCase()} and is ${possessionStatus.toLowerCase()}.
-                        Perfect for families looking for a modern lifestyle with excellent amenities and connectivity.`}
-                      </p>
-
-                      <h3 className="text-xl font-semibold mb-4">Highlights</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
-                        {amenities.slice(0, 6).map((amenity, index) => (
-                          <div key={index} className="flex items-center">
-                            <Check size={18} className="text-gold-500 mr-2" />
-                            <span>{amenity}</span>
-                          </div>
-                        ))}
+                      <div className="p-4 border rounded-lg flex flex-col items-center">
+                        <Bath className="text-gold-500 mb-2" size={24} />
+                        <p className="text-sm text-gray-600">Bathrooms</p>
+                        <p className="font-semibold">
+                          {property.bathrooms || "2"}
+                        </p>
+                      </div>
+                      <div className="p-4 border rounded-lg flex flex-col items-center">
+                        <Grid className="text-gold-500 mb-2" size={24} />
+                        <p className="text-sm text-gray-600">Area</p>
+                        <p className="font-semibold">{propertySize}</p>
+                      </div>
+                      <div className="p-4 border rounded-lg flex flex-col items-center">
+                        <Building className="text-gold-500 mb-2" size={24} />
+                        <p className="text-sm text-gray-600">Furnishing</p>
+                        <p className="font-semibold">{furnishingStatus}</p>
                       </div>
                     </div>
-                  )}
+
+                    <h3 className="text-xl font-semibold mb-4">
+                      About this property
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      {property.description ||
+                        `This ${bhkInfo} ${propertyType.toLowerCase()} is located in ${propertyLocation}. 
+                    It offers a perfect blend of comfort and convenience with a total area of ${propertySize}.
+                    The property is ${furnishingStatus.toLowerCase()} and is ${possessionStatus.toLowerCase()}.
+                    Perfect for families looking for a modern lifestyle with excellent amenities and connectivity.`}
+                    </p>
+
+                    <h3 className="text-xl font-semibold mb-4">Highlights</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
+                      {amenities.slice(0, 6).map((amenity, index) => (
+                        <div key={index} className="flex items-center">
+                          <Check size={18} className="text-gold-500 mr-2" />
+                          <span>{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Specifications Tab */}
-                  {activeTab === "specifications" && (
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4">
-                        Property Specifications
-                      </h3>
+                  <div
+                    className={
+                      activeTab === "specifications" ? "block" : "hidden"
+                    }
+                  >
+                    <h3 className="text-xl font-semibold mb-4">
+                      Property Specifications
+                    </h3>
 
-                      <div className="mb-3">
-                        <h4 className="font-medium text-gray-800 mb-2">
-                          Construction Details
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-lg p-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Total Floors</span>
-                            <span className="font-medium">
-                              {property.totalFloors || "10"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Floor Number</span>
-                            <span className="font-medium">
-                              {property.floorNumber || "5"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Age of Property</span>
-                            <span className="font-medium">
-                              {property.age || "2 years"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">
-                              Possession Status
-                            </span>
-                            <span className="font-medium">
-                              {possessionStatus}
-                            </span>
-                          </div>
+                    <div className="mb-3">
+                      <h4 className="font-medium text-gray-800 mb-2">
+                        Construction Details
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-lg p-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Total Floors</span>
+                          <span className="font-medium">
+                            {property.totalFloors || "10"}
+                          </span>
                         </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <h4 className="font-medium text-gray-800 mb-2">
-                          Room Details
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-lg p-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Bedrooms</span>
-                            <span className="font-medium">
-                              {bhkInfo.split(" ")[0]}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Bathrooms</span>
-                            <span className="font-medium">
-                              {property.bathrooms || "2"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">Balconies</span>
-                            <span className="font-medium">
-                              {property.balconies || "1"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-600">
-                              Furnishing Status
-                            </span>
-                            <span className="font-medium">
-                              {furnishingStatus}
-                            </span>
-                          </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Floor Number</span>
+                          <span className="font-medium">
+                            {property.floorNumber || "5"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Age of Property</span>
+                          <span className="font-medium">
+                            {property.age || "2 years"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            Possession Status
+                          </span>
+                          <span className="font-medium">
+                            {possessionStatus}
+                          </span>
                         </div>
                       </div>
                     </div>
-                  )}
+
+                    <div className="mb-3">
+                      <h4 className="font-medium text-gray-800 mb-2">
+                        Room Details
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-lg p-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Bedrooms</span>
+                          <span className="font-medium">
+                            {bhkInfo.split(" ")[0]}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Bathrooms</span>
+                          <span className="font-medium">
+                            {property.bathrooms || "2"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Balconies</span>
+                          <span className="font-medium">
+                            {property.balconies || "1"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            Furnishing Status
+                          </span>
+                          <span className="font-medium">
+                            {furnishingStatus}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Amenities Tab */}
-                  {activeTab === "amenities" && (
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4">
-                        Amenities & Features
-                      </h3>
+                  <div
+                    className={activeTab === "amenities" ? "block" : "hidden"}
+                  >
+                    <h3 className="text-xl font-semibold mb-4">
+                      Amenities & Features
+                    </h3>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {categorizedAmenities.map((category, i) => {
-                          const CategoryIcon = category.icon;
-                          const categoryAmenities = getAmenitiesWithStatus(property.amenities);
-                          
-                          return (
-                            <div key={i} className="flex flex-col">
-                              <div className="flex items-center mb-4">
-                                <div className={`${category.iconColor} mr-2`}>
-                                  <CategoryIcon size={20} />
-                                </div>
-                                <span className="text-gray-800 font-medium">{category.name}</span>
-                              </div>
-                              
-                              <div className="space-y-3">
-                                {categoryAmenities
-                                  .filter(amenity => amenity.category === category.name)
-                                  .map((amenity, j) => (
-                                    <div key={j} className="flex items-center">
-                                      {amenity.available ? (
-                                        <>
-                                          <Check size={16} className="text-amber-500 mr-2" />
-                                          <span className="text-gray-900 font-medium">{amenity.name}</span>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Check size={16} className="text-gray-300 mr-2" />
-                                          <span className="text-gray-400">{amenity.name}</span>
-                                        </>
-                                      )}
-                                    </div>
-                                  ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {categorizedAmenities.map((category, i) => {
+          const CategoryIcon = category.icon;
+          
+          return (
+            <div key={i} className="flex flex-col">
+              <div className="flex items-center mb-4">
+                <div className={`${category.iconColor} mr-2`}>
+                  <CategoryIcon size={20} />
+                </div>
+                <span className="text-gray-800 font-medium">{category.name}</span>
+              </div>
+              
+              <div className="space-y-3">
+                {category.amenities.map((amenity, j) => (
+                  <div key={j} className="flex items-center">
+                    {amenity.available ? (
+                      <>
+                        <Check size={16} className="text-amber-500 mr-2" />
+                        <span className="text-gray-800">{amenity.name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} className="text-gray-300 mr-2" />
+                        <span className="text-gray-300">{amenity.name}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column - Sidebar */}
+              {/* Sidebar */}
               <div className="lg:w-1/3">
-                {/* Price Card */}
                 <div className="bg-white shadow-lg rounded p-4 mb-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -746,6 +793,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
                         {propertyPrice}
                       </p>
                     </div>
+                    <div className="text-right"></div>
                   </div>
 
                   <div className="flex flex-col space-y-3 mb-4">
@@ -760,7 +808,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
                   </div>
                 </div>
 
-                {/* Loan Calculator */}
+                {/* Loan Calculator Section */}
                 <div className="bg-white shadow-lg rounded p-4 mb-4">
                   <div className="flex items-center mb-4">
                     <BarChart className="text-gold-600 mr-2" size={24} />
@@ -841,7 +889,7 @@ export default function PropertyDetails({ onBack = () => {} }) {
           </div>
         </div>
 
-        {/* Contact Form Modal */}
+        {/* Contact Form Popup */}
         {showContact && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/70">
             <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-2xl">
@@ -968,7 +1016,3 @@ export default function PropertyDetails({ onBack = () => {} }) {
     </div>
   );
 }
-
-PropertyDetails.propTypes = {
-  onBack: PropTypes.func,
-};

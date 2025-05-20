@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
@@ -9,7 +7,13 @@ import "react-toastify/dist/ReactToastify.css"
 import { useTypewriter } from "./typeWriter"
 import { useInView } from "react-intersection-observer"
 
+import ContactUsForm from "../forms/ContactUs";
+
+
 const Footer = () => {
+
+  const [isContactModalOpen, setContactModalOpen] = useState(false);
+
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState('idle')
   const [hasAnimated, setHasAnimated] = useState(false)
@@ -20,6 +24,21 @@ const Footer = () => {
     threshold: 0.2,
     triggerOnce: true,
   })
+
+  useEffect(() => {
+      if (isContactModalOpen ) {
+        // Disable scrolling when modal is open
+        document.body.style.overflow = "hidden";
+      } else {
+        // Re-enable scrolling when modal is closed
+        document.body.style.overflow = "unset";
+      }
+  
+      // Cleanup function to re-enable scrolling when component unmounts
+      return () => {
+        document.body.style.overflow = "unset";
+      };
+    }, [isContactModalOpen ]);
 
   useEffect(() => {
     if (inView && !hasAnimated) {
@@ -41,6 +60,10 @@ const Footer = () => {
   const handleInputChange = (e) => {
     setEmail(e.target.value)
   }
+
+  const handleContactModalClose = () => {
+    setContactModalOpen(false);
+  };
 
   const handleSubscribe = async () => {
     if (!email) return
@@ -86,26 +109,26 @@ const Footer = () => {
   }
 
   return (
-    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-black shadow-lg" ref={inViewRef}>
+    <footer className="text-white p-10 border-t-[1px] border-t-white/20 w-full mx-auto bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)] shadow-lg" ref={inViewRef}>
       <div className="flex flex-col lg:flex-row justify-between mb-4 w-full px-4 mx-auto">
         <div className="flex justify-center my-1">
           <h1 className="font-semibold text-primary text-2xl">iProp91</h1>
         </div>
         <div className="flex justify-center space-x-4 my-1">
           <Link to="#" aria-label="LinkedIn">
-            <i className="fab fa-linkedin text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-linkedin text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Facebook">
-            <i className="fab fa-facebook text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-facebook text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Instagram">
-            <i className="fab fa-instagram text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-instagram text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="Twitter">
-            <i className="fab fa-twitter text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-twitter text-2xl text-white hover:text-primary"></i>
           </Link>
           <Link to="#" aria-label="YouTube">
-            <i className="fab fa-youtube text-2xl text-black hover:text-primary"></i>
+            <i className="fab fa-youtube text-2xl text-white hover:text-primary"></i>
           </Link>
         </div>
       </div>
@@ -125,7 +148,7 @@ const Footer = () => {
               placeholder={status === 'idle' ? "Email address" : ""}
               value={getInputDisplay()}
               onChange={handleInputChange}
-              className="text-white bg-black px-3 py-2 w-full outline-none placeholder-gray-800"
+              className="text-white bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)] px-3 py-2 w-full outline-none placeholder-gray-800"
               disabled={status === 'sending' || status === 'done'}
             />
             
@@ -171,27 +194,27 @@ const Footer = () => {
 
         {/* Rest of the footer sections */}
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Quick Links
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/aboutUs" className="hover:text-primary">
                 About Us
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <p onClick={()=>{setContactModalOpen(true)}} className="hover:text-primary">
                 Contact Us
-              </Link>
+              </p>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/privacyPolicy" className="hover:text-primary">
                 Privacy Policy
               </Link>
             </li>
             <li className="my-2">
-              <Link to="/" className="hover:text-primary">
+              <Link to="/termsAndConditions" className="hover:text-primary">
                 Terms & Conditions
               </Link>
             </li>
@@ -209,10 +232,10 @@ const Footer = () => {
         </div>
 
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Our Services
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
               <Link to="/safe" className="hover:text-primary">
                 iProp91 Safe
@@ -247,10 +270,10 @@ const Footer = () => {
         </div>
 
         <div className="w-full lg:w-1/5 my-2">
-          <h3 className="font-semibold mb-2 text-gray-600 text-sm">
+          <h3 className="font-semibold mb-2 text-gray-50 text-sm">
             Knowledge Center
           </h3>
-          <ul className="text-xs">
+          <ul className="text-xs text-gray-300">
             <li className="my-2">
               <Link to="/faqs" className="hover:text-primary">
                 FAQs
@@ -279,8 +302,28 @@ const Footer = () => {
           </ul>
         </div>
       </div>
+
+      {/* Contact Us Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleContactModalClose}
+          />
+          <div className="relative bg-black rounded-lg shadow-xl  mx-4">
+            <button
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+              onClick={handleContactModalClose}
+            >
+              {/* Close Button SVG */}
+            </button>
+            <ContactUsForm onClose={handleContactModalClose} />
+          </div>
+        </div>
+      )}
+      
     </footer>
   )
 }
 
-export default Footer
+export default Footer 

@@ -3,28 +3,33 @@ import Call from "../CompoCards/Call";
 import Starter from "../CompoCards/Starter/Starter";
 import Cards from "./Cards";
 import ContactUs from "../CompoCards/contactus/ContactUs";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState, useRef } from "react";
 import Profile from "../User/Profile/profile";
 
 export default function NRI() {
-  const [hasToken, setHasToken] = useState(false); // State for token presence
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-  useEffect(() => {
-    const checkToken = () => {
-      setHasToken(!!localStorage.getItem("token")); // Check for token in localStorage
-    };
+  const [hasToken, setHasToken] = useState(false);
+  const cardsRef = useRef(null);
 
+  useLayoutEffect(() => {
+    // Check token
+    const checkToken = () => {
+      setHasToken(!!localStorage.getItem("token"));
+    };
     checkToken();
+
+    // Scroll to Cards section
+    if (cardsRef.current) {
+      cardsRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, []);
 
   return (
-    <section className="bg-white md:rounded-t-xl md:overflow-hidden">
-      
-      <Cards />
+    <div className="bg-white md:rounded-t-xl md:overflow-hidden">
+      <div ref={cardsRef}>
+        <Cards />
+      </div>
       <Que />
       <Call />
-    </section>
+    </div>
   );
 }

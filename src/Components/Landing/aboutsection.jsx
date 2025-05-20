@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function ScrollAnimatedText() {
   const containerRef = useRef(null);
@@ -55,12 +56,13 @@ export default function ScrollAnimatedText() {
           {
             headers: {
               "Content-Type": "application/json",
+              "auth-token": localStorage.getItem("token"),
             },
           }
         );
 
         if (response.data && response.data.length > 0) {
-          // Access the first item in the array
+          console.log("hero text data: ", response.data);
           setTextData({
             title: response.data[0].title || "",
             text: response.data[0].text || "",
@@ -68,7 +70,6 @@ export default function ScrollAnimatedText() {
           console.log("hero text: ", response.data[0]);
         } else {
           console.warn("No hero text data found in the response");
-          // Set fallback data if needed
           setTextData({
             title:
               "Curated real estate management solutions for the ones who have arrived",
@@ -76,11 +77,8 @@ export default function ScrollAnimatedText() {
           });
         }
       } catch (error) {
-        console.error(
-          "Error fetching data:",
-          error.response?.data || error.message
-        );
-        // Set fallback data on error
+        console.error("Error fetching hero text:", error);
+        toast.error("Failed to fetch hero text");
         setTextData({
           title:
             "Curated real estate management solutions for the ones who have arrived",
@@ -90,7 +88,6 @@ export default function ScrollAnimatedText() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -104,7 +101,7 @@ export default function ScrollAnimatedText() {
   // Show loading state or render content
   return (
     <div
-      className="relative lg:h-[120vh] bg-black px-3 
+      className="relative h-screen lg:h-fit bg-transparent px-3 
             lg:py-10 
             between-md-lg:py-0 
             max-sm:py-0 
@@ -114,11 +111,11 @@ export default function ScrollAnimatedText() {
       ref={containerRef}
     >
       {loading ? (
-        <div className="flex md:justify-start md:h-[70vh]  h-[110vh] items-center justify-center ">
+        <div className="flex h-[110vh] items-center justify-center ">
           <div className="text-white text-xl">Loading...</div>
         </div>
       ) : (
-        <section className="flex lg:h-[110vh] md:justify-start md:h-[70vh] lg:pb-28 items-center justify-center">
+        <section className="flex lg:h-fit md:justify-start md:h-[70vh] lg:pb-28 items-center justify-center">
           <div className="flex flex-col gap-8 items-center">
             <h1 className="lg:text-6xl font-semibold w-full lg:w-8/12 text-4xl text-white">
               {headingWords.map((word, index) => (

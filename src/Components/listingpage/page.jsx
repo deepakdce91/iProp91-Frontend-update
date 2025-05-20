@@ -84,27 +84,27 @@ const categoryTypes = [
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
-    type: "pre_launch",
+    type: "pre_launch", // This remains the same
   },
   {
     title: "Verified Owner Properties",
     description: "Direct from property owners",
-    type: "verified_owner",
+    type: "verified_owner", // This remains the same
   },
   {
     title: "New Projects",
     description: "Latest property launches",
-    type: "new_projects",
+    type: "new_projects", // Change to plural or change the above to singular
   },
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
-    type: "upcoming_projects",
+    type: "upcoming_projects", // Change to plural or change the above to singular
   },
   {
     title: "New Sale Properties",
     description: "Fresh properties for sale",
-    type: "new_sale",
+    type: "new_sale", // This remains the same
   },
 ];
 
@@ -263,7 +263,7 @@ export default function MainListingPage() {
 
     setFilteredProjects(filtered);
 
-    // Update categorized projects
+    // Update categorized projects - FIX: match the category names with categoryTypes
     if (filtered.length > 0) {
       const categorized = {
         pre_launch: filtered.filter(
@@ -272,10 +272,10 @@ export default function MainListingPage() {
         verified_owner: filtered.filter(
           (project) => project.category === "verified_owner"
         ),
-        new_project: filtered.filter(
+        new_projects: filtered.filter(
           (project) => project.category === "new_project"
         ),
-        upcoming_project: filtered.filter(
+        upcoming_projects: filtered.filter(
           (project) => project.category === "upcoming_project"
         ),
         new_sale: filtered.filter((project) => project.category === "new_sale"),
@@ -304,43 +304,49 @@ export default function MainListingPage() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response) {
-        const allProjects = await response.data;
-        setAllFetchedProjects(allProjects);
-        // toast.success("projects fetched successfully")
-        console.log(allProjects);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/fetchAllProjects`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": localStorage.getItem("token"),
+            },
+          }
+        );
+        if (response) {
+          const allProjects = await response.data;
+          setAllFetchedProjects(allProjects);
+          console.log(allProjects);
 
-        if (allProjects) {
-          const categorized = {
-            pre_launch: allProjects.filter(
-              (project) => project.category === "pre_launch"
-            ),
-            verified_owner: allProjects.filter(
-              (project) => project.category === "verified_owner"
-            ),
-            new_project: allProjects.filter(
-              (project) => project.category === "new_project"
-            ),
-            upcoming_project: allProjects.filter(
-              (project) => project.category === "upcoming_project"
-            ),
-            new_sale: allProjects.filter(
-              (project) => project.category === "new_sale"
-            ),
-          };
-          setCategorizedProjects(categorized);
+          // In your useEffect where fetchProjects is defined:
+          if (allProjects) {
+            const categorized = {
+              pre_launch: allProjects.filter(
+                (project) => project.category === "pre_launch"
+              ),
+              verified_owner: allProjects.filter(
+                (project) => project.category === "verified_owner"
+              ),
+              new_projects: allProjects.filter(
+                (project) => project.category === "new_project"
+              ),
+              upcoming_projects: allProjects.filter(
+                (project) => project.category === "upcoming_project"
+              ),
+              new_sale: allProjects.filter(
+                (project) => project.category === "new_sale"
+              ),
+            };
+            setCategorizedProjects(categorized);
+          }
+          return;
         }
-        return;
+        toast.error("Error fetching projects");
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        toast.error("Failed to fetch projects");
       }
-      toast.error("Error fetching projects");
     };
     fetchProjects();
   }, []);
@@ -668,46 +674,46 @@ export default function MainListingPage() {
 
       {/* Property Categories */}
       {!showMap && (
-      <section className="py-12 px-4 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">
-            We've got properties for everyone
-          </h2>
-          <Link
-            href="/all-categories"
-            className="text-blue-600 hover:underline"
-          >
-            View All
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
-            <Link href={category.link} key={index}>
-              <div className="relative h-64 rounded-lg overflow-hidden group">
-                <img
-                  src={category.image}
-                  alt={category.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
-                  <h3 className="text-white text-xl font-bold mb-2">
-                    {category.title}
-                  </h3>
-                  <p className="text-white/80 text-sm mb-2">
-                    {category.description}
-                  </p>
-                  <span className="text-white/90 text-sm font-medium">
-                    {category.count}
-                  </span>
-                </div>
-              </div>
+        <section className="py-12 px-4 max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold">
+              We've got properties for everyone
+            </h2>
+            <Link
+              href="/all-categories"
+              className="text-blue-600 hover:underline"
+            >
+              View All
             </Link>
-          ))}
-        </div>
-      </section>
-    )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categories.map((category, index) => (
+              <Link href={category.link} key={index}>
+                <div className="relative h-64 rounded-lg overflow-hidden group">
+                  <img
+                    src={category.image}
+                    alt={category.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-6 flex flex-col justify-end">
+                    <h3 className="text-white text-xl font-bold mb-2">
+                      {category.title}
+                    </h3>
+                    <p className="text-white/80 text-sm mb-2">
+                      {category.description}
+                    </p>
+                    <span className="text-white/90 text-sm font-medium">
+                      {category.count}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
-       {/* Conditionally render carousels based on showMap state */}
+      {/* Conditionally render carousels based on showMap state */}
       {!showMap &&
         categoryTypes.map((category) => {
           // Only render carousel if there are projects in this category
@@ -741,7 +747,6 @@ export default function MainListingPage() {
             </section>
           );
         })}
-
 
       <div className="mt-5">{showMap && <EnhancedMapComponent />}</div>
       <button

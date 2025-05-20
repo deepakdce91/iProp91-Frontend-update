@@ -4,7 +4,7 @@ import Auth from "../User/Login/Auth";
 import useAuthToken from "../../hooks/useAuthToken";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // {{ edit_1 }}
+import { motion } from "framer-motion";
 
 const HeroSection = () => {
   const [form, setForm] = useState(false);
@@ -44,8 +44,23 @@ const HeroSection = () => {
     }
   }, [isLoggedIn]);
 
-  // Custom hook to manage JWT token
   useAuthToken(navigate);
+
+  useEffect(() => {
+    // Preload background images
+    const preloadImages = () => {
+      const images = [
+        "/images/landing.png",
+        // Add other images that need to be preloaded
+      ];
+      images.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    };
+
+    preloadImages();
+  }, []);
 
   const openFormModal = () => {
     setForm(true);
@@ -70,32 +85,37 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black overflow-hidden sm:h-[100vh]">
+    <div className="h-screen flex items-center justify-center bg-transparent overflow-hidden sm:h-[100vh]">
       <div className="text-center">
-        <motion.h1 // {{ edit_2 }}
+        <motion.h1
           className="text-4xl lg:text-7xl font-bold py-4 text-white"
-          initial={{ opacity: 0, y: -50 }} // {{ edit_3 }}
-          animate={{ opacity: 1, y: 0 }} // {{ edit_4 }}
-          transition={{ duration: 1 }} // {{ edit_5 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           Your Trusted <br /> Real Estate Manager
         </motion.h1>
-        <motion.p // {{ edit_6 }}
-          className="text-gray-400 text-md lg:text-xl sm:p-3"
-          initial={{ opacity: 0, y: -50 }} // {{ edit_7 }}
-          animate={{ opacity: 1, y: 0 }} // {{ edit_8 }}
-          transition={{ duration: 1, delay: 0.5 }} // {{ edit_9 }}
+        <motion.p
+          className="text-gray-300 text-md lg:text-xl sm:p-3"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
         >
           For the exclusive few who appreciate their most valued asset and its
           value!
         </motion.p>
         <br />
-        <button
+        <motion.button
           onClick={() => navigate("/journey")}
           className="text-black text-sm lg:text-lg font-semibold py-2 px-4 lg:py-4 lg:px-8 rounded-full transition-all hover:scale-105 animate-shimm bg-[linear-gradient(110deg,#ffffff,45%,#000000,55%,#ffffff)] bg-[length:200%_100%]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Start your journey
-        </button>
+        </motion.button>
       </div>
       {/* Form Modal */}
       {/* {form && <GetStartedForm close={closeFormModal} openAuth={openAuthModal} />} */}

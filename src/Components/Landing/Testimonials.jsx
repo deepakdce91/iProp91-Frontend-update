@@ -204,11 +204,9 @@ export default function Test() {
 
   return (
     <>
-      <div className="py-8 relative min-h-screen border-y-[1px] border-y-white/40 bg-black flex flex-col justify-center items-center">
-        <div className="mb-6 -mt-20">
-          <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">
-            Testimonials
-          </h1>
+      <div className="py-16 relative min-h-screen border-y-[1px] border-y-white/40 bg-transparent flex flex-col justify-center items-center">
+        <div className="my-10">
+        <h1 className="text-3xl lg:text-6xl font-semibold text-white text-center">Testimonials</h1>
         </div>
         <Testimonials />
         <div className="flex justify-center mt-6">

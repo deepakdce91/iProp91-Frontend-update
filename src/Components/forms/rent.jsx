@@ -1,6 +1,6 @@
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { client, getSignedUrlForPrivateFile } from "../../config/s3client";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -9,7 +9,7 @@ import { supabase } from "../../config/supabase";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const BuyForm = ({ closeBuyModal, propertyId }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ 
     unitNumber: "",
     size: "",
     expectedRent: "",
@@ -24,6 +24,70 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
 
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch property details on component mount
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        const tokenid = jwtDecode(token);
+        const userId = tokenid.userId;
+
+        // Fetch property details to pre-fill the form
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/property/fetchproperty/${propertyId}`,
+          {
+            headers: { "auth-token": token },
+            params: { userId },
+          }
+        );
+
+        const propertyData = response.data;
+        
+        // Check if there's an existing rent listing for this property
+        // and pre-fill the form with that data
+        if (propertyData) {
+          // If there's a rentListing property, use it to pre-fill the form
+          if (propertyData.rentListing) {
+            const rentDetails = propertyData.rentListing;
+            setFormData({
+              unitNumber: rentDetails.unitNumber || "",
+              size: rentDetails.size || propertyData.size || "",
+              expectedRent: rentDetails.expectedRent || "",
+              availableFrom: rentDetails.availableFrom ? rentDetails.availableFrom.split('T')[0] : "",
+              propertyType: rentDetails.type || propertyData.type || "",
+              noOfWashrooms: rentDetails.numberOfWashrooms || propertyData.noOfWashrooms || "",
+              floor: rentDetails.numberOfFloors || propertyData.floor || "",
+              parking: rentDetails.numberOfParkings || propertyData.parking || "",
+              securityDeposit: rentDetails.securityDeposit || "",
+              furnished: rentDetails.furnishedStatus || "non-furnished",
+            });
+          } else {
+            // Otherwise just pre-fill with property basic details
+            setFormData({
+              ...formData,
+              size: propertyData.size || "",
+              propertyType: propertyData.type || "",
+              noOfWashrooms: propertyData.noOfWashrooms || "",
+              floor: propertyData.floor || "",
+              // Keep other fields as they are
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching property details:", error);
+        toast.error("Failed to load property details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (propertyId) {
+      fetchPropertyDetails();
+    }
+  }, [propertyId]);
 
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
@@ -84,8 +148,6 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
         throw error;
       }
     };
-
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -172,8 +234,22 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
+        <div
+          onClick={closeBuyModal}
+          className="absolute w-full h-full bg-black/40 backdrop-blur-sm"
+        />
+        <div className="relative bg-white h-32 rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn flex items-center justify-center">
+          <div className="text-xl">Loading property details...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className=" absolute  top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
+    <div className="absolute top-0 z-50 flex items-center justify-center w-full left-0 h-screen">
       {/* Backdrop */}
       <div
         onClick={closeBuyModal}
@@ -183,7 +259,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
       <div className="relative bg-white h-[80vh] lg:h-[90vh] rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar mt-20 lg:mt-0">
         <form
           onSubmit={handleSubmit}
-          className="relative space-y-6  px-7 md:px-14 py-5 rounded-lg shadow-md overflow-y-scroll "
+          className="relative space-y-6 px-7 md:px-14 py-5 rounded-lg shadow-md overflow-y-scroll"
         >
           <span
             onClick={closeBuyModal}
@@ -193,7 +269,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
           </span>
           {/* Personal Details Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Rent Form</h2>
+            <h2 className="text-lg font-semibold text-gray-900">List your property for rent</h2>
           </div>
 
           {/* Property Details Section */}
@@ -385,7 +461,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
             <button
               type="submit"
               disabled={isUploading}
-              className={`w-full bg-white border-[2px] border-black  px-4 py-2 text-black rounded-xl  ${
+              className={`w-full bg-white border-[2px] border-black px-4 py-2 text-black rounded-xl ${
                 isUploading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -393,8 +469,7 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
             </button>
             <button
               onClick={closeBuyModal}
-              className={`w-full bg-black   px-4 py-2 text-white rounded-xl 
-            `}
+              className={`w-full bg-black px-4 py-2 text-white rounded-xl`}
             >
               Cancel
             </button>

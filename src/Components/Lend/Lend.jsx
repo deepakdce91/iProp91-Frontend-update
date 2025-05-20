@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from "react";
-
-import  Calculator  from "./calculator.jsx";
+import React, { useLayoutEffect, useState, useRef } from "react";
+import Calculator from "./calculator.jsx";
 import { Features } from "./features.jsx";
 import { Hero } from "./hero.jsx";
 import Profile from "../User/Profile/profile.jsx";
 
 const Lend = () => {
-  const [hasToken, setHasToken] = useState(false); // State for token presence
+  const [hasToken, setHasToken] = useState(false);
+  const heroRef = useRef(null);
 
-  useEffect(() => {
-
+  useLayoutEffect(() => {
+    // Check token
     const checkToken = () => {
-      setHasToken(!!localStorage.getItem("token")); // Check for token in localStorage
+      setHasToken(!!localStorage.getItem("token"));
     };
-
     checkToken();
-  }, []);
-  
-  useEffect(() => {
-    window.scrollTo(0, 0);
+
+    // Scroll to hero section
+    if (heroRef.current) {
+      heroRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, []);
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* Profile Header */}
-    <Hero />
-    <Calculator />
-    <Features />
-  </main>
+    <div className="min-h-screen bg-white">
+      <div ref={heroRef}>
+        <Hero />
+      </div>
+      <Calculator />
+      <Features />
+    </div>
   );
 };
 
