@@ -35,7 +35,6 @@ import { toast } from "react-hot-toast";
 
 export default function PropertyDetail({ onBack }) {
   const { id } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +63,7 @@ export default function PropertyDetail({ onBack }) {
         console.log("Fetching property details for ID:", id);
 
         const response = await axios.get(
-          `https://iprop91new.onrender.com/api/projectsDataMaster/property/${id}`
+          `${process.env.REACT_APP_API_URL}/api/projectsDataMaster/${id}`
         );
         console.log("API Response:", response.data);
 
@@ -73,30 +72,63 @@ export default function PropertyDetail({ onBack }) {
           console.log("Processing property data:", propertyData);
 
           const processedProperty = {
+        id: propertyData._id,
+        propertyId: propertyData.propertyId,
+        listingId: propertyData.listingId,
+        state: propertyData.state,
+        city: propertyData.city,
+        builder: propertyData.builder,
+        project: propertyData.project,
+        overview: propertyData.overview,
+        address: propertyData.address,
+        pincode: propertyData.pincode,
+        status: propertyData.status,
+        type: propertyData.type,
+        availableFor: propertyData.availableFor,
+        category: propertyData.category,
+        minimumPrice: propertyData.minimumPrice,
+        maximumPrice: propertyData.maximumPrice,
+        bhk: propertyData.bhk,
+        appartmentType: propertyData.appartmentType || [],
+        appartmentSubType: propertyData.appartmentSubType || [],
+        features: propertyData.features || [],
+        amenities: propertyData.amenities || [],
+        commercialHubs: propertyData.commercialHubs || [],
+        hospitals: propertyData.hospitals || [],
+        hotels: propertyData.hotels || [],
+        shoppingCentres: propertyData.shoppingCentres || [],
+        transportationHubs: propertyData.transportationHubs || [],
+        educationalInstitutions: propertyData.educationalInstitutions || [],
+        images: propertyData.images || [],
+        floorPlan: propertyData.floorPlan || [],
+        enable: propertyData.enable,
+        isViewed: propertyData.isViewed,
+        createdAt: propertyData.createdAt,
+        updatedAt: propertyData.updatedAt,
+        floorNumber: propertyData.floorNumber,
+        houseNumber: propertyData.houseNumber,
+        isTitleDeedVerified: propertyData.isTitleDeedVerified,
+        numberOfBathrooms: propertyData.numberOfBathrooms,
+        numberOfBedrooms: propertyData.numberOfBedrooms,
+        numberOfFloors: propertyData.numberOfFloors,
+        numberOfParkings: propertyData.numberOfParkings,
+        numberOfWashrooms: propertyData.numberOfWashrooms,
+        sector: propertyData.sector,
+        size: propertyData.size,
+        thumbnail: propertyData.thumbnail,
             id: propertyData._id,
-            title: `${propertyData.bhk || ""} ${
-              propertyData.type || "Property"
-            } in ${propertyData.project || ""}`,
-            price: propertyData.minimumPrice
-              ? `₹${propertyData.minimumPrice}`
-              : "Price on Request",
-            location: `${propertyData.city}, ${propertyData.state}`,
-            coordinates: {
-              lat: propertyData.latitude || 0,
-              lng: propertyData.longitude || 0,
-            },
-            images: propertyData.images || [],
-            description: propertyData.overview || "",
-            amenities: propertyData.amenities || [],
-            features: propertyData.features || [],
-            bhk: propertyData.bhk,
-            type: propertyData.type,
-            area: propertyData.size,
+            propertyId: propertyData.propertyId,
+            listingId: propertyData.listingId,
+            state: propertyData.state,
+            city: propertyData.city,
+            builder: propertyData.builder,
+            project: propertyData.project,
+            overview: propertyData.overview,
+            address: propertyData.address,
+            pincode: propertyData.pincode,
             status: propertyData.status,
-            bathrooms: propertyData.bathrooms,
-            balconies: propertyData.balconies,
-            flooring: propertyData.flooring,
-            electrical: propertyData.electrical,
+            type: propertyData.type,
+            availableFor: propertyData.availableFor,
             doors: propertyData.doors,
             possessionStatus:
               propertyData.possessionStatus || propertyData.status,
@@ -176,17 +208,7 @@ export default function PropertyDetail({ onBack }) {
     property.location || property.address || "Sector 25 Rohini, New Delhi";
 
   // Amenities (either from API or fallbacks)
-  const amenities = property.amenities || [
-    "Lift",
-    "Power Backup",
-    "Car Parking",
-    "Park",
-    "Security",
-    "Visitor Parking",
-    "Swimming Pool",
-    "Gym",
-    "Club House",
-  ];
+  const amenities = property.amenities || ["no amenities available"];
 
   // Construction status
   const possessionStatus =
@@ -538,15 +560,42 @@ export default function PropertyDetail({ onBack }) {
                 Amenities
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {property.amenities?.map((amenity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-2 bg-gray-900 p-3 rounded-lg border border-gray-800 hover:border-yellow-800 transition"
-                  >
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-gray-300">{amenity}</span>
-                  </div>
-                ))}
+                {(() => {
+                  // Define a master list of possible amenities
+                  const masterAmenities = [
+                    "Lift",
+                    "Power Backup",
+                    "Car Parking",
+                    "Park",
+                    "Security",
+                    "Visitor Parking",
+                    "Swimming Pool",
+                    "Gym",
+                    "Club House",
+                    "Children Play Area",
+                    "Fire Safety",
+                    "CCTV",
+                    "Rain Water Harvesting",
+                    "Intercom",
+                    "Internet/Wi-Fi",
+                    "Maintenance Staff",
+                    "Vastu Compliant"
+                  ];
+                  const available = property.amenities || [];
+                  console.log("Available amenities:", available);
+                  return masterAmenities.map((amenity, index) => {
+                    const isAvailable = available.includes(amenity);
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 bg-gray-900 p-3 rounded-lg border border-gray-800 hover:border-yellow-800 transition"
+                      >
+                        <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-black' : 'bg-gray-400'}`}></div>
+                        <span className={isAvailable ? 'text-black font-semibold' : 'text-gray-400'}>{amenity}</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 

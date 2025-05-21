@@ -1,9 +1,10 @@
 import L from 'leaflet';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import { FaHouseChimney } from "react-icons/fa6";
 
 // Import house icon images
-const houseIconUrl = 'https://cdn-icons-png.flaticon.com/128/609/609803.png';
+
 const nearbyHouseIconUrl = 'https://cdn-icons-png.flaticon.com/128/609/609752.png';
 const activeHouseIconUrl = 'https://cdn-icons-png.flaticon.com/128/609/609752.png';
 const userLocationIconUrl = 'https://cdn-icons-png.flaticon.com/128/684/684908.png';
@@ -11,12 +12,12 @@ const blackHouseIconUrl = 'https://cdn-icons-png.flaticon.com/128/484/484167.png
 
 // Create house icon using image URLs
 export const createHouseIcon = () => {
-  return new L.Icon({
-    iconUrl: houseIconUrl,
+  return L.divIcon({
+    className: 'house-icon',
+    html: <FaHouseChimney />,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -30],
-    className: 'house-icon'
   });
 };
 

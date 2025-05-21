@@ -60,6 +60,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/services/verified-listings": false,
     "/rewards": true, // Added rewards route with dark background
     "/rewards/": true,
+    "/property-listing/": false,
   };
 
   const SidebarIcons = {
@@ -272,7 +273,7 @@ const Navbar = ({ setIsLoggedIn }) => {
       className={`flex items-center justify-between px-10 py-4 ${
         isDarkBg
           ? `${
-              location.pathname.startsWith("/rewards")
+              location.pathname.startsWith("/rewards") || location.pathname.startsWith("/property-listing")
                 ? "bg-black bg-opacity-10 text-black"
                 : "bg-white bg-opacity-10 text-white"
             }`
