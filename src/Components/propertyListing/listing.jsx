@@ -324,6 +324,10 @@ export default function PropertySearchComponent() {
       return `₹${price.toLocaleString()}`;
     }
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   
   // Close city suggestions when clicking outside
   useEffect(() => {
