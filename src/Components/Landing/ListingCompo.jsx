@@ -486,7 +486,7 @@ const ListingCompo = () => {
     }
 
     // Add active tab
-    searchParams.append("availableFor", activeTab);
+    // searchParams.append("availableFor", activeTab);
 
     // Navigate to search-properties with the parameters
     navigate(`/property-listing?${searchParams.toString()}`);
@@ -608,24 +608,7 @@ const ListingCompo = () => {
           {!showMap && (
             <div className="w-full max-w-5xl mx-auto space-y-4 ">
               <div className="w-full   max-w-7xl mx-auto">
-              <div className="flex flex-wrap border-b mx-auto justify-center">
-              {["Buy", "Rent"].map(
-                (tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-6 py-4 text-sm font-medium transition-colors
-                    ${
-                      activeTab === tab
-                        ? "text-gold border-b-2 border-gold"
-                        : "text-gray-600 hover:text-gold"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                )
-              )}
-            </div>
+              
                 <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
 
                   {/* Location Input */}
