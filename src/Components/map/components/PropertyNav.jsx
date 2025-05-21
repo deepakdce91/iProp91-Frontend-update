@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const PropertyNav = () => {
+const PropertyNav = ({ onCategoryChange, counts = {} }) => {
   const [activeCategory, setActiveCategory] = useState('all');
   const scrollRef = useRef(null);
   const tabRefs = useRef({});
@@ -9,15 +9,15 @@ const PropertyNav = () => {
   const [showRightArrow, setShowRightArrow] = useState(true);
   
   const [propertyCategories] = useState([
-    { id: "all", label: "All Properties", count: 0 },
-    { id: "owner", label: "Owner's Property", count: 0 },
-    { id: "new", label: "New Projects", count: 0 },
-    { id: "ready", label: "Ready to Move", count: 0 },
-    { id: "budget", label: "Budget Homes", count: 0 },
-    { id: "prelaunch", label: "Pre Launch", count: 0 },
-    { id: "verified", label: "Verified Owner", count: 0 },
-    { id: "sale", label: "New Sale Properties", count: 0 },
-    { id: "upcoming", label: "Upcoming Projects", count: 0 },
+    { id: "all", label: "All Properties", count: counts.all || 0 },
+    { id: "owner", label: "Owner's Property", count: counts.owner || 0 },
+    { id: "new", label: "New Projects", count: counts.new || 0 },
+    { id: "ready", label: "Ready to Move", count: counts.ready || 0 },
+    { id: "budget", label: "Budget Homes", count: counts.budget || 0 },
+    { id: "prelaunch", label: "Pre Launch", count: counts.prelaunch || 0 },
+    { id: "verified", label: "Verified Owner", count: counts.verified || 0 },
+    { id: "sale", label: "New Sale Properties", count: counts.sale || 0 },
+    { id: "upcoming", label: "Upcoming Projects", count: counts.upcoming || 0 },
   ]);
   
   // Update the indicator position when active category changes
@@ -68,7 +68,18 @@ const PropertyNav = () => {
   
   const handleTabClick = (categoryId) => {
     setActiveCategory(categoryId);
+    // Call the parent handler when category changes
+    if (onCategoryChange) {
+      onCategoryChange(categoryId);
+    }
   };
+
+  // Update counts when they change from parent
+  useEffect(() => {
+    if (counts && Object.keys(counts).length > 0) {
+      // Could update category counts here if needed
+    }
+  }, [counts]);
   
   return (
     <div className="relative flex items-center py-2 px-6 bg-white border-b border-borderColor h-[85px]">
@@ -129,4 +140,4 @@ const PropertyNav = () => {
   );
 };
 
-export default PropertyNav; 
+export default PropertyNav;
