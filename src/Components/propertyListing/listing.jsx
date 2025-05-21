@@ -1,588 +1,729 @@
-import { useState, useEffect } from "react";
-import SearchBar from "./components/searchbar.jsx";
-import FiltersPanel from "./components/FiltersPage.jsx";
-import PropertyCard from "./components/PropertyCard.jsx";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import PropertyCards from "./components/propertyCards.jsx";
-import { useLocation } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { Search, SlidersHorizontal, X, ChevronDown, ArrowUpDown, MapPin, Building, Bed, Bath, Square, Tag, Home, DollarSign } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-function PropertyListing() {
+export default function PropertySearchComponent() {
+  const navigate = useNavigate();
   const location = useLocation();
-  const [showFilters, setShowFilters] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(true);
+  const searchInputRef = useRef(null);
+  
+  // State management
   const [properties, setProperties] = useState([]);
+  const [originalProperties, setOriginalProperties] = useState([]); // Store original data for local sorting
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
   
-  // Initialize URL parameters
-  const searchParams = new URLSearchParams(location.search);
+  // City suggestion states
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
   
-  // Get transaction type from URL (rent/buy)
-  const initialTransactionType = searchParams.get("transactionType") || "buy";
-  const [transactionType, setTransactionType] = useState(initialTransactionType);
-  
-  // Initialize filters from URL parameters
-  const [filters, setFilters] = useState(() => {
-    const urlFilters = {};
-
-    // Get category from URL
-    const category = searchParams.get("category");
-    if (category) {
-      urlFilters.category = category;
-    }
-
-    // Get property type from URL
-    const propertyType = searchParams.get("propertyType");
-    if (propertyType) {
-      urlFilters.propertyType = propertyType.split(",");
-    }
-
-    // Get BHK from URL
-    const bhk = searchParams.get("bhk");
-    if (bhk) {
-      urlFilters.bhk = bhk.split(",");
-    }
-
-    // Get budget range from URL
-    const minBudget = searchParams.get("minBudget");
-    const maxBudget = searchParams.get("maxBudget");
-    if (minBudget) urlFilters.minBudget = minBudget;
-    if (maxBudget) urlFilters.maxBudget = maxBudget;
-
-    // Get location from URL
-    const city = searchParams.get("city");
-    if (city) urlFilters.city = city;
-    
-    // Get amenities from URL
-    const amenities = searchParams.get("amenities");
-    if (amenities) {
-      urlFilters.amenities = amenities.split(",");
-    }
-
-    console.log("URL Filters:", urlFilters);
-    
-    // If URL has filters, use them
-    if (Object.keys(urlFilters).length > 0) {
-      return urlFilters;
-    }
-
-    // Otherwise, check localStorage
-    const savedFilters = localStorage.getItem("propertyFilters");
-    return savedFilters ? JSON.parse(savedFilters) : {};
+  // Search and filter states
+  const [searchCity, setSearchCity] = useState('');
+  const [filters, setFilters] = useState({
+    city: '',
+    minPrice: '',
+    maxPrice: '',
+    bhk: '',
+    amenities: [],
+    status: '',
+    availableFor: '',
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
   });
   
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "relevance");
-  const [favorites, setFavorites] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  // Common amenities for filter options
+  const commonAmenities = [
+    'Swimming Pool', 'Gym', 'Security', 'Park', 
+    'Parking', 'Club House', 'Play Area', 'Garden'
+  ];
   
-  // Set the active category from URL if present
-  const urlCategory = searchParams.get("category");
-  const [activeCategory, setActiveCategory] = useState(() => {
-    // Map URL category to local category ID
-    const categoryMapping = {
-      verified_owner: "verified",
-      new_project: "new",
-      pre_launch: "prelaunch",
-      new_sale: "sale",
-      upcoming_project: "upcoming",
+  // Status options
+  const statusOptions = ['Ready to Move', 'Under Construction', 'Upcoming'];
+  
+  // BHK options
+  const bhkOptions = ['1', '2', '3', '4', '5+'];
+
+  // Available For options
+  const availableForOptions = ['Rent', 'Buy', 'Both'];
+
+  // Parse URL query parameters on component mount
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    
+    // Extract filter values from URL query parameters
+    const filtersFromUrl = {
+      city: queryParams.get('city') || '',
+      minPrice: queryParams.get('minPrice') || '',
+      maxPrice: queryParams.get('maxPrice') || '',
+      bhk: queryParams.get('bhk') || '',
+      status: queryParams.get('status') || '',
+      availableFor: queryParams.get('availableFor') || '',
+      sortBy: queryParams.get('sortBy') || 'createdAt',
+      sortOrder: queryParams.get('sortOrder') || 'desc',
+      amenities: queryParams.get('amenities') ? queryParams.get('amenities').split(',') : []
     };
-    return urlCategory ? (categoryMapping[urlCategory] || "all") : "all";
-  });
-  
-  const [propertyCategories] = useState([
-    { id: "all", label: "All Properties", count: 0 },
-    { id: "new", label: "New Projects", count: 0 },
-    { id: "prelaunch", label: "Pre Launch Homes", count: 0 },
-    { id: "verified", label: "Verified Owner Properties", count: 0 },
-    { id: "sale", label: "New Sale Properties", count: 0 },
-    { id: "upcoming", label: "Upcoming Projects", count: 0 },
-  ]);
-
-  // Get city from URL for selectedCity
-  const urlCity = searchParams.get("city");
-  const [selectedCity, setSelectedCity] = useState(() => {
-    if (urlCity) {
-      return urlCity; // Use city directly from URL
-    }
-    const savedCity = localStorage.getItem("selectedCity");
-    return savedCity ? JSON.parse(savedCity) : null;
-  });
-  
-  // Get state from URL for selectedState (if needed)
-  const [selectedState, setSelectedState] = useState(() => {
-    const savedState = localStorage.getItem("selectedState");
-    return savedState ? JSON.parse(savedState) : null;
-  });
-
-  console.log("Filters:", filters);
-  console.log("Selected City:", selectedCity);
-  console.log("Transaction Type:", transactionType);
-
-  const PrevArrow = ({ onClick }) => (
-    <button
-      onClick={onClick}
-      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2.5 text-gray-600 hover:text-white hover:bg-[#031273] transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#031273]/50 -ml-2 sm:ml-0"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </button>
-  );
-
-  const NextArrow = ({ onClick }) => (
-    <button
-      onClick={onClick}
-      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-2.5 text-gray-600 hover:text-white hover:bg-[#031273] transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#031273]/50 -mr-2 sm:mr-0"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </button>
-  );
-
-  const handleFetchAllProperties = () => {
-    axios
-      .get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster`
-      )
-      .then((res) => {
-        setProperties(res.data.data.projects);
-        console.log(res.data.data.projects);
-      })
-      .catch((err) => console.log(err));
     
-  }
-
-  const sliderSettings = {
-    dots: true,
-    dotsClass: "slick-dots custom-dots",
-    infinite: false,
-    speed: 600,
-    slidesToShow: 8,
-    slidesToScroll: 2,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-    swipeToSlide: true,
-    touchThreshold: 8,
-    cssEase: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    responsive: [
-      {
-        breakpoint: 1280,
-        settings: {
-          slidesToShow: 6,
-          slidesToScroll: 2,
-        },
-      },
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 5,
-          slidesToScroll: 2,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          dots: true,
-        },
-      },
-      {
-        breakpoint: 640,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          dots: true,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1.5,
-          slidesToScroll: 1,
-          dots: true,
-          centerMode: true,
-          centerPadding: "20px",
-        },
-      },
-    ],
+    // Update state with URL parameters
+    setFilters(filtersFromUrl);
+    setSearchCity(filtersFromUrl.city);
+    
+    // Fetch properties with filters from URL
+    fetchProperties(filtersFromUrl);
+    
+    // Fetch cities for suggestions
+    fetchCitySuggestions();
+  }, [location.search]);
+  
+  // Fetch unique cities for suggestions
+  const fetchCitySuggestions = async () => {
+    setLoadingCities(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/cities/unique`);
+      setCitySuggestions(response.data.data || []);
+    } catch (err) {
+      console.error("Error fetching city suggestions:", err);
+    } finally {
+      setLoadingCities(false);
+    }
   };
-
-  // Load filters from localStorage on initial render
-  useEffect(() => {
-    const savedFilters = localStorage.getItem("propertyFilters");
-    if (savedFilters) {
-      setFilters(JSON.parse(savedFilters));
-    }
-  }, []);
-
-  // Save filters to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("propertyFilters", JSON.stringify(filters));
-  }, [filters]);
-
-  // Load favorites from localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem("propertyFavorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
-
-  // Save favorites to localStorage
-  useEffect(() => {
-    localStorage.setItem("propertyFavorites", JSON.stringify(favorites));
-  }, [favorites]);
-
-  // Save selectedState to localStorage
-  useEffect(() => {
-    if (selectedState) {
-      localStorage.setItem("selectedState", JSON.stringify(selectedState));
-    } else {
-      localStorage.removeItem("selectedState");
-    }
-  }, [selectedState]);
-
-  // Save selectedCity to localStorage
-  useEffect(() => {
-    if (selectedCity) {
-      localStorage.setItem("selectedCity", JSON.stringify(selectedCity));
-    } else {
-      localStorage.removeItem("selectedCity");
-    }
-  }, [selectedCity]);
-
-  // Update state when URL parameters change
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
+  
+  // Filter city suggestions based on input
+  const getFilteredCitySuggestions = () => {
+    if (!searchCity) return citySuggestions;
     
-    // Update category
-    const category = searchParams.get("category");
-    if (category) {
-      const categoryMapping = {
-        verified_owner: "verified",
-        new_project: "new",
-        pre_launch: "prelaunch",
-        new_sale: "sale",
-        upcoming_project: "upcoming",
-      };
-      setActiveCategory(categoryMapping[category] || "all");
-    }
-    
-    // Update city
-    const city = searchParams.get("city");
-    if (city && city !== selectedCity) {
-      setSelectedCity(city);
-    }
-    
-    // Update filters if parameters exist
-    const newFilters = {};
-    let hasNewFilters = false;
-    
-    // Property type
-    const propertyType = searchParams.get("propertyType");
-    if (propertyType) {
-      newFilters.propertyType = propertyType.split(",");
-      hasNewFilters = true;
-    }
-    
-    // BHK
-    const bhk = searchParams.get("bhk");
-    if (bhk) {
-      newFilters.bhk = bhk.split(",");
-      hasNewFilters = true;
-    }
-    
-    // Budget
-    const minBudget = searchParams.get("minBudget");
-    const maxBudget = searchParams.get("maxBudget");
-    if (minBudget) {
-      newFilters.minBudget = minBudget;
-      hasNewFilters = true;
-    }
-    if (maxBudget) {
-      newFilters.maxBudget = maxBudget;
-      hasNewFilters = true;
-    }
-    
-    // Transaction type
-    const transType = searchParams.get("transactionType");
-    if (transType) {
-      setTransactionType(transType);
-    }
-    
-    // Apply new filters if any were found
-    if (hasNewFilters) {
-      // Keep existing filters that aren't being updated
-      setFilters(prev => ({ ...prev, ...newFilters }));
-    }
-    
-    // Update sort parameter
-    const sort = searchParams.get("sort");
-    if (sort) {
-      setSortBy(sort);
-    }
-  }, [location.search, selectedCity]);
-
-  const handleFilterChange = (newFilters) => {
-    console.log("Before filter change:", filters); // Debug log
-    console.log("New filters being applied:", newFilters); // Debug log
-
-    setFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        ...newFilters,
-      };
-
-      // For debugging
-      console.log("Updated filters:", updatedFilters);
-
-      return updatedFilters;
+    return citySuggestions.filter(city => 
+      city.toLowerCase().includes(searchCity.toLowerCase())
+    );
+  };
+  
+  // Handle amenity selection
+  const handleAmenityToggle = (amenity) => {
+    setFilters(prev => {
+      const newAmenities = prev.amenities.includes(amenity)
+        ? prev.amenities.filter(a => a !== amenity)
+        : [...prev.amenities, amenity];
+      return { ...prev, amenities: newAmenities };
     });
   };
+  
+  // Function to fetch properties with applied filters
+  const fetchProperties = async (customFilters = {}) => {
+    console.log("Fetching properties with filters:", { ...filters, ...customFilters });
+    setLoading(true);
+    setError(null);
+    
+    // Merge current filters with any custom filters
+    const appliedFilters = { ...filters, ...customFilters };
+    
+    try {
+      // Build query params from filters
+      let url = `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster?`;
+      
+      if (appliedFilters.city) {
+        url += `city=${appliedFilters.city}&`;
+      }
+      
+      if (appliedFilters.bhk) {
+        url += `bhk=${appliedFilters.bhk}&`;
+      }
+      
+      if (appliedFilters.status) {
+        url += `status=${appliedFilters.status}&`;
+      }
+      
+      if (appliedFilters.availableFor) {
+        url += `availableFor=${appliedFilters.availableFor}&`;
+      }
+      
+      if (appliedFilters.minPrice) {
+        url += `minPrice=${appliedFilters.minPrice}&`;
+      }
+      
+      if (appliedFilters.maxPrice) {
+        url += `maxPrice=${appliedFilters.maxPrice}&`;
+      }
+      
+      if (appliedFilters.amenities.length > 0) {
+        url += `amenities=${appliedFilters.amenities.join(',')}&`;
+      }
+      
+      // For local sorting, we'll still include sort parameters on API request
+      // but we'll also sort locally after data is returned
+      url += `sortBy=${appliedFilters.sortBy}&sortOrder=${appliedFilters.sortOrder}`;
+      
+      const response = await axios.get(url);
+      const fetchedProperties = response.data.data.projects;
+      
+      // Store original data
+      setOriginalProperties(fetchedProperties);
+      
+      // Apply local sorting
+      const sortedProperties = applySorting(fetchedProperties, appliedFilters.sortBy, appliedFilters.sortOrder);
+      setProperties(sortedProperties);
+      
+      // Update URL with applied filters
+      updateUrlWithFilters(appliedFilters);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+      setError("Failed to fetch properties. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Function to handle local sorting
+  const applySorting = (propertiesToSort, sortBy, sortOrder) => {
+    if (!propertiesToSort || propertiesToSort.length === 0) return [];
+    
+    return [...propertiesToSort].sort((a, b) => {
+      let valueA, valueB;
+      
+      // Determine sorting values based on sortBy field
+      switch (sortBy) {
+        case 'minimumPrice':
+          valueA = a.minimumPrice || 0;
+          valueB = b.minimumPrice || 0;
+          break;
+        case 'createdAt':
+          valueA = new Date(a.createdAt || 0).getTime();
+          valueB = new Date(b.createdAt || 0).getTime();
+          break;
+        default:
+          valueA = a[sortBy] || 0;
+          valueB = b[sortBy] || 0;
+      }
+      
+      // Apply sort order
+      if (sortOrder === 'asc') {
+        return valueA - valueB;
+      } else {
+        return valueB - valueA;
+      }
+    });
+  };
+  
+  // Update URL with current filters
+  const updateUrlWithFilters = (appliedFilters) => {
+    const queryParams = new URLSearchParams();
+    
+    if (appliedFilters.city) queryParams.set('city', appliedFilters.city);
+    if (appliedFilters.minPrice) queryParams.set('minPrice', appliedFilters.minPrice);
+    if (appliedFilters.maxPrice) queryParams.set('maxPrice', appliedFilters.maxPrice);
+    if (appliedFilters.bhk) queryParams.set('bhk', appliedFilters.bhk);
+    if (appliedFilters.status) queryParams.set('status', appliedFilters.status);
+    if (appliedFilters.availableFor) queryParams.set('availableFor', appliedFilters.availableFor);
+    if (appliedFilters.amenities.length > 0) queryParams.set('amenities', appliedFilters.amenities.join(','));
+    queryParams.set('sortBy', appliedFilters.sortBy);
+    queryParams.set('sortOrder', appliedFilters.sortOrder);
+    
+    // Update URL without triggering a refresh
+    navigate(`?${queryParams.toString()}`, { replace: true });
+  };
+  
+  // Handle city selection from dropdown
+  const handleCitySelect = (city) => {
+    setSearchCity(city);
+    setShowCitySuggestions(false);
+    
+    const newFilters = { ...filters, city };
+    setFilters(newFilters);
+    fetchProperties(newFilters);
+  };
+  
+  // Handle search by city
+  const handleCitySearch = () => {
+    const newFilters = { ...filters, city: searchCity };
+    setFilters(newFilters);
+    fetchProperties(newFilters);
+    setShowCitySuggestions(false);
+  };
+  
+  // Apply all filters
+  const applyFilters = () => {
+    fetchProperties();
+    setShowFilters(false);
+  };
+  
+  // Reset all filters
+  const resetFilters = () => {
+    const resetState = {
+      city: '',
+      minPrice: '',
+      maxPrice: '',
+      bhk: '',
+      amenities: [],
+      status: '',
+      availableFor: '',
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    };
+    
+    setFilters(resetState);
+    setSearchCity('');
+    fetchProperties(resetState);
+    setShowFilters(false);
+  };
 
-  // Debug effect to log when filters change
+  // Function to handle view all button click
+  const handleViewAll = () => {
+    // Reset all filters
+    const resetState = {
+      city: '',
+      minPrice: '',
+      maxPrice: '',
+      bhk: '',
+      amenities: [],
+      status: '',
+      availableFor: '',
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    };
+    
+    // Update state
+    setFilters(resetState);
+    setSearchCity('');
+    
+    // Fetch all properties (no filters)
+    fetchProperties(resetState);
+    
+    // Clear all query parameters from URL
+    navigate('', { replace: true });
+  };
+  
+  // Handle sort change with local sorting
+  const handleSortChange = (sortKey) => {
+    const newSortOrder = filters.sortBy === sortKey && filters.sortOrder === 'asc' ? 'desc' : 'asc';
+    const newFilters = { ...filters, sortBy: sortKey, sortOrder: newSortOrder };
+    setFilters(newFilters);
+    
+    // Apply local sorting to existing data
+    const sortedProperties = applySorting(originalProperties, sortKey, newSortOrder);
+    setProperties(sortedProperties);
+    
+    // Update URL with new sort parameters
+    updateUrlWithFilters(newFilters);
+  };
+  
+  // Navigate to property details page
+  const navigateToPropertyDetails = (propertyId) => {
+    navigate(`/property-details/${propertyId}`);
+  };
+
+  // Format price to readable format
+  const formatPrice = (price) => {
+    if (!price) return "Price on Request";
+    
+    if (price >= 10000000) { // 1 crore or more
+      return `₹${(price / 10000000).toFixed(2)} Cr`;
+    } else if (price >= 100000) { // 1 lakh or more
+      return `₹${(price / 100000).toFixed(2)} L`;
+    } else {
+      return `₹${price.toLocaleString()}`;
+    }
+  };
+  
+  // Close city suggestions when clicking outside
   useEffect(() => {
-    console.log("Filters updated in App state:", filters);
-  }, [filters]);
-
-  const handleSortChange = (e) => {
-    setSortBy(e.target.value);
-  };
-
-  const handlePropertyClick = (property) => {
-    setSelectedProperty(property);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedProperty(null);
-  };
-
-  const handleCategoryClick = (categoryId) => {
-    setActiveCategory(categoryId);
-  };
-
-  if (selectedProperty) {
-    return (
-      <div>
-        <div className="fixed inset-0 bg-[#0a0f19] bg-opacity-50 z-[200] flex items-center justify-center p-4">
-          <div className="bg-[#0a0f19] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold">{selectedProperty.title}</h2>
-                <button
-                  onClick={handleCloseDetails}
-                  className="text-white hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <img
-                    src={selectedProperty.image}
-                    alt={selectedProperty.title}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold">Description</h3>
-                    <p className="text-gray-600 mt-2">
-                      {selectedProperty.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="bg-[#0a0f19] p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4">
-                      Property Details
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-gray-600">Type</p>
-                        <p className="font-medium">{selectedProperty.type}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">BHK</p>
-                        <p className="font-medium">{selectedProperty.bhk}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Area</p>
-                        <p className="font-medium">
-                          {selectedProperty.area} sq.ft
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Price</p>
-                        <p className="font-medium">{selectedProperty.price}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Location</p>
-                        <p className="font-medium">
-                          {selectedProperty.location}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Status</p>
-                        <p className="font-medium">{selectedProperty.status}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    function handleClickOutside(event) {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+        setShowCitySuggestions(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchInputRef]);
+  
+  const filteredCitySuggestions = getFilteredCitySuggestions();
+  
+  return ( 
+    <div className="w-full max-w-7xl mx-auto px-4 py-8 pt-32 ">
+      {/* Search Header */}
+      <div className="mb-8 ml-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Find Your Dream Property</h1>
+        <p className="text-gray-600">Search from thousands of properties across India</p>
       </div>
-    );
-  }
-
-  return (
-    <div className="bg-black pt-[10vh]">
-      <div className="min-h-screen bg-gray-50 ">
-        {showSearchBar && (
-          <SearchBar
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            onFilterChange={handleFilterChange}
-            onOpenFilters={() => setShowFilters(true)}
-            setProperties={setProperties}
-            initialFilters={filters}
-            transactionType={transactionType}
-          />
-        )}
-        <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
-          <div className="relative mb-6 sm:mb-8 pb-6">
-            <style jsx>{`
-              .custom-dots {
-                bottom: -20px;
-                display: flex !important;
-                justify-content: center;
-                gap: 4px;
-                margin-top: 8px;
-              }
-              .custom-dots li {
-                margin: 0;
-              }
-              .custom-dots li button {
-                padding: 0;
-                width: 8px;
-                height: 8px;
-                border-radius: 4px;
-                background: #e2e8f0;
-                transition: all 0.3s ease;
-              }
-              .custom-dots li.slick-active button {
-                width: 20px;
-                background: #031273;
-              }
-              .slick-slide {
-                transition: transform 0.3s ease;
-              }
-            `}</style>
-            <Slider {...sliderSettings} className="px-2 sm:px-8 category-slider">
-              {propertyCategories.map((category) => (
-                <div key={category.id} className="px-1.5 sm:px-2.5 py-2">
-                  <button
-                    onClick={() => handleCategoryClick(category.id)}
-                    className={`w-full flex justify-between items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium shadow-sm transition-all duration-300 transform ${
-                      activeCategory === category.id
-                        ? "bg-[#031273] text-nowrap text-white scale-105 shadow-md ring-2 ring-[#031273]/20"
-                        : "text-gray-700 text-nowrap bg-white hover:bg-gray-50 hover:shadow hover:scale-105"
-                    }`}
-                  >
-                    {category.label}
-                    <span
-                      className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-semibold min-w-[20px] inline-flex justify-center ${
-                        activeCategory === category.id
-                          ? "bg-white/20 text-white"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {category.count}
-                    </span>
-                  </button>
-                </div>
-              ))}
-            </Slider>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 text-sm">Sort by:</span>
-              <select
-                className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1 text-xs sm:text-sm bg-white"
-                value={sortBy}
-                onChange={handleSortChange}
-              >
-                <option value="relevance">Relevance</option>
-                <option value="price-low-to-high">Price - Low to High</option>
-                <option value="price-high-to-low">Price - High to Low</option>
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
+      
+      {/* Search and Filter Bar */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
+          {/* City Search Input with Suggestions */}
+          <div className="relative flex-grow w-full" ref={searchInputRef}>
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <MapPin className="h-5 w-5 text-gray-400" />
             </div>
-            <div>
+            <input
+              type="text"
+              className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
+              placeholder="Search by city (e.g., Bangalore, Mumbai)"
+              value={searchCity}
+              onChange={(e) => setSearchCity(e.target.value)}
+              onFocus={() => setShowCitySuggestions(true)}
+              onKeyPress={(e) => e.key === 'Enter' && handleCitySearch()}
+            />
+            
+            {/* City Suggestions Dropdown */}
+            {showCitySuggestions && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {loadingCities ? (
+                  <div className="p-3 text-center text-gray-500">Loading cities...</div>
+                ) : filteredCitySuggestions.length > 0 ? (
+                  filteredCitySuggestions.map((city, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleCitySelect(city)}
+                    >
+                      {city}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-gray-500">No cities found</div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Search Button */}
+          <button
+            className="w-full md:w-auto px-6 py-3 bg-[#0E1524] text-white font-medium rounded-lg hover:bg-opacity-90 flex items-center justify-center gap-2"
+            onClick={handleCitySearch}
+          >
+            <Search className="h-5 w-5" />
+            <span>Search</span>
+          </button>
+          
+          {/* Filter Toggle Button */}
+          <button
+            className={`w-full md:w-auto px-6 py-3 font-medium rounded-lg flex items-center justify-center gap-2 ${
+              showFilters ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="h-5 w-5" />
+            <span>Filters</span>
+          </button>
+          
+          {/* View All Button */}
+          <button
+            className="w-full md:w-40 px-6 py-3 font-medium rounded-lg flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            onClick={handleViewAll}
+          >
+            {/* <Home className="h-5 w-5" /> */}
+            View All
+          </button>
+        </div>
+        
+        {/* Expanded Filters Section */}
+        {showFilters && (
+          <div className="bg-gray-50 rounded-lg p-4 mt-4 border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Price Range */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Price Range</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
+                    value={filters.minPrice}
+                    onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                  />
+                  <span className="text-gray-500">to</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
+                    value={filters.maxPrice}
+                    onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              {/* BHK Options */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">BHK</label>
+                <div className="flex flex-wrap gap-2">
+                  {bhkOptions.map(bhk => (
+                    <button
+                      key={bhk}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        filters.bhk === bhk 
+                          ? 'bg-[#0E1524] text-white border border-[#0E1524]' 
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200'
+                      }`}
+                      onClick={() => setFilters({...filters, bhk: filters.bhk === bhk ? '' : bhk})}
+                    >
+                      {bhk} BHK
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Status Options */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <div className="flex flex-wrap gap-2">
+                  {statusOptions.map(status => (
+                    <button
+                      key={status}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        filters.status === status 
+                          ? 'bg-[#0E1524] text-white border border-[#0E1524]' 
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200'
+                      }`}
+                      onClick={() => setFilters({...filters, status: filters.status === status ? '' : status})}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Amenities */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Amenities</label>
+                <div className="flex flex-wrap gap-2">
+                  {commonAmenities.slice(0, 4).map(amenity => (
+                    <button
+                      key={amenity}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        filters.amenities.includes(amenity) 
+                          ? 'bg-[#0E1524] text-white border border-[#0E1524]' 
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200'
+                      }`}
+                      onClick={() => handleAmenityToggle(amenity)}
+                    >
+                      {amenity}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Available For Options - New Filter */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Available For</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableForOptions.map(option => (
+                    <button
+                      key={option}
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        filters.availableFor === option.toLowerCase() 
+                          ? 'bg-[#0E1524] text-white border border-[#0E1524]' 
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200'
+                      }`}
+                      onClick={() => setFilters({...filters, availableFor: filters.availableFor === option.toLowerCase() ? '' : option.toLowerCase()})}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Filter Action Buttons */}
+            <div className="flex justify-end gap-4 mt-4 pt-4 border-t border-gray-200">
               <button
-                className="px-4 py-2 text-white bg-[#031273] hover:bg-[#031273]/90 rounded-lg"
-                onClick={() => handleFetchAllProperties()} 
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                onClick={resetFilters}
               >
-                Fetch All Properties
+                Reset All
+              </button>
+              <button
+                className="px-4 py-2 bg-[#0E1524] text-white font-medium rounded hover:bg-opacity-90"
+                onClick={applyFilters}
+              >
+                Apply Filters
               </button>
             </div>
           </div>
-
-          <PropertyCards
-            propertyCategories={propertyCategories}
-            selectedCity={selectedCity}
-            properties={properties}
-            setProperties={setProperties}
-            filters={filters}
-            sortBy={sortBy}
-            activeCategory={activeCategory}
-            favorites={favorites}
-            onPropertyClick={handlePropertyClick}
-            transactionType={transactionType}
-          />
-        </div>
-
-        <FiltersPanel
-          isVisible={showFilters}
-          onClose={() => setShowFilters(false)}
-          onApplyFilters={handleFilterChange}
-          onVisibilityChange={(isVisible) => {
-            setShowFilters(isVisible);
-            setShowSearchBar(!isVisible);
-          }}
-          selectedState={selectedState}
-          setSelectedState={setSelectedState}
-          selectedCity={selectedCity}
-          setSelectedCity={setSelectedCity}
-        />
+        )}
       </div>
+      
+      {/* Sort Options */}
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <div className="text-sm text-gray-500 mb-2 md:mb-0">
+          {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <button 
+            className={`px-3 py-1 text-sm rounded flex items-center gap-1 ${
+              filters.sortBy === 'minimumPrice' ? 'bg-[#0E1524] text-white' : 'bg-gray-100'
+            }`}
+            onClick={() => handleSortChange('minimumPrice')}
+          >
+            Price
+            <ArrowUpDown className="h-3 w-3" />
+          </button>
+          
+          <button 
+            className={`px-3 py-1 text-sm rounded flex items-center gap-1 ${
+              filters.sortBy === 'createdAt' ? 'bg-[#0E1524] text-white' : 'bg-gray-100'
+            }`}
+            onClick={() => handleSortChange('createdAt')}
+          >
+            Latest
+            <ArrowUpDown className="h-3 w-3" />
+          </button>
+        </div>
+      </div>
+      
+      {/* Property Results */}
+{loading ? (
+  <div className="flex justify-center items-center h-64">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
+  </div>
+) : error ? (
+  <div className="bg-red-50 text-red-700 p-4 rounded-lg text-center">
+    {error}
+  </div>
+) : properties.length === 0 ? (
+  <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+    <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+    <h3 className="text-lg font-medium text-gray-800 mb-2">No properties found</h3>
+    <p className="text-gray-600">Try adjusting your search criteria or explore other locations</p>
+  </div>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {properties.map((property) => (
+      <div key={property._id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col h-full">
+        {/* Property Image */}
+        <div className="relative h-48 overflow-hidden bg-gray-200">
+          {property.images && property.images.length > 0 ? (
+            <img 
+              src={property.images[0].path || "/images/prophero.jpg"} 
+              alt={property.project || "Property"} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img 
+              src={"/images/prophero.jpg"} 
+              alt={"Property"} 
+              className="w-full h-full object-cover"
+            />
+          )}
+          
+          {/* Status Badge */}
+          {property.status && (
+            <div className="absolute top-3 right-3">
+              <span className={`px-2 py-1 text-xs font-medium rounded ${
+                property.status.toLowerCase().includes('ready') 
+                  ? 'bg-green-100 text-green-800' 
+                  : property.status.toLowerCase().includes('construction')
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-blue-100 text-blue-800'
+              }`}>
+                {property.status}
+              </span>
+            </div>
+          )}
+          
+          {/* Available For Badge */}
+          {property.availableFor && (
+            <div className="absolute bottom-2 right-3">
+              <span className={`px-2 py-1 text-xs font-medium rounded ${
+                property.availableFor.toLowerCase() === 'rent' 
+                  ? 'bg-indigo-100 text-indigo-800' 
+                  : property.availableFor.toLowerCase() === 'buy'
+                    ? 'bg-indigo-100 text-indigo-800'
+                    : 'bg-indigo-100 text-indigo-800'
+              }`}>
+                {property.availableFor}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Property Details - This section will stretch as needed */}
+        <div className="p-4 flex-grow flex flex-col">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
+              {property.project || "Unnamed Project"}
+            </h3>
+            <div className="text-[#0E1524] font-semibold">
+              {formatPrice(property.minimumPrice)}
+            </div>
+          </div>
+          
+          <div className="flex items-center text-gray-600 text-sm mb-2">
+            <MapPin className="h-4 w-4 mr-1" />
+            <span className="line-clamp-1">
+              {[property.sector, property.city, property.state].filter(Boolean).join(', ')}
+            </span>
+          </div>
+          
+          {/* Property Features */}
+          <div className="flex flex-wrap gap-3 my-3">
+            {property.bhk && (
+              <div className="flex items-center text-gray-700 text-sm">
+                <Bed className="h-4 w-4 mr-1" />
+                <span>{property.bhk} BHK</span>
+              </div>
+            )}
+            
+            {property.size && (
+              <div className="flex items-center text-gray-700 text-sm">
+                <Square className="h-4 w-4 mr-1" />
+                <span>{property.size} {property.sizeUnit || 'sq.ft'}</span>
+              </div>
+            )}
+            
+            {property.appartmentType && (
+              <div className="flex items-center text-gray-700 text-sm">
+                <Building className="h-4 w-4 mr-1" />
+                <span>{property.appartmentType}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Amenities */}
+          {property.amenities && property.amenities.length > 0 && (
+            <div className="mt-3 border-t pt-3 border-gray-100">
+              <div className="flex flex-wrap gap-1">
+                {property.amenities.slice(0, 3).map((amenity, index) => (
+                  <span key={index} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                    {amenity}
+                  </span>
+                ))}
+                {property.amenities.length > 3 && (
+                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                    +{property.amenities.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Builder Info */}
+          {property.builder && (
+            <div className="mt-3 text-xs text-gray-500">
+              By: {property.builder}
+            </div>
+          )}
+          
+          {/* Spacer to push button to bottom */}
+          <div className="flex-grow"></div>
+          
+          {/* View Details Button - Always at bottom */}
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <button 
+              className="w-full py-2 bg-[#0E1524] hover:bg-opacity-90 text-white font-medium rounded text-center transition-colors"
+              onClick={() => navigateToPropertyDetails(property._id)}
+            >
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
     </div>
   );
 }
-
-export default PropertyListing;
