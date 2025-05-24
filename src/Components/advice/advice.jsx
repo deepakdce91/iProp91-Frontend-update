@@ -78,7 +78,10 @@ export default function Advice() {
           </div>
           <DraftAgreementsList/>
           {/* <Que /> */}
+
+          <div className="bg-black">
           <Call />
+          </div>
           {/* <ContactUs /> */}
         </div>
     </section>

@@ -37,7 +37,7 @@ const CompComponent = ({ item }) => {
         <div className="bg-white h-full shadow-md flex flex-row">
           {imagesToShow === 1 && (
             <div className="flex w-full flex-col items-center justify-center">
-              <div className="flex items-center justify-center h-[180px]">
+              <div className="flex items-center justify-center h-full">
                 <img
                   src={hasImage1 ? item.centerImage1.url : item.centerImage2.url}
                   alt={hasImage1 ? item.centerImage1.name : item.centerImage2.name}
@@ -52,8 +52,8 @@ const CompComponent = ({ item }) => {
           
           {imagesToShow === 2 && (
             <>
-              <div className="flex w-1/2 flex-col items-center justify-center">
-                <div className="flex items-center justify-center h-[140px]">
+              <div className="flex w-1/2 flex-col items-center justify-center ">
+                <div className="flex items-center justify-center h-[140px] ">
                   <img
                     src={item.centerImage1.url}
                     alt={item.centerImage1.name}

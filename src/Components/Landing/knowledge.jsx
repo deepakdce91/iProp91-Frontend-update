@@ -65,7 +65,6 @@ const links = [
       <svg
         className="h-10 w-10 text-white fill-white"
         xmlns="http://www.w3.org/2000/svg"
-        
         viewBox="0 0 100 100"
       >
         <g>
@@ -120,8 +119,8 @@ const Knowledge = () => {
   }, [location]);
 
   return (
-    <div id="knowledge-section" className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-28 lg:py-6 bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]">
-      <h1 className="text-3xl text-center md:text-6xl font-semibold text-white py-6 ">
+    <div id="knowledge-section" className="flex flex-col items-center justify-center min-h-screen md:px-12 md:py-20 p-6 lg:px-24 lg:py-6 bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]">
+      <h1 className="text-3xl text-center md:text-6xl font-semibold text-white py-6 mb-6 ">
         Empowering your ownership <br /> experience with knowledge
       </h1>
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ">
@@ -132,17 +131,19 @@ const Knowledge = () => {
             className="group"
             state={{ fromKnowledgeCenter: true }}
           >
-            <div className="relative md:min-h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold ">
-              <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-black/80 transition-all duration-300 group-hover:scale-[10]"></span>
-              <div className="relative z-10 mx-auto max-w-md ">
-                <span className="grid h-20 w-20 place-items-center rounded-full bg-black transition-all duration-300 ">
-                  {link.svg}
-                </span>
-                <div className="space-y-6 pt-2 md:pt-10 text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-white/90">
-                  <p>
-                    Empower your knowledge in {link.title.toLowerCase()} to make
-                    informed decisions.
-                  </p>
+            <div className="relative w-full h-60 sm:h-80 md:h-96 cursor-pointer overflow-hidden bg-white px-6 py-5 md:pt-10 md:pb-8 shadow-md ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 rounded-lg border-b-[5px] border-r-gold border-r-[5px] border-b-gold hover:shadow-lg hover:shadow-gold">
+              <span className="absolute top-10 z-0 h-12 w-12 left-10 rounded-full bg-black/80 transition-all duration-300 group-hover:scale-[15]"></span>
+              <div className="relative z-10 mx-auto max-w-md h-full flex flex-col justify-between">
+                <div>
+                  <span className="grid h-20 w-20 place-items-center rounded-full bg-black transition-all duration-300">
+                    {link.svg}
+                  </span>
+                  <div className="space-y-6 pt-2 md:pt-10 text-base leading-7 text-gray-600 transition-all duration-300 group-hover:text-white/90">
+                    <p>
+                      Empower your knowledge in {link.title.toLowerCase()} to make
+                      informed decisions.
+                    </p>
+                  </div>
                 </div>
                 <div className="pt-5 text-base font-semibold leading-7">
                   <span className="text-black transition-all duration-300 group-hover:text-white">

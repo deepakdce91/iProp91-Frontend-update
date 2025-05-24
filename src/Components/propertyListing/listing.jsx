@@ -7,6 +7,8 @@ export default function PropertySearchComponent() {
   const navigate = useNavigate();
   const location = useLocation();
   const searchInputRef = useRef(null);
+  const cityDropdownRef = useRef(null);
+  const sectorDropdownRef = useRef(null);
   
   // State management
   const [properties, setProperties] = useState([]);
@@ -20,10 +22,20 @@ export default function PropertySearchComponent() {
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
   
+  // Dropdown states
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedSector, setSelectedSector] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showSectorDropdown, setShowSectorDropdown] = useState(false);
+  const [sectorSuggestions, setSectorSuggestions] = useState([]);
+  const [loadingSectors, setLoadingSectors] = useState(false);
+  
   // Search and filter states
   const [searchCity, setSearchCity] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // New state for general search
   const [filters, setFilters] = useState({
     city: '',
+    sector: '',
     minPrice: '',
     maxPrice: '',
     bhk: '',
@@ -56,6 +68,7 @@ export default function PropertySearchComponent() {
     // Extract filter values from URL query parameters
     const filtersFromUrl = {
       city: queryParams.get('city') || '',
+      sector: queryParams.get('sector') || '',
       minPrice: queryParams.get('minPrice') || '',
       maxPrice: queryParams.get('maxPrice') || '',
       bhk: queryParams.get('bhk') || '',
@@ -66,12 +79,27 @@ export default function PropertySearchComponent() {
       amenities: queryParams.get('amenities') ? queryParams.get('amenities').split(',') : []
     };
     
+    // Extract search query from URL
+    const searchQueryFromUrl = queryParams.get('q') || '';
+    
     // Update state with URL parameters
     setFilters(filtersFromUrl);
     setSearchCity(filtersFromUrl.city);
+    setSearchQuery(searchQueryFromUrl);
+    setSelectedCity(filtersFromUrl.city);
+    setSelectedSector(filtersFromUrl.sector);
     
-    // Fetch properties with filters from URL
-    fetchProperties(filtersFromUrl);
+    // If city is selected from URL, fetch sectors
+    if (filtersFromUrl.city) {
+      fetchSectorsByCity(filtersFromUrl.city);
+    }
+    
+    // If there's a search query, perform master search, otherwise fetch with filters
+    if (searchQueryFromUrl) {
+      performMasterSearch(searchQueryFromUrl);
+    } else {
+      fetchProperties(filtersFromUrl);
+    }
     
     // Fetch cities for suggestions
     fetchCitySuggestions();
@@ -90,12 +118,66 @@ export default function PropertySearchComponent() {
     }
   };
   
+  // Fetch sectors by city
+  const fetchSectorsByCity = async (city) => {
+    if (!city) {
+      setSectorSuggestions([]);
+      return;
+    }
+    
+    setLoadingSectors(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/getSectorsByCity/${encodeURIComponent(city)}`);
+      setSectorSuggestions(response.data.sectors || []);
+    } catch (err) {
+      console.error("Error fetching sectors:", err);
+      setSectorSuggestions([]);
+    } finally {
+      setLoadingSectors(false);
+    }
+  };
+  
+  // Master search function using the new API endpoint
+  const performMasterSearch = async (query) => {
+    if (!query.trim()) {
+      // If query is empty, fetch all properties with current filters
+      fetchProperties();
+      return;
+    }
+    
+    console.log("Performing master search with query:", query);
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/search?q=${encodeURIComponent(query)}`);
+      const fetchedProperties = response.data.data.projects || [];
+      
+      // Store original data
+      setOriginalProperties(fetchedProperties);
+      console.log("Fetched properties via master:", fetchedProperties);
+      
+      // Apply local sorting
+      const sortedProperties = applySorting(fetchedProperties, filters.sortBy, filters.sortOrder);
+      setProperties(sortedProperties);
+      
+      // Update URL with search query
+      updateUrlWithSearch(query);
+    } catch (err) {
+      console.error("Error performing master search:", err);
+      setError("Failed to search properties. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   // Filter city suggestions based on input
   const getFilteredCitySuggestions = () => {
-    if (!searchCity) return citySuggestions;
+    if (!searchCity && !searchQuery) return citySuggestions;
     
+    const searchTerm = searchQuery || searchCity;
     return citySuggestions.filter(city => 
-      city.toLowerCase().includes(searchCity.toLowerCase())
+      city.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
   
@@ -107,6 +189,38 @@ export default function PropertySearchComponent() {
         : [...prev.amenities, amenity];
       return { ...prev, amenities: newAmenities };
     });
+  };
+  
+  // Handle city selection from dropdown
+  const handleCitySelect = (city) => {
+    setSelectedCity(city);
+    setSelectedSector(''); // Reset sector when city changes
+    setShowCityDropdown(false);
+    
+    // Clear search query when using city filter
+    setSearchQuery('');
+    
+    // Fetch sectors for the selected city
+    fetchSectorsByCity(city);
+    
+    // Update filters and fetch properties
+    const newFilters = { ...filters, city, sector: '' };
+    setFilters(newFilters);
+    fetchProperties(newFilters);
+  };
+  
+  // Handle sector selection from dropdown
+  const handleSectorSelect = (sector) => {
+    setSelectedSector(sector);
+    setShowSectorDropdown(false);
+    
+    // Clear search query when using sector filter
+    setSearchQuery('');
+    
+    // Update filters and fetch properties
+    const newFilters = { ...filters, sector };
+    setFilters(newFilters);
+    fetchProperties(newFilters);
   };
   
   // Function to fetch properties with applied filters
@@ -124,6 +238,10 @@ export default function PropertySearchComponent() {
       
       if (appliedFilters.city) {
         url += `city=${appliedFilters.city}&`;
+      }
+      
+      if (appliedFilters.sector) {
+        url += `sector=${appliedFilters.sector}&`;
       }
       
       if (appliedFilters.bhk) {
@@ -210,6 +328,7 @@ export default function PropertySearchComponent() {
     const queryParams = new URLSearchParams();
     
     if (appliedFilters.city) queryParams.set('city', appliedFilters.city);
+    if (appliedFilters.sector) queryParams.set('sector', appliedFilters.sector);
     if (appliedFilters.minPrice) queryParams.set('minPrice', appliedFilters.minPrice);
     if (appliedFilters.maxPrice) queryParams.set('maxPrice', appliedFilters.maxPrice);
     if (appliedFilters.bhk) queryParams.set('bhk', appliedFilters.bhk);
@@ -223,26 +342,48 @@ export default function PropertySearchComponent() {
     navigate(`?${queryParams.toString()}`, { replace: true });
   };
   
-  // Handle city selection from dropdown
-  const handleCitySelect = (city) => {
-    setSearchCity(city);
-    setShowCitySuggestions(false);
+  // Update URL with search query
+  const updateUrlWithSearch = (query) => {
+    const queryParams = new URLSearchParams();
+    if (query) queryParams.set('q', query);
     
-    const newFilters = { ...filters, city };
-    setFilters(newFilters);
-    fetchProperties(newFilters);
+    // Update URL without triggering a refresh
+    navigate(`?${queryParams.toString()}`, { replace: true });
   };
   
-  // Handle search by city
-  const handleCitySearch = () => {
-    const newFilters = { ...filters, city: searchCity };
-    setFilters(newFilters);
-    fetchProperties(newFilters);
+  // Handle city selection from search dropdown
+  const handleCitySelectFromSearch = (city) => {
+    setSearchCity(city);
+    setSearchQuery(city); // Update search query as well
     setShowCitySuggestions(false);
+    
+    // Perform master search with the selected city
+    performMasterSearch(city);
+  };
+  
+  // Modified search handler to use master search API
+  const handleSearch = () => {
+    const query = searchQuery || searchCity;
+    if (query.trim()) {
+      performMasterSearch(query.trim());
+    } else {
+      // If search is empty, fetch all properties with current filters
+      fetchProperties();
+    }
+    setShowCitySuggestions(false);
+  };
+  
+  // Handle search input change
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setSearchCity(value); // Keep both in sync for backwards compatibility
   };
   
   // Apply all filters
   const applyFilters = () => {
+    // Clear search query when applying filters
+    setSearchQuery('');
     fetchProperties();
     setShowFilters(false);
   };
@@ -251,6 +392,7 @@ export default function PropertySearchComponent() {
   const resetFilters = () => {
     const resetState = {
       city: '',
+      sector: '',
       minPrice: '',
       maxPrice: '',
       bhk: '',
@@ -263,6 +405,10 @@ export default function PropertySearchComponent() {
     
     setFilters(resetState);
     setSearchCity('');
+    setSearchQuery('');
+    setSelectedCity('');
+    setSelectedSector('');
+    setSectorSuggestions([]);
     fetchProperties(resetState);
     setShowFilters(false);
   };
@@ -272,6 +418,7 @@ export default function PropertySearchComponent() {
     // Reset all filters
     const resetState = {
       city: '',
+      sector: '',
       minPrice: '',
       maxPrice: '',
       bhk: '',
@@ -285,6 +432,10 @@ export default function PropertySearchComponent() {
     // Update state
     setFilters(resetState);
     setSearchCity('');
+    setSearchQuery('');
+    setSelectedCity('');
+    setSelectedSector('');
+    setSectorSuggestions([]);
     
     // Fetch all properties (no filters)
     fetchProperties(resetState);
@@ -304,7 +455,13 @@ export default function PropertySearchComponent() {
     setProperties(sortedProperties);
     
     // Update URL with new sort parameters
-    updateUrlWithFilters(newFilters);
+    if (searchQuery) {
+      // If we're in search mode, maintain the search query
+      updateUrlWithSearch(searchQuery);
+    } else {
+      // Otherwise update with filters
+      updateUrlWithFilters(newFilters);
+    }
   };
   
   // Navigate to property details page
@@ -329,11 +486,17 @@ export default function PropertySearchComponent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
   
-  // Close city suggestions when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchInputRef.current && !searchInputRef.current.contains(event.target)) {
         setShowCitySuggestions(false);
+      }
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target)) {
+        setShowCityDropdown(false);
+      }
+      if (sectorDropdownRef.current && !sectorDropdownRef.current.contains(event.target)) {
+        setShowSectorDropdown(false);
       }
     }
     
@@ -341,7 +504,7 @@ export default function PropertySearchComponent() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [searchInputRef]);
+  }, []);
   
   const filteredCitySuggestions = getFilteredCitySuggestions();
   
@@ -356,47 +519,48 @@ export default function PropertySearchComponent() {
       {/* Search and Filter Bar */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
-          {/* City Search Input with Suggestions */}
+          {/* Search Input with Suggestions - Modified for general search */}
           <div className="relative flex-grow w-full" ref={searchInputRef}>
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <MapPin className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"
               className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
-              placeholder="Search by city (e.g., Bangalore, Mumbai)"
-              value={searchCity}
-              onChange={(e) => setSearchCity(e.target.value)}
+              placeholder="Search properties, locations, projects..."
+              value={searchQuery}
+              onChange={handleSearchInputChange}
               onFocus={() => setShowCitySuggestions(true)}
-              onKeyPress={(e) => e.key === 'Enter' && handleCitySearch()}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
             
-            {/* City Suggestions Dropdown */}
-            {showCitySuggestions && (
+            {/* City Suggestions Dropdown - Show when focusing on search */}
+            {showCitySuggestions && searchQuery && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                 {loadingCities ? (
-                  <div className="p-3 text-center text-gray-500">Loading cities...</div>
+                  <div className="p-3 text-center text-gray-500">Loading suggestions...</div>
                 ) : filteredCitySuggestions.length > 0 ? (
                   filteredCitySuggestions.map((city, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleCitySelect(city)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                      onClick={() => handleCitySelectFromSearch(city)}
                     >
+                      <MapPin className="h-4 w-4 mr-2 text-gray-400" />
                       {city}
                     </div>
                   ))
                 ) : (
-                  <div className="p-3 text-center text-gray-500">No cities found</div>
+                  <div className="p-3 text-center text-gray-500">No suggestions found</div>
                 )}
               </div>
             )}
           </div>
           
-          {/* Search Button */}
+          {/* Search Button - Modified to use master search */}
           <button
             className="w-full md:w-auto px-6 py-3 bg-[#0E1524] text-white font-medium rounded-lg hover:bg-opacity-90 flex items-center justify-center gap-2"
-            onClick={handleCitySearch}
+            onClick={handleSearch}
           >
             <Search className="h-5 w-5" />
             <span>Search</span>
@@ -415,12 +579,91 @@ export default function PropertySearchComponent() {
           
           {/* View All Button */}
           <button
-            className="w-full md:w-40 px-6 py-3 font-medium rounded-lg flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            className="w-full md:w-40 px-6 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
             onClick={handleViewAll}
           >
-            {/* <Home className="h-5 w-5" /> */}
             View All
           </button>
+        </div>
+        
+        {/* City and Sector Dropdowns */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          {/* City Dropdown */}
+          <div className="relative flex-1" ref={cityDropdownRef}>
+            <button
+              className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524] flex justify-between items-center bg-white hover:bg-gray-50"
+              onClick={() => setShowCityDropdown(!showCityDropdown)}
+            >
+              <span className={selectedCity ? 'text-gray-900' : 'text-gray-500'}>
+                {selectedCity || 'Select City'}
+              </span>
+              <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showCityDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showCityDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {loadingCities ? (
+                  <div className="p-3 text-center text-gray-500">Loading cities...</div>
+                ) : citySuggestions.length > 0 ? (
+                  citySuggestions.map((city, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                        selectedCity === city ? 'bg-blue-50 text-blue-600' : ''
+                      }`}
+                      onClick={() => handleCitySelect(city)}
+                    >
+                      {city}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-gray-500">No cities found</div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Sector Dropdown */}
+          <div className="relative flex-1" ref={sectorDropdownRef}>
+            <button
+              className={`w-full py-3 px-4 border border-gray-300 rounded-lg flex justify-between items-center bg-white ${
+                selectedCity 
+                  ? 'hover:bg-gray-50 focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]' 
+                  : 'bg-gray-100 cursor-not-allowed'
+              }`}
+              onClick={() => selectedCity && setShowSectorDropdown(!showSectorDropdown)}
+              disabled={!selectedCity}
+            >
+              <span className={selectedSector ? 'text-gray-900' : selectedCity ? 'text-gray-500' : 'text-gray-400'}>
+                {selectedSector || (selectedCity ? 'Select Sector' : 'Select City First')}
+              </span>
+              <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${
+                showSectorDropdown ? 'rotate-180' : ''
+              } ${!selectedCity ? 'opacity-50' : ''}`} />
+            </button>
+            
+            {showSectorDropdown && selectedCity && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {loadingSectors ? (
+                  <div className="p-3 text-center text-gray-500">Loading sectors...</div>
+                ) : sectorSuggestions.length > 0 ? (
+                  sectorSuggestions.map((sector, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                        selectedSector === sector ? 'bg-blue-50 text-blue-600' : ''
+                      }`}
+                      onClick={() => handleSectorSelect(sector)}
+                    >
+                      {sector}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-gray-500">No sectors found</div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Expanded Filters Section */}
@@ -601,13 +844,13 @@ export default function PropertySearchComponent() {
         <div className="relative h-48 overflow-hidden bg-gray-200">
           {property.images && property.images.length > 0 ? (
             <img 
-              src={property.images[0].path || "/images/prophero.jpg"} 
+              src={property.images[0].path || "/images/Logo1.png"} 
               alt={property.project || "Property"} 
               className="w-full h-full object-cover"
             />
           ) : (
             <img 
-              src={"/images/prophero.jpg"} 
+              src={"/images/Logo1.png"} 
               alt={"Property"} 
               className="w-full h-full object-cover"
             />
@@ -623,7 +866,7 @@ export default function PropertySearchComponent() {
                     ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-blue-100 text-blue-800'
               }`}>
-                {property.status}
+                {property.status === "completed" ? "Ready to Move" : property.status}
               </span>
             </div>
           )}
@@ -638,7 +881,7 @@ export default function PropertySearchComponent() {
                     ? 'bg-indigo-100 text-indigo-800'
                     : 'bg-indigo-100 text-indigo-800'
               }`}>
-                {property.availableFor}
+                {property.availableFor === "Both" ? "For Rent & Sale" : property.availableFor}
               </span>
             </div>
           )}
@@ -705,11 +948,11 @@ export default function PropertySearchComponent() {
           )}
           
           {/* Builder Info */}
-          {property.builder && (
+          {/* {property.builder && (
             <div className="mt-3 text-xs text-gray-500">
               By: {property.builder}
             </div>
-          )}
+          )} */}
           
           {/* Spacer to push button to bottom */}
           <div className="flex-grow"></div>
