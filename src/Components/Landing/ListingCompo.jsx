@@ -83,9 +83,26 @@ const CategoryCarousel = ({ categories }) => {
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile screen
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Create an array with duplicated cards for infinite effect
   const infiniteCategories = [...categories, ...categories, ...categories];
+  
+  // Calculate how many items to show and slide step
+  const itemsToShow = isMobile ? 2 : categories.length;
+  const slideStep = isMobile ? 2 : 1;
 
   const handleCategoryClick = (category) => {
     const searchParams = new URLSearchParams();
@@ -111,14 +128,14 @@ const CategoryCarousel = ({ categories }) => {
     setIsTransitioning(true);
 
     setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex + 1;
+      const newIndex = prevIndex + slideStep;
       if (newIndex >= categories.length) {
-        // Reset to the middle section without animation
+        // Reset to the beginning
         setTimeout(() => {
           setCurrentIndex(0);
           setIsTransitioning(false);
         }, 50);
-        return categories.length;
+        return 0;
       }
       setIsTransitioning(false);
       return newIndex;
@@ -131,14 +148,15 @@ const CategoryCarousel = ({ categories }) => {
     setIsTransitioning(true);
 
     setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex - 1;
+      const newIndex = prevIndex - slideStep;
       if (newIndex < 0) {
-        // Reset to the middle section without animation
+        // Go to the last valid position
+        const lastIndex = Math.floor((categories.length - 1) / slideStep) * slideStep;
         setTimeout(() => {
-          setCurrentIndex(categories.length - 1);
+          setCurrentIndex(lastIndex);
           setIsTransitioning(false);
         }, 50);
-        return -1;
+        return lastIndex;
       }
       setIsTransitioning(false);
       return newIndex;
@@ -155,23 +173,23 @@ const CategoryCarousel = ({ categories }) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [isPaused]);
+  }, [isPaused, isMobile]);
 
   return (
     <div className="relative w-full overflow-hidden">
       <div
         className="flex transition-transform duration-500 ease-in-out gap-4"
         style={{
-          transform: `translateX(-${
-            currentIndex * (100 / categories.length)
-          }%)`,
-          width: `${infiniteCategories.length * (100 / categories.length)}%`,
+          transform: isMobile 
+            ? `translateX(-${currentIndex * 50}%)` 
+            : `translateX(-${currentIndex * (100 / categories.length)}%)`,
+          width: isMobile ? '100%' : `${infiniteCategories.length * (100 / categories.length)}%`,
         }}
       >
-        {infiniteCategories.map((category, index) => (
+        {(isMobile ? categories : infiniteCategories).map((category, index) => (
            <motion.div
            key={`${category.title}-${index}`}
-           className="w-[12%] md:w-[12%] lg:w-[10%] flex-shrink-0"
+           className={isMobile ? "w-[60%] flex-shrink-0" : "w-[12%] md:w-[12%] lg:w-[10%] flex-shrink-0"}
            initial={{ opacity: 0, scale: 0.9 }}
            animate={{ opacity: 1, scale: 1 }}
            exit={{ opacity: 0, scale: 0.9 }}
@@ -215,13 +233,6 @@ const CategoryCarousel = ({ categories }) => {
                   >
                     {category.description}
                   </motion.p>
-                  {/* <motion.span
-                    className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded-full inline-block group-hover:bg-black/60"
-                    whileHover={{ y: -5 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {category.count}
-                  </motion.span> */}
                 </motion.div>
               </motion.div>
             </div>
@@ -244,15 +255,19 @@ const CategoryCarousel = ({ categories }) => {
       </button>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-        {categories.map((_, index) => (
+        {(isMobile ? 
+          Array.from({ length: Math.ceil(categories.length / 2) }) :
+          categories
+        ).map((_, index) => (
           <button
             key={index}
             onClick={() => {
-              setCurrentIndex(index);
+              const newIndex = isMobile ? index * 2 : index;
+              setCurrentIndex(newIndex);
               resetTimer();
             }}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              currentIndex % categories.length === index
+              (isMobile ? Math.floor(currentIndex / 2) === index : currentIndex % categories.length === index)
                 ? "bg-white w-4"
                 : "bg-white/50 hover:bg-white/75"
             }`}

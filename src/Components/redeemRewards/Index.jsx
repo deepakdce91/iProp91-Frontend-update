@@ -492,9 +492,9 @@ export default function FirstSafe() {
 
           <div className="flex flex-col md:flex-row justify-center h-full lg:items-start mt-10">
             <div className="md:w-1/3 flex flex-col gap-3">
-              <p className="lg:text-6xl mb-6 text-4xl text-yellow-600 font-bold text-start">
+              {/* <p className="lg:text-6xl mb-6 text-4xl text-yellow-600 font-bold text-start">
                 Rewards
-              </p>
+              </p> */}
               <p className="text-lg">
                 Learn about our rewards program and how you can earn points to redeem exclusive vouchers and discounts.
               </p>

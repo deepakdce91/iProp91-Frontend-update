@@ -29,7 +29,7 @@ export default function Component({data}) {
         );
 
         setSlides(response.data);
-        console.log(response.data);
+        // console.log(response.data);
         
       } catch (error) {
         console.error(
@@ -69,11 +69,12 @@ export default function Component({data}) {
     const isMobile = screenWidth < 768 // md breakpoint
 
     if (isMobile) {
-      // For mobile, we'll only show 3 slides
-      const totalVisibleSlides = 3
+      // For mobile, now showing 5 slides
       const centerIndex = currentIndex
       const prevIndex = (currentIndex - 1 + slides.length) % slides.length
       const nextIndex = (currentIndex + 1) % slides.length
+      const prevPrevIndex = (currentIndex - 2 + slides.length) % slides.length
+      const nextNextIndex = (currentIndex + 2) % slides.length
 
       // Default styles for non-visible slides
       let scale = 0
@@ -81,22 +82,32 @@ export default function Component({data}) {
       let zIndex = 0
       let opacity = 0
 
-      // Adjusted scales and positions for mobile
+      // Adjusted scales and positions for mobile with 5 slides
       if (index === centerIndex) {
-        scale = 1.6  // Increased center scale
+        scale = 1.6  // Center slide
         x = 0
         zIndex = 1000
         opacity = 1
       } else if (index === prevIndex) {
-        scale = 1.1 // Smaller side scales
-        x = -80    // Reduced gap
+        scale = 1.1 // First slide to the left
+        x = -80
         zIndex = 500
         opacity = 0.8
       } else if (index === nextIndex) {
-        scale = 1.1  // Smaller side scales
-        x = 80      // Reduced gap
+        scale = 1.1 // First slide to the right
+        x = 80
         zIndex = 500
         opacity = 0.8
+      } else if (index === prevPrevIndex) {
+        scale = 0.8 // Second slide to the left
+        x = -140
+        zIndex = 300
+        opacity = 0.6
+      } else if (index === nextNextIndex) {
+        scale = 0.8 // Second slide to the right
+        x = 140
+        zIndex = 300
+        opacity = 0.6
       }
 
       return {
@@ -184,7 +195,7 @@ export default function Component({data}) {
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={handleDrag}
             >
-              <a className="cursor-pointer" href={slide.redirectionLink} target="_blank" rel="noopener noreferrer">
+              <a className="cursor-pointer" href={slide.redirectionLink} target="_self" rel="noopener noreferrer">
                 <img
                   src={slide.image.url}
                   alt={`Slide ${index + 1}`}
@@ -196,7 +207,7 @@ export default function Component({data}) {
         </div>
       </div>
       
-      <div className="absolute -bottom-32 md:-bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute -bottom-20 md:-bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
         <button
           className="rounded-full bg-gray-100 hover:shadow-lg hover:shadow-gold border-b-[3px] sm:border-b-[4px] md:border-b-[5px] border-b-gold backdrop-blur-sm hover:scale-110 transition-all p-1 sm:p-2 duration-200"
           onClick={handlePrevious}

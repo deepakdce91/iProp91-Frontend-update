@@ -114,7 +114,7 @@ const Footer = () => {
         <div className="flex justify-center my-1">
           <h1 className="font-semibold text-primary text-2xl">iProp91</h1>
         </div>
-        <div className="flex justify-center space-x-4 my-1">
+        {/* <div className="flex justify-center space-x-4 my-1">
           <Link to="#" aria-label="LinkedIn">
             <i className="fab fa-linkedin text-2xl text-white hover:text-primary"></i>
           </Link>
@@ -130,7 +130,7 @@ const Footer = () => {
           <Link to="#" aria-label="YouTube">
             <i className="fab fa-youtube text-2xl text-white hover:text-primary"></i>
           </Link>
-        </div>
+        </div> */}
       </div>
 
       <div className="mx-auto flex flex-col lg:flex-row">
@@ -223,11 +223,11 @@ const Footer = () => {
                 Site FAQs
               </Link>
             </li>
-            <li className="my-2">
+            {/* <li className="my-2">
               <Link to="/property-journey" className="hover:text-primary">
                 Property Journey Page
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
 
