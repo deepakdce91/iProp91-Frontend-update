@@ -76,7 +76,11 @@ const Navbar = ({ setIsLoggedIn }) => {
     Lend: { icon: RefreshCw, link: "/lend", requiresAuth: false },
     NRI: { icon: Home, link: "/nri", requiresAuth: false },
     Rewards: { icon: Gift, link: "/rewards", requiresAuth: false },
-    "Verified Listings": { icon: Home, link: "/property-for-sale", requiresAuth: false },
+    "Verified Listings": {
+      icon: Home,
+      link: "/property-for-sale",
+      requiresAuth: false,
+    },
   };
 
   const [isServiceClickOpen, setIsServiceClickOpen] = useState(false);
@@ -114,7 +118,7 @@ const Navbar = ({ setIsLoggedIn }) => {
   const handleServiceClick = (serviceName, link, requiresAuth) => {
     setServiceDown(false);
     setIsServiceClickOpen(false);
-    
+
     if (requiresAuth && !user) {
       openAuthModal();
     } else {
@@ -218,7 +222,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setIsMobileMenuOpen(false);
     }
-    
+
     // For services dropdown, we'll use onBlur instead of this click handler
   };
 
@@ -280,18 +284,18 @@ const Navbar = ({ setIsLoggedIn }) => {
       // Save current scroll position
       const scrollY = window.scrollY;
       // Add styles to lock the body
-      document.body.style.position = 'fixed';
+      document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      document.body.style.width = "100%";
     } else {
       // Get the scroll position from body top property
       const scrollY = document.body.style.top;
       // Remove styles
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
       // Restore scroll position
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      window.scrollTo(0, parseInt(scrollY || "0") * -1);
     }
   }, [isMobileMenuOpen, isAuthModalOpen]);
 
@@ -300,7 +304,8 @@ const Navbar = ({ setIsLoggedIn }) => {
       className={`flex items-center justify-between px-10 py-4 ${
         isDarkBg
           ? `${
-              location.pathname.startsWith("/rewards") || location.pathname.startsWith("/property-listing")
+              location.pathname.startsWith("/rewards") ||
+              location.pathname.startsWith("/property-listing")
                 ? "bg-black bg-opacity-10 text-black"
                 : "bg-white bg-opacity-10 text-white"
             }`
@@ -323,10 +328,10 @@ const Navbar = ({ setIsLoggedIn }) => {
         />
         <p>iProp91</p>
       </Link>
-      
+
       {/* Desktop Links */}
       <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base">
-        <div 
+        <div
           className="hover:text-white/80 relative"
           ref={servicesDropdownRef}
           onBlur={handleCloseDropdown}
@@ -343,14 +348,15 @@ const Navbar = ({ setIsLoggedIn }) => {
             <span className="whitespace-nowrap font-medium">Services</span>
             <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
           </div>
-          
+
           {/* Services Dropdown - Shows on hover or click with animation */}
-          <div 
+          <div
             className={`absolute top-8 left-0 z-10 transition-all duration-300 ease-in-out transform
-              ${serviceDown ? 
-                "opacity-100 translate-y-2 pointer-events-auto" : 
-                "opacity-0 translate-y-0 pointer-events-none"}`
-            }
+              ${
+                serviceDown
+                  ? "opacity-100 translate-y-2 pointer-events-auto"
+                  : "opacity-0 translate-y-0 pointer-events-none"
+              }`}
             onMouseEnter={() => {
               handleCancelCloseDropdown();
               setServiceDown(true);
@@ -362,29 +368,39 @@ const Navbar = ({ setIsLoggedIn }) => {
           >
             <div className="bg-white rounded-md shadow-lg overflow-hidden w-48">
               <div className="p-3 lg:p-4 text-black flex flex-col gap-3 text-base">
-                <button 
-                  onClick={() => handleServiceClick("Concierge", "/services/concierge", true)}
+                <button
+                  onClick={() =>
+                    handleServiceClick("Concierge", "/services/concierge", true)
+                  }
                   className="hover:text-gray-600 transition-colors duration-200 text-left"
                 >
                   Concierge
                 </button>
                 <div className="border-t border-gray-200 my-1"></div>
-                <button 
-                  onClick={() => handleServiceClick("Owners' Club", "/services/owners-club", true)}
+                <button
+                  onClick={() =>
+                    handleServiceClick(
+                      "Owners' Club",
+                      "/services/owners-club",
+                      true
+                    )
+                  }
                   className="hover:text-gray-600 transition-colors duration-200 text-left"
                 >
                   Owners' Club
                 </button>
                 <div className="border-t border-gray-200 my-1"></div>
-                <button 
-                  onClick={() => handleServiceClick("iProp91 Safe", "/services/safe", true)}
+                <button
+                  onClick={() =>
+                    handleServiceClick("iProp91 Safe", "/services/safe", true)
+                  }
                   className="hover:text-gray-600 transition-colors duration-200 text-left"
                 >
                   Safe
                 </button>
                 <div className="border-t border-gray-200 my-1"></div>
-                <Link 
-                  to="/services/verified-listings" 
+                <Link
+                  to="/services/verified-listings"
                   className="hover:text-gray-600 transition-colors duration-200"
                   onClick={() => {
                     setServiceDown(false);
@@ -397,7 +413,7 @@ const Navbar = ({ setIsLoggedIn }) => {
             </div>
           </div>
         </div>
-        
+
         <Link to="/nri" className="hover:text-white/80 font-medium">
           NRI
         </Link>
@@ -407,28 +423,34 @@ const Navbar = ({ setIsLoggedIn }) => {
         <Link to="/lend" className="hover:text-white/80 font-medium">
           Lend
         </Link>
-        <Link to="/rewards" className="hover:text-white/80 flex items-center font-medium">
+        <Link
+          to="/rewards"
+          className="hover:text-white/80 flex items-center font-medium"
+        >
           <PiHandCoinsFill className="text-lg lg:text-xl" />
         </Link>
 
         {user ? (
           <Profile />
         ) : (
-          <button onClick={openAuthModal} className="whitespace-nowrap font-medium">
+          <button
+            onClick={openAuthModal}
+            className="whitespace-nowrap font-medium"
+          >
             Member login
           </button>
         )}
       </div>
-      
+
       {/* Mobile Menu Icon */}
       <div className="md:hidden flex items-center z-[100]">
         <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
-      
+
       {/* Mobile Menu Modal */}
-      {isMobileMenuOpen && ( 
+      {isMobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: "-100%" }}
           animate={{ opacity: 1, y: 0 }}
@@ -463,12 +485,10 @@ const Navbar = ({ setIsLoggedIn }) => {
               </button>
             </div>
             <nav className="flex flex-col justify-evenly text-white z-[110] overflow-y-auto">
-             
-
               {/* Added Login/Profile Button for Mobile */}
               <div className="mt-6 px-7 py-4">
                 {user ? (
-                  <button 
+                  <button
                     onClick={() => {
                       toggleMobileMenu();
                       navigate("/profile");
@@ -479,50 +499,44 @@ const Navbar = ({ setIsLoggedIn }) => {
                   </button>
                 ) : (
                   <>
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                  <input
-                  type="text"
-                  placeholder="Search Properties" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      toggleMobileMenu();
-                      navigate(`/property-listing?q=${searchQuery}`);
-                      setSearchQuery(""); // Clear the search query after navigating
-                    }
-                  }
-                  }
-                    
-                    className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-50 mb-4 text-black rounded-full w-[80%] justify-start"
-                  />
-                    
-                    
-                
-                  <button
-                  onClick={() => {
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <input
+                        type="text"
+                        placeholder="Search Properties"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            toggleMobileMenu();
+                            navigate(`/property-listing?q=${searchQuery}`);
+                            setSearchQuery(""); // Clear the search query after navigating
+                          }
+                        }}
+                        className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-50 mb-4 text-black rounded-full w-[80%] justify-start"
+                      />
 
-                    if (searchQuery.trim() !== "") {
-                      toggleMobileMenu();
-                      navigate(`/property-listing?q=${searchQuery}`);
-                      setSearchQuery(""); // Clear the search query after navigating
-                    }
-                  }
-                  }
-                  >
-                  <IoSearch className="h-12 w-12 mb-4 p-2 bg-gray-800 hover:bg-gray-900 rounded-xl" />
-                  </button>
-                  </div>
+                      <button
+                        onClick={() => {
+                          if (searchQuery.trim() !== "") {
+                            toggleMobileMenu();
+                            navigate(`/property-listing?q=${searchQuery}`);
+                            setSearchQuery(""); // Clear the search query after navigating
+                          }
+                        }}
+                      >
+                        <IoSearch className="h-12 w-12 mb-4 p-2 bg-gray-800 hover:bg-gray-900 rounded-xl" />
+                      </button>
+                    </div>
 
-                  <button 
-                    onClick={() => {
-                      toggleMobileMenu();
-                      openAuthModal();
-                    }}
-                    className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-900 border border-1 border-b-gray-100 text-white rounded-full w-full justify-center"
-                  >
-                    Member Login
-                  </button>
+                    <button
+                      onClick={() => {
+                        toggleMobileMenu();
+                        openAuthModal();
+                      }}
+                      className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-900 border border-1 border-b-gray-100 text-white rounded-full w-full justify-center"
+                    >
+                      Member Login
+                    </button>
                   </>
                 )}
               </div>
@@ -530,18 +544,23 @@ const Navbar = ({ setIsLoggedIn }) => {
               {Object.keys(SidebarIcons).map((key, index) => (
                 <button
                   key={index}
-                  onClick={() => handleMobileServiceClick(key, SidebarIcons[key].link, SidebarIcons[key].requiresAuth)}
+                  onClick={() =>
+                    handleMobileServiceClick(
+                      key,
+                      SidebarIcons[key].link,
+                      SidebarIcons[key].requiresAuth
+                    )
+                  }
                   className="flex gap-2 px-7 py-1 rounded-xl ml-auto mr-auto text-left"
                 >
                   <p className="text-xl my-3 md:my-5">{key}</p>
                 </button>
               ))}
-
             </nav>
           </div>
         </motion.div>
       )}
-      
+
       {/* Auth Modal */}
       {isAuthModalOpen && (
         <Auth
