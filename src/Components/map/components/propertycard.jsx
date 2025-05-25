@@ -7,9 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaShareAlt, FaRulerCombined, FaMapMarkerAlt, FaHome } from "react-icons/fa";
 import { BsHeart } from "react-icons/bs";
 import { MdLocationOn } from "react-icons/md";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+
 
 // Cache geocoding results to reduce requests
 const coordinatesCache = new Map();
@@ -70,20 +68,6 @@ function processProperty(raw) {
   };
 }
 
-// 3) Create a custom Leaflet icon for the map marker
-const createHouseIcon = () => {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#031273" width="24" height="24">
-      <path d="M12 2L1 12h3v9h6v-6h4v-6h6v-9h3L12 2zm0 2.84L19.5 12H18v7h-4v-6H10v6H6v-7H4.5L12 4.84z"/>
-    </svg>`;
-  const blob = new Blob([svg], { type: "image/svg+xml" });
-  return new L.Icon({
-    iconUrl: URL.createObjectURL(blob),
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
-};
 
 function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
   const [propertyData, setPropertyData] = useState(null);
@@ -92,13 +76,10 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
   const [imageError, setImageError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [showMap, setShowMap] = useState(false);
-  const [coordinates, setCoordinates] = useState(null);
-  const [houseIcon] = useState(createHouseIcon);
+  // Removed isHovered, showMap, coordinates, houseIcon as map preview is no longer rendered.
   const [mapNavigationError, setMapNavigationError] = useState(null);
   const [isHighlighted, setIsHighlighted] = useState(false);
-  const hoverTimerRef = useRef(null);
+  
   const locationRef = useRef(null);
   const navigate = useNavigate();
 
@@ -131,46 +112,8 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
     }
   }, [property, propertyId]);
 
-  // 5) Use property coordinates if available, otherwise geocode the location
-  useEffect(() => {
-    if (!propertyData) return;
-    
-    // First try to use coordinates directly from property data
-    if (propertyData.coordinates && Array.isArray(propertyData.coordinates) && propertyData.coordinates.length === 2) {
-      console.log("Using coordinates from property data:", propertyData.coordinates);
-      setCoordinates(propertyData.coordinates);
-      return;
-    }
-    
-    // Otherwise try to geocode the location
-    if (!propertyData.location) return;
-    
-    const loc = propertyData.location;
-    if (coordinatesCache.has(loc)) {
-      setCoordinates(coordinatesCache.get(loc));
-      return;
-    }
-    if (locationRef.current === loc) return;
-    locationRef.current = loc;
+  // Removed coordinates logic: no longer needed as map preview is not shown.
 
-    const timeoutId = setTimeout(() => {
-      axios
-        .get("https://nominatim.openstreetmap.org/search", {
-          params: { format: "json", q: loc, limit: 1 },
-          headers: { "User-Agent": "iProp-PropertyApp/1.0" },
-        })
-        .then((res) => {
-          const hit = res.data[0];
-          if (hit) {
-            const coords = [parseFloat(hit.lat), parseFloat(hit.lon)];
-            coordinatesCache.set(loc, coords);
-            setCoordinates(coords);
-          }
-        })
-        .catch(console.error);
-    }, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [propertyData]);
 
   // 6) Listen for external marker-click events
   useEffect(() => {
@@ -186,17 +129,6 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
     return () =>
       window.removeEventListener("property-marker-clicked", onMarkerClick);
   }, [propertyData]);
-
-  // Hover → show map preview after 2s
-  const handleHoverStart = () => {
-    setIsHovered(true);
-    hoverTimerRef.current = setTimeout(() => setShowMap(true), 2000);
-  };
-  const handleHoverEnd = () => {
-    setIsHovered(false);
-    setShowMap(false);
-    clearTimeout(hoverTimerRef.current);
-  };
 
   // Navigate to details or map
   const handleDetailsPage = (e) => {
@@ -214,7 +146,6 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
       state: {
         focusedProperty: propertyData._id,
         location: propertyData.location,
-        coordinates,
       },
     });
   };
@@ -258,8 +189,6 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
     <Motion.div
       whileHover={{ y: -5 }}
       onClick={handleCardClick}
-      onHoverStart={handleHoverStart}
-      onHoverEnd={handleHoverEnd}
       className={`border rounded-xl overflow-hidden shadow-md m-2 cursor-pointer transition-all duration-300 ${
         isHighlighted ? "ring-4 ring-blue-500" : ""
       }`}
@@ -353,41 +282,6 @@ function PropertyCard({ property, isLoading = false, propertyId, onSelect }) {
           </button>
         </div>
       </div>
-      
-      {/* Map Preview on Hover */}
-      <AnimatePresence>
-        {isHovered && showMap && coordinates && (
-          <Motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 200 }}
-            exit={{ opacity: 0, height: 0 }}
-            className="relative overflow-hidden"
-          >
-            <MapContainer
-              center={coordinates}
-              zoom={13}
-              style={{ height: "200px", width: "100%" }}
-              zoomControl={false}
-              attributionControl={false}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={coordinates} icon={houseIcon}>
-                <Popup>{propertyData.title}</Popup>
-              </Marker>
-            </MapContainer>
-            
-            {mapNavigationError && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <p className="text-white text-center p-2">
-                  {mapNavigationError}
-                </p>
-              </div>
-            )}
-          </Motion.div>
-        )}
-      </AnimatePresence>
     </Motion.div>
   );
 }

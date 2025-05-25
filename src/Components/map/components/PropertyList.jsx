@@ -11,18 +11,18 @@ function PropertyList({ properties, setSelectedProperty, isLoading }) {
   console.log("PropertyList received properties:", properties);
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {isLoading ? (
-        // Show skeleton loaders when loading
+        // Show skeleton loaders in a grid
         Array(NUM_SKELETONS).fill().map((_, index) => (
-          <div key={`skeleton-${index}`} className="mb-4">
-            <Skeleton height={260} />
+          <div key={`skeleton-${index}`} className="">
+            <Skeleton height={260} style={{ borderRadius: 12 }} />
           </div>
         ))
       ) : properties && properties.length > 0 ? (
-        // Map through properties to display PropertyCards
+        // Map through properties to display PropertyCards in a grid
         properties.map((property) => (
-          <div key={property.id || property._id || `prop-${Math.random()}`} className="mb-4">
+          <div key={property.id || property._id || `prop-${Math.random()}`} className="">
             <PropertyCard 
               property={property} 
               onSelect={() => setSelectedProperty(property)} 
@@ -31,7 +31,7 @@ function PropertyList({ properties, setSelectedProperty, isLoading }) {
         ))
       ) : (
         // Show message when no properties are found
-        <div className="flex flex-col items-center justify-center p-8 text-center bg-gray-50 rounded-lg">
+        <div className="col-span-full flex flex-col items-center justify-center p-8 text-center bg-gray-50 rounded-lg">
           <div className="text-gray-400 mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
