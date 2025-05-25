@@ -3,90 +3,67 @@ import { motion } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import { sortArrayByName } from '../utils/sortArrey';
+import { set } from 'lodash';
 
 
-const FiltersModal = ({ closeModal }) => {
-  const [priceRange, setPriceRange] = useState([1000, 20000]);
-  const [bedrooms, setBedrooms] = useState(0);
-  const [bathrooms, setBathrooms] = useState(0);
-  const [propertyType, setPropertyType] = useState('Any');
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [city, setCity] = useState('Any');
-  const [state, setState] = useState('Any');
-
+const FiltersModal = ({ closeModal, allFilters, setFilters }) => {
+  const [priceRange, setPriceRange] = useState(allFilters.priceRange);
+  const [bedrooms, setBedrooms] = useState(allFilters.bedrooms);
+  const [bathrooms, setBathrooms] = useState(allFilters.bathrooms);
+  const [propertyType, setPropertyType] = useState(allFilters.propertyType);
+  const [selectedAmenities, setSelectedAmenities] = useState(allFilters.selectedAmenities || []);
+  const [city, setCity] = useState(allFilters.city);
+  const [state, setState] = useState(allFilters.state);
+  
   // Example lists, replace with your dynamic data if needed
-  const stateOptions = ['Any', 'Maharashtra', 'Karnataka', 'Delhi', 'Tamil Nadu', 'West Bengal'];
-  const cityOptions = {
-    Any: ['Any'],
-    Maharashtra: ['Any', 'Mumbai', 'Pune', 'Nagpur'],
-    Karnataka: ['Any', 'Bangalore', 'Mysore'],
-    Delhi: ['Any', 'New Delhi', 'Dwarka'],
-    'Tamil Nadu': ['Any', 'Chennai', 'Coimbatore'],
-    'West Bengal': ['Any', 'Kolkata', 'Howrah'],
-  };
+  const [cityOptions, setCityOptions] = useState([]);
   
   const minRangeRef = useRef(null);
   const maxRangeRef = useRef(null);
   const rangeTrackRef = useRef(null);
   
+  // Predefined amenities list with categories and availability status
   const amenitiesList = [
-    'WiFi', 'Kitchen', 'Washer', 'Air conditioning', 'Pool', 
-    'Free parking', 'Hot tub', 'Gym', 'Breakfast', 'Indoor fireplace'
+    "Fire Safety System",
+    "Power Backup",
+    "Elevator",
+    "Intercom Facility",
+    "Swimming Pool",
+    "Gym",
+    "Children's Play Area",
+    "Clubhouse",
+    "Garden",
+    "Resident Parking",
+    "Visitor Parking",
+    "High-Speed Internet",
+    "Nearby Shopping",
+    "Schools Within 1KM",
+    "Green Spaces",
+    "Good Ventilation",
+    "Vaastu Compliant"
   ];
   
   const propertyTypes = ['Any', 'House', 'Apartment', 'Villa', 'Hotel', 'Guest house'];
-  
   const MIN_PRICE = 1000;
   const MAX_PRICE = 50000;
   const PRICE_GAP = 1000;
 
-  const filters = {
-    priceRange,
-    bedrooms,
-    bathrooms,
-    propertyType,
-    selectedAmenities,
-    city,
-    state,
-  }
-
   useEffect(() => {
-    const fetchCitiesByState = (currentStateCode) => {
+    const fetchCities = () => {
       axios
-        .get(`https://api.countrystatecity.in/v1/countries/IN/states/${currentStateCode}/cities`, {
-          headers: {
-            'X-CSCAPI-KEY': process.env.REACT_APP_CSC_API,
-          },
+        .get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/cities/unique`, {
         })
         .then((response) => {
-          setCity(sortArrayByName(response.data));
+          console.log("response",response);
+          setCityOptions(response.data.data);
+          console.log("cities",response.data.data);
         })
         .catch((error) => {
           console.error("Error:", error);
         });
     };
-    fetchCitiesByState(state);
-  }, [state]);
-  
-  useEffect(() => {
-    const fetchAllStates = () => {
-      axios
-        .get('https://api.countrystatecity.in/v1/countries/IN/states', {
-          headers: {
-            "X-CSCAPI-KEY": process.env.REACT_APP_CSC_API,
-          },
-        })
-        .then((response) => {
-          setState(sortArrayByName(response.data));
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    };
-  
-    fetchAllStates();
+    fetchCities();
   }, []);
-  
   
   useEffect(() => {
     updateRangeProgress();
@@ -98,7 +75,7 @@ const FiltersModal = ({ closeModal }) => {
       setPriceRange([minVal, priceRange[1]]);
     }
   };
-  
+
   const handleMaxPriceChange = (e) => {
     const maxVal = parseInt(e.target.value);
     if (maxVal - PRICE_GAP >= priceRange[0]) {
@@ -123,17 +100,37 @@ const FiltersModal = ({ closeModal }) => {
     }
   };
   
-  const handleAmenityToggle = (amenity) => {
-    if (selectedAmenities.includes(amenity)) {
-      setSelectedAmenities(selectedAmenities.filter(item => item !== amenity));
+  const handleAmenity = (amenityName) => {
+    if (selectedAmenities.includes(amenityName)) {
+      setSelectedAmenities(selectedAmenities.filter(a => a !== amenityName));
     } else {
-      setSelectedAmenities([...selectedAmenities, amenity]);
+      setSelectedAmenities([...selectedAmenities, amenityName]);
     }
   };
   
   const handleApplyFilters = () => {
-    // In a real app, you would pass these filters to a parent component
-    // and use them to fetch filtered properties
+    // Apply all filters and send to parent component
+    setFilters({
+      priceRange,
+      bedrooms,
+      bathrooms,
+      propertyType,
+      selectedAmenities,
+      city,
+      amenities: selectedAmenities // Ensure amenities is the same as selectedAmenities
+    });
+    
+    // For debugging
+    console.log("Applying filters:", {
+      priceRange,
+      bedrooms,
+      bathrooms,
+      propertyType,
+      selectedAmenities,
+      city,
+      amenities: selectedAmenities
+    });
+    
     closeModal();
   };
   
@@ -267,29 +264,14 @@ const FiltersModal = ({ closeModal }) => {
             <h3 className="text-lg font-medium mb-4">Location</h3>
             <div className="flex flex-col md:flex-row gap-5">
               <div className="flex-1">
-                <label className="block mb-2 text-sm font-medium text-gray-600">State</label>
-                <select
-                  className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                  value={state}
-                  onChange={e => {
-                    setState(e.target.value);
-                    setCity('Any'); // Reset city if state changes
-                  }}
-                >
-                  {stateOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1">
                 <label className="block mb-2 text-sm font-medium text-gray-600">City</label>
                 <select
                   className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   value={city}
                   onChange={e => setCity(e.target.value)}
-                  disabled={state === 'Any'}
                 >
-                  {cityOptions[state]?.map(option => (
+                  <option value="Any">Any</option>
+                  {cityOptions.map(option => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
@@ -324,10 +306,13 @@ const FiltersModal = ({ closeModal }) => {
                     type="checkbox"
                     id={`amenity-${amenity}`}
                     checked={selectedAmenities.includes(amenity)}
-                    onChange={() => handleAmenityToggle(amenity)}
+                    onChange={() => handleAmenity(amenity)}
                     className="w-5 h-5 mr-3 accent-primary"
                   />
-                  <label htmlFor={`amenity-${amenity}`} className="text-base cursor-pointer">
+                  <label 
+                    htmlFor={`amenity-${amenity}`} 
+                    className="text-base cursor-pointer"
+                  >
                     {amenity}
                   </label>
                 </div>
@@ -363,4 +348,4 @@ const FiltersModal = ({ closeModal }) => {
   );
 };
 
-export default FiltersModal; 
+export default FiltersModal;

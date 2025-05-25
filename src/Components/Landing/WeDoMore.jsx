@@ -20,10 +20,10 @@ const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }
         reward-card rounded-xl shadow-md 
         transition-all duration-300 hover:scale-105 
         max-w-xs overflow-hidden flex
-        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[380px] sm:h-[300px]"
+        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[330px] sm:h-[300px]"
       >
         {/* Image section with curved top corners */}
-        <div className="w-full bg-blue-800 rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
+        <div className="w-full rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">
           <img
             src="/reward-pic.jpg"
             alt="Reward"
@@ -312,7 +312,7 @@ const WeDoMore = () => {
           display: none;
         }
       `}</style>
-      <div className="flex flex-col items-center px-10 max-sm:px-2 max-sm:py-20 lg:px-32 pb-20">
+      <div className="flex flex-col items-center px-6 max-sm:px-2 max-sm:py-20 lg:px-32 pb-20">
         <div className={`flex flex-col gap-5 ${textColorClasses} w-full md:w-full mb-6 lg:mb-8`}>
           <p className="lg:text-6xl md:text-4xl text-3xl font-semibold">
             do more with <br /> your real estate assets

@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 're
 import { motion, AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FaMapMarkerAlt, FaHome, FaLocationArrow, FaUser } from 'react-icons/fa';
+import { FaLocationArrow, FaUser } from 'react-icons/fa';
 
 // Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png'
 });
 
-// Custom marker icon
+// Custom marker icon for property with price
 const createCustomIcon = (price) => {
   return L.divIcon({
     className: 'custom-marker',
@@ -149,8 +149,30 @@ const MapControls = ({ userLocation, centerOnUserLocation }) => {
   );
 };
 
-// Property popup component
+// Property popup component updated for new property structure
 const PropertyPopup = ({ property }) => {
+  // Get a placeholder image if no images available
+  const propertyImage = property.images && property.images.length > 0 
+    ? property.images[0] 
+    : "/api/placeholder/400/300";
+  
+  // Format price display
+  const formatPrice = (price) => {
+    if (!price) return "Price not available";
+    
+    // Convert to number if it's a string
+    const numPrice = typeof price === 'string' ? parseInt(price, 10) : price;
+    
+    // Format with Indian numbering system (if it's a valid number)
+    if (isNaN(numPrice)) return price;
+    
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(numPrice);
+  };
+
   return (
     <motion.div 
       className="flex flex-col"
@@ -159,15 +181,19 @@ const PropertyPopup = ({ property }) => {
       exit={{ opacity: 0, y: -20 }}
     >
       <img 
-        src={property.images[0]} 
-        alt={property.title}
+        src={propertyImage}
+        alt={property.project || "Property"} 
         className="w-full h-[150px] object-cover" 
       />
       <div className="p-3">
-        <h3 className="text-base font-medium mb-2">{property.title}</h3>
-        <div className="flex justify-between">
-          <p className="text-sm">{property.type} in {property.location}</p>
-          <p className="text-sm font-semibold">{property.pricePerNight}</p>
+        <h3 className="text-base font-medium mb-2">{property.project || "Property"} {property.builder ? `by ${property.builder}` : ""}</h3>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm">{property.bhk} BHK {property.type} in {property.city}</p>
+          <p className="text-sm">{property.address}</p>
+          <div className="flex justify-between mt-1">
+            <p className="text-sm font-medium">{property.availableFor}</p>
+            <p className="text-sm font-semibold">{formatPrice(property.minimumPrice)}</p>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -318,6 +344,24 @@ const Map = ({ properties, selectedProperty, setSelectedProperty, mapCenter, set
         border: 1px solid white;
       }
       
+      .custom-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .marker-content {
+        background-color: white;
+        border: 1px solid #2563eb;
+        border-radius: 4px;
+        color: #2563eb;
+        font-weight: bold;
+        padding: 2px 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        font-size: 0.8rem;
+      }
+      
       @keyframes pulse {
         0% {
           transform: scale(0.8);
@@ -357,16 +401,26 @@ const Map = ({ properties, selectedProperty, setSelectedProperty, mapCenter, set
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        {Array.isArray(properties) && properties.map(property => (
-          <Marker 
-            key={property.id} 
-            position={property.coords}
-            icon={createCustomIcon(property.price)}
-            eventHandlers={{
-              click: () => setSelectedProperty(property)
-            }}
-          />
-        ))}
+        {Array.isArray(properties) && properties.map(property => {
+          // Extract coordinates from property
+          const coords = property.coordinates && property.coordinates.length === 2 
+            ? property.coordinates 
+            : null;
+            
+          // Skip properties without valid coordinates
+          if (!coords) return null;
+          
+          return (
+            <Marker 
+              key={property._id} 
+              position={coords}
+              icon={createCustomIcon(property.minimumPrice)}
+              eventHandlers={{
+                click: () => setSelectedProperty(property)
+              }}
+            />
+          );
+        })}
         
         {showUserLocation && userLocation && (
           <Marker 
@@ -411,4 +465,4 @@ const Map = ({ properties, selectedProperty, setSelectedProperty, mapCenter, set
   );
 };
 
-export default Map; 
+export default Map;
