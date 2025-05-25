@@ -29,7 +29,9 @@ export default function NRI() {
         <Cards />
       </div>
       <Que />
-      <Call />
+      <div className="bg-black">
+          <Call />
+          </div>
     </div>
   );
 }
