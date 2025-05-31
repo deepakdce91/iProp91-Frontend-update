@@ -19,7 +19,7 @@ const MobileScreen = lazy(() => import("./MobileScreen"));
 const Call = lazy(() => import("../CompoCards/Call"));
 
 // Lazy load route components
-const App = lazy(() => import("../map/map"));
+const Map = lazy(() => import("../map/map"));
 const PropertyListing = lazy(() => import("../propertyListing/listing"));
 const PropertyDetails = lazy(() => import("../listingpage/id/page"));
 const Library = lazy(() => import("../Library/library"));
@@ -169,7 +169,7 @@ function Landing({ setIsLoggedIn }) {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<TypingLandingPage />} />
-          <Route path="/search-properties" element={<App />} />
+          <Route path="/search-properties" element={<Map />} />
           <Route path="/property-listing" element={<PropertyListing />} />
           <Route path="/property-details/:id" element={<PropertyDetails />} />
           <Route path="/library" element={<Library />} />

@@ -508,7 +508,7 @@ export default function PropertySearchComponent() {
   
   const filteredCitySuggestions = getFilteredCitySuggestions();
   
-  return ( 
+    return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8 pt-32 ">
       {/* Search Header */}
       <div className="mb-8 ml-6">
@@ -584,8 +584,8 @@ export default function PropertySearchComponent() {
           >
             View All
           </button>
-        </div>
-        
+                </div>
+
         {/* City and Sector Dropdowns */}
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           {/* City Dropdown */}
@@ -614,14 +614,14 @@ export default function PropertySearchComponent() {
                       onClick={() => handleCitySelect(city)}
                     >
                       {city}
-                    </div>
+                      </div>
                   ))
                 ) : (
                   <div className="p-3 text-center text-gray-500">No cities found</div>
                 )}
-              </div>
+                      </div>
             )}
-          </div>
+                      </div>
           
           {/* Sector Dropdown */}
           <div className="relative flex-1" ref={sectorDropdownRef}>
@@ -656,15 +656,15 @@ export default function PropertySearchComponent() {
                       onClick={() => handleSectorSelect(sector)}
                     >
                       {sector}
-                    </div>
+                      </div>
                   ))
                 ) : (
                   <div className="p-3 text-center text-gray-500">No sectors found</div>
                 )}
-              </div>
+                      </div>
             )}
-          </div>
-        </div>
+                    </div>
+                  </div>
         
         {/* Expanded Filters Section */}
         {showFilters && (
@@ -709,8 +709,8 @@ export default function PropertySearchComponent() {
                       {bhk} BHK
                     </button>
                   ))}
-                </div>
-              </div>
+            </div>
+          </div>
               
               {/* Status Options */}
               <div className="space-y-2">
@@ -729,15 +729,15 @@ export default function PropertySearchComponent() {
                       {status}
                     </button>
                   ))}
-                </div>
-              </div>
+        </div>
+      </div>
               
               {/* Amenities */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Amenities</label>
                 <div className="flex flex-wrap gap-2">
                   {commonAmenities.slice(0, 4).map(amenity => (
-                    <button
+                  <button
                       key={amenity}
                       className={`px-3 py-1 rounded-full text-sm ${
                         filters.amenities.includes(amenity) 
@@ -767,12 +767,12 @@ export default function PropertySearchComponent() {
                       onClick={() => setFilters({...filters, availableFor: filters.availableFor === option.toLowerCase() ? '' : option.toLowerCase()})}
                     >
                       {option}
-                    </button>
+                  </button>
                   ))}
                 </div>
               </div>
-            </div>
-            
+          </div>
+
             {/* Filter Action Buttons */}
             <div className="flex justify-end gap-4 mt-4 pt-4 border-t border-gray-200">
               <button
@@ -817,10 +817,10 @@ export default function PropertySearchComponent() {
           >
             Latest
             <ArrowUpDown className="h-3 w-3" />
-          </button>
-        </div>
-      </div>
-      
+              </button>
+            </div>
+          </div>
+
       {/* Property Results */}
 {loading ? (
   <div className="flex justify-center items-center h-64">
@@ -886,7 +886,7 @@ export default function PropertySearchComponent() {
             </div>
           )}
         </div>
-        
+
         {/* Property Details - This section will stretch as needed */}
         <div className="p-4 flex-grow flex flex-col">
           <div className="flex justify-between items-start mb-2">
@@ -971,6 +971,26 @@ export default function PropertySearchComponent() {
     ))}
   </div>
 )}
+
+<button
+        onClick={() => navigate('/search-properties')}
+        className="fixed bottom-10 right-4 px-4 py-3 bg-black hover:bg-black/80 text-white rounded-xl shadow-lg transition-all duration-300 z-50 flex items-center gap-2"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-5 w-5" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        Show Map
+      </button>
     </div>
   );
 }
