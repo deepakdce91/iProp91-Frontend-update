@@ -15,13 +15,12 @@ L.Icon.Default.mergeOptions({
 
 // Custom marker icon
 const customIcon = new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  iconUrl: '/home-icon.png',
+  iconRetinaUrl: '/home-icon.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+  className: 'custom-house-icon'
 });
 
 // Map controller component to handle center changes
@@ -124,7 +123,7 @@ const SearchBar = ({ onSearch, onUseLocation }) => {
         >
           <Navigation className="h-4 w-4" />
           {isLocating ? 'Getting Location...' : 'Use My Location'}
-        </button>
+    </button>
         {locationError && (
           <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
             {locationError}
@@ -492,7 +491,7 @@ export default function MapComponent() {
         console.log('Setting map center to:', [lat, lng]);
         setMapCenter([lat, lng]);
         setZoom(12);
-      } else {
+        } else {
         setError('No properties with valid locations found');
       }
       
@@ -505,7 +504,7 @@ export default function MapComponent() {
     }
   };
 
-  return (
+    return (
     <div className="flex h-screen">
       {/* Property Cards Panel */}
       <div className="w-1/3 pt-64 overflow-y-auto p-4  bg-gray-50 relative">
@@ -527,13 +526,13 @@ export default function MapComponent() {
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
-            </div>
+        </div>
           ) : error ? (
             <div className="text-red-600 text-center p-4">{error}</div>
           ) : properties.length === 0 ? (
             <div className="text-gray-500 text-center p-4">
               {isSearchMode ? 'No properties found matching your search' : 'No properties found in this area'}
-            </div>
+                    </div>
           ) : (
             <div className="space-y-2">
               {properties.map((property) => (
@@ -553,10 +552,10 @@ export default function MapComponent() {
                   )}
                 </div>
               ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
       {/* Map Panel */}
       <div className="w-2/3 relative">
@@ -595,7 +594,7 @@ export default function MapComponent() {
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
-          </div>
+            </div>
           <div className="mt-1 text-xs text-gray-500">
             {!isSearchMode ? 'Auto-search while moving map' : 'Using search results'}
           </div>
@@ -626,12 +625,21 @@ export default function MapComponent() {
                 }}
               >
                 <Popup>
-                  <div className="p-2">
-                    <h3 className="font-semibold">{property.project}</h3>
-                    <p className="text-sm text-gray-600">{property.city}</p>
-                    <p className="text-sm font-medium text-[#0E1524]">
+                  <div className="p-2 min-w-[200px]">
+                    <h3 className="font-semibold text-[#0E1524]">{property.project}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{property.city}</p>
+                    <p className="text-sm font-medium text-[#0E1524] mb-3">
                       {property.minimumPrice ? `₹${(property.minimumPrice / 100000).toFixed(2)} L` : 'Price on Request'}
                     </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = `/property-details/${property._id}`;
+                      }}
+                      className="w-full bg-[#0E1524] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors text-sm font-medium"
+                    >
+                      View Property
+                    </button>
                   </div>
                 </Popup>
               </Marker>
@@ -641,6 +649,6 @@ export default function MapComponent() {
           <MapEvents onBoundsChange={handleBoundsChange} />
         </MapContainer>
       </div>
-    </div>
+      </div>
   );
 }
