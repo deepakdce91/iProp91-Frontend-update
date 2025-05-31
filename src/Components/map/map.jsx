@@ -3,8 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapPin, Building, Bed, Bath, Square, Tag, Search, Navigation } from 'lucide-react';
-import axios from 'axios';
-// import axios from 'axios'; // Commented out for artifact
+import axios from 'axios'; 
 
 // Fix for default marker icons in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -98,14 +97,14 @@ const SearchBar = ({ onSearch, onUseLocation }) => {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 bg-white">
       <div className="relative">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
-          placeholder="Search properties, locations, projects..."
+          placeholder="Search by name, city, sector etc"
           className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
         />
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -150,10 +149,10 @@ const PropertyCard = ({ property, isSelected }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 mb-4 hover:shadow-lg transition-shadow ${
+    <div className={`bg-white rounded-lg shadow-md p-3 mb-3 hover:shadow-lg transition-shadow ${
       isSelected ? 'ring-2 ring-[#0E1524]' : ''
     }`}>
-      <div className="relative h-48 overflow-hidden bg-gray-200 rounded-lg mb-4">
+      <div className="relative h-32 overflow-hidden bg-gray-200 rounded-lg mb-2">
         {property.images && property.images.length > 0 ? (
           <img 
             src={property.images[0].path} 
@@ -162,13 +161,11 @@ const PropertyCard = ({ property, isSelected }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            {/* iPropLogo.6ed8e014.svg */}
             <img 
-            src={"/iPropLogo.6ed8e014.svg"} 
-            alt={property.project} 
-            className="w-full h-full object-contain"
-          />
-            {/* <Building className="w-12 h-12 text-gray-400" /> */}
+              src={"/iPropLogo.6ed8e014.svg"} 
+              alt={property.project} 
+              className="w-full h-full object-contain"
+            />
           </div>
         )}
         {property.status && (
@@ -184,39 +181,34 @@ const PropertyCard = ({ property, isSelected }) => {
         )}
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+      <h3 className="text-base font-semibold text-gray-800 mb-1">
         {property.project}
       </h3>
 
-      <div className="flex items-center text-gray-600 text-sm mb-2">
-        <MapPin className="h-4 w-4 mr-1" />
+      <div className="flex items-center text-gray-600 text-xs mb-1">
+        <MapPin className="h-3 w-3 mr-1" />
         <span className="line-clamp-1">
           {[property.sector, property.city].filter(Boolean).join(', ')}
         </span>
       </div>
 
-      <div className="flex justify-between items-center mb-3">
-        <div className="text-[#0E1524] font-semibold">
+      <div className="flex justify-between items-center mb-2">
+        <div className="text-[#0E1524] font-semibold text-sm">
           {formatPrice(property.minimumPrice)}
         </div>
         {property.bhk && (
-          <div className="text-gray-600 text-sm">
+          <div className="text-gray-600 text-xs">
             {property.bhk} BHK
           </div>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1">
         {property.amenities?.slice(0, 3).map((amenity, index) => (
-          <span key={index} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+          <span key={index} className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">
             {amenity}
           </span>
         ))}
-      </div>
-      
-      {/* Debug info */}
-      <div className="mt-2 text-xs text-gray-400">
-        Coords: {property.coordinates ? property.coordinates.join(', ') : 'None'}
       </div>
     </div>
   );
@@ -516,78 +508,54 @@ export default function MapComponent() {
   return (
     <div className="flex h-screen">
       {/* Property Cards Panel */}
-      <div className="w-1/3 pt-32 overflow-y-auto p-4 bg-gray-50">
-        <div className="sticky top-0 bg-gray-50 pb-4 z-10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Properties ({properties.length})</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Map Search</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={!isSearchMode}
-                  onChange={(e) => {
-                    setIsSearchMode(!e.target.checked);
-                    if (!e.target.checked) {
-                      // Get current bounds and fetch properties
-                      const map = document.querySelector('.leaflet-container');
-                      if (map) {
-                        const leafletMap = map._leaflet_map;
-                        if (leafletMap) {
-                          const bounds = leafletMap.getBounds();
-                          handleBoundsChange({
-                            neLat: bounds.getNorthEast().lat,
-                            neLng: bounds.getNorthEast().lng,
-                            swLat: bounds.getSouthWest().lat,
-                            swLng: bounds.getSouthWest().lng
-                          });
-                        }
-                      }
-                    }
-                  }}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+      <div className="w-1/3 pt-64 overflow-y-auto p-4  bg-gray-50 relative">
+        {/* Fixed header with solid background */}
+        <div className="fixed top-0 left-0 w-1/3 h-32 bg-gray-50 z-10 border-b border-gray-200">
+          <div className="px-4 pt-8 bg-white">
+            <div className="flex justify-between items-center mb-3 mt-20">
+              <h2 className="text-lg font-semibold">Properties ({properties.length})</h2>
             </div>
+            <SearchBar 
+              onSearch={handleMasterSearch} 
+              onUseLocation={handleUseLocation}
+            />
           </div>
-          <SearchBar 
-            onSearch={handleMasterSearch} 
-            onUseLocation={handleUseLocation}
-          />
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
-          </div>
-        ) : error ? (
-          <div className="text-red-600 text-center p-4">{error}</div>
-        ) : properties.length === 0 ? (
-          <div className="text-gray-500 text-center p-4">
-            {isSearchMode ? 'No properties found matching your search' : 'No properties found in this area'}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {properties.map((property) => (
-              <div 
-                key={property._id}
-                onClick={() => handlePropertyClick(property)}
-                className={`cursor-pointer ${isValidCoordinates(property.coordinates) ? '' : 'opacity-50'}`}
-              >
-                <PropertyCard 
-                  property={property} 
-                  isSelected={selectedProperty?._id === property._id}
-                />
-                {!isValidCoordinates(property.coordinates) && (
-                  <div className="text-xs text-red-500 mt-1">
-                    Location not available
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Content area with padding to account for fixed header */}
+        <div className="mt-2">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
+            </div>
+          ) : error ? (
+            <div className="text-red-600 text-center p-4">{error}</div>
+          ) : properties.length === 0 ? (
+            <div className="text-gray-500 text-center p-4">
+              {isSearchMode ? 'No properties found matching your search' : 'No properties found in this area'}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {properties.map((property) => (
+                <div 
+                  key={property._id}
+                  onClick={() => handlePropertyClick(property)}
+                  className={`cursor-pointer ${isValidCoordinates(property.coordinates) ? '' : 'opacity-50'}`}
+                >
+                  <PropertyCard 
+                    property={property} 
+                    isSelected={selectedProperty?._id === property._id}
+                  />
+                  {!isValidCoordinates(property.coordinates) && (
+                    <div className="text-xs text-red-500 mt-1">
+                      Location not available
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Map Panel */}
@@ -595,6 +563,42 @@ export default function MapComponent() {
         <div className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded shadow text-xs">
           Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} | 
           Markers: {validPropertiesForMap.length}
+        </div>
+
+        {/* Floating Map Search Switch */}
+        <div className="absolute bottom-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-3 border">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Map Search</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={!isSearchMode}
+                onChange={(e) => {
+                  setIsSearchMode(!e.target.checked);
+                  if (!e.target.checked) {
+                    const map = document.querySelector('.leaflet-container');
+                    if (map) {
+                      const leafletMap = map._leaflet_map;
+                      if (leafletMap) {
+                        const bounds = leafletMap.getBounds();
+                        handleBoundsChange({
+                          neLat: bounds.getNorthEast().lat,
+                          neLng: bounds.getNorthEast().lng,
+                          swLat: bounds.getSouthWest().lat,
+                          swLng: bounds.getSouthWest().lng
+                        });
+                      }
+                    }
+                  }
+                }}
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {!isSearchMode ? 'Auto-search while moving map' : 'Using search results'}
+          </div>
         </div>
 
         <MapContainer
