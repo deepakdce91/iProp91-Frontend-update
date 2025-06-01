@@ -270,6 +270,16 @@ export default function MapComponent() {
     window.scrollTo(0, 0);
   }, []);
 
+
+  // mobile scroll setup
+  const sectionRef = useRef(null);
+
+  const scrollToSection = () => {
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  
+
   // Helper function to validate coordinates
   const isValidCoordinates = (coordinates) => {
     if (!coordinates || !Array.isArray(coordinates) || coordinates.length !== 2) {
@@ -339,15 +349,47 @@ export default function MapComponent() {
     }
   };
 
+  // width setting 
+  const [width, setWidth] = useState(window.innerWidth);
+
+  // Update width on window resize
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Handle map bounds change
   const handleBoundsChange = (bounds) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
+
+    if (width < 768) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchPropertiesByBounds(bounds);
+      }, 500);
+
+      //scroll to map
+      scrollToSection();
+      return;
+    } else {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      
+      searchTimeoutRef.current = setTimeout(() => {
+        fetchPropertiesByBounds(bounds);
+      }, 500);
+
+      window.scrollTo(0, 0);
+      return;
     }
+
+
     
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchPropertiesByBounds(bounds);
-    }, 500);
   };
 
   // Handle marker click
@@ -559,7 +601,7 @@ export default function MapComponent() {
           </div>
 
       {/* Map Panel */}
-      <div className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative">
+      <div ref={sectionRef} className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative">
         <div className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded shadow text-xs">
           Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} | 
           Markers: {validPropertiesForMap.length}
