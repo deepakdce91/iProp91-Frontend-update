@@ -38,6 +38,7 @@ export default function PropertySearchComponent() {
     sector: '',
     minPrice: '',
     maxPrice: '',
+    category: '',
     bhk: '',
     amenities: [],
     status: '',
@@ -59,7 +60,7 @@ export default function PropertySearchComponent() {
   const bhkOptions = ['1', '2', '3', '4', '5+'];
 
   // Available For options
-  const availableForOptions = ['Rent', 'Buy', 'Both'];
+  const availableForOptions = ['Rent', 'Sale', 'Both'];
 
   // Parse URL query parameters on component mount
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function PropertySearchComponent() {
       maxPrice: queryParams.get('maxPrice') || '',
       bhk: queryParams.get('bhk') || '',
       status: queryParams.get('status') || '',
+      category: queryParams.get('category') || '',
       availableFor: queryParams.get('availableFor') || '',
       sortBy: queryParams.get('sortBy') || 'createdAt',
       sortOrder: queryParams.get('sortOrder') || 'desc',
@@ -103,7 +105,7 @@ export default function PropertySearchComponent() {
     
     // Fetch cities for suggestions
     fetchCitySuggestions();
-  }, [location.search]);
+  }, []);
   
   // Fetch unique cities for suggestions
   const fetchCitySuggestions = async () => {
@@ -225,12 +227,13 @@ export default function PropertySearchComponent() {
   
   // Function to fetch properties with applied filters
   const fetchProperties = async (customFilters = {}) => {
-    console.log("Fetching properties with filters:", { ...filters, ...customFilters });
     setLoading(true);
     setError(null);
     
     // Merge current filters with any custom filters
     const appliedFilters = { ...filters, ...customFilters };
+
+    console.log("Fetching properties with filters:", appliedFilters);
     
     try {
       // Build query params from filters
@@ -246,6 +249,10 @@ export default function PropertySearchComponent() {
       
       if (appliedFilters.bhk) {
         url += `bhk=${appliedFilters.bhk}&`;
+      }
+
+      if (appliedFilters.category) {
+        url += `category=${appliedFilters.category}&`;
       }
       
       if (appliedFilters.status) {
@@ -421,6 +428,7 @@ export default function PropertySearchComponent() {
       sector: '',
       minPrice: '',
       maxPrice: '',
+      category: '',
       bhk: '',
       amenities: [],
       status: '',
@@ -441,7 +449,7 @@ export default function PropertySearchComponent() {
     fetchProperties(resetState);
     
     // Clear all query parameters from URL
-    navigate('', { replace: true });
+    // navigate('', { replace: true });
   };
   
   // Handle sort change with local sorting

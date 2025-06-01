@@ -1,4 +1,4 @@
-// import Sidebar from "./Components/Sidebar/Sidebar";\
+// import Sidebar from "./Components/Sidebar/Sidebar";
 import AllPage from "./Components/Allpages/allpages.jsx";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import AskForLogin from "./Components/User/Login/askforlogin.jsx";
@@ -16,6 +16,42 @@ import PropertyDetail from "./Components/listingpage/id/page.jsx";
 import { AuthProvider } from "./context/AuthContext";
 
 // import { FcLock } from "react-icons/fc";
+
+// Loading Component
+const LoadingScreen = () => {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#000000',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999
+    }}>
+      <div style={{
+        width: '50px',
+        height: '50px',
+        border: '3px solid #333',
+        borderTop: '3px solid #ffffff',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }}>
+      </div>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+  );
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,7 +97,7 @@ function App() {
   useAuthToken(navigate);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Or your loading component
+    return <LoadingScreen />;
   }
 
   return (
