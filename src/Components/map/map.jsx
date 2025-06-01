@@ -267,6 +267,7 @@ export default function MapComponent() {
   // Initialize with sample data
   useEffect(() => {
     handleMasterSearch("");
+    window.scrollTo(0, 0);
   }, []);
 
   // Helper function to validate coordinates
@@ -505,11 +506,11 @@ export default function MapComponent() {
   };
 
     return (
-    <div className="flex h-screen">
+    <div className="flex h-fit  md:h-screen  flex-col md:flex-row">
       {/* Property Cards Panel */}
-      <div className="w-1/3 pt-64 overflow-y-auto p-4  bg-gray-50 relative">
+      <div className="w-full md:w-1/3 pt-64 overflow-y-auto p-4  bg-gray-50 relative">
         {/* Fixed header with solid background */}
-        <div className="fixed top-0 left-0 w-1/3 h-32 bg-gray-50 z-10 border-b border-gray-200">
+        <div className="fixed top-0 left-0 w-full md:w-1/3 h-32 bg-gray-50 z-10 border-b border-gray-200">
           <div className="px-4 pt-8 bg-white">
             <div className="flex justify-between items-center mb-3 mt-20">
               <h2 className="text-lg font-semibold">Properties ({properties.length})</h2>
@@ -558,7 +559,7 @@ export default function MapComponent() {
           </div>
 
       {/* Map Panel */}
-      <div className="w-2/3 relative">
+      <div className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative">
         <div className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded shadow text-xs">
           Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} | 
           Markers: {validPropertiesForMap.length}

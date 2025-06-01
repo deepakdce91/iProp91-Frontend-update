@@ -174,9 +174,13 @@ const PropertyCards = ({
         if (filters.amenities?.length)
           queryParams.append("amenities", filters.amenities.join(","));
 
-        // Always add these parameters
-        if (activeCategory && activeCategory !== "all") {
-          queryParams.append("category", activeCategory);
+        // Get category from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryFromUrl = urlParams.get('category');
+        
+        // Use category from URL if available
+        if (categoryFromUrl) {
+          queryParams.append("category", categoryFromUrl);
         }
 
         // Add sort parameter
@@ -273,14 +277,21 @@ const PropertyCards = ({
         setLoadingMore(false);
       }
     },
-    [filters, sortBy, activeCategory, favorites, onPropertyClick]
+    [filters, sortBy, favorites, onPropertyClick]
   );
 
   // Initial data fetch
   useEffect(() => {
-    setCurrentPage(1);
-    fetchData(1, false);
-  }, [filters, sortBy, activeCategory, fetchData]);
+    // Get category from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('category');
+    
+    // Only fetch if we have a category from URL or if we have other filters
+    if (categoryFromUrl || Object.keys(filters).length > 0) {
+      setCurrentPage(1);
+      fetchData(1, false);
+    }
+  }, [filters, sortBy, fetchData]);
 
   // Load more handler
   const loadMore = useCallback(() => {
