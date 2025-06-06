@@ -51,14 +51,14 @@ const Calculator = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-white dark:bg-gray-900 p-4 md:p-8 border-[1px] shadow-lg border-black/50  lg:mx-24 mx-4 md:mx-7 rounded-lg mb-12  ">
-      <p className='text-4xl text-black font-bold mb-10'>Tell us about your requirements</p>
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+    <div className="h-fit flex flex-col justify-center items-center bg-white dark:bg-gray-900 p-4 my-16 mr-2  md:p-8 border-[1px] shadow-lg border-black/50   rounded-lg   ">
+      <p className='text-4xl text-black font-bold mb-10 mt-10'>Tell us about your requirements</p>
+      <div className="flex flex-col  gap-8 w-full max-w-4xl mx-auto">
         <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-b-[4px] border-[1px] border-b-gold border-gold ">
           {/* Tabs */}
           <div className="flex rounded-full bg-gray-100 dark:bg-gray-700 p-1 mb-8">
             <button
-              onClick={() => setActiveTab('emi')}
+              onClick={() => setActiveTab('emi')} 
               className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors
                 ${activeTab === 'emi' 
                   ? 'bg-white dark:bg-gray-800 shadow-sm' 

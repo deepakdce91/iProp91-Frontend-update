@@ -3,9 +3,9 @@ import { Play } from 'lucide-react'
 import Goldbutton from "../CompoCards/GoldButton/Goldbutton"
 import DisclaimerModal from './DisclaimerModal'
 import React, { useEffect, useState } from "react";
+ 
 
-
-export function Hero() {
+export function Hero({Calculator}) {
 const [showDisclaimer, setShowDisclaimer] = useState(false)
 
 
@@ -26,9 +26,9 @@ useEffect(() => {
 
 
   return (
-    <section className="relative  text-black h-screen mt-10"  >
-      <div className="container mx-auto px-4 py-20 ">
-        <div className="grid lg:grid-cols-1 gap-12 items-center ">
+    <section className="relative items-center lg:items-start justify-center  flex flex-col md:flex-row  text-black h-fit mt-10"  >
+      <div className="container mx-auto px-4 pl-8  lg:w-[35%] w-full py-20 pt-32">
+        <div className="grid lg:grid-cols-1  gap-12 items-center ">
           <div className="space-y-8">
             <h1 className="text-4xl lg:text-6xl font-bold w-full leading-tight">
               The Home Loan Process, <br /> Now Online
@@ -73,10 +73,18 @@ useEffect(() => {
           </div>
           
         </div>
-          <div className="text-center flex items-center  w-full mt-12">
-            <Goldbutton properties="border-[1px] border-gold bg-gray-100 w-full lg:w-[20%]  text-black px-8 py-3 rounded-lg font-medium  transition-colors text-lg font-bold" btnname={"GET STARTED"} onclick={showDisclaimerModal} />
+          <div className="text-center flex items-center w-[20vw] mt-12">
+          <Goldbutton
+  properties="border-[1px] border-gold bg-gray-100 w-full sm:w-[16rem] md:w-[14rem] lg:w-[12rem] text-black px-8 py-3 rounded-lg font-medium transition-colors text-lg font-bold"
+  btnname={"GET STARTED"}
+  onclick={showDisclaimerModal}
+/>
+
           </div>
       </div>
+      <div className="lg:w-[65%] w-full  flex items-center justify-center">
+        {Calculator}
+        </div>
 
       {showDisclaimer && (
         <DisclaimerModal onClose={closeDisclaimerModal}/>

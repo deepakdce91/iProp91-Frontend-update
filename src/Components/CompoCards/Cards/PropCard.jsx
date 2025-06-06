@@ -33,7 +33,7 @@ function removeSpaces(str) {
     }
   };
  
-export default function PropCard ({
+export default function  PropCard ({
   props,
   onClickEdit,
   onClickBuy,

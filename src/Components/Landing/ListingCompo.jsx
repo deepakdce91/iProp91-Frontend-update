@@ -43,7 +43,7 @@ const categories = [
       category: "property_resale",
     },
   },
-  
+
   {
     title: "Pre Launch Projects",
     description: "Upcoming pre-launch properties",
@@ -64,7 +64,7 @@ const categories = [
       category: "verified_owner",
     },
   },
- 
+
   {
     title: "Upcoming Projects",
     description: "Soon to be launched properties",
@@ -90,16 +90,16 @@ const CategoryCarousel = ({ categories }) => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Create an array with duplicated cards for infinite effect
   const infiniteCategories = [...categories, ...categories, ...categories];
-  
+
   // Calculate how many items to show and slide step
   const itemsToShow = isMobile ? 2 : categories.length;
   const slideStep = isMobile ? 2 : 1;
@@ -151,7 +151,8 @@ const CategoryCarousel = ({ categories }) => {
       const newIndex = prevIndex - slideStep;
       if (newIndex < 0) {
         // Go to the last valid position
-        const lastIndex = Math.floor((categories.length - 1) / slideStep) * slideStep;
+        const lastIndex =
+          Math.floor((categories.length - 1) / slideStep) * slideStep;
         setTimeout(() => {
           setCurrentIndex(lastIndex);
           setIsTransitioning(false);
@@ -180,23 +181,29 @@ const CategoryCarousel = ({ categories }) => {
       <div
         className="flex transition-transform duration-500 ease-in-out gap-4"
         style={{
-          transform: isMobile 
-            ? `translateX(-${currentIndex * 50}%)` 
+          transform: isMobile
+            ? `translateX(-${currentIndex * 50}%)`
             : `translateX(-${currentIndex * (100 / categories.length)}%)`,
-          width: isMobile ? '100%' : `${infiniteCategories.length * (100 / categories.length)}%`,
+          width: isMobile
+            ? "100%"
+            : `${infiniteCategories.length * (100 / categories.length)}%`,
         }}
       >
         {(isMobile ? categories : infiniteCategories).map((category, index) => (
-           <motion.div
-           key={`${category.title}-${index}`}
-           className={isMobile ? "w-[60%] flex-shrink-0" : "w-[12%] md:w-[12%] lg:w-[10%] flex-shrink-0"}
-           initial={{ opacity: 0, scale: 0.9 }}
-           animate={{ opacity: 1, scale: 1 }}
-           exit={{ opacity: 0, scale: 0.9 }}
-           transition={{ duration: 0.3 }}
-           onMouseEnter={() => setIsPaused(true)}
-           onMouseLeave={() => setIsPaused(false)}
-         >
+          <motion.div
+            key={`${category.title}-${index}`}
+            className={
+              isMobile
+                ? "w-[60%] flex-shrink-0"
+                : "w-[12%] md:w-[12%] lg:w-[10%] flex-shrink-0"
+            }
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             <div
               onClick={() => handleCategoryClick(category)}
               className="block cursor-pointer"
@@ -255,9 +262,9 @@ const CategoryCarousel = ({ categories }) => {
       </button>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-        {(isMobile ? 
-          Array.from({ length: Math.ceil(categories.length / 2) }) :
-          categories
+        {(isMobile
+          ? Array.from({ length: Math.ceil(categories.length / 2) })
+          : categories
         ).map((_, index) => (
           <button
             key={index}
@@ -267,7 +274,11 @@ const CategoryCarousel = ({ categories }) => {
               resetTimer();
             }}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              (isMobile ? Math.floor(currentIndex / 2) === index : currentIndex % categories.length === index)
+              (
+                isMobile
+                  ? Math.floor(currentIndex / 2) === index
+                  : currentIndex % categories.length === index
+              )
                 ? "bg-white w-4"
                 : "bg-white/50 hover:bg-white/75"
             }`}
@@ -286,8 +297,8 @@ const ListingCompo = () => {
   const [location, setLocation] = useState("");
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [showBudgetDropdown, setShowBudgetDropdown] = useState(false);
-  const [citySuggestions, setCitySuggestions] = useState([]);
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  // const [citySuggestions, setCitySuggestions] = useState([]);
+  // const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState([]);
   const [selectedBhkTypes, setSelectedBhkTypes] = useState([]);
@@ -295,6 +306,11 @@ const ListingCompo = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [showMinPrice, setShowMinPrice] = useState(false);
   const [showMaxPrice, setShowMaxPrice] = useState(false);
+
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [allCities, setAllCities] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   // Property type options - only residential now
   const propertyTypes = ["Flat", "House/Villa", "Plot"];
@@ -557,7 +573,6 @@ const ListingCompo = () => {
     navigate("/search-properties");
   };
 
-  // Add useEffect for fetching cities
   useEffect(() => {
     const fetchCities = async () => {
       try {
@@ -570,8 +585,10 @@ const ListingCompo = () => {
           }
         );
         if (response.data) {
-          // console.log(response.data.data)
-          setCitySuggestions(response.data.data);
+          const cities = response.data.data;
+          setAllCities(cities); // Store all cities
+          setFilteredCities(cities); // Initialize filtered cities
+          setCitySuggestions(cities); // Keep this for backward compatibility
         }
       } catch (error) {
         console.error("Error fetching cities:", error);
@@ -580,26 +597,32 @@ const ListingCompo = () => {
     fetchCities();
   }, []);
 
-  // Add function to filter cities based on input
+  // Replace the filterCities function with this:
   const filterCities = (input) => {
-    if (!input) {
+    if (!input || input.trim() === "") {
+      // If input is empty, show all cities
+      setFilteredCities(allCities);
       setShowCitySuggestions(true);
       return;
     }
-    const filtered = citySuggestions.filter(city =>
+
+    // Filter from allCities, not from the current filtered list
+    const filtered = allCities.filter((city) =>
       city.toLowerCase().includes(input.toLowerCase())
     );
-    setCitySuggestions(filtered);
+    setFilteredCities(filtered);
     setShowCitySuggestions(true);
   };
 
-  // Add function to handle city selection
+  // Update the handleCitySelect function:
   const handleCitySelect = (selectedCity) => {
     setLocation(selectedCity);
     setShowCitySuggestions(false);
+    // Reset filtered cities to all cities for next time
+    setFilteredCities(allCities);
   };
 
-  // Add function to handle input blur
+  // Update the handleInputBlur function:
   const handleInputBlur = () => {
     // Delay hiding suggestions to allow for click on suggestion
     setTimeout(() => {
@@ -623,9 +646,7 @@ const ListingCompo = () => {
           {!showMap && (
             <div className="w-full max-w-5xl mx-auto space-y-4 ">
               <div className="w-full   max-w-7xl mx-auto">
-              
                 <div className="flex  items-center max-md:pr-0 rounded-full border bg-white shadow-sm pr-3">
-
                   {/* Location Input */}
                   <div className="flex items-center px-4 max-sm:px-0 py-2 w-full md:w-1/3 border-b md:border-b-0 md:border-r border-gray-300 relative">
                     <svg
@@ -650,14 +671,16 @@ const ListingCompo = () => {
                         filterCities(e.target.value);
                       }}
                       onFocus={() => {
+                        // When focusing, show suggestions based on current input
+                        filterCities(location);
                         setShowCitySuggestions(true);
                       }}
                       onBlur={handleInputBlur}
                     />
                     {/* City Suggestions Dropdown */}
-                    {showCitySuggestions && citySuggestions.length > 0 && (
+                    {showCitySuggestions && filteredCities.length > 0 && (
                       <div className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
-                        {citySuggestions.map((city, index) => (
+                        {filteredCities.map((city, index) => (
                           <div
                             key={index}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"

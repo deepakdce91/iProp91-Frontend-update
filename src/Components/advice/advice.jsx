@@ -73,7 +73,7 @@ export default function Advice() {
         </div>
       </div> */}
         <div className={``}>
-          <div ref={adviceCardsRef}>
+          <div className="-z-10" ref={adviceCardsRef}>
             <AdviceCards />
           </div>
           <DraftAgreementsList/>

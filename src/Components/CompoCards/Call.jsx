@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import GoldButton from "./GoldButton/Goldbutton";
 import BookingAppointment from "../forms/BookingAppointment";
-import ContactUsForm from "../forms/ContactUs";
+import ContactUsForm from "../forms/ContactUs"; 
 import { Calendar, Phone } from "lucide-react";
 import { motion } from "framer-motion";
  

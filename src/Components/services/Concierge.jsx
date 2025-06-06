@@ -168,7 +168,7 @@ const ServicesConcierge = () => {
           </div>
           <div className="flex justify-center">
             <img
-              src="/Concierge/conci77.png"
+              src="/Concierge/conci77.png" 
               alt="Privacy protection"
               className="rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md"
             />

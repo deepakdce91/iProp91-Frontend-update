@@ -12,7 +12,7 @@ const toTitleCase = (str) => {
     .join(" ");
 };
 
-const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }) => {
+const RewardCard = ({ title, name, amount, status, icon, commonImageUrl, discountType }) => {
   return (
     <div className="w-[250px] flex-shrink-0">
       <div
@@ -36,7 +36,7 @@ const RewardCard = ({ name, amount, status, icon, commonImageUrl, discountType }
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
               <h3 className="text-sm sm:text-lg font-bold text-wrap text-[#0a0f19] reward-card-title">
-                {toTitleCase(name)}
+                {title}
               </h3>
               {discountType === "percentage" ? (
                 <span className="text-orange-500 font-semibold mt-2 text-sm sm:text-lg">
@@ -214,6 +214,7 @@ const RewardsContainer = ({ cardsData }) => {
               <RewardCard
                 discountType={reward.discountType}
                 name={reward.name}
+                title={reward.title || toTitleCase(reward.name)}
                 amount={reward.amount}
                 status={reward.status}
                 icon={reward.icon}

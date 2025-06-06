@@ -14,6 +14,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Lock,
+  User,
   LogOut,
   Key,
   X,
@@ -30,6 +31,8 @@ const SidebarIcons = {
   NRI: { icon: Home, link: "/nri" },
   "Verified Listings": { icon: Home, link: "/property-for-sale" },
   "Rewards": { icon: PiHandCoinsFill, link: "/rewards" },
+  "Manage Profile": {icon: User,  link: "/profile" },
+
 };
 
 // LogoutConfirmationModal component

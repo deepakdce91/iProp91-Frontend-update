@@ -41,6 +41,7 @@ const Navbar = ({ setIsLoggedIn }) => {
   const dropdownTimeoutRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Define routes that should have specific backgrounds
   const specificRoutes = {
@@ -88,11 +89,11 @@ const Navbar = ({ setIsLoggedIn }) => {
     Lend: { icon: RefreshCw, link: "/lend", requiresAuth: false },
     NRI: { icon: Home, link: "/nri", requiresAuth: false },
     Rewards: { icon: Gift, link: "/rewards", requiresAuth: false },
-    "Verified Listings": {
-      icon: Home,
-      link: "/property-for-sale",
-      requiresAuth: false,
-    },
+    // "Verified Listings": {
+    //   icon: Home,
+    //   link: "/property-for-sale",
+    //   requiresAuth: false,
+    // },
   };
 
   const [isServiceClickOpen, setIsServiceClickOpen] = useState(false);
@@ -153,6 +154,17 @@ const Navbar = ({ setIsLoggedIn }) => {
   const handleFloatingButtonClick = () => {
     if (!user) {
       openAuthModal();
+    }
+  };
+
+  // Function to handle desktop search
+  const handleDesktopSearch = (e) => {
+    if (e.key === "Enter" || e.type === "click") {
+      if (searchQuery.trim() !== "") {
+        navigate(`/property-listing?q=${searchQuery}`);
+        setSearchQuery("");
+        setIsSearchFocused(false);
+      }
     }
   };
 
@@ -315,24 +327,76 @@ const Navbar = ({ setIsLoggedIn }) => {
       document.body.style.width = "";
       // Restore scroll position
       window.scrollTo(0, parseInt(scrollY || "0") * -1);
-    }
+    } 
   }, [isMobileMenuOpen, isAuthModalOpen]);
+
+  // Helper function to get navbar styles based on current route
+  const getNavbarStyles = () => {
+    const currentPath = location.pathname;
+    
+    if (currentPath.startsWith("/rewards")) {
+      return {
+        background: "bg-[#0E1424] bg-opacity-10",
+        text: "text-black",
+        border: "border-[#0E1424]"
+      };
+    }
+    
+    if (currentPath.startsWith("/property-listing")) {
+      return {
+        background: "bg-[#0E1424] bg-opacity-10",
+        text: "text-black", 
+        border: "border-[#0E1424]"
+      };
+    }
+    
+    // Default styling based on isDarkBg
+    if (isDarkBg) {
+      return {
+        background: "bg-white bg-opacity-10",
+        text: "text-white",
+        border: "border-white"
+      };
+    } else {
+      return {
+        background: "bg-[#0E1424] bg-opacity-10",
+        text: "text-black", 
+        border: "border-[#0E1424]"
+      };
+    }
+  };
+
+  const navbarStyles = getNavbarStyles();
+
+  // Helper function to get search input styles
+  const getSearchInputStyles = () => {
+    const currentPath = location.pathname;
+    
+    if (currentPath.startsWith("/rewards") || currentPath.startsWith("/property-listing") || !isDarkBg) {
+      return {
+        background: "bg-white bg-opacity-90",
+        text: "text-black",
+        placeholder: "placeholder-gray-500",
+        border: "border-gray-300 focus:border-black",
+        icon: "text-gray-600"
+      };
+    } else {
+      return {
+        background: "bg-white bg-opacity-20",
+        text: "text-white",
+        placeholder: "placeholder-gray-300",
+        border: "border-white border-opacity-30 focus:border-white",
+        icon: "text-white"
+      };
+    }
+  };
+
+  const searchInputStyles = getSearchInputStyles();
 
   return (
     <>
       <nav
-        className={`flex items-center justify-between px-10 py-4 ${
-          isDarkBg
-            ? `${
-                location.pathname.startsWith("/rewards") ||
-                location.pathname.startsWith("/property-listing")
-                  ? "bg-black bg-opacity-10 text-black"
-                  : "bg-white bg-opacity-10 text-white"
-              }`
-            : "bg-black bg-opacity-10 text-black"
-        } backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${
-          isDarkBg ? "border-white" : "border-black"
-        } ${
+        className={`flex items-center justify-between px-10 py-4 ${navbarStyles.background} ${navbarStyles.text} backdrop-blur-sm fixed top-0 w-11/12 mx-auto rounded-xl left-0 right-0 z-20 transition-all duration-300 border ${navbarStyles.border} ${
           isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
         }`}
       >
@@ -350,7 +414,31 @@ const Navbar = ({ setIsLoggedIn }) => {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base">
+        <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base items-center">
+          {/* Desktop Search Bar */}
+          <div className="relative">
+            <div className={`flex items-center ${searchInputStyles.background} rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-300 ${
+              isSearchFocused ? 'w-64' : 'w-48'
+            }`}>
+              <input
+                type="text"
+                placeholder="Search Properties"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleDesktopSearch}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                className={` ${searchInputStyles.text} ${searchInputStyles.placeholder} border-none outline-none w-full text-sm bg-transparent`}
+              />
+              <button
+                onClick={handleDesktopSearch}
+                className={`ml-2 ${searchInputStyles.icon} hover:opacity-80 transition-opacity`}
+              >
+                <IoSearch className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
           <div
             className="hover:text-white/80 relative"
             ref={servicesDropdownRef}
@@ -519,7 +607,7 @@ const Navbar = ({ setIsLoggedIn }) => {
                     </button>
                   ) : (
                     <>
-                      <div className="flex items-center justify-center gap-2 mb-4">
+                      <div className="flex items-center pr-3 bg-gray-50 rounded-full justify-center  gap-2 mb-4">
                         <input
                           type="text"
                           placeholder="Search Properties"
@@ -532,7 +620,7 @@ const Navbar = ({ setIsLoggedIn }) => {
                               setSearchQuery(""); // Clear the search query after navigating
                             }
                           }}
-                          className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-50 mb-4 text-black rounded-full w-[80%] justify-start"
+                          className="flex h-14 items-center gap-2 text-xl  py-3 px-5  text-black rounded-full w-[80%] justify-start"
                         />
 
                         <button
@@ -544,7 +632,7 @@ const Navbar = ({ setIsLoggedIn }) => {
                             }
                           }}
                         >
-                          <IoSearch className="h-12 w-12 mb-4 p-2 bg-gray-800 hover:bg-gray-900 rounded-xl" />
+                          <IoSearch className="h-12 w-12  px-2 bg-gray-800 hover:bg-gray-900 rounded-xl" />
                         </button>
                       </div>
 
@@ -553,7 +641,7 @@ const Navbar = ({ setIsLoggedIn }) => {
                           toggleMobileMenu();
                           openAuthModal();
                         }}
-                        className="flex items-center gap-2 text-xl py-3 px-5 bg-gray-900 border border-1 border-b-gray-100 text-white rounded-full w-full justify-center"
+                        className="flex items-center gap-2 text-xl py-3  px-5 bg-gray-900 border border-1 border-b-gray-100 text-white rounded-full w-full justify-center"
                       >
                         Member Login
                       </button>
@@ -601,7 +689,7 @@ const Navbar = ({ setIsLoggedIn }) => {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.3 }}
           onClick={handleFloatingButtonClick}
-          className="fixed bottom-6 right-6 z-30 bg-white text-black px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
+          className="fixed bottom-6 right-6 z-30 bg-black text-white px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200"
           style={{
             boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
           }}

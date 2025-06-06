@@ -19,6 +19,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { client } from "../../../config/s3client";
 import { ProfileCompletionBanner } from "../../ProfileCompletionBanner/ProfileCompletionBanner";
 import { motion, AnimatePresence } from "framer-motion";
+import NameHeader from "../Nameheader";
 
 function hasMoreInfoRequired(objectsArray) {
   // Check if the array is not empty
@@ -352,6 +353,9 @@ export default function MyProperties() {
   return (
     <>
       <div className="flex flex-col mt-10 lg:mt-0 ">
+        <div className="mb-2 sm:hidden">
+          <NameHeader description={"See all your properties here."} name={"Concierge"}  />
+        </div>
         <div className="px-5">
           <ProfileCompletionBanner />
         </div>
