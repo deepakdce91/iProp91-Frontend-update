@@ -25,7 +25,7 @@ export default function NRI() {
 
   return (
     <div className="bg-white md:rounded-t-xl md:overflow-hidden">
-      <div ref={cardsRef}>
+      <div className="-z-10" ref={cardsRef}>
         <Cards />
       </div>
       <Que />

@@ -4,6 +4,20 @@ import { Search, SlidersHorizontal, X, ChevronDown, ArrowUpDown, MapPin, Buildin
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function PropertySearchComponent() {
+
+  const propSectionRef = useRef(null);
+  useEffect(() => {
+    // scroll directly to cards in mobile screen
+    if (propSectionRef.current && window.innerWidth <= 768) {
+      propSectionRef.current.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
+    }
+    // scroll to top in desktop screen
+    if (propSectionRef.current && window.innerWidth > 768) {
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // or 'auto'
+    }
+    
+  }, []);
+
   const navigate = useNavigate();
   const location = useLocation();
   const searchInputRef = useRef(null);
@@ -373,9 +387,11 @@ export default function PropertySearchComponent() {
     const query = searchQuery || searchCity;
     if (query.trim()) {
       performMasterSearch(query.trim());
+      propSectionRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
     } else {
       // If search is empty, fetch all properties with current filters
       fetchProperties();
+      propSectionRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
     }
     setShowCitySuggestions(false);
   };
@@ -470,12 +486,12 @@ export default function PropertySearchComponent() {
       // Otherwise update with filters
       updateUrlWithFilters(newFilters);
     }
+  }; 
+  
+  const navigateToPropertyDetails = (propertyId) => {
+    window.open(`/property-details/${propertyId}`, '_blank');
   };
   
-  // Navigate to property details page
-  const navigateToPropertyDetails = (propertyId) => {
-    navigate(`/property-details/${propertyId}`);
-  };
 
   // Format price to readable format
   const formatPrice = (price) => {
@@ -490,9 +506,9 @@ export default function PropertySearchComponent() {
     }
   };
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  // useEffect(() => {
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // }, []);
   
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -529,9 +545,19 @@ export default function PropertySearchComponent() {
         <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
           {/* Search Input with Suggestions - Modified for general search */}
           <div className="relative flex-grow w-full" ref={searchInputRef}>
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+
+            {/* // in laptop view  */}
+            <div className="absolute inset-y-0 left-0 hidden sm:flex items-center pl-3 pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
+
+            {/* in mobile view  */}
+            <button className="absolute inset-y-0 z-30  right-4 sm:hidden flex items-center pl-3 "
+            onClick={handleSearch}
+            >
+              <Search className="h-6 w-6 text-black" />
+            </button>
+            
             <input
               type="text"
               className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
@@ -541,6 +567,7 @@ export default function PropertySearchComponent() {
               onFocus={() => setShowCitySuggestions(true)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
+
             
             {/* City Suggestions Dropdown - Show when focusing on search */}
             {showCitySuggestions && searchQuery && (
@@ -567,7 +594,7 @@ export default function PropertySearchComponent() {
           
           {/* Search Button - Modified to use master search */}
           <button
-            className="w-full md:w-auto px-6 py-3 bg-[#0E1524] text-white font-medium rounded-lg hover:bg-opacity-90 flex items-center justify-center gap-2"
+            className="w-full hidden md:w-auto px-6 py-3 bg-[#0E1524] text-white font-medium rounded-lg hover:bg-opacity-90 sm:flex items-center justify-center gap-2"
             onClick={handleSearch}
           >
             <Search className="h-5 w-5" />
@@ -576,7 +603,7 @@ export default function PropertySearchComponent() {
           
           {/* Filter Toggle Button */}
           <button
-            className={`w-full md:w-auto px-6 py-3 font-medium rounded-lg flex items-center justify-center gap-2 ${
+            className={`hidden w-full md:w-auto px-6 py-3 font-medium rounded-lg sm:flex items-center justify-center gap-2 ${
               showFilters ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setShowFilters(!showFilters)}
@@ -587,15 +614,35 @@ export default function PropertySearchComponent() {
           
           {/* View All Button */}
           <button
-            className="w-full md:w-40 px-6 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            className="w-full md:w-40 px-6 py-3 text-sm font-medium rounded-lg hidden sm:flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
             onClick={handleViewAll}
           >
             View All
           </button>
+
+          {/* // filter and view all for mobile screen  */}
+          <div className='flex sm:hidden  gap-2 w-full'>
+          <button
+            className={`w-[30%] md:w-auto px-6 py-3 font-medium rounded-lg flex items-center justify-center gap-2 ${
+              showFilters ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="h-5 w-5" />
+          </button>
+          
+          {/* View All Button */}
+          <button
+            className="w-[65%] md:w-40 px-6 py-3 text-sm font-medium rounded-lg flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            onClick={handleViewAll}
+          >
+            View All
+          </button>
+          </div>
                 </div>
 
         {/* City and Sector Dropdowns */}
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="hidden sm:flex  flex-col md:flex-row gap-4 mb-4">
           {/* City Dropdown */}
           <div className="relative flex-1" ref={cityDropdownRef}>
             <button
@@ -678,6 +725,87 @@ export default function PropertySearchComponent() {
         {showFilters && (
           <div className="bg-gray-50 rounded-lg p-4 mt-4 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+              {/* state city dropdown  */}
+            <div className="sm:hidden flex flex-col md:flex-row gap-4 mb-4">
+          {/* City Dropdown */}
+          <div className="relative flex-1" ref={cityDropdownRef}>
+            <button
+              className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524] flex justify-between items-center bg-white hover:bg-gray-50"
+              onClick={() => setShowCityDropdown(!showCityDropdown)}
+            >
+              <span className={selectedCity ? 'text-gray-900' : 'text-gray-500'}>
+                {selectedCity || 'Select City'}
+              </span>
+              <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showCityDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showCityDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {loadingCities ? (
+                  <div className="p-3 text-center text-gray-500">Loading cities...</div>
+                ) : citySuggestions.length > 0 ? (
+                  citySuggestions.map((city, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                        selectedCity === city ? 'bg-blue-50 text-blue-600' : ''
+                      }`}
+                      onClick={() => handleCitySelect(city)}
+                    >
+                      {city}
+                      </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-gray-500">No cities found</div>
+                )}
+                      </div>
+            )}
+                      </div>
+          
+          {/* Sector Dropdown */}
+          <div className="relative flex-1" ref={sectorDropdownRef}>
+            <button
+              className={`w-full py-3 px-4 border border-gray-300 rounded-lg flex justify-between items-center bg-white ${
+                selectedCity 
+                  ? 'hover:bg-gray-50 focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]' 
+                  : 'bg-gray-100 cursor-not-allowed'
+              }`}
+              onClick={() => selectedCity && setShowSectorDropdown(!showSectorDropdown)}
+              disabled={!selectedCity}
+            >
+              <span className={selectedSector ? 'text-gray-900' : selectedCity ? 'text-gray-500' : 'text-gray-400'}>
+                {selectedSector || (selectedCity ? 'Select Sector' : 'Select City First')}
+              </span>
+              <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${
+                showSectorDropdown ? 'rotate-180' : ''
+              } ${!selectedCity ? 'opacity-50' : ''}`} />
+            </button>
+            
+            {showSectorDropdown && selectedCity && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {loadingSectors ? (
+                  <div className="p-3 text-center text-gray-500">Loading sectors...</div>
+                ) : sectorSuggestions.length > 0 ? (
+                  sectorSuggestions.map((sector, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                        selectedSector === sector ? 'bg-blue-50 text-blue-600' : ''
+                      }`}
+                      onClick={() => handleSectorSelect(sector)}
+                    >
+                      {sector}
+                      </div>
+                  ))
+                ) : (
+                  <div className="p-3 text-center text-gray-500">No sectors found</div>
+                )}
+                      </div>
+            )}
+                    </div>
+                  </div>
+
               {/* Price Range */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Price Range</label>
@@ -829,7 +957,9 @@ export default function PropertySearchComponent() {
             </div>
           </div>
 
-      {/* Property Results */}
+      {/* Property Results */} 
+
+<div ref={propSectionRef} id="prop-listing-cards">
 {loading ? (
   <div className="flex justify-center items-center h-64">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
@@ -967,18 +1097,27 @@ export default function PropertySearchComponent() {
           
           {/* View Details Button - Always at bottom */}
           <div className="mt-4 pt-3 border-t border-gray-100">
-            <button 
-              className="w-full py-2 bg-[#0E1524] hover:bg-opacity-90 text-white font-medium rounded text-center transition-colors"
+          {/* <a
+                      href={`/property-details/${property._id}`}
+                      target="_blank"
+                      className="block w-full bg-[#0E1524] text-white no-underline visited:text-white hover:text-white active:text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors text-sm font-medium text-center"
+                    >
+                      View Property
+                    </a> */}
+            <a 
+              className="w-full block rounder-xl py-2 bg-[#0E1524] hover:bg-opacity-90 text-white font-medium rounded text-center transition-colors"
               onClick={() => navigateToPropertyDetails(property._id)}
             >
               View Details
-            </button>
+            </a>
           </div>
         </div>
       </div>
     ))}
   </div>
 )}
+
+</div>
 
 <button
         onClick={() => navigate('/search-properties')}

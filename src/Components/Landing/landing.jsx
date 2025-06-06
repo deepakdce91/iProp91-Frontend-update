@@ -34,7 +34,7 @@ const Lend = lazy(() => import("../Lend/Lend"));
 const SiteFaqs = lazy(() => import("../site-faqs/page"));
 const RedeemRewards = lazy(() => import("../redeemRewards/Index"));
 const PropertyJouneyPage = lazy(() => import("../PropertyJourneyPage/page"));
-const ServConci = lazy(() => import("../services/Concierge"));
+const ServConci = lazy(() => import("../services/Concierge")); 
 const ServOwnerClub = lazy(() => import("../services/ownersClub"));
 const ServSafe = lazy(() => import("../services/safe"));
 const ServListingCompo = lazy(() => import("../services/listing"));

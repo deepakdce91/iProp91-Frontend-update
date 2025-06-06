@@ -526,7 +526,9 @@ function MediaPreviewModal({ file, onClose, onSend }) {
 
 function Chats({
   communityId,
-  userId = "IPP0001",
+  userId = "Guest",
+  userName = "Guest",
+  userPfp = "/images/default.png",
   userToken,
   currentGroupDetails,
   onMessageUpdate,
@@ -594,7 +596,7 @@ function Chats({
 
   const getPublicUrlFromSupabase = (path) => {
     const { data, error } = supabase.storage
-      .from(process.env.REACT_APP_SHARED_FILES_BUCKET)
+      .from(process.env.REACT_APP_PROFILE_PIC_BUCKET)
       .getPublicUrl(path);
     if (error) {
       console.error("Error fetching public URL:", error);
@@ -608,7 +610,7 @@ function Chats({
     const myPath = `sharedFiles/${userId}/${myFileName}`;
     try {
       const uploadParams = {
-        Bucket: process.env.REACT_APP_SHARED_FILES_BUCKET,
+        Bucket: process.env.REACT_APP_PROFILE_PIC_BUCKET,
         Key: myPath,
         Body: myFile, // The file content
         ContentType: myFile.type, // The MIME type of the file
@@ -811,6 +813,7 @@ function Chats({
 
     try {
       let cloudFilePath = await uploadFileToCloud(fileToUpload);
+      // console.log("File uploaded to cloud:", cloudFilePath);
       if (cloudFilePath) {
         let publicUrl = getPublicUrlFromSupabase(cloudFilePath);
         if (publicUrl) {
@@ -876,8 +879,8 @@ function Chats({
         const msgObj = {
           text: sanitizedText,
           userId,
-          userProfilePicture: "/admin-avatar.jpg",
-          userName: "Admin",
+          userProfilePicture: userPfp || "/images/default.png",
+          userName: userName || "Guest",
           isRichText: true,
         };
         handleSendMessage(msgObj, userId, userToken);

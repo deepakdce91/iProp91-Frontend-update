@@ -19,14 +19,14 @@ const Lend = () => {
     if (heroRef.current) {
       heroRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, []);
+  }, []); 
 
   return (
     <div className="min-h-screen bg-white">
       <div ref={heroRef}>
-        <Hero />
+        <Hero Calculator = {<Calculator />} />
       </div>
-      <Calculator />
+      
       <Features />
     </div>
   );

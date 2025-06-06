@@ -1,26 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { MapPin, Building, Bed, Bath, Square, Tag, Search, Navigation } from 'lucide-react';
-import axios from 'axios'; 
+import React, { useState, useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import {
+  MapPin,
+  Building,
+  Bed,
+  Bath,
+  Square,
+  Tag,
+  Search,
+  Navigation,
+  Home,
+  Star,
+  Calendar,
+  IndianRupee,
+} from "lucide-react";
+import axios from "axios";
 
 // Fix for default marker icons in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
 // Custom marker icon
 const customIcon = new L.Icon({
-  iconUrl: '/home-icon.png',
-  iconRetinaUrl: '/home-icon.png',
+  iconUrl: "/home-icon.png",
+  iconRetinaUrl: "/home-icon.png",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
-  className: 'custom-house-icon'
+  className: "custom-house-icon",
 });
 
 // Map controller component to handle center changes
@@ -47,51 +63,224 @@ function MapEvents({ onBoundsChange }) {
         neLat: bounds.getNorthEast().lat,
         neLng: bounds.getNorthEast().lng,
         swLat: bounds.getSouthWest().lat,
-        swLng: bounds.getSouthWest().lng
+        swLng: bounds.getSouthWest().lng,
       });
     };
 
-    map.on('moveend', handleMoveEnd);
-    
+    map.on("moveend", handleMoveEnd);
+
     // Trigger initial bounds fetch
     handleMoveEnd();
-    
+
     return () => {
-      map.off('moveend', handleMoveEnd);
+      map.off("moveend", handleMoveEnd);
     };
   }, [map, onBoundsChange]);
 
   return null;
 }
 
+// Enhanced Popup Component
+// Enhanced Popup Component - Updated Version
+const PropertyPopup = ({ property }) => {
+  const formatPrice = (price) => {
+    if (!price) return "Price on Request";
+    if (price >= 10000000) {
+      return `₹${(price / 10000000).toFixed(2)} Cr`;
+    } else if (price >= 100000) {
+      return `₹${(price / 100000).toFixed(2)} L`;
+    } else {
+      return `₹${price.toLocaleString()}`;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    if (!status) return "bg-gray-100 text-gray-700";
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes("ready")) return "bg-green-100 text-green-700";
+    if (statusLower.includes("construction")) return "bg-orange-100 text-orange-700";
+    if (statusLower.includes("launched")) return "bg-blue-100 text-blue-700";
+    return "bg-gray-100 text-gray-700";
+  };
+
+  // Get full address
+  const getFullAddress = () => {
+    const addressParts = [
+      property.sector,
+      property.locality,
+      property.city,
+      property.state,
+      property.pincode
+    ].filter(Boolean);
+    
+    return addressParts.length > 0 ? addressParts.join(", ") : "Address not available";
+  };
+
+  return (
+    <div className="min-w-[260px] max-w-[280px] p-0 m-0 relative">
+      {/* Close Button */}
+      {/* <button 
+        className="absolute -top-2 -right-2 z-20 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow p-1.5 border border-gray-200"
+        onClick={(e) => {
+          e.stopPropagation();
+          // Close popup functionality can be added here if needed
+        }}
+      >
+        <svg className="w-5 h-5 text-gray-600 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button> */}
+
+      {/* Header Section - No Image */}
+      <div className="relative bg-gradient-to-r from-[#0E1524] to-[#1a2332] rounded-t-lg p-4">
+        {/* Status Badge */}
+        {property.status && (
+          <div className="absolute top-2 right-2">
+            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(property.status)}`}>
+              {property.status}
+            </span>
+          </div>
+        )}
+
+        {/* Multiple Properties Indicator */}
+        {property.isOffset && (
+          <div className="absolute top-2 left-2">
+            <span className="bg-white bg-opacity-90 text-gray-700 px-2 py-1 text-xs font-medium rounded-full flex items-center">
+              <Building className="h-3 w-3 mr-1" />
+              Multiple
+            </span>
+          </div>
+        )}
+
+        {/* Project Name */}
+        <h3 className="font-bold text-lg text-white mb-2 leading-tight mt-4">
+          {property.project}
+        </h3>
+
+        {/* Price - Prominent in header */}
+        <div className="flex items-center text-white">
+          {/* <IndianRupee className="h-5 w-5 mr-1 text-green-400" /> */}
+          <span className="font-bold text-xl text-green-400">
+            {formatPrice(property.minimumPrice)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-3 bg-white">
+        {/* Full Address */}
+        <div className="flex items-start text-gray-600 mb-3">
+          <MapPin className="h-4 w-4 mr-2 text-red-500 mt-0.5 flex-shrink-0" />
+          <span className="text-sm font-medium leading-relaxed">
+            {getFullAddress()}
+          </span>
+        </div>
+
+        {/* Key Information Grid - Compact */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {/* BHK Configuration */}
+          {property.bhk && (
+            <div className="flex items-center">
+              <div className="bg-blue-50 p-1.5 rounded mr-2">
+                <Bed className="h-3 w-3 text-blue-600" />
+              </div>
+              <div>
+                {/* <p className="text-xs text-gray-500">Config</p> */}
+                <p className="font-semibold text-blue-600 text-sm">{property.bhk} BHK</p>
+              </div>
+            </div>
+          )}
+
+          {/* Area (if available) */}
+          {property.area && (
+            <div className="flex items-center">
+              <div className="bg-purple-50 p-1.5 rounded mr-2">
+                <Square className="h-3 w-3 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Area</p>
+                <p className="font-semibold text-purple-600 text-sm">{property.area}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Developer (if available) */}
+        {property.developer && (
+          <div className="flex items-center mb-3">
+            <div className="bg-orange-50 p-1.5 rounded mr-2">
+              <Building className="h-3 w-3 text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">Developer</p>
+              <p className="font-semibold text-orange-600 text-sm truncate">
+                {property.developer}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Top Amenities - Compact */}
+        {property.amenities && property.amenities.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs text-gray-500 mb-1 flex items-center">
+              <Star className="h-3 w-3 mr-1" />
+              Amenities
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {property.amenities.slice(0, 3).map((amenity, index) => (
+                <span
+                  key={index}
+                  className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-medium"
+                >
+                  {amenity}
+                </span>
+              ))}
+              {property.amenities.length > 3 && (
+                <span className="text-xs text-gray-500 px-1">
+                  +{property.amenities.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Possession Date (if available) */}
+        {property.possessionDate && (
+          <div className="flex items-center mb-3 text-sm text-gray-600">
+            <Calendar className="h-3 w-3 mr-2 text-gray-500" />
+            <span className="text-xs">Possession: {property.possessionDate}</span>
+          </div>
+        )}
+
+        {/* View Property Button - Compact */}
+        <a
+          href={`/property-details/${property._id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full bg-gradient-to-r from-[#0E1524] to-[#1a2332] !text-white no-underline visited:!text-white hover:!text-white active:!text-white py-2.5 px-3 rounded-lg hover:from-[#1a2332] hover:to-[#2a3442] transition-all duration-200 text-xs font-semibold text-center shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+        >
+          View Details
+        </a>
+      </div>
+    </div>
+  );
+};
+
 // Search Bar Component
-const SearchBar = ({ onSearch, onUseLocation }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const SearchBar = ({ onSearch }) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState('');
 
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    
+
     setIsLoading(true);
     try {
       await onSearch(searchQuery);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleUseLocation = async () => {
-    setIsLocating(true);
-    setLocationError('');
-    try {
-      await onUseLocation();
-    } catch (error) {
-      setLocationError(error.message);
-    } finally {
-      setIsLocating(false);
     }
   };
 
@@ -102,7 +291,7 @@ const SearchBar = ({ onSearch, onUseLocation }) => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch(e)}
           placeholder="Search by name, city, sector etc"
           className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0E1524] focus:border-[#0E1524]"
         />
@@ -112,30 +301,15 @@ const SearchBar = ({ onSearch, onUseLocation }) => {
           disabled={isLoading}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1 bg-[#0E1524] text-white rounded-md hover:bg-opacity-90 disabled:opacity-50"
         >
-          {isLoading ? 'Searching...' : 'Search'}
+          {isLoading ? "Searching..." : "Search"}
         </button>
-      </div>
-      <div className="mt-2">
-        <button
-          onClick={handleUseLocation}
-          disabled={isLocating}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#0E1524] text-[#0E1524] rounded-md hover:bg-gray-50 disabled:opacity-50"
-        >
-          <Navigation className="h-4 w-4" />
-          {isLocating ? 'Getting Location...' : 'Use My Location'}
-    </button>
-        {locationError && (
-          <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
-            {locationError}
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
 // Property Card Component
-const PropertyCard = ({ property, isSelected }) => {
+const PropertyCard = ({ property, isSelected, scrollToSection }) => {
   const formatPrice = (price) => {
     if (!price) return "Price on Request";
     if (price >= 10000000) {
@@ -148,32 +322,39 @@ const PropertyCard = ({ property, isSelected }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-3 mb-3 hover:shadow-lg transition-shadow ${
-      isSelected ? 'ring-2 ring-[#0E1524]' : ''
-    }`}>
+    <div
+      onClick={() => {
+        scrollToSection();
+      }}
+      className={`bg-white rounded-lg shadow-md p-3 mb-3 hover:shadow-lg transition-shadow ${
+        isSelected ? "ring-2 ring-[#0E1524]" : ""
+      }`}
+    >
       <div className="relative h-32 overflow-hidden bg-gray-200 rounded-lg mb-2">
         {property.images && property.images.length > 0 ? (
-          <img 
-            src={property.images[0].path} 
-            alt={property.project} 
+          <img
+            src={property.images[0].path}
+            alt={property.project}
             className="w-full h-full object-contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <img 
-              src={"/iPropLogo.6ed8e014.svg"} 
-              alt={property.project} 
+            <img
+              src={"/iPropLogo.6ed8e014.svg"}
+              alt={property.project}
               className="w-full h-full object-contain"
             />
           </div>
         )}
         {property.status && (
           <div className="absolute top-2 right-2">
-            <span className={`px-2 py-1 text-xs font-medium rounded ${
-              property.status.toLowerCase().includes('ready') 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-yellow-100 text-yellow-800'
-            }`}>
+            <span
+              className={`px-2 py-1 text-xs font-medium rounded ${
+                property.status.toLowerCase().includes("ready")
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
               {property.status}
             </span>
           </div>
@@ -187,7 +368,7 @@ const PropertyCard = ({ property, isSelected }) => {
       <div className="flex items-center text-gray-600 text-xs mb-1">
         <MapPin className="h-3 w-3 mr-1" />
         <span className="line-clamp-1">
-          {[property.sector, property.city].filter(Boolean).join(', ')}
+          {[property.sector, property.city].filter(Boolean).join(", ")}
         </span>
       </div>
 
@@ -196,15 +377,16 @@ const PropertyCard = ({ property, isSelected }) => {
           {formatPrice(property.minimumPrice)}
         </div>
         {property.bhk && (
-          <div className="text-gray-600 text-xs">
-            {property.bhk} BHK
-          </div>
+          <div className="text-gray-600 text-xs">{property.bhk} BHK</div>
         )}
       </div>
 
       <div className="flex flex-wrap gap-1">
         {property.amenities?.slice(0, 3).map((amenity, index) => (
-          <span key={index} className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">
+          <span
+            key={index}
+            className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded"
+          >
             {amenity}
           </span>
         ))}
@@ -218,50 +400,51 @@ export default function MapComponent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedProperty, setSelectedProperty] = useState(null);
-  const [mapCenter, setMapCenter] = useState([28.6139, 77.2090]); // Delhi coordinates
+  const [mapCenter, setMapCenter] = useState([28.6139, 77.209]); // Delhi coordinates
   const [zoom, setZoom] = useState(10);
-  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
   const lastBoundsRef = useRef(null);
   const searchTimeoutRef = useRef(null);
 
   // Sample data for testing - coordinates in [lat, lng] format as received from backend
   const sampleProperties = [
     {
-      _id: '1',
-      project: 'Sample Project 1',
-      city: 'New Delhi',
-      sector: 'Sector 18',
-      coordinates: [28.6139, 77.2090], // [lat, lng] format from backend
+      _id: "1",
+      project: "Sample Project 1",
+      city: "New Delhi",
+      sector: "Sector 18",
+      coordinates: [28.6139, 77.209], // [lat, lng] format from backend
       minimumPrice: 5000000,
-      bhk: '3',
-      status: 'Ready to Move',
-      amenities: ['Swimming Pool', 'Gym', 'Park'],
-      images: []
+      bhk: "3",
+      status: "Ready to Move",
+      amenities: ["Swimming Pool", "Gym", "Park"],
+      images: [],
     },
     {
-      _id: '2',
-      project: 'Sample Project 2',
-      city: 'Mumbai',
-      sector: 'Andheri',
-      coordinates: [19.0760, 72.8777], // [lat, lng] format from backend
+      _id: "2",
+      project: "Sample Project 2",
+      city: "Mumbai",
+      sector: "Andheri",
+      coordinates: [19.076, 72.8777], // [lat, lng] format from backend
       minimumPrice: 8000000,
-      bhk: '2',
-      status: 'Under Construction',
-      amenities: ['Gym', 'Security', 'Parking'],
-      images: []
+      bhk: "2",
+      status: "Under Construction",
+      amenities: ["Gym", "Security", "Parking"],
+      images: [],
     },
     {
-      _id: '3',
-      project: 'Sample Project 3',
-      city: 'Bangalore',
-      sector: 'Whitefield',
-      coordinates: [12.9698, 77.7500], // [lat, lng] format from backend
+      _id: "3",
+      project: "Sample Project 3",
+      city: "Bangalore",
+      sector: "Whitefield",
+      coordinates: [12.9698, 77.75], // [lat, lng] format from backend
       minimumPrice: 3500000,
-      bhk: '4',
-      status: 'Ready to Move',
-      amenities: ['Pool', 'Garden', 'Clubhouse'],
-      images: []
-    }
+      bhk: "4",
+      status: "Ready to Move",
+      amenities: ["Pool", "Garden", "Clubhouse"],
+      images: [],
+    },
   ];
 
   // Initialize with sample data
@@ -270,116 +453,183 @@ export default function MapComponent() {
     window.scrollTo(0, 0);
   }, []);
 
-
   // mobile scroll setup
   const sectionRef = useRef(null);
 
   const scrollToSection = () => {
-    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  
+    if (window.innerWidth <= 768) {
+      sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   // Helper function to validate coordinates
   const isValidCoordinates = (coordinates) => {
-    if (!coordinates || !Array.isArray(coordinates) || coordinates.length !== 2) {
+    if (
+      !coordinates ||
+      !Array.isArray(coordinates) ||
+      coordinates.length !== 2
+    ) {
       return false;
     }
     const [lat, lng] = coordinates; // Backend sends [lat, lng]
-    const isValid = !isNaN(lat) && !isNaN(lng) && 
-           lat >= -90 && lat <= 90 && 
-           lng >= -180 && lng <= 180 &&
-           lat !== 0 && lng !== 0;
+    const isValid =
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lng >= -180 &&
+      lng <= 180 &&
+      lat !== 0 &&
+      lng !== 0;
     return isValid;
+  };
+
+  // Function to calculate offset positions for overlapping markers
+  const calculateMarkerPositions = (properties) => {
+    const positionMap = new Map();
+    const offsetProperties = [];
+
+    properties.forEach((property) => {
+      if (!isValidCoordinates(property.coordinates)) return;
+
+      const [lat, lng] = property.coordinates;
+      const key = `${lat.toFixed(6)}_${lng.toFixed(6)}`; // Create a key for exact location matching
+
+      if (!positionMap.has(key)) {
+        positionMap.set(key, []);
+      }
+      positionMap.get(key).push(property);
+    });
+
+    // Process each location group
+    positionMap.forEach((propertiesAtLocation, locationKey) => {
+      if (propertiesAtLocation.length === 1) {
+        // Single property at this location - no offset needed
+        offsetProperties.push({
+          ...propertiesAtLocation[0],
+          displayCoordinates: propertiesAtLocation[0].coordinates,
+        });
+      } else {
+        // Multiple properties at same location - apply offsets
+        const [baseLat, baseLng] = propertiesAtLocation[0].coordinates;
+
+        propertiesAtLocation.forEach((property, index) => {
+          let offsetLat = baseLat;
+          let offsetLng = baseLng;
+
+          if (index > 0) {
+            // Calculate offset for properties after the first one
+            // Create a small circular pattern around the original point
+            const offsetDistance = 0.0001; // Small offset in degrees (~11 meters)
+            const angle = (2 * Math.PI * index) / propertiesAtLocation.length;
+
+            offsetLat = baseLat + offsetDistance * Math.cos(angle);
+            offsetLng = baseLng + offsetDistance * Math.sin(angle);
+          }
+
+          offsetProperties.push({
+            ...property,
+            displayCoordinates: [offsetLat, offsetLng],
+            originalCoordinates: property.coordinates,
+            isOffset: index > 0,
+          });
+        });
+      }
+    });
+
+    return offsetProperties;
   };
 
   // Fetch properties based on map bounds
   const fetchPropertiesByBounds = async (bounds) => {
-    if (isSearchMode) return; // Don't fetch by bounds if in search mode
-    
     // Check if bounds have actually changed
-    if (lastBoundsRef.current &&
-        lastBoundsRef.current.neLat === bounds.neLat &&
-        lastBoundsRef.current.neLng === bounds.neLng &&
-        lastBoundsRef.current.swLat === bounds.swLat &&
-        lastBoundsRef.current.swLng === bounds.swLng) {
+    if (
+      lastBoundsRef.current &&
+      lastBoundsRef.current.neLat === bounds.neLat &&
+      lastBoundsRef.current.neLng === bounds.neLng &&
+      lastBoundsRef.current.swLat === bounds.swLat &&
+      lastBoundsRef.current.swLng === bounds.swLng
+    ) {
       return; // Skip if bounds haven't changed
     }
-    
+
     // Update last bounds
     lastBoundsRef.current = bounds;
-    
-    console.log('Fetching properties for bounds:', bounds);
+
+    console.log("Fetching properties for bounds:", bounds);
     setLoading(true);
-    
+
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/searchByBounds`, {
-        params: {
-          neLat: bounds.neLat,
-          neLng: bounds.neLng,
-          swLat: bounds.swLat,
-          swLng: bounds.swLng
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/searchByBounds`,
+        {
+          params: {
+            neLat: bounds.neLat,
+            neLng: bounds.neLng,
+            swLat: bounds.swLat,
+            swLng: bounds.swLng,
+          },
         }
-      });
-      
-      console.log('Properties fetched by bounds:', response.data);
-      
+      );
+
+      console.log("Properties fetched by bounds:", response.data);
+
       if (response.data && response.data.projects) {
-        const validProperties = response.data.projects.filter(property => {
+        const validProperties = response.data.projects.filter((property) => {
           const isValid = isValidCoordinates(property.coordinates);
           if (!isValid) {
-            console.log('Invalid coordinates for property:', property.project, property.coordinates);
+            console.log(
+              "Invalid coordinates for property:",
+              property.project,
+              property.coordinates
+            );
           }
           return isValid;
         });
-        
-        console.log('Valid properties in bounds:', validProperties.length);
+
+        console.log("Valid properties in bounds:", validProperties.length);
         setProperties(validProperties);
       } else {
-        console.log('No properties found in bounds');
+        console.log("No properties found in bounds");
         setProperties([]);
       }
       setError(null);
     } catch (err) {
-      console.error('Error fetching properties by bounds:', err);
-      setError('Failed to fetch properties. Please try again.');
+      console.error("Error fetching properties by bounds:", err);
+      setError("Failed to fetch properties. Please try again.");
       setProperties([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // width setting 
+  // width setting
   const [width, setWidth] = useState(window.innerWidth);
 
   // Update width on window resize
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Handle map bounds change
   const handleBoundsChange = (bounds) => {
-
     if (width < 768) {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
-      
+
       searchTimeoutRef.current = setTimeout(() => {
         fetchPropertiesByBounds(bounds);
       }, 500);
-
-      //scroll to map
-      scrollToSection();
       return;
     } else {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
-      
+
       searchTimeoutRef.current = setTimeout(() => {
         fetchPropertiesByBounds(bounds);
       }, 500);
@@ -387,87 +637,87 @@ export default function MapComponent() {
       window.scrollTo(0, 0);
       return;
     }
-
-
-    
   };
 
   // Handle marker click
   const handleMarkerClick = (property) => {
-    console.log('Marker clicked:', property.project);
+    console.log("Marker clicked:", property.project);
     if (!isValidCoordinates(property.coordinates)) return;
-    
+
     setSelectedProperty(property);
-    const [lat, lng] = property.coordinates; // Backend sends [lat, lng]
-    setMapCenter([lat, lng]); // Leaflet expects [lat, lng]
+    // Use original coordinates for centering, not display coordinates
+    const [lat, lng] = property.originalCoordinates || property.coordinates;
+    setMapCenter([lat, lng]);
     setZoom(15);
   };
 
   // Handle property card click
   const handlePropertyClick = (property) => {
-    console.log('Property card clicked:', property.project);
+    console.log("Property card clicked:", property.project);
     handleMarkerClick(property);
   };
 
-  // Reset search and show all properties
-  const handleResetSearch = () => {
-    setIsSearchMode(false);
-    setProperties(sampleProperties);
-    setSelectedProperty(null);
-    setMapCenter([28.6139, 77.2090]);
-    setZoom(10);
-  };
+  // Get valid properties for map with offset calculations
+  const validPropertiesForMap = calculateMarkerPositions(
+    properties.filter((property) => {
+      const isValid = isValidCoordinates(property.coordinates);
+      console.log(
+        "Property:",
+        property.project,
+        "Valid coords:",
+        isValid,
+        "Coords:",
+        property.coordinates
+      );
+      return isValid;
+    })
+  );
 
-  // Get valid properties for map
-  const validPropertiesForMap = properties.filter(property => {
-    const isValid = isValidCoordinates(property.coordinates);
-    console.log('Property:', property.project, 'Valid coords:', isValid, 'Coords:', property.coordinates);
-    return isValid;
-  });
-
-  console.log('Total properties:', properties.length);
-  console.log('Valid properties for map:', validPropertiesForMap.length);
-  console.log('Map center:', mapCenter);
-  console.log('Map zoom:', zoom);
+  console.log("Total properties:", properties.length);
+  console.log("Valid properties for map:", validPropertiesForMap.length);
+  console.log("Map center:", mapCenter);
+  console.log("Map zoom:", zoom);
 
   // Get user's current location with retry mechanism
   const getUserLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by your browser'));
+        reject(new Error("Geolocation is not supported by your browser"));
         return;
       }
 
       const options = {
         enableHighAccuracy: true,
         timeout: 10000, // Increased timeout to 10 seconds
-        maximumAge: 0
+        maximumAge: 0,
       };
 
       const successCallback = (position) => {
         resolve({
           lat: position.coords.latitude,
-          lng: position.coords.longitude
+          lng: position.coords.longitude,
         });
       };
 
       const errorCallback = (error) => {
-        let errorMessage = 'Unable to get your location. ';
-        
+        let errorMessage = "Unable to get your location. ";
+
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage += 'Please allow location access in your browser settings.';
+            errorMessage +=
+              "Please allow location access in your browser settings.";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information is unavailable. Please try again or use the search bar.';
+            errorMessage +=
+              "Location information is unavailable. Please try again or use the search bar.";
             break;
           case error.TIMEOUT:
-            errorMessage += 'Location request timed out. Please try again.';
+            errorMessage += "Location request timed out. Please try again.";
             break;
           default:
-            errorMessage += 'An unknown error occurred. Please try again.';
+            errorMessage += "An unknown error occurred. Please try again.";
         }
-        
+
         reject(new Error(errorMessage));
       };
 
@@ -482,110 +732,121 @@ export default function MapComponent() {
 
   // Handle use location button click
   const handleUseLocation = async () => {
+    setIsLocating(true);
+    setLocationError("");
     try {
       const location = await getUserLocation();
-      console.log('User location:', location);
-      
+      console.log("User location:", location);
+
       setMapCenter([location.lat, location.lng]);
       setZoom(12);
-      
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/searchByCoordinates`, {
-        params: {
-          latitude: location.lat,
-          longitude: location.lng,
-          maxDistance: 5000
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/searchByCoordinates`,
+        {
+          params: {
+            latitude: location.lat,
+            longitude: location.lng,
+            maxDistance: 5000,
+          },
         }
-      });
-      
+      );
+
       if (response.data && response.data.projects) {
         setProperties(response.data.projects);
       } else {
         setProperties([]);
       }
-      
+
       setError(null);
     } catch (error) {
-      console.error('Error getting location:', error);
-      throw error;
+      console.error("Error getting location:", error);
+      setLocationError(error.message);
+    } finally {
+      setIsLocating(false);
     }
   };
 
   // Master search function
   const handleMasterSearch = async (query) => {
     setLoading(true);
-    setIsSearchMode(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/search`, {
-        params: { q: query }
-      });
-      
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projectsDataMaster/search`,
+        {
+          params: { q: query },
+        }
+      );
+
       const searchResults = response.data.data.projects || [];
-      
-      const validProperties = searchResults.filter(property => {
+
+      const validProperties = searchResults.filter((property) => {
         return isValidCoordinates(property.coordinates);
       });
-      
-      console.log('Valid properties found:', validProperties.length);
+
+      console.log("Valid properties found:", validProperties.length);
       setProperties(validProperties);
-      
+
       if (validProperties.length > 0) {
         const firstProperty = validProperties[0];
         const [lat, lng] = firstProperty.coordinates;
-        console.log('Setting map center to:', [lat, lng]);
+        console.log("Setting map center to:", [lat, lng]);
         setMapCenter([lat, lng]);
         setZoom(12);
-        } else {
-        setError('No properties with valid locations found');
+      } else {
+        setError("No properties with valid locations found");
       }
-      
+
       setError(null);
     } catch (err) {
-      console.error('Error performing master search:', err);
-      setError('Failed to search properties. Please try again.');
+      console.error("Error performing master search:", err);
+      setError("Failed to search properties. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-    return (
-    <div className="flex h-fit  md:h-screen  flex-col md:flex-row">
+  return (
+    <div className="flex h-fit  md:h-screen pt-28 md:pt-0 flex-col-reverse md:flex-row">
       {/* Property Cards Panel */}
-      <div className="w-full md:w-1/3 pt-64 overflow-y-auto p-4  bg-gray-50 relative">
+      <div className="w-full  md:w-1/3 sm:pt-48 pt-0 p-4 bg-gray-50 relative">
         {/* Fixed header with solid background */}
-        <div className="fixed top-0 left-0 w-full md:w-1/3 h-32 bg-gray-50 z-10 border-b border-gray-200">
-          <div className="px-4 pt-8 bg-white">
+        <div className="sm:absolute sm:top-0 sm:left-0  w-full  h-32 bg-gray-50 z-10 border-b border-gray-200">
+          <div className="px-4 sm:pt-8 bg-gray-50">
             <div className="flex justify-between items-center mb-3 mt-20">
-              <h2 className="text-lg font-semibold">Properties ({properties.length})</h2>
+              <h2 className="text-lg font-semibold">
+                Properties ({properties.length})
+              </h2>
             </div>
-            <SearchBar 
-              onSearch={handleMasterSearch} 
-              onUseLocation={handleUseLocation}
-            />
+            <SearchBar onSearch={handleMasterSearch} />
           </div>
         </div>
 
         {/* Content area with padding to account for fixed header */}
-        <div className="mt-2">
+        <div className="mt-2 sm:overflow-y-auto sm:h-[calc(100vh-14rem)] p-4">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
-        </div>
+            </div>
           ) : error ? (
             <div className="text-red-600 text-center p-4">{error}</div>
           ) : properties.length === 0 ? (
             <div className="text-gray-500 text-center p-4">
-              {isSearchMode ? 'No properties found matching your search' : 'No properties found in this area'}
-                    </div>
+              No properties found in this area
+            </div>
           ) : (
             <div className="space-y-2">
               {properties.map((property) => (
-                <div 
+                <div
                   key={property._id}
                   onClick={() => handlePropertyClick(property)}
-                  className={`cursor-pointer ${isValidCoordinates(property.coordinates) ? '' : 'opacity-50'}`}
+                  className={`cursor-pointer ${
+                    isValidCoordinates(property.coordinates) ? "" : "opacity-50"
+                  }`}
                 >
-                  <PropertyCard 
-                    property={property} 
+                  <PropertyCard
+                    scrollToSection={scrollToSection}
+                    property={property}
                     isSelected={selectedProperty?._id === property._id}
                   />
                   {!isValidCoordinates(property.coordinates) && (
@@ -595,95 +856,66 @@ export default function MapComponent() {
                   )}
                 </div>
               ))}
-                </div>
-              )}
             </div>
-          </div>
+          )}
+        </div>
+      </div>
 
       {/* Map Panel */}
-      <div ref={sectionRef} className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative">
+      {/*  */}
+      <div
+        ref={sectionRef}
+        className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative"
+      >
         <div className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded shadow text-xs">
-          Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} | 
+          Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} |
           Markers: {validPropertiesForMap.length}
         </div>
 
-        {/* Floating Map Search Switch */}
-        <div className="absolute bottom-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-3 border">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Map Search</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={!isSearchMode}
-                onChange={(e) => {
-                  setIsSearchMode(!e.target.checked);
-                  if (!e.target.checked) {
-                    const map = document.querySelector('.leaflet-container');
-                    if (map) {
-                      const leafletMap = map._leaflet_map;
-                      if (leafletMap) {
-                        const bounds = leafletMap.getBounds();
-                        handleBoundsChange({
-                          neLat: bounds.getNorthEast().lat,
-                          neLng: bounds.getNorthEast().lng,
-                          swLat: bounds.getSouthWest().lat,
-                          swLng: bounds.getSouthWest().lng
-                        });
-                      }
-                    }
-                  }
-                }}
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+        {/* Use My Location Button - Positioned in upper right corner */}
+        <div className="absolute top-4 right-4 z-[1000]">
+          <button
+            onClick={handleUseLocation}
+            disabled={isLocating}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#0E1524] text-[#0E1524] rounded-md hover:bg-gray-50 disabled:opacity-50 shadow-md"
+          >
+            <Navigation className="h-4 w-4" />
+            {isLocating ? "Getting Location..." : "Use My Location"}
+          </button>
+          {locationError && (
+            <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded shadow-md max-w-xs">
+              {locationError}
             </div>
-          <div className="mt-1 text-xs text-gray-500">
-            {!isSearchMode ? 'Auto-search while moving map' : 'Using search results'}
-          </div>
+          )}
         </div>
 
         <MapContainer
           center={mapCenter}
           zoom={zoom}
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: "100%", width: "100%" }}
           key={`${mapCenter[0]}-${mapCenter[1]}-${zoom}`}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          
+
           <MapController center={mapCenter} zoom={zoom} />
-          
+
           {validPropertiesForMap.map((property) => {
-            const [lat, lng] = property.coordinates;
+            const [lat, lng] =
+              property.displayCoordinates || property.coordinates;
             return (
               <Marker
                 key={property._id}
                 position={[lat, lng]}
                 icon={customIcon}
                 eventHandlers={{
-                  click: () => handleMarkerClick(property)
+                  click: () => handleMarkerClick(property),
                 }}
               >
-                <Popup>
-                  <div className="p-2 min-w-[200px]">
-                    <h3 className="font-semibold text-[#0E1524]">{property.project}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{property.city}</p>
-                    <p className="text-sm font-medium text-[#0E1524] mb-3">
-                      {property.minimumPrice ? `₹${(property.minimumPrice / 100000).toFixed(2)} L` : 'Price on Request'}
-                    </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = `/property-details/${property._id}`;
-                      }}
-                      className="w-full bg-[#0E1524] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors text-sm font-medium"
-                    >
-                      View Property
-                    </button>
-                  </div>
+                <Popup maxWidth={320} className="custom-popup">
+                  <PropertyPopup property={property} />
                 </Popup>
               </Marker>
             );
@@ -692,6 +924,6 @@ export default function MapComponent() {
           <MapEvents onBoundsChange={handleBoundsChange} />
         </MapContainer>
       </div>
-      </div>
+    </div>
   );
 }

@@ -689,33 +689,32 @@ export default function Login({
             stage1FormData || authPage
               ? `${
                   authPage ? "bg-white " : "bg-black p-4 sm:p-0"
-                } items-center  flex-col ${ 
+                } items-center  flex-col ${
                   authPage ? "" : "pt-5 md:pt-20"
                 }  h-full`
               : `rounded-xl bg-transparent absolute items-start  w-full h-[75dvh] md:h-fit ${properties}`
           }     flex justify-start  `}
         >
           <div className="flex bg-transparent  relative rounded-lg max-w-7xl overflow-hidden h-full justify-center md:justify-end  w-full mx-4 my-4 md:mx-0">
-           
-
             {/* Left Side - Form */}
             <form
               onKeyDown={handleKeyPress}
-              className={`w-full relative md:p-16 p-6 lg:p-12  flex flex-col ${
+              className={`w-full md:border md:border-1 md:border-gray-800 relative md:p-16 p-6 lg:p-12  flex flex-col ${
                 verify ? "justify-center" : "justify-start"
               } shadow-md rounded-xl bg-white lg:w-[400px] md:w-[450px]  ${
-                stage1FormData || authPage ? "h-fit" : "h-[95%] md:h-[500px] lg:h-[600px]"
+                stage1FormData || authPage
+                  ? "h-fit"
+                  : "h-[95%] md:h-[500px] lg:h-[600px]"
               }`}
             >
-
-{!(stage1FormData || authPage) && (
-              <button
-                onClick={onClose}
-                className="absolute text-black right-4 top-5 "
-              >
-                <GrClose />
-              </button>
-            )}
+              {!(stage1FormData || authPage) && (
+                <button
+                  onClick={onClose}
+                  className="absolute text-black right-4 top-5 "
+                >
+                  <GrClose />
+                </button>
+              )}
 
               {firstPropRewards !== 0 && !verify && (
                 <div className="flex flex-wrap items-center text-xs md:text-xs font-medium p-2 bg-green-50 text-green-800 rounded-lg mb-10 whitespace-nowrap mr-5 md:mr-0">

@@ -24,6 +24,10 @@ import {
   Link2,
   Share2,
 } from "lucide-react";
+import { set } from "lodash";
+
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -50,6 +54,10 @@ function ChatScreen() {
   const [matchedPropertyId, setMatchedPropertyId] = useState(null);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState(null);
+
+  const [loggedinUserPfp, setLoggedinUserPfp] = useState("");
+  const [loggedinUserId, setLoggedinUserId] = useState("");
+  const [loggedinUserName, setLoggedinUserName] = useState("");
 
   // Move useMemo before any conditional returns
   const sortedCommunities = useMemo(() => {
@@ -166,7 +174,6 @@ function ChatScreen() {
         
         if (response) {
           const properties = await response.json();
-          console.log(properties);
           
           
           // Find property that matches all required fields
@@ -180,9 +187,26 @@ function ChatScreen() {
           if (matchedProperty) {
             setMatchedPropertyId(matchedProperty._id);
           }
-          console.log(matchedProperty._id);
-          
+
         }
+
+        //fetch user details 
+        const ud = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${decoded.userId}?userId=${decoded.userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+          }
+        );
+        if (ud.data) {
+          console.log("User Details:", ud.data.profilePicture);
+          setLoggedinUserId(ud.data._id);
+          setLoggedinUserName(ud.data.name);
+          setLoggedinUserPfp(ud.data.profilePicture);
+        }
+
       } catch (error) {
         console.error("Error fetching properties:", error);
       }
@@ -561,9 +585,9 @@ function ChatScreen() {
   const InfoPanel = ({ currentGroupData, messages }) => {
     return (
       <div
-        className={`fixed inset-y-0 right-0 w-[80%] mt-[68px]  bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed z-50 inset-y-0 bg-white right-0 w-[80%] mt-[70px] shadow-lg transform transition-transform duration-300 ease-in-out ${
           isMobileInfoOpen ? "translate-x-0" : "translate-x-full"
-        } lg:hidden z-50`}
+        } lg:hidden `}
       >
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
@@ -572,14 +596,23 @@ function ChatScreen() {
             <X className="w-6 h-6" />
           </button>
         </div>
-
-        {/* Content */}
-        <div className=" overflow-scroll h-full pb-20">
+  
+        {/* Content with Perfect Scrollbar */}
+        <PerfectScrollbar
+          options={{
+            wheelSpeed: 2,
+            wheelPropagation: false,
+            minScrollbarLength: 20,
+            suppressScrollX: true,
+          }}
+          style={{ height: '84vh' }}
+          className="pb-20"
+        >
           {/* Media Panel */}
           <div className="p-4 border-b">
             <MediaPanel messages={messages} />
           </div>
-
+  
           {/* Group Members */}
           <div className="p-4 border-b">
             <h3 className="text-lg font-semibold mb-3">Group Members</h3>
@@ -588,28 +621,42 @@ function ChatScreen() {
                 !showAllMembers && currentGroupData?.customers?.length > 2
                   ? "max-h-[150px]"
                   : "max-h-[300px]"
-              } overflow-y-auto`}
+              }`}
             >
-              {currentGroupData?.customers
-                ?.slice(0, showAllMembers ? undefined : 2)
-                .map((customer, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <img
-                      src={
-                        customer.profilePicture ||
-                        process.env.REACT_APP_DEFAULT_PROFILE_URL
-                      }
-                      alt={customer.name}
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                      <p className="font-medium capitalize">{customer.name}</p>
-                      {customer.admin === "true" && (
-                        <span className="text-xs text-gold">Admin</span>
-                      )}
+              <PerfectScrollbar
+                options={{
+                  wheelSpeed: 1,
+                  wheelPropagation: true,
+                  minScrollbarLength: 10,
+                  suppressScrollX: true,
+                }}
+                style={{ 
+                  maxHeight: !showAllMembers && currentGroupData?.customers?.length > 2 
+                    ? '150px' 
+                    : '300px' 
+                }}
+              >
+                {currentGroupData?.customers
+                  ?.slice(0, showAllMembers ? undefined : 2)
+                  .map((customer, index) => (
+                    <div key={index} className="flex items-center space-x-3 mb-3">
+                      <img
+                        src={
+                          customer.profilePicture != "" ? customer.profilePicture :
+                          "/images/default.png"
+                        }
+                        alt={customer.name}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div>
+                        <p className="font-medium capitalize">{customer.name}</p>
+                        {customer.admin === "true" && (
+                          <span className="text-xs text-gold">Admin</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </PerfectScrollbar>
             </div>
             {currentGroupData?.customers?.length > 2 && (
               <button
@@ -622,7 +669,7 @@ function ChatScreen() {
               </button>
             )}
           </div>
-
+  
           {/* Important Links */}
           <div className="p-2 space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -643,7 +690,7 @@ function ChatScreen() {
                 </p>
               </Link>
             </div>
-
+  
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium mb-2">Official Website</h4>
               <Link
@@ -656,7 +703,7 @@ function ChatScreen() {
               </Link>
             </div>
           </div>
-        </div>
+        </PerfectScrollbar>
       </div>
     );
   };
@@ -830,7 +877,7 @@ function ChatScreen() {
                           )}
                         </div>
                       </div>
-
+ 
                       {/* Add unread message indicator */}
                       {unreadMessages[item._id]?.length > 0 && (
                         <div className="w-3 h-3 bg-green-500 rounded-full" />
@@ -914,7 +961,9 @@ function ChatScreen() {
                   <Chats
                     currentGroupDetails={currentGroupData}
                     communityId={currentGroupData._id}
-                    userId={userId}
+                    userId={loggedinUserId}
+                    userName={loggedinUserName}
+                    userPfp={loggedinUserPfp}
                     userToken={token}
                     onMessageUpdate={handleMessageUpdate}
                     onSeenMessage={handleMessageSeen}
@@ -956,8 +1005,8 @@ function ChatScreen() {
                       <div key={index} className="flex items-center space-x-3">
                         <img
                           src={
-                            customer.profilePicture ||
-                            process.env.REACT_APP_DEFAULT_PROFILE_URL
+                            customer.profilePicture != "" ? customer.profilePicture :
+                            "/images/default.png"
                           }
                           alt={customer.name}
                           className="w-10 h-10 rounded-full"

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const useMetaTags = ({ title, description }) => {
+const useMetaTags = ({ title, description, favicon }) => {
   useEffect(() => {
     // Set the document title
     document.title = title;
@@ -16,13 +16,24 @@ const useMetaTags = ({ title, description }) => {
       document.head.appendChild(meta);
     }
 
-    // Clean up if necessary
+    // Set or update favicon
+    if (favicon) {
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = favicon;
+    }
+
+    // Cleanup logic (optional: remove only meta if you don't want to unset favicon)
     return () => {
       if (metaDescription) {
         metaDescription.remove();
       }
     };
-  }, [title, description]);
+  }, [title, description, favicon]);
 };
 
 export default useMetaTags;
