@@ -308,9 +308,9 @@ function PropertyHeader({ property }) {
                     <h1 className="text-4xl font-semibold capitalize">
                       {property.project}
                     </h1>
-                    {/* {property.builder && (
+                    {property.builder && (
                       <h2 className="text-gray-700">By {property.builder}</h2>
-                    )} */}
+                    )}
                     {property.address && (
                       <p className="flex text-sm gap-1 text-gray-700">
                         <MapPin className="w-4 h-4" />

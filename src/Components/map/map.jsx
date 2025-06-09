@@ -132,7 +132,7 @@ const PropertyPopup = ({ property }) => {
       </button> */}
 
       {/* Header Section - No Image */}
-      <div className="relative bg-gradient-to-r from-[#0E1524] to-[#1a2332] rounded-t-lg p-4">
+      <div className="relative bg-gray-100 rounded-t-lg p-4">
         {/* Status Badge */}
         {property.status && (
           <div className="absolute top-2 right-2">
@@ -865,15 +865,15 @@ export default function MapComponent() {
       {/*  */}
       <div
         ref={sectionRef}
-        className="w-full h-[50vh] md:h-auto z-50 md:w-2/3 relative"
+        className="w-full h-[50vh] md:h-auto z-10 md:w-2/3 relative"
       >
-        <div className="absolute top-4 left-4 z-[1000] bg-white p-2 rounded shadow text-xs">
+        <div className="absolute top-4 md:bottom-4 md:top-auto left-4 z-10 bg-white p-2 rounded shadow text-xs">
           Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} |
           Markers: {validPropertiesForMap.length}
         </div>
 
         {/* Use My Location Button - Positioned in upper right corner */}
-        <div className="absolute top-4 right-4 z-[1000]">
+        <div className="absolute top-4 md:bottom-4 md:top-auto right-4 z-20">
           <button
             onClick={handleUseLocation}
             disabled={isLocating}
