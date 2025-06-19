@@ -45,6 +45,9 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
 
   const [formdata, setFormData] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
     city: "",
     officeLocation: "",
     kidsSchoolLocation: "",
@@ -81,6 +84,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const handleGoBack = () => {
     navigate(-1);
   };
+  
   const clearProgress = () => {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -92,8 +96,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Form validation
+    // Form validation - checking required fields based on schema
     if (
+      !formdata.name ||
+      !formdata.phoneNumber ||
       !formdata.city ||
       !formdata.officeLocation ||
       !formdata.kidsSchoolLocation ||
@@ -101,7 +107,21 @@ const Stage2Form = ({ setIsLoggedIn }) => {
       !formdata.type ||
       !formdata.constructionStatus
     ) {
-      return toast.error("Please fill all the fields.");
+      return toast.error("Please fill all the required fields.");
+    }
+
+    // Phone number validation (basic)
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (!phoneRegex.test(formdata.phoneNumber)) {
+      return toast.error("Please enter a valid phone number.");
+    }
+
+    // Email validation (if provided)
+    if (formdata.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formdata.email)) {
+        return toast.error("Please enter a valid email address.");
+      }
     }
 
     setIsSubmitting(true);
@@ -112,6 +132,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           formType === "buy" ? "Buy" : "Rent"
         }Query`,
         {
+          name: formdata.name,
+          phoneNumber: formdata.phoneNumber,
+          email: formdata.email,
+          queryType: formType, // This will be "buy" or "rent"
           city: formdata.city,
           officeLocation: formdata.officeLocation,
           kidsSchoolLocation: formdata.kidsSchoolLocation,
@@ -124,9 +148,14 @@ const Stage2Form = ({ setIsLoggedIn }) => {
 
       if (response.data) {
         toast.success("Query submitted successfully!");
+        const cityVar = formdata.city;
+        const availableForVar = formType === "rent" ? "rent" : "sale";
         clearProgress();
         // Reset form after successful submission
         setFormData({
+          name: "",
+          phoneNumber: "",
+          email: "",
           city: "",
           officeLocation: "",
           kidsSchoolLocation: "",
@@ -136,9 +165,13 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           constructionStatus: "",
           entryPoint: formdata.entryPoint,
         });
+
+        setTimeout(() => {
+          navigate(`/property-listing?city=${cityVar}&availableFor=${availableForVar}`) 
+        }, 500);
       }
     } catch (error) {
-      console.error("Error submitting buy query:", error);
+      console.error("Error submitting query:", error);
       if (error.response?.data?.errors) {
         // Handle validation errors from backend
         const errorMessage = error.response.data.errors
@@ -146,7 +179,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           .join(", ");
         toast.error(errorMessage);
       } else {
-        toast.error("Failed to submit buy query. Please try again.");
+        toast.error("Failed to submit query. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -183,15 +216,62 @@ const Stage2Form = ({ setIsLoggedIn }) => {
     <section className="flex items-center justify-center">
       <div className="bg-black min-h-screen h-[100vh] p-8 w-full px-6 sm:px-32 lg:px-[25vw] xl:px-[30vw] pt-[17vh] overflow-y-auto">
         <div className="flex flex-col justify-center items-center py-12 px-10 mt-10 border border-1 border-gray-200 rounded-2xl">
-          {/* <p className="md:text-3xl text-2xl text-white font-bold mb-5">
+          <p className="md:text-3xl text-2xl text-white font-bold mb-5">
             Add {formType === "buy" ? "Buy" : "Rent"} Query Details
-          </p> */}
+          </p>
 
           {/* Form Fields */}
           <div className="flex flex-col w-full">
-            {/* City */}
+            {/* Name - Required */}
             <div className="mb-4">
-              <label className="text-white">City</label>
+              <label className="text-white">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formdata.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
+              />
+            </div>
+
+            {/* Phone Number - Required */}
+            <div className="mb-4">
+              <label className="text-white">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={formdata.phoneNumber}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
+              />
+            </div>
+
+            {/* Email - Optional */}
+            <div className="mb-4">
+              <label className="text-white">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formdata.email}
+                onChange={handleChange}
+                placeholder="Enter your email (optional)"
+                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+              />
+            </div>
+
+            {/* City - Required */}
+            <div className="mb-4">
+              <label className="text-white">
+                City <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="city"
@@ -199,12 +279,15 @@ const Stage2Form = ({ setIsLoggedIn }) => {
                 onChange={handleChange}
                 placeholder="Enter city"
                 className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
               />
             </div>
 
-            {/* Office Location */}
+            {/* Office Location - Required */}
             <div className="mb-4">
-              <label className="text-white">Office Location</label>
+              <label className="text-white">
+                Office Location <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="officeLocation"
@@ -212,12 +295,15 @@ const Stage2Form = ({ setIsLoggedIn }) => {
                 onChange={handleChange}
                 placeholder="Enter office location"
                 className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
               />
             </div>
 
-            {/* Kids School Location */}
+            {/* Kids School Location - Required */}
             <div className="mb-4">
-              <label className="text-white">Kids School Location</label>
+              <label className="text-white">
+                Kids School Location <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="kidsSchoolLocation"
@@ -225,6 +311,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
                 onChange={handleChange}
                 placeholder="Enter kids' school location"
                 className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
               />
             </div>
 
@@ -242,9 +329,11 @@ const Stage2Form = ({ setIsLoggedIn }) => {
               </select>
             </div>
 
-            {/* Budget */}
+            {/* Budget - Required */}
             <div className="mb-4">
-              <label className="text-white">Budget</label>
+              <label className="text-white">
+                Budget <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="budget"
@@ -252,12 +341,15 @@ const Stage2Form = ({ setIsLoggedIn }) => {
                 onChange={handleChange}
                 placeholder="Enter budget"
                 className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+                required
               />
             </div>
 
-            {/* Property Type */}
+            {/* Property Type - Required */}
             <div className="mb-4">
-              <label className="text-white">Property Type</label>
+              <label className="text-white">
+                Property Type <span className="text-red-500">*</span>
+              </label>
               <CustomDropdown
                 options={propertyTypes}
                 value={formdata.type}
@@ -267,9 +359,11 @@ const Stage2Form = ({ setIsLoggedIn }) => {
               />
             </div>
 
-            {/* Construction Status */}
+            {/* Construction Status - Required */}
             <div className="mb-4">
-              <label className="text-white">Construction Status</label>
+              <label className="text-white">
+                Construction Status <span className="text-red-500">*</span>
+              </label>
               <CustomDropdown
                 options={constructionStatuses}
                 value={formdata.constructionStatus}
@@ -281,10 +375,10 @@ const Stage2Form = ({ setIsLoggedIn }) => {
           </div>
 
           {/* Submit Button */}
-          <div className="w-full flex-col-reverse flex md:flex-row items-center  justify-center mt-10 md:px-2">
+          <div className="w-full flex-col-reverse flex md:flex-row items-center justify-center mt-10 md:px-2">
             <button
               onClick={handleGoBack}
-              className="bg-gray-100 w-full md:w-[48%] mt-2 md:mt-0  md:mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
+              className="bg-gray-100 w-full md:w-[48%] mt-2 md:mt-0 md:mr-3 hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center"
             >
               <IoIosArrowRoundBack className="h-7 w-7 mr-1" />
               Back
@@ -292,7 +386,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`bg-gray-100 w-full  md:w-[48%]  hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
+              className={`bg-gray-100 w-full md:w-[48%] hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
                 isSubmitting ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, X, ChevronDown, ArrowUpDown, MapPin, Buildin
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function PropertySearchComponent() {
-
+ 
   const propSectionRef = useRef(null);
   useEffect(() => {
     // scroll directly to cards in mobile screen
@@ -976,103 +976,114 @@ export default function PropertySearchComponent() {
   </div>
 ) : (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {properties.map((property) => (
-      <div key={property._id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col h-full">
-        {/* Property Image */}
-        <div className="relative h-48 overflow-hidden bg-gray-200">
-          {property.images && property.images.length > 0 ? (
-            <img 
-              src={property.images[0].path || "/images/Logo1.png"} 
-              alt={property.project || "Property"} 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img 
-              src={"/images/Logo1.png"} 
-              alt={"Property"} 
-              className="w-full h-full object-cover"
-            />
-          )}
-          
-          {/* Status Badge */}
-          {property.status && (
-            <div className="absolute top-3 right-3">
-              <span className={`px-2 py-1 text-xs font-medium rounded ${
-                property.status.toLowerCase().includes('ready') 
-                  ? 'bg-green-100 text-green-800' 
-                  : property.status.toLowerCase().includes('construction')
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-blue-100 text-blue-800'
-              }`}>
-                {property.status === "completed" ? "Ready to Move" : property.status}
-              </span>
-            </div>
-          )}
-          
-          {/* Available For Badge */}
-          {property.availableFor && (
-            <div className="absolute bottom-2 right-3">
-              <span className={`px-2 py-1 text-xs font-medium rounded ${
-                property.availableFor.toLowerCase() === 'rent' 
-                  ? 'bg-indigo-100 text-indigo-800' 
-                  : property.availableFor.toLowerCase() === 'buy'
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-indigo-100 text-indigo-800'
-              }`}>
-                {property.availableFor === "Both" ? "For Rent & Sale" : property.availableFor}
-              </span>
-            </div>
-          )}
-        </div>
+  {properties.map((property) => (
+    <div
+      key={property._id}
+      className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col h-full"
+    >
+      {/* Image Section */}
+      <div className="relative h-48 overflow-hidden bg-gray-200">
+        <img
+          src={
+            property.thumbnail && property.thumbnail.path
+              ? property.thumbnail.path
+              : "/images/Logo1.png"
+          }
+          alt={property.project || "Property"}
+          className="w-full h-full object-cover"
+        />
 
-        {/* Property Details - This section will stretch as needed */}
-        <div className="p-4 flex-grow flex flex-col">
-          <div className="flex justify-between items-start mb-2">
+        {property.status && (
+          <div className="absolute top-3 right-3">
+            <span
+              className={`px-2 py-1 text-xs font-medium rounded ${
+                property.status.toLowerCase().includes("ready")
+                  ? "bg-green-100 text-green-800"
+                  : property.status.toLowerCase().includes("construction")
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-blue-100 text-blue-800"
+              }`}
+            >
+              {property.status === "completed"
+                ? "Ready to Move"
+                : property.status}
+            </span>
+          </div>
+        )}
+
+        {property.availableFor && (
+          <div className="absolute bottom-2 right-3">
+            <span className="px-2 py-1 text-xs font-medium rounded bg-indigo-100 text-indigo-800">
+              {property.availableFor === "Both"
+                ? "For Rent & Sale"
+                : property.availableFor}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Card Content */}
+      <div className="p-4 flex flex-col flex-grow justify-between">
+        <div className="flex flex-col gap-2 flex-grow">
+          {/* Title + Price */}
+          <div className="flex justify-between items-start">
             <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
               {property.project || "Unnamed Project"}
             </h3>
-            <div className="text-[#0E1524] font-semibold">
-              {formatPrice(property.minimumPrice)}
+            {property.minimumPrice && (
+              <div className="text-[#0E1524] font-semibold">
+                {formatPrice(property.minimumPrice)}
+              </div>
+            )}
+          </div>
+
+          {/* Location */}
+          {(property.sector || property.city || property.state) && (
+            <div className="flex items-center text-gray-600 text-sm">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span className="line-clamp-1">
+                {[property.sector, property.city, property.state]
+                  .filter(Boolean)
+                  .join(", ")}
+              </span>
             </div>
-          </div>
-          
-          <div className="flex items-center text-gray-600 text-sm mb-2">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span className="line-clamp-1">
-              {[property.sector, property.city, property.state].filter(Boolean).join(', ')}
-            </span>
-          </div>
-          
-          {/* Property Features */}
-          <div className="flex flex-wrap gap-3 my-3">
-            {property.bhk && (
-              <div className="flex items-center text-gray-700 text-sm">
-                <Bed className="h-4 w-4 mr-1" />
-                <span>{property.bhk} BHK</span>
-              </div>
-            )}
-            
-            {property.size && (
-              <div className="flex items-center text-gray-700 text-sm">
-                <Square className="h-4 w-4 mr-1" />
-                <span>{property.size} {property.sizeUnit || 'sq.ft'}</span>
-              </div>
-            )}
-            
-            {property.appartmentType && (
-              <div className="flex items-center text-gray-700 text-sm">
-                <Building className="h-4 w-4 mr-1" />
-                <span>{property.appartmentType}</span>
-              </div>
-            )}
-          </div>
-          
+          )}
+
+          {/* Features */}
+          {(property.bhk || property.size || property.appartmentType) && (
+            <div className="flex flex-wrap gap-3 mt-3">
+              {property.bhk && (
+                <div className="flex items-center text-gray-700 text-sm">
+                  <Bed className="h-4 w-4 mr-1" />
+                  <span>{property.bhk} BHK</span>
+                </div>
+              )}
+              {property.size && (
+                <div className="flex items-center text-gray-700 text-sm">
+                  <Square className="h-4 w-4 mr-1" />
+                  <span>
+                    {property.size} {property.sizeUnit || "sq.ft"}
+                  </span>
+                </div>
+              )}
+              {property.appartmentType != "" && (
+                <div className="flex items-center text-gray-700 text-sm">
+                  <Building className="h-4 w-4 mr-1" />
+                  <span>{property.appartmentType}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Amenities */}
-          {property.amenities && property.amenities.length > 0 && (
+          {property.amenities?.length > 0 && (
             <div className="mt-3 border-t pt-3 border-gray-100">
               <div className="flex flex-wrap gap-1">
                 {property.amenities.slice(0, 3).map((amenity, index) => (
-                  <span key={index} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                  <span
+                    key={index}
+                    className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
+                  >
                     {amenity}
                   </span>
                 ))}
@@ -1084,37 +1095,22 @@ export default function PropertySearchComponent() {
               </div>
             </div>
           )}
-          
-          {/* Builder Info */}
-          {/* {property.builder && (
-            <div className="mt-3 text-xs text-gray-500">
-              By: {property.builder}
-            </div>
-          )} */}
-          
-          {/* Spacer to push button to bottom */}
-          <div className="flex-grow"></div>
-          
-          {/* View Details Button - Always at bottom */}
-          <div className="mt-4 pt-3 border-t border-gray-100">
-          {/* <a
-                      href={`/property-details/${property._id}`}
-                      target="_blank"
-                      className="block w-full bg-[#0E1524] text-white no-underline visited:text-white hover:text-white active:text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors text-sm font-medium text-center"
-                    >
-                      View Property
-                    </a> */}
-            <a 
-              className="w-full block rounder-xl py-2 bg-[#0E1524] hover:bg-opacity-90 text-white font-medium rounded text-center transition-colors"
-              onClick={() => navigateToPropertyDetails(property._id)}
-            >
-              View Details
-            </a>
-          </div>
+        </div>
+
+        {/* Footer Button */}
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <a
+            className="w-full block py-2 bg-[#0E1524] hover:bg-opacity-90 text-white font-medium rounded text-center transition-colors"
+            onClick={() => navigateToPropertyDetails(property._id)}
+          >
+            View Details
+          </a>
         </div>
       </div>
-    ))}
-  </div>
+    </div>
+  ))}
+</div>
+
 )}
 
 </div>
