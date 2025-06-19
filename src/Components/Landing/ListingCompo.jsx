@@ -685,7 +685,7 @@ const ListingCompo = () => {
                             key={index}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                             onClick={() => handleCitySelect(city)}
-                          >
+                          > 
                             {city}
                           </div>
                         ))}

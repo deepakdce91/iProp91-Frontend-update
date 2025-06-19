@@ -66,6 +66,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     "/rewards": true, // Added rewards route with dark background
     "/rewards/": true,
     "/property-listing/": false,
+    "/search-properties": false,
   };
 
   // Define routes where the floating "Get Started" button should appear
@@ -103,7 +104,11 @@ const Navbar = ({ setIsLoggedIn }) => {
     const currentPath = location.pathname;
     if (currentPath.startsWith("/library")) {
       return false; // All library routes default to light background
+    }else if (currentPath.includes("/property-details/")) {
+      console.log("Property details route detected");
+      return false; // Property details routes default to dark background
     }
+
     return currentPath in specificRoutes ? specificRoutes[currentPath] : null;
   };
 
@@ -564,7 +569,7 @@ const Navbar = ({ setIsLoggedIn }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "-100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="z-[100] fixed h-screen w-screen -top-5 -left-5 lg:hidden text-white transform transition-transform duration-300 ease-in-out"
+            className="z-[999999] fixed h-screen w-screen -top-5 -left-5 lg:hidden text-white transform transition-transform duration-300 ease-in-out"
             ref={mobileMenuRef}
           >
             <div
