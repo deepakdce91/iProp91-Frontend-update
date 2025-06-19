@@ -51,18 +51,18 @@ const Calculator = () => {
   }
 
   return (
-    <div className="h-fit flex flex-col justify-center items-center bg-white dark:bg-gray-900 p-4 my-16 mr-2  md:p-8 border-[1px] shadow-lg border-black/50   rounded-lg   ">
+    <div className="h-fit flex flex-col justify-center items-center bg-white  p-4 my-16 mr-2  md:p-8 border-[1px] shadow-lg border-black/50   rounded-lg   ">
       <p className='text-4xl text-black font-bold mb-10 mt-10'>Tell us about your requirements</p>
       <div className="flex flex-col  gap-8 w-full max-w-4xl mx-auto">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-b-[4px] border-[1px] border-b-gold border-gold ">
+        <div className="bg-gray-50  rounded-2xl p-6 shadow-lg border-b-[4px] border-[1px] border-b-gold border-gold ">
           {/* Tabs */}
-          <div className="flex rounded-full bg-gray-100 dark:bg-gray-700 p-1 mb-8">
+          <div className="flex rounded-full bg-gray-100  p-1 mb-8">
             <button
               onClick={() => setActiveTab('emi')} 
               className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors
                 ${activeTab === 'emi' 
-                  ? 'bg-white dark:bg-gray-800 shadow-sm' 
-                  : 'text-gray-500 dark:text-gray-400'}`}
+                  ? 'bg-white  shadow-sm' 
+                  : 'text-gray-500 '}`}
             >
               CALCULATE EMI AMOUNT
             </button>
@@ -70,8 +70,8 @@ const Calculator = () => {
               onClick={() => setActiveTab('loan')}
               className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors
                 ${activeTab === 'loan' 
-                  ? 'bg-white dark:bg-gray-800 shadow-sm' 
-                  : 'text-gray-500 dark:text-gray-400'}`}
+                  ? 'bg-white  shadow-sm' 
+                  : 'text-gray-500 '}`}
             >
               CALCULATE HOME LOAN AMOUNT
             </button>
@@ -99,7 +99,7 @@ const Calculator = () => {
                     ? setLoanAmount(Number(e.target.value))
                     : setEmiAmount(Number(e.target.value))
                   }
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-black"
+                  className="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer accent-black"
                 />
                 <input
                   type="number"
@@ -133,7 +133,7 @@ const Calculator = () => {
                   step={0.5}
                   value={loanPeriod}
                   onChange={(e) => setLoanPeriod(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-black"
+                  className="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer accent-black"
                 />
                 <input
                   type="number"
@@ -165,7 +165,7 @@ const Calculator = () => {
                   step={0.2}
                   value={interestRate}
                   onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-black"
+                  className="w-full h-2 bg-gray-200  rounded-lg appearance-none cursor-pointer accent-black"
                 />
                 <input
                   type="number"
@@ -188,20 +188,20 @@ const Calculator = () => {
         {/* Results Panel - Unchanged */}
         <div className="flex flex-col justify-center  ">
           <div className="mb-8 flex flex-col justify-center items-center">
-            <h2 className="text-2xl text-gray-500 dark:text-gray-400 mb-2">Monthly EMI</h2>
+            <h2 className="text-2xl text-gray-500  mb-2">Monthly EMI</h2>
             <p className="text-5xl font-bold">
               {formatCurrency(getMonthlyEMI())}
             </p>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-b-[4px] border-[1px] border-b-gold border-gold">
+          <div className="bg-gray-50  rounded-2xl p-6 shadow-lg border-b-[4px] border-[1px] border-b-gold border-gold">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Amount Payable</h3>
+                <h3 className="text-sm text-gray-500  mb-1">Total Amount Payable</h3>
                 <p className="text-xl font-semibold">{formatCurrency(getTotalAmount())}</p>
               </div>
               <div>
-                <h3 className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Interest Payable</h3>
+                <h3 className="text-sm text-gray-500  mb-1">Total Interest Payable</h3>
                 <p className="text-xl font-semibold">{formatCurrency(getInterestAmount())}</p>
               </div>
             </div>
