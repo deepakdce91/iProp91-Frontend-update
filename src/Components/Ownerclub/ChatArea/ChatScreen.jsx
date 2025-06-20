@@ -89,6 +89,7 @@ function ChatScreen() {
     }
   }, [communitySearchQuery, groupNames]);
 
+
   // Move fetchAllCommunities outside useEffect and make it a function declaration
   const fetchAllCommunities = () => {
     if (!token || !userId) return;
@@ -216,6 +217,12 @@ function ChatScreen() {
       fetchAndMatchProperty();
     }
   }, [currentGroupData]);
+
+
+  const memoizedMessages = useMemo(() => {
+    return allMessages[currentGroupData?._id] || [];
+  }, [allMessages, currentGroupData?._id]);
+
 
   // Early return if no token
   if (!token || !userId) {
@@ -582,7 +589,7 @@ function ChatScreen() {
     );
   };
 
-  const InfoPanel = ({ currentGroupData, messages }) => {
+  const InfoPanel = React.memo(({ currentGroupData, messages }) => {
     return (
       <div
         className={`fixed z-50 inset-y-0 bg-white right-0 w-[80%] mt-[70px] shadow-lg transform transition-transform duration-300 ease-in-out ${
@@ -609,7 +616,7 @@ function ChatScreen() {
           className="pb-20"
         >
           {/* Media Panel */}
-          <div className="p-4 border-b">
+          <div className="p-4 hidden md:block border-b">
             <MediaPanel messages={messages} />
           </div>
   
@@ -706,7 +713,7 @@ function ChatScreen() {
         </PerfectScrollbar>
       </div>
     );
-  };
+  });
 
   return (
     <div className="h-screen w-full">
@@ -822,7 +829,7 @@ function ChatScreen() {
                       <div className="flex-1 flex items-center">
                         <div className="bg-gray-300 rounded-xl mr-3 border-2 border-gold">
                           <img
-                            src={item.thumbnail || defaultCommunityUrl}
+                            src={item.thumbnail && item.thumbnail != "" && item.thumbnail.includes("https") ? item.thumbnail : defaultCommunityUrl}
                             alt="Community Avatar"
                             className="w-12 h-12 rounded-xl"
                           />
@@ -1202,10 +1209,12 @@ function ChatScreen() {
         </div>
       )}
 
+
+
       {/* Add the InfoPanel */}
       <InfoPanel
         currentGroupData={currentGroupData}
-        messages={allMessages[currentGroupData?._id] || []}
+        messages={memoizedMessages}
       />
 
       {/* Add MediaModal */}
