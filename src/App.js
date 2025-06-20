@@ -15,40 +15,26 @@ import WelcomePage from "./Components/Welcome/WelcomePage.jsx";
 import PropertyDetail from "./Components/listingpage/id/page.jsx";
 import { AuthProvider } from "./context/AuthContext";
 
-// import { FcLock } from "react-icons/fc";
-
-// Loading Component
+// Custom Loading Screen Component
 const LoadingScreen = () => {
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: '#000000',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999
-    }}>
-      <div style={{
-        width: '50px',
-        height: '50px',
-        border: '3px solid #333',
-        borderTop: '3px solid #ffffff',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }}>
+    <div className="fixed inset-0 min-h-screen bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)] flex items-center justify-center z-50">
+      <div className="flex flex-col items-center space-y-4">
+        {/* Spinner */}
+        <div className="w-16 h-16 border-4 border-gray-600 border-t-white rounded-full animate-spin"></div>
+        
+        {/* Loading text */}
+        <div className="text-white text-lg font-medium animate-pulse">
+          Loading...
+        </div>
+        
+        {/* Optional: Progress dots */}
+        <div className="flex space-x-1">
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        </div>
       </div>
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
     </div>
   );
 };
@@ -56,8 +42,19 @@ const LoadingScreen = () => {
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [routeLoading, setRouteLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Handle route changes with loading state
+  useEffect(() => {
+    setRouteLoading(true);
+    const timer = setTimeout(() => {
+      setRouteLoading(false);
+    }, 300); // Minimum loading time for smooth transition
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -96,52 +93,52 @@ function App() {
   // Custom hook to manage JWT token
   useAuthToken(navigate);
 
-  if (isLoading) {
+  // Show loading screen during initial load or route changes
+  if (isLoading || routeLoading) {
     return <LoadingScreen />;
   }
 
   return (
     <AuthProvider>
-    <div className="app">
-      <div className="Poppins">
-        {" "}
-        {/* <Footer /> */}{" "}
-        <Routes>
-          {/* Public routes accessible to all */}
-          <Route path="/welcome/:token" element={<WelcomePage />} />
-          <Route path="/invite/:token" element={<InvitationPage />} />
-          {/* Unauthenticated routes */}
-          {isLoggedIn === false && (
+      <div className="app">
+        <div className="Poppins">
+          <Routes>
+            {/* Public routes accessible to all */}
+            <Route path="/welcome/:token" element={<WelcomePage />} />
+            <Route path="/invite/:token" element={<InvitationPage />} />
+            
+            {/* Unauthenticated routes */}
+            {isLoggedIn === false && (
+              <Route
+                path="/*"
+                element={<Landing setIsLoggedIn={setIsLoggedIn} />}
+              />
+            )}
             <Route
-              path="/*"
-              element={<Landing setIsLoggedIn={setIsLoggedIn} />}
+              path="/authenticate"
+              element={<Auth setIsLoggedIn={setIsLoggedIn} authPage={true} />}
             />
-          )}
-          <Route
-            path="/authenticate"
-            element={<Auth setIsLoggedIn={setIsLoggedIn} authPage={true} />}
-          />
-          <Route path="/name" element={<AskName />} />
-          {/* Protected routes */}
-          {isLoggedIn === true && (
-            <Route
-              path="/*"
-              element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
-            />
-          )}
-          {/* <Footer/> */}{" "}
-        </Routes>{" "}
-      </div>{" "}
-      <ToastContainer
-        position="top-center"
-        autoClose={2000} // Ensure toasts auto-close
-        hideProgressBar={false} // Show the progress bar
-        newestOnTop={true}
-        closeOnClick
-        pauseOnHover
-        draggable
-      />
-    </div>
+            <Route path="/name" element={<AskName />} />
+            
+            {/* Protected routes */}
+            {isLoggedIn === true && (
+              <Route
+                path="/*"
+                element={<AllPage setIsLoggedIn={setIsLoggedIn} />}
+              />
+            )}
+          </Routes>
+        </div>
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          pauseOnHover
+          draggable
+        />
+      </div>
     </AuthProvider>
   );
 }
