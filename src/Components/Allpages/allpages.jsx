@@ -40,7 +40,7 @@ export default function AllPage() {
   }, [location.pathname]);
   return ( 
     <>
-      <div className="flex flex-col w-screen bg-black h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
+      <div className="flex flex-col w-screen bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]  h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
         <Sidebar />
         <div className="w-full  lg:p-1 ">
           <Routes> 

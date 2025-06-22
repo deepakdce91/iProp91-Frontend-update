@@ -96,33 +96,19 @@ const Stage2Form = ({ setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Form validation - checking required fields based on schema
-    if (
-      !formdata.name ||
-      !formdata.phoneNumber ||
-      !formdata.city ||
-      !formdata.officeLocation ||
-      !formdata.kidsSchoolLocation ||
-      !formdata.budget ||
-      !formdata.type ||
-      !formdata.constructionStatus
-    ) {
-      return toast.error("Please fill all the required fields.");
-    }
-
     // Phone number validation (basic)
-    const phoneRegex = /^[0-9]{10,15}$/;
-    if (!phoneRegex.test(formdata.phoneNumber)) {
-      return toast.error("Please enter a valid phone number.");
-    }
+    // const phoneRegex = /^[0-9]{10,15}$/;
+    // if (!phoneRegex.test(formdata.phoneNumber)) {
+    //   return toast.error("Please enter a valid phone number.");
+    // }
 
-    // Email validation (if provided)
-    if (formdata.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formdata.email)) {
-        return toast.error("Please enter a valid email address.");
-      }
-    }
+    // // Email validation (if provided)
+    // if (formdata.email) {
+    //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //   if (!emailRegex.test(formdata.email)) {
+    //     return toast.error("Please enter a valid email address.");
+    //   }
+    // }
 
     setIsSubmitting(true);
 
@@ -167,7 +153,11 @@ const Stage2Form = ({ setIsLoggedIn }) => {
         });
 
         setTimeout(() => {
-          navigate(`/property-listing?city=${cityVar}&availableFor=${availableForVar}`) 
+          if (cityVar !== "" && availableForVar) {
+            navigate(`/property-listing?city=${cityVar}&availableFor=${availableForVar}`);
+          }else{
+            navigate(`/property-listing?availableFor=${availableForVar}`);
+          }       
         }, 500);
       }
     } catch (error) {
@@ -222,55 +212,12 @@ const Stage2Form = ({ setIsLoggedIn }) => {
 
           {/* Form Fields */}
           <div className="flex flex-col w-full">
-            {/* Name - Required */}
-            <div className="mb-4">
-              <label className="text-white">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formdata.name}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
-                required
-              />
-            </div>
-
-            {/* Phone Number - Required */}
-            <div className="mb-4">
-              <label className="text-white">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formdata.phoneNumber}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
-                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
-                required
-              />
-            </div>
-
-            {/* Email - Optional */}
-            <div className="mb-4">
-              <label className="text-white">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formdata.email}
-                onChange={handleChange}
-                placeholder="Enter your email (optional)"
-                className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
-              />
-            </div>
+           
 
             {/* City - Required */}
             <div className="mb-4">
               <label className="text-white">
-                City <span className="text-red-500">*</span>
+                City  
               </label>
               <input
                 type="text"
@@ -286,7 +233,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             {/* Office Location - Required */}
             <div className="mb-4">
               <label className="text-white">
-                Office Location <span className="text-red-500">*</span>
+                Office Location  
               </label>
               <input
                 type="text"
@@ -302,7 +249,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             {/* Kids School Location - Required */}
             <div className="mb-4">
               <label className="text-white">
-                Kids School Location <span className="text-red-500">*</span>
+                Kids School Location  
               </label>
               <input
                 type="text"
@@ -317,7 +264,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
 
             {/* Medical Assistance Required */}
             <div className="mb-4">
-              <label className="text-white">Medical Assistance Required</label>
+              <label className="text-white">Do you want hospital nearby?</label>
               <select
                 name="medicalAssistanceRequired"
                 value={formdata.medicalAssistanceRequired}
@@ -332,7 +279,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             {/* Budget - Required */}
             <div className="mb-4">
               <label className="text-white">
-                Budget <span className="text-red-500">*</span>
+                Budget  
               </label>
               <input
                 type="text"
@@ -348,7 +295,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             {/* Property Type - Required */}
             <div className="mb-4">
               <label className="text-white">
-                Property Type <span className="text-red-500">*</span>
+                Property Type  
               </label>
               <CustomDropdown
                 options={propertyTypes}
@@ -362,7 +309,7 @@ const Stage2Form = ({ setIsLoggedIn }) => {
             {/* Construction Status - Required */}
             <div className="mb-4">
               <label className="text-white">
-                Construction Status <span className="text-red-500">*</span>
+                Construction Status  
               </label>
               <CustomDropdown
                 options={constructionStatuses}

@@ -131,7 +131,7 @@ const TypingLandingPage = () => {
       {!showNavbar &&
         !showFooter &&
         hasVisited === null && ( // Only show message if hasVisited is null
-          <div className="flex justify-center items-center h-screen bg-black">
+          <div className="flex justify-center items-center h-screen bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]"> 
             {showMessage && (
               <div className="flex flex-col items-center">
                 <h1 className="text-4xl md:text-6xl font-bold text-white fade-in-text">
