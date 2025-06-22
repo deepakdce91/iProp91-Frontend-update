@@ -13,12 +13,12 @@ const CustomDropdown = ({
 }) => {
   return (
     <div className="mb-4">
-      {label && <label className="text-white">{label}</label>}
+      {label && <label className="text-gray-700">{label}</label>}
       <select
         name={name}
         value={value}
         onChange={onChange}
-        className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white"
+        className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="" disabled>
           {placeholder}
@@ -35,6 +35,7 @@ const CustomDropdown = ({
 
 const BuyPopupForm = ({ isOpen, onClose, formType = "buy" }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPropertyPreferences, setShowPropertyPreferences] = useState(false);
   const [formdata, setFormData] = useState({
     name: "",
     phoneNumber: "",
@@ -69,6 +70,24 @@ const BuyPopupForm = ({ isOpen, onClose, formType = "buy" }) => {
       ...prevData,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    setShowPropertyPreferences(e.target.checked);
+    
+    // Clear property preferences data when unchecked
+    if (!e.target.checked) {
+      setFormData((prevData) => ({
+        ...prevData,
+        city: "",
+        officeLocation: "",
+        kidsSchoolLocation: "",
+        medicalAssistanceRequired: "no",
+        budget: "",
+        type: "",
+        constructionStatus: "",
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -122,6 +141,7 @@ const BuyPopupForm = ({ isOpen, onClose, formType = "buy" }) => {
           type: "",
           constructionStatus: "",
         });
+        setShowPropertyPreferences(false);
         
         onClose();
       } else {
@@ -160,14 +180,14 @@ const BuyPopupForm = ({ isOpen, onClose, formType = "buy" }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       onClick={handleOverlayClick}
     >
-      <div className="bg-black border border-gray-600 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-2xl">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
         >
           <X size={24} />
         </button>
@@ -175,189 +195,170 @@ const BuyPopupForm = ({ isOpen, onClose, formType = "buy" }) => {
         {/* Form Content */}
         <div className="p-8">
           <div className="flex flex-col justify-center items-center">
-            <h2 className="text-2xl md:text-3xl text-white font-bold mb-8 pr-8">
-              Add Query Details
+            <h2 className="text-2xl md:text-3xl text-gray-900 font-bold mb-8 pr-8">
+              Start your Buying Journey
             </h2>
 
             {/* Form Fields */}
             <div className="flex flex-col w-full">
               {/* Contact Information Section */}
               <div className="mb-6">
-                <h3 className="text-lg text-white font-semibold mb-4 border-b border-gray-600 pb-2">
-                  Contact Information
-                </h3>
-                
                 {/* Name */}
                 <div className="mb-4">
-                  <label className="text-white">
-                    Name <span className="text-red-400">*</span>
-                  </label>
                   <input
                     type="text"
                     name="name"
                     value={formdata.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
 
                 {/* Phone Number */}
                 <div className="mb-4">
-                  <label className="text-white">
-                    Phone Number <span className="text-red-400">*</span>
-                  </label>
                   <input
                     type="tel"
                     name="phoneNumber"
                     value={formdata.phoneNumber}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
-
-                {/* Email */}
-                <div className="mb-4">
-                  <label className="text-white">Email (Optional)</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formdata.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email address"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  />
-                </div>
               </div>
 
-              {/* Property Preferences Section */}
+              {/* Property Preferences Checkbox */}
               <div className="mb-6">
-                <h3 className="text-lg text-white font-semibold mb-4 border-b border-gray-600 pb-2">
-                  Property Preferences
-                </h3>
-                
-                {/* City */}
-                <div className="mb-4">
-                  <label className="text-white">City</label>
+                <div className="flex items-center">
                   <input
-                    type="text"
-                    name="city"
-                    value={formdata.city}
-                    onChange={handleChange}
-                    placeholder="Enter preferred city"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    type="checkbox"
+                    id="showPropertyPreferences"
+                    checked={showPropertyPreferences}
+                    onChange={handleCheckboxChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                </div>
-
-                {/* Office Location */}
-                <div className="mb-4">
-                  <label className="text-white">Office Location</label>
-                  <input
-                    type="text"
-                    name="officeLocation"
-                    value={formdata.officeLocation}
-                    onChange={handleChange}
-                    placeholder="Enter office location"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  />
-                </div>
-
-                {/* Kids School Location */}
-                <div className="mb-4">
-                  <label className="text-white">Kids School Location</label>
-                  <input
-                    type="text"
-                    name="kidsSchoolLocation"
-                    value={formdata.kidsSchoolLocation}
-                    onChange={handleChange}
-                    placeholder="Enter kids' school location"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  />
-                </div>
-
-                {/* Medical Assistance Required */}
-                <div className="mb-4">
-                  <label className="text-white">Medical Assistance Required</label>
-                  <select
-                    name="medicalAssistanceRequired"
-                    value={formdata.medicalAssistanceRequired}
-                    onChange={handleChange}
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  >
-                    <option value="no">No</option>
-                    <option value="yes">Yes</option>
-                  </select>
-                </div>
-
-                {/* Budget */}
-                <div className="mb-4">
-                  <label className="text-white">Budget</label>
-                  <input
-                    type="text"
-                    name="budget"
-                    value={formdata.budget}
-                    onChange={handleChange}
-                    placeholder="Enter your budget range"
-                    className="w-full p-2 mt-1 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  />
-                </div>
-
-                {/* Property Type */}
-                <div className="mb-4">
-                  <label className="text-white">Property Type</label>
-                  <CustomDropdown
-                    options={propertyTypes}
-                    value={formdata.type}
-                    onChange={handleChange}
-                    placeholder="Select property type"
-                    name="type"
-                  />
-                </div>
-
-                {/* Construction Status */}
-                <div className="mb-4">
-                  <label className="text-white">Construction Status</label>
-                  <CustomDropdown
-                    options={constructionStatuses}
-                    value={formdata.constructionStatus}
-                    onChange={handleChange}
-                    placeholder="Select construction status"
-                    name="constructionStatus"
-                  />
+                  <label htmlFor="showPropertyPreferences" className="ml-2 text-gray-700 font-medium">
+                    Provide property preferences
+                  </label>
                 </div>
               </div>
+
+              {/* Property Preferences Section - Conditionally Rendered */}
+              {showPropertyPreferences && (
+                <div className="mb-6">
+                  <h3 className="text-lg text-gray-900 font-semibold mb-4 border-b border-gray-300 pb-2">
+                    Help us understand your needs
+                  </h3>
+                  
+                  {/* City */}
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      name="city"
+                      value={formdata.city}
+                      onChange={handleChange}
+                      placeholder="Enter preferred city"
+                      className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Office Location */}
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      name="officeLocation"
+                      value={formdata.officeLocation}
+                      onChange={handleChange}
+                      placeholder="Enter office location"
+                      className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Kids School Location */}
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      name="kidsSchoolLocation"
+                      value={formdata.kidsSchoolLocation}
+                      onChange={handleChange}
+                      placeholder="Enter kids' school location"
+                      className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Medical Assistance Required */}
+                  <div className="mb-4">
+                    <label className="text-gray-700">Medical Assistance Required</label>
+                    <select
+                      name="medicalAssistanceRequired"
+                      value={formdata.medicalAssistanceRequired}
+                      onChange={handleChange}
+                      className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+
+                  {/* Budget */}
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      name="budget"
+                      value={formdata.budget}
+                      onChange={handleChange}
+                      placeholder="Enter your budget range"
+                      className="w-full p-2 mt-1 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Property Type */}
+                  <div className="mb-4">
+                    <CustomDropdown
+                      options={propertyTypes}
+                      value={formdata.type}
+                      onChange={handleChange}
+                      placeholder="Select property type"
+                      name="type"
+                    />
+                  </div>
+
+                  {/* Construction Status */}
+                  <div className="mb-4">
+                    <CustomDropdown
+                      options={constructionStatuses}
+                      value={formdata.constructionStatus}
+                      onChange={handleChange}
+                      placeholder="Select construction status"
+                      name="constructionStatus"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
             <div className="w-full flex flex-col-reverse md:flex-row items-center justify-center mt-8 gap-3">
               <button
                 onClick={onClose}
-                className="bg-gray-600 w-full md:w-[48%] hover:bg-gray-500 text-white transition-all py-3 px-6 text-center rounded-xl flex items-center justify-center"
+                className="bg-gray-200 w-full md:w-[48%] hover:bg-gray-300 text-gray-800 transition-all py-3 px-6 text-center rounded-xl flex items-center justify-center"
               >
-                {/* <IoIosArrowRoundBack className="h-7 w-7 mr-1" /> */}
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className={`bg-gray-100 w-full md:w-[48%] hover:bg-white text-gray-900 hover:text-black transition-all py-3 px-6 text-center border border-black/20 hover:border-white/20 rounded-xl flex items-center justify-center ${
+                className={`bg-blue-600 w-full md:w-[48%] hover:bg-blue-700 text-white transition-all py-3 px-6 text-center rounded-xl flex items-center justify-center ${
                   isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {isSubmitting ? "Submitting..." : `Submit Query`}
-                {/* {!isSubmitting && (
-                  <IoIosArrowRoundForward className="h-7 w-7 ml-1" />
-                )} */}
+                {isSubmitting ? "Submitting..." : `Submit`}
               </button>
             </div>
 
-            {/* Required Fields Note */}
-            <p className="text-gray-400 text-sm mt-4 text-center">
-              <span className="text-red-400">*</span> Required fields
-            </p>
           </div>
         </div>
       </div>

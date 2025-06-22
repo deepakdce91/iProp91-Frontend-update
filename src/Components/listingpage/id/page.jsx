@@ -878,7 +878,6 @@ const Amenities = ({ amenities = [] }) => {
   if (!amenities || amenities.length === 0) return null;
 
   const allAmenities = [
-    // Your amenity definitions...
     { name: "Power Back Up", icon: Lightbulb, category: "Essential Services" },
     { name: "Water Storage", icon: Droplet, category: "Essential Services" },
     { name: "Rain Water Harvesting", icon: CloudRain, category: "Essential Services" },
@@ -903,19 +902,13 @@ const Amenities = ({ amenities = [] }) => {
     { name: "Reserved Parking", icon: Car, category: "Parking" },
   ];
 
-  const availableAmenities = amenities.map((a) => a.toLowerCase());
+  // Convert to lowercase for case-insensitive comparison
+  const availableAmenities = amenities.map((a) => a.toLowerCase().trim());
 
   const sortedAmenities = allAmenities.sort((a, b) => {
-    const aAvailable = availableAmenities.some(
-      (amenity) =>
-        a.name.toLowerCase().includes(amenity) ||
-        amenity.includes(a.name.toLowerCase())
-    );
-    const bAvailable = availableAmenities.some(
-      (amenity) =>
-        b.name.toLowerCase().includes(amenity) ||
-        amenity.includes(b.name.toLowerCase())
-    );
+    // Check for direct match (case-insensitive)
+    const aAvailable = availableAmenities.includes(a.name.toLowerCase().trim());
+    const bAvailable = availableAmenities.includes(b.name.toLowerCase().trim());
     return aAvailable && !bAvailable ? -1 : !aAvailable && bAvailable ? 1 : 0;
   });
 
@@ -931,11 +924,8 @@ const Amenities = ({ amenities = [] }) => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6">
           {displayedAmenities.map((amenity, index) => {
             const AmenityIcon = amenity.icon;
-            const isAvailable = availableAmenities.some(
-              (a) =>
-                amenity.name.toLowerCase().includes(a) ||
-                a.includes(amenity.name.toLowerCase())
-            );
+            // Check for direct match (case-insensitive)
+            const isAvailable = availableAmenities.includes(amenity.name.toLowerCase().trim());
 
             return (
               <div
@@ -948,13 +938,9 @@ const Amenities = ({ amenities = [] }) => {
                   }`}
               >
                 <div className="absolute top-3 right-3 z-[5]">
-                  {isAvailable ? (
+                  {isAvailable && (
                     <div className="bg-green-500 rounded-full p-1">
                       <CheckCircle2 size={14} className="text-white" />
-                    </div>
-                  ) : (
-                    <div className="bg-gray-300 rounded-full p-1">
-                      <X size={14} className="text-gray-500" />
                     </div>
                   )}
                 </div>
@@ -974,15 +960,6 @@ const Amenities = ({ amenities = [] }) => {
                   >
                     {amenity.name}
                   </span>
-                  <div
-                    className={`mt-2 px-2 py-1 rounded-full text-xs font-medium ${
-                      isAvailable
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {amenity.category}
-                  </div>
                 </div>
 
                 <div
@@ -997,7 +974,8 @@ const Amenities = ({ amenities = [] }) => {
           })}
         </div>
 
-        {hasMoreToShow && isMobile && (
+        {/* Show More button - now available on all devices when there are more amenities */}
+        {hasMoreToShow && (
           <div className="text-center mb-6">
             <button
               onClick={() => setShowAll(!showAll)}
@@ -1019,19 +997,15 @@ const Amenities = ({ amenities = [] }) => {
         )}
 
         <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex flex-col items-start md:flex-row md:items-center  md:gap-6 ">
-            <div className="flex  items-start md:items-center gap-2">
+          <div className="flex flex-col items-start md:flex-row md:items-center md:gap-6">
+            <div className="flex items-start md:items-center gap-2">
               <div className="bg-green-500 rounded-full p-1">
                 <CheckCircle2 size={16} className="text-white" />
               </div>
               <span className="text-sm font-medium text-gray-700">
                 {
                   displayedAmenities.filter((amenity) =>
-                    availableAmenities.some(
-                      (a) =>
-                        amenity.name.toLowerCase().includes(a) ||
-                        a.includes(amenity.name.toLowerCase())
-                    )
+                    availableAmenities.includes(amenity.name.toLowerCase().trim())
                   ).length
                 }{" "}
                 Available {showAll ? "" : `(showing first ${defaultVisible})`}
@@ -1046,11 +1020,7 @@ const Amenities = ({ amenities = [] }) => {
                 {
                   displayedAmenities.filter(
                     (amenity) =>
-                      !availableAmenities.some(
-                        (a) =>
-                          amenity.name.toLowerCase().includes(a) ||
-                          a.includes(amenity.name.toLowerCase())
-                      )
+                      !availableAmenities.includes(amenity.name.toLowerCase().trim())
                   ).length
                 }{" "}
                 Not Available

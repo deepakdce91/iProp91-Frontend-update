@@ -27,7 +27,7 @@ useEffect(() => {
 
   return (
     <section className="relative items-center lg:items-start justify-center  flex flex-col md:flex-row  text-black h-fit mt-10"  >
-      <div className="container mx-auto px-4 pl-8  lg:w-[35%] w-full py-20 pt-32">
+      <div className="container mx-auto px-4 pl-8  lg:w-[35%] w-full py-20 pt-20 md:pt-32">
         <div className="grid lg:grid-cols-1  gap-12 items-center ">
           <div className="space-y-8">
             <h1 className="text-4xl lg:text-6xl font-bold w-full leading-tight">
@@ -73,7 +73,7 @@ useEffect(() => {
           </div>
           
         </div>
-          <div className="text-center flex items-center w-[20vw] mt-12">
+          <div className="text-center flex items-center w-full lg:w-[20vw] mt-12">
           <Goldbutton
   properties="border-[1px] border-gold bg-gray-100 w-full sm:w-[16rem] md:w-[14rem] lg:w-[12rem] text-black px-8 py-3 rounded-lg font-medium transition-colors text-lg font-bold"
   btnname={"GET STARTED"}
@@ -82,7 +82,7 @@ useEffect(() => {
 
           </div>
       </div>
-      <div className="lg:w-[65%] w-full  flex items-center justify-center">
+      <div className="lg:w-[65%] w-full md:pt-12 ml-2 md:mx-0  flex items-center justify-center">
         {Calculator}
         </div>
 
