@@ -26,8 +26,8 @@ import {
 } from "lucide-react";
 import { set } from "lodash";
 
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import 'react-perfect-scrollbar/dist/css/styles.css';
+import PerfectScrollbar from "react-perfect-scrollbar";
+import "react-perfect-scrollbar/dist/css/styles.css";
 
 const defaultCommunityUrl = "/community-pfp.jpg";
 
@@ -88,7 +88,6 @@ function ChatScreen() {
       setFilteredGroupNames(filtered);
     }
   }, [communitySearchQuery, groupNames]);
-
 
   // Move fetchAllCommunities outside useEffect and make it a function declaration
   const fetchAllCommunities = () => {
@@ -172,26 +171,25 @@ function ChatScreen() {
             },
           }
         );
-        
+
         if (response) {
           const properties = await response.json();
-          
-          
+
           // Find property that matches all required fields
-          const matchedProperty = properties.find(property => 
-            property.builder === currentGroupData?.builder &&
-            property.city === currentGroupData?.city &&
-            property.state === currentGroupData?.state &&
-            property.project === currentGroupData?.projects
+          const matchedProperty = properties.find(
+            (property) =>
+              property.builder === currentGroupData?.builder &&
+              property.city === currentGroupData?.city &&
+              property.state === currentGroupData?.state &&
+              property.project === currentGroupData?.projects
           );
 
           if (matchedProperty) {
             setMatchedPropertyId(matchedProperty._id);
           }
-
         }
 
-        //fetch user details 
+        //fetch user details
         const ud = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/api/users/fetchuser/${decoded.userId}?userId=${decoded.userId}`,
           {
@@ -207,7 +205,6 @@ function ChatScreen() {
           setLoggedinUserName(ud.data.name);
           setLoggedinUserPfp(ud.data.profilePicture);
         }
-
       } catch (error) {
         console.error("Error fetching properties:", error);
       }
@@ -291,7 +288,6 @@ function ChatScreen() {
     });
   };
 
-
   const memoizedMessages = useMemo(() => {
     return allMessages[currentGroupData?._id] || [];
   }, [allMessages, currentGroupData?._id]);
@@ -302,11 +298,10 @@ function ChatScreen() {
     const mediaByType = {
       image: getMediaByType(messagesList, "image"),
       video: getMediaByType(messagesList, "video"),
-      application: getMediaByType(messagesList, "application")
+      application: getMediaByType(messagesList, "application"),
     };
     return { mediaCounts, mediaByType };
   }, [memoizedMessages]);
-
 
   // Early return if no token
   if (!token || !userId) {
@@ -367,8 +362,6 @@ function ChatScreen() {
     setMenuOpenFor(null);
   };
 
-  
-
   // Add function to handle message updates from Chat component
   const handleMessageUpdate = (data) => {
     const { communityId, messages, type } = data;
@@ -411,7 +404,6 @@ function ChatScreen() {
 
   // Modify MediaPanel component
   const MediaPanel = ({ messages }) => {
-
     const { mediaCounts, mediaByType } = messages;
 
     const openMediaModal = (type) => {
@@ -434,8 +426,8 @@ function ChatScreen() {
                 <span className="text-sm">{mediaCounts.image || 0} photos</span>
               </div>
               {mediaByType.image.length > 0 && (
-                <button 
-                  onClick={() => openMediaModal('image')}
+                <button
+                  onClick={() => openMediaModal("image")}
                   className="text-sm text-blue-500 hover:underline"
                 >
                   View All
@@ -464,8 +456,8 @@ function ChatScreen() {
                 <span className="text-sm">{mediaCounts.video || 0} videos</span>
               </div>
               {mediaByType.video.length > 0 && (
-                <button 
-                  onClick={() => openMediaModal('video')}
+                <button
+                  onClick={() => openMediaModal("video")}
                   className="text-sm text-blue-500 hover:underline"
                 >
                   View All
@@ -492,11 +484,13 @@ function ChatScreen() {
             <div className="flex items-center justify-between p-3">
               <div className="flex items-center gap-3">
                 <File className="w-4 h-4" />
-                <span className="text-sm">{mediaCounts.application || 0} files</span>
+                <span className="text-sm">
+                  {mediaCounts.application || 0} files
+                </span>
               </div>
               {mediaByType.application.length > 0 && (
-                <button 
-                  onClick={() => openMediaModal('application')}
+                <button
+                  onClick={() => openMediaModal("application")}
                   className="text-sm text-blue-500 hover:underline"
                 >
                   View All
@@ -531,12 +525,12 @@ function ChatScreen() {
 
     const getGridCols = () => {
       switch (type) {
-        case 'image':
-          return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
-        case 'video':
-          return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        case "image":
+          return "grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
+        case "video":
+          return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
         default:
-          return 'grid-cols-1 md:grid-cols-2';
+          return "grid-cols-1 md:grid-cols-2";
       }
     };
 
@@ -545,14 +539,19 @@ function ChatScreen() {
         <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
           <div className="flex justify-between items-center p-4 border-b">
             <h3 className="text-lg font-semibold capitalize">{type}s</h3>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
               <X className="w-6 h-6" />
             </button>
           </div>
-          
-          <div className={`grid ${getGridCols()} gap-4 p-4 overflow-y-auto max-h-[calc(90vh-100px)]`}>
+
+          <div
+            className={`grid ${getGridCols()} gap-4 p-4 overflow-y-auto max-h-[calc(90vh-100px)]`}
+          >
             {media.map((msg, idx) => {
-              if (type === 'image') {
+              if (type === "image") {
                 return (
                   <div key={idx} className="aspect-square">
                     <img
@@ -562,7 +561,7 @@ function ChatScreen() {
                     />
                   </div>
                 );
-              } else if (type === 'video') {
+              } else if (type === "video") {
                 return (
                   <div key={idx} className="aspect-video">
                     <video
@@ -582,7 +581,9 @@ function ChatScreen() {
                     rel="noopener noreferrer"
                   >
                     <FileIcon className="w-6 h-6 mr-3 text-gray-500" />
-                    <span className="text-sm truncate flex-1">{msg.file.name}</span>
+                    <span className="text-sm truncate flex-1">
+                      {msg.file.name}
+                    </span>
                   </a>
                 );
               }
@@ -593,238 +594,268 @@ function ChatScreen() {
     );
   };
 
-  const InfoPanel = React.memo(({ currentGroupData, mediaCounts, mediaByType }) => {
-    const openMediaModal = (type) => {
-      setSelectedMediaType(type);
-      setMediaModalOpen(true);
-    };
-  
-    return (
-      <div
-        className={`fixed z-50 inset-y-0 bg-white right-0 w-[80%] mt-[70px] shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isMobileInfoOpen ? "translate-x-0" : "translate-x-full"
-        } lg:hidden `}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-semibold">Group Info</h2>
-          <button onClick={() => setIsMobileInfoOpen(false)}>
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-  
-        {/* Content with Perfect Scrollbar */}
-        <PerfectScrollbar
-          options={{
-            wheelSpeed: 2,
-            wheelPropagation: false,
-            minScrollbarLength: 20,
-            suppressScrollX: true,
-          }}
-          style={{ height: '84vh' }}
-          className="pb-20"
+  const InfoPanel = React.memo(
+    ({ currentGroupData, mediaCounts, mediaByType }) => {
+      const openMediaModal = (type) => {
+        setSelectedMediaType(type);
+        setMediaModalOpen(true);
+      };
+
+      const stack = new Error().stack;
+      console.log("Stack Trace :", stack);
+
+
+      return (
+        <div
+          className={`fixed z-50 inset-y-0 bg-white right-0 w-[80%] mt-[70px] shadow-lg transform transition-transform duration-300 ease-in-out ${
+            isMobileInfoOpen ? "translate-x-0" : "translate-x-full"
+          } lg:hidden `}
         >
-          {/* Media Panel */}
-          <div className="p-4  border-b">
-            <div className="max-w-md">
-              <div className="flex justify-between items-center">
-                <h3 className="text-base font-medium">Files</h3>
-              </div>
-  
-              <div className="space-y-4">
-                {/* Photos Section */}
-                <div>
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <Image className="w-4 h-4" />
-                      <span className="text-sm">{mediaCounts?.image || 0} photos</span>
-                    </div>
-                    {mediaByType?.image?.length > 0 && (
-                      <button 
-                        onClick={() => openMediaModal('image')}
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View All
-                      </button>
-                    )}
-                  </div>
-                  <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <div className="flex gap-2 p-2 min-w-min">
-                      {mediaByType?.image?.slice(0, 5)?.map((msg, idx) => (
-                        <img
-                          key={idx}
-                          src={msg.file.url || "/placeholder.svg"}
-                          alt=""
-                          className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-  
-                {/* Videos Section */}
-                <div>
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <Video className="w-4 h-4" />
-                      <span className="text-sm">{mediaCounts?.video || 0} videos</span>
-                    </div>
-                    {mediaByType?.video?.length > 0 && (
-                      <button 
-                        onClick={() => openMediaModal('video')}
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View All
-                      </button>
-                    )}
-                  </div>
-                  <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <div className="flex gap-2 p-2 min-w-min">
-                      {mediaByType?.video?.slice(0, 3)?.map((msg, idx) => (
-                        <div key={idx} className="w-48 flex-shrink-0">
-                          <video
-                            src={msg.file.url}
-                            className="w-full rounded-lg"
-                            controls
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-  
-                {/* Documents Section */}
-                <div>
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <File className="w-4 h-4" />
-                      <span className="text-sm">{mediaCounts?.application || 0} files</span>
-                    </div>
-                    {mediaByType?.application?.length > 0 && (
-                      <button 
-                        onClick={() => openMediaModal('application')}
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View All
-                      </button>
-                    )}
-                  </div>
-                  <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <div className="flex gap-2 p-2 min-w-min">
-                      {mediaByType?.application?.slice(0, 3)?.map((msg, idx) => (
-                        <a
-                          key={idx}
-                          href={msg.file.url}
-                          className="min-w-[200px] flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FileIcon className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="text-sm truncate">{msg.file.name}</span>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Header */}
+
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="text-lg font-semibold">Group Info</h2>
+            <button onClick={() => setIsMobileInfoOpen(false)}>
+              <X className="w-6 h-6" />
+            </button>
           </div>
-  
-          {/* Rest of your InfoPanel content remains the same */}
-          {/* Group Members section stays unchanged */}
-          <div className="p-4 border-b">
-            <h3 className="text-lg font-semibold mb-3">Group Members</h3>
-            <div
-              className={`space-y-3 ${
-                !showAllMembers && currentGroupData?.customers?.length > 2
-                  ? "max-h-[150px]"
-                  : "max-h-[300px]"
-              }`}
-            >
-              <PerfectScrollbar
-                options={{
-                  wheelSpeed: 1,
-                  wheelPropagation: true,
-                  minScrollbarLength: 10,
-                  suppressScrollX: true,
-                }}
-                style={{ 
-                  maxHeight: !showAllMembers && currentGroupData?.customers?.length > 2 
-                    ? '150px' 
-                    : '300px' 
-                }}
-              >
-                {currentGroupData?.customers
-                  ?.slice(0, showAllMembers ? undefined : 2)
-                  .map((customer, index) => (
-                    <div key={index} className="flex items-center space-x-3 mb-3">
-                      <img
-                        src={
-                          customer.profilePicture != "" ? customer.profilePicture :
-                          "/images/default.png"
-                        }
-                        alt={customer.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <div>
-                        <p className="font-medium capitalize">{customer.name}</p>
-                        {customer.admin === "true" && (
-                          <span className="text-xs text-gold">Admin</span>
-                        )}
+
+          {/* Content with Perfect Scrollbar */}
+          <PerfectScrollbar
+            options={{
+              wheelSpeed: 2,
+              wheelPropagation: false,
+              minScrollbarLength: 20,
+              suppressScrollX: true,
+            }}
+            style={{ height: "84vh" }}
+            className="pb-20"
+          >
+            {/* Media Panel */}
+            <div className="p-4  border-b">
+              <div className="max-w-md">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-base font-medium">Files</h3>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Photos Section */}
+                  <div>
+                    <div className="flex items-center justify-between p-3">
+                      <div className="flex items-center gap-3">
+                        <Image className="w-4 h-4" />
+                        <span className="text-sm">
+                          {mediaCounts?.image || 0} photos
+                        </span>
+                      </div>
+                      {mediaByType?.image?.length > 0 && (
+                        <button
+                          onClick={() => openMediaModal("image")}
+                          className="text-sm text-blue-500 hover:underline"
+                        >
+                          View All
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <div className="flex gap-2 p-2 min-w-min">
+                        {mediaByType?.image?.slice(0, 5)?.map((msg, idx) => (
+                          <img
+                            key={idx}
+                            src={msg.file.url || "/placeholder.svg"}
+                            alt=""
+                            className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                          />
+                        ))}
                       </div>
                     </div>
-                  ))}
-              </PerfectScrollbar>
+                  </div>
+
+                  {/* Videos Section */}
+                  <div>
+                    <div className="flex items-center justify-between p-3">
+                      <div className="flex items-center gap-3">
+                        <Video className="w-4 h-4" />
+                        <span className="text-sm">
+                          {mediaCounts?.video || 0} videos
+                        </span>
+                      </div>
+                      {mediaByType?.video?.length > 0 && (
+                        <button
+                          onClick={() => openMediaModal("video")}
+                          className="text-sm text-blue-500 hover:underline"
+                        >
+                          View All
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <div className="flex gap-2 p-2 min-w-min">
+                        {mediaByType?.video?.slice(0, 3)?.map((msg, idx) => (
+                          <div key={idx} className="w-48 flex-shrink-0">
+                            <video
+                              src={msg.file.url}
+                              className="w-full rounded-lg"
+                              controls
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Documents Section */}
+                  <div>
+                    <div className="flex items-center justify-between p-3">
+                      <div className="flex items-center gap-3">
+                        <File className="w-4 h-4" />
+                        <span className="text-sm">
+                          {mediaCounts?.application || 0} files
+                        </span>
+                      </div>
+                      {mediaByType?.application?.length > 0 && (
+                        <button
+                          onClick={() => openMediaModal("application")}
+                          className="text-sm text-blue-500 hover:underline"
+                        >
+                          View All
+                        </button>
+                      )}
+                    </div>
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <div className="flex gap-2 p-2 min-w-min">
+                        {mediaByType?.application
+                          ?.slice(0, 3)
+                          ?.map((msg, idx) => (
+                            <a
+                              key={idx}
+                              href={msg.file.url}
+                              className="min-w-[200px] flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors flex-shrink-0"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FileIcon className="w-4 h-4 mr-2 text-gray-500" />
+                              <span className="text-sm truncate">
+                                {msg.file.name}
+                              </span>
+                            </a>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            {currentGroupData?.customers?.length > 2 && (
-              <button
-                onClick={() => setShowAllMembers(!showAllMembers)}
-                className="text-gold text-sm mt-2"
+
+            {/* Rest of your InfoPanel content remains the same */}
+            {/* Group Members section stays unchanged */}
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold mb-3">Group Members</h3>
+              <div
+                className={`space-y-3 ${
+                  !showAllMembers && currentGroupData?.customers?.length > 2
+                    ? "max-h-[150px]"
+                    : "max-h-[300px]"
+                }`}
               >
-                {showAllMembers
-                  ? "Show Less"
-                  : `Show All Members (${currentGroupData.customers.length})`}
-              </button>
-            )}
-          </div>
-  
-          {/* Important Links section stays unchanged */}
-          <div className="p-2 space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Project Documents</h4>
-              <Link 
-                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
-                className="text-blue-500 underline flex gap-3"
-                onClick={(e) => {
-                  if (!matchedPropertyId) {
-                    e.preventDefault();
-                    toast.info("No matching property found for RERA documents");
+                <PerfectScrollbar
+                  options={{
+                    wheelSpeed: 1,
+                    wheelPropagation: true,
+                    minScrollbarLength: 10,
+                    suppressScrollX: true,
+                  }}
+                  style={{
+                    maxHeight:
+                      !showAllMembers && currentGroupData?.customers?.length > 2
+                        ? "150px"
+                        : "300px",
+                  }}
+                >
+                  {currentGroupData?.customers
+                    ?.slice(0, showAllMembers ? undefined : 2)
+                    .map((customer, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-3 mb-3"
+                      >
+                        <img
+                          src={
+                            customer.profilePicture != ""
+                              ? customer.profilePicture
+                              : "/images/default.png"
+                          }
+                          alt={customer.name}
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div>
+                          <p className="font-medium capitalize">
+                            {customer.name}
+                          </p>
+                          {customer.admin === "true" && (
+                            <span className="text-xs text-gold">Admin</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </PerfectScrollbar>
+              </div>
+              {currentGroupData?.customers?.length > 2 && (
+                <button
+                  onClick={() => setShowAllMembers(!showAllMembers)}
+                  className="text-gold text-sm mt-2"
+                >
+                  {showAllMembers
+                    ? "Show Less"
+                    : `Show All Members (${currentGroupData.customers.length})`}
+                </button>
+              )}
+            </div>
+
+            {/* Important Links section stays unchanged */}
+            <div className="p-2 space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Project Documents</h4>
+                <Link
+                  to={
+                    matchedPropertyId
+                      ? `/safe/Dealing/${matchedPropertyId}/Documents`
+                      : "#"
                   }
-                }}
-              >
-                <FileIcon className="w-6 h-6 text-black" />
-                <p className="text-xs mt-1">
-                  Show RERA documents of this project
-                </p>
-              </Link>
+                  className="text-blue-500 underline flex gap-3"
+                  onClick={(e) => {
+                    if (!matchedPropertyId) {
+                      e.preventDefault();
+                      toast.info(
+                        "No matching property found for RERA documents"
+                      );
+                    }
+                  }}
+                >
+                  <FileIcon className="w-6 h-6 text-black" />
+                  <p className="text-xs mt-1">
+                    Show RERA documents of this project
+                  </p>
+                </Link>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Official Website</h4>
+                <Link
+                  target="_blank"
+                  to={currentGroupData?.companyWebsiteLink}
+                  className="text-blue-500 underline flex items-center space-x-2"
+                >
+                  <Link2 className="w-6 h-6 text-black" />
+                  <p className="text-xs">Visit our official website</p>
+                </Link>
+              </div>
             </div>
-  
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Official Website</h4>
-              <Link
-                target="_blank"
-                to={currentGroupData?.companyWebsiteLink}
-                className="text-blue-500 underline flex items-center space-x-2"
-              >
-                <Link2 className="w-6 h-6 text-black" />
-                <p className="text-xs">Visit our official website</p>
-              </Link>
-            </div>
-          </div>
-        </PerfectScrollbar>
-      </div>
-    );
-  });
+          </PerfectScrollbar>
+        </div>
+      );
+    }
+  );
 
   return (
     <div className="h-screen w-full">
@@ -940,7 +971,13 @@ function ChatScreen() {
                       <div className="flex-1 flex items-center">
                         <div className="bg-gray-300 rounded-xl mr-3 border-2 border-gold">
                           <img
-                            src={item.thumbnail && item.thumbnail != "" && item.thumbnail.includes("https") ? item.thumbnail : defaultCommunityUrl}
+                            src={
+                              item.thumbnail &&
+                              item.thumbnail != "" &&
+                              item.thumbnail.includes("https")
+                                ? item.thumbnail
+                                : defaultCommunityUrl
+                            }
                             alt="Community Avatar"
                             className="w-12 h-12 rounded-xl"
                           />
@@ -995,7 +1032,7 @@ function ChatScreen() {
                           )}
                         </div>
                       </div>
- 
+
                       {/* Add unread message indicator */}
                       {unreadMessages[item._id]?.length > 0 && (
                         <div className="w-3 h-3 bg-green-500 rounded-full" />
@@ -1102,9 +1139,7 @@ function ChatScreen() {
             <div className="bg-white rounded-xl overflow-y-scroll ease-in-out  h-[100%]  p-2   border-l shadow-md  ">
               {/* Media Panel */}
               <div className="p-4 border-b">
-              <MediaPanel
-  messages={processedMediaData}
-/>
+                <MediaPanel messages={processedMediaData} />
               </div>
 
               {/* Group Members */}
@@ -1123,8 +1158,9 @@ function ChatScreen() {
                       <div key={index} className="flex items-center space-x-3">
                         <img
                           src={
-                            customer.profilePicture != "" ? customer.profilePicture :
-                            "/images/default.png"
+                            customer.profilePicture != ""
+                              ? customer.profilePicture
+                              : "/images/default.png"
                           }
                           alt={customer.name}
                           className="w-10 h-10 rounded-full"
@@ -1154,37 +1190,43 @@ function ChatScreen() {
 
               {/* Important Links */}
               <div className="p-2 space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg ">
-              <h4 className="font-medium mb-2">Project Documents</h4>
-              <Link 
-                to={matchedPropertyId ? `/safe/Dealing/${matchedPropertyId}/Documents` : "#"}
-                className="text-blue-500 underline flex gap-3"
-                onClick={(e) => {
-                  if (!matchedPropertyId) {
-                    e.preventDefault();
-                    toast.info("No matching property found for RERA documents");
-                  }
-                }}
-              >
-                <FileIcon className="w-6 h-6 text-black" />
-                <p className="text-xs ">
-                  Show RERA documents of this project
-                </p>
-              </Link>
-            </div>
+                <div className="bg-gray-50 p-4 rounded-lg ">
+                  <h4 className="font-medium mb-2">Project Documents</h4>
+                  <Link
+                    to={
+                      matchedPropertyId
+                        ? `/safe/Dealing/${matchedPropertyId}/Documents`
+                        : "#"
+                    }
+                    className="text-blue-500 underline flex gap-3"
+                    onClick={(e) => {
+                      if (!matchedPropertyId) {
+                        e.preventDefault();
+                        toast.info(
+                          "No matching property found for RERA documents"
+                        );
+                      }
+                    }}
+                  >
+                    <FileIcon className="w-6 h-6 text-black" />
+                    <p className="text-xs ">
+                      Show RERA documents of this project
+                    </p>
+                  </Link>
+                </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Official Website</h4>
-              <Link
-                target="_blank"
-                to={currentGroupData?.companyWebsiteLink}
-                className="text-blue-500 underline flex items-center space-x-2"
-              >
-                <Link2 className="w-6 h-6 text-black" />
-                <p className="text-xs">Visit our official website</p>
-              </Link>
-            </div>
-          </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Official Website</h4>
+                  <Link
+                    target="_blank"
+                    to={currentGroupData?.companyWebsiteLink}
+                    className="text-blue-500 underline flex items-center space-x-2"
+                  >
+                    <Link2 className="w-6 h-6 text-black" />
+                    <p className="text-xs">Visit our official website</p>
+                  </Link>
+                </div>
+              </div>
             </div>
 
             {/* article section */}
@@ -1320,21 +1362,26 @@ function ChatScreen() {
         </div>
       )}
 
-
-
       {/* Add the InfoPanel */}
       <InfoPanel
-  currentGroupData={currentGroupData}
-  mediaCounts={processedMediaData.mediaCounts}
-  mediaByType={processedMediaData.mediaByType}
-/>
+        currentGroupData={currentGroupData}
+        mediaCounts={processedMediaData.mediaCounts}
+        mediaByType={processedMediaData.mediaByType}
+      />
 
       {/* Add MediaModal */}
       <MediaModal
         isOpen={mediaModalOpen}
         onClose={() => setMediaModalOpen(false)}
         type={selectedMediaType}
-        media={selectedMediaType ? getMediaByType(allMessages[currentGroupData?._id] || [], selectedMediaType) : []}
+        media={
+          selectedMediaType
+            ? getMediaByType(
+                allMessages[currentGroupData?._id] || [],
+                selectedMediaType
+              )
+            : []
+        }
       />
     </div>
   );

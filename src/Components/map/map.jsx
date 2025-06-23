@@ -50,6 +50,8 @@ function MapController({ center, zoom, selectedProperty }) {
     }
   }, [map, center, zoom]);
 
+  
+
   // Handle popup opening when selectedProperty changes
   useEffect(() => {
     if (selectedProperty && selectedProperty.coordinates) {
@@ -433,6 +435,8 @@ const PropertyCard = ({ property, isSelected, scrollToSection }) => {
 };
 
 export default function MapComponent() {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -451,6 +455,13 @@ export default function MapComponent() {
 
   // mobile scroll setup
   const sectionRef = useRef(null);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [])
 
   const clearQueryParams = () => {
     navigate(location.pathname, { replace: true });
@@ -681,10 +692,6 @@ export default function MapComponent() {
     })
   );
 
-  console.log("Total properties:", properties.length);
-  console.log("Valid properties for map:", validPropertiesForMap.length);
-  console.log("Map center:", mapCenter);
-  console.log("Map zoom:", zoom);
 
   // Function to get location from IP address (fallback)
 const getLocationFromIP = async () => {
@@ -1029,13 +1036,13 @@ const handleUseLocation = async () => {
   };
 
   return (
-    <div className="flex h-fit  md:h-screen pt-28 md:pt-0 flex-col-reverse md:flex-row">
+    <div className={ `flex h-fit  md:h-screen ${isLoggedIn === true ? "pt-0" : " pt-28 "}  flex-col-reverse md:flex-row`}>
       {/* Property Cards Panel */}
-      <div className="w-full  md:w-1/3 sm:pt-48 pt-0 p-4 bg-gray-50 relative">
+      <div className={`w-full  md:w-1/3 ${isLoggedIn ? "sm:pt-32" : "sm:pt-48"} pt-0 p-4 bg-gray-50 relative`}>
         {/* Fixed header with solid background */}
         <div className="sm:absolute sm:top-0 sm:left-0  w-full  h-32 bg-gray-50 z-10 border-b border-gray-200">
-          <div className="px-4 sm:pt-8 bg-gray-50">
-            <div className="flex justify-between items-center mb-3 mt-4 md:mt-20">
+          <div className={`px-4 sm:pt-8 bg-gray-50`}>
+            <div className={`flex justify-between items-center mb-3 ${isLoggedIn ? "mt-4" : "mt-4 md:mt-20"}`}>
               <h2 className="text-lg font-semibold">
                 Properties ({properties.length})
               </h2>
@@ -1045,7 +1052,7 @@ const handleUseLocation = async () => {
         </div>
 
         {/* Content area with padding to account for fixed header */}
-        <div className="mt-2 sm:overflow-y-auto sm:h-[calc(100vh-14rem)] px-4 md:p-4">
+        <div className={`mt-2 sm:overflow-y-auto ${isLoggedIn ? "sm:h-[calc(100vh-10rem)]" : "sm:h-[calc(100vh-14rem)]"} px-4 md:p-4`}> 
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0E1524]"></div>
@@ -1087,7 +1094,7 @@ const handleUseLocation = async () => {
       {/*  */}
       <div
         ref={sectionRef}
-        className="w-full h-[50vh] md:h-auto z-10 md:pt-28 md:w-2/3 relative"
+        className={`w-full h-[50vh] md:h-auto z-10 ${isLoggedIn ? "md:pt-10" : "md:pt-28"} md:w-2/3 relative`}
       >
         {/* <div className="absolute top-4 md:bottom-4 md:top-auto md:left-4 right-4 z-10 bg-white p-2 rounded shadow text-xs">
           Center: {mapCenter[0].toFixed(4)}, {mapCenter[1].toFixed(4)} |

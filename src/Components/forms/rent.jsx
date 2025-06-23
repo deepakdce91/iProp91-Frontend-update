@@ -45,15 +45,18 @@ const BuyForm = ({ closeBuyModal, propertyId }) => {
         );
 
         const propertyData = response.data;
+
+        console.log(`Fetched property data:`, propertyData);
         
         // Check if there's an existing rent listing for this property
         // and pre-fill the form with that data
         if (propertyData) {
           // If there's a rentListing property, use it to pre-fill the form
-          if (propertyData.rentListing) {
-            const rentDetails = propertyData.rentListing;
+          if (propertyData) {
+
+            const rentDetails = propertyData;
             setFormData({
-              unitNumber: rentDetails.unitNumber || "",
+              unitNumber: rentDetails.unit || "",
               size: rentDetails.size || propertyData.size || "",
               expectedRent: rentDetails.expectedRent || "",
               availableFrom: rentDetails.availableFrom ? rentDetails.availableFrom.split('T')[0] : "",

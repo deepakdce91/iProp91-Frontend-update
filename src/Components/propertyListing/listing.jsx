@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Search, SlidersHorizontal, X, ChevronDown, ArrowUpDown, MapPin, Building, Bed, Bath, Square, Tag, Home, DollarSign } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import NameHeader from '../Concierge/Nameheader';
 
 export default function PropertySearchComponent() {
  
@@ -17,6 +18,8 @@ export default function PropertySearchComponent() {
     }
     
   }, []);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,6 +78,15 @@ export default function PropertySearchComponent() {
 
   // Available For options
   const availableForOptions = ['Rent', 'Sale', 'Both'];
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+
+  }, [])
+  
 
   // Parse URL query parameters on component mount
   useEffect(() => {
@@ -530,16 +542,20 @@ export default function PropertySearchComponent() {
     };
   }, []);
   
-  const filteredCitySuggestions = getFilteredCitySuggestions();
+  const filteredCitySuggestions = getFilteredCitySuggestions(); 
   
     return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 pt-32 ">
+    <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${isLoggedIn ? 'pt-10' : 'pt-32'}`} ref={propSectionRef}>
       {/* Search Header */}
-      <div className="mb-8 ml-6">
+      {isLoggedIn ? (
+        <NameHeader description={"Search from thousands of properties across India"} name={"Verified Listings"}  />
+      ) : (
+        <div className="mb-8 ml-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Find Your Dream Property</h1>
         <p className="text-gray-600">Search from thousands of properties across India</p>
       </div>
-      
+      )}
+
       {/* Search and Filter Bar */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
