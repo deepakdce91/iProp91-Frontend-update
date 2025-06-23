@@ -19,8 +19,12 @@ import SiteFaqs from "../site-faqs/page.jsx";
 import CategoryPage from "../listingpage/CategoryPage.jsx";
 import PropertyJouneyPage from "../PropertyJourneyPage/page.js";
 import RewardsRedeem from "../redeemRewards/Index.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy } from "react";
 import { jwtDecode } from "jwt-decode";
+import PropertyListing from "../propertyListing/listing.jsx";
+import Map from "../map/map.jsx";
+
+// const PropertyListing = lazy(() => import("../propertyListing/listing.jsx"));
 
 export default function AllPage() {
   const location = useLocation();
@@ -40,9 +44,9 @@ export default function AllPage() {
   }, [location.pathname]);
   return ( 
     <>
-      <div className="flex flex-col w-screen bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]  h-screen lg:!flex-row  overflow-y-scroll no-scrollbar">
+      <div className={`flex flex-col w-screen ${location.pathname.includes("/property-for-sale") ? "bg-white" : "bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]"}   h-screen lg:!flex-row  overflow-y-scroll no-scrollbar`}>
         <Sidebar />
-        <div className="w-full  lg:p-1 ">
+        <div className="w-full bg-white lg:p-1 ">
           <Routes> 
             <Route path="/*" element={<Conci />} />
             <Route path="/safe/*" element={<Safe />} />
@@ -58,7 +62,9 @@ export default function AllPage() {
             <Route path="/site-faqs" element={<SiteFaqs />} />
             <Route path="/property-journey" element={<PropertyJouneyPage />} />
 
-            <Route path="/property-for-sale" element={<MainListingPage />} />
+            <Route path="/search-properties" element={<Map />} />
+
+            <Route path="/property-for-sale" element={<PropertyListing />} />
             <Route path="/property-for-sale/:id" element={<PropertyDetail />} />
             <Route path="/category/:categoryType" element={<CategoryPage />} />
 
@@ -71,3 +77,4 @@ export default function AllPage() {
     </>
   );
 }
+ 

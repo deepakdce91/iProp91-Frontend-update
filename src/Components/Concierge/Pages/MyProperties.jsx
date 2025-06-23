@@ -260,7 +260,7 @@ export default function MyProperties() {
 
       if (response) {
         toast.success("Documents uploaded successfully");
-        setChangeMade(!changeMade);
+        setChangeMade(!changeMade); 
         closeModal();
         // Optionally refresh the component or update local state
       } else {

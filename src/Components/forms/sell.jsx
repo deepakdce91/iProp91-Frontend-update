@@ -50,10 +50,12 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
         );
 
         const propertyData = response.data;
+        console.log("Sell Listing Data:", propertyData); // Debugging log
+
         
         // Pre-fill form data from property details
         setFormData({
-          unitNo: propertyData.unitNo || "",
+          unitNo: propertyData.unit || "",
           size: propertyData.size || "",
           expectedPrice: propertyData.defaultPrice || "",
           propertyType: propertyData.propertyType || "",
@@ -66,6 +68,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
         // Check if property already has sell listing data
         if (propertyData.sellListings && propertyData.sellListings.length > 0) {
           const sellListing = propertyData.sellListings[0];
+
           
           setFormData({
             unitNo: sellListing.unitNumber || propertyData.unitNo || "",
@@ -286,7 +289,7 @@ const SellForm = ({ closeSellModal, propertyId, onRefresh }) => {
         onClick={closeSellModal}
         className="absolute w-full h-full bg-black/40 backdrop-blur-sm "
       />
-      <div className="relative bg-white h-[80vh] lg:h-[90vh] rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn overflow-y-auto no-scrollbar mt-20 lg:mt-0 ">
+      <div className="relative bg-white h-auto rounded-lg shadow-xl w-full max-w-[90%] lg:max-w-[50%] mx-4 animate-fadeIn  mt-20 lg:mt-0 ">
         <form
           onSubmit={handleSubmit}
           className="relative space-y-6 px-7 md:px-14 py-10 rounded-lg shadow-md overflow-y-scroll h-screen "

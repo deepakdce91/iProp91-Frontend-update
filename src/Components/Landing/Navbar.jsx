@@ -43,6 +43,9 @@ const Navbar = ({ setIsLoggedIn }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
+  // Check if current route is home page
+  const isHomePage = location.pathname === "/";
+
   // Define routes that should have specific backgrounds
   const specificRoutes = {
     "/nri": false, // true means dark background
@@ -339,9 +342,20 @@ const Navbar = ({ setIsLoggedIn }) => {
   const getNavbarStyles = () => {
     const currentPath = location.pathname;
     
+    // Special styling for home page
+    if (isHomePage) {
+      return {
+        background: "bg-[radial-gradient(circle_at_center,#111c2c_10%,#111c2c_50%,#0b0d1e_100%)]",
+        overlay: "bg-white bg-opacity-10", // White opaque overlay
+        text: "text-white",
+        border: "border-white border-opacity-30"
+      };
+    }
+    
     if (currentPath.startsWith("/rewards")) {
       return {
         background: "bg-[#0E1424] bg-opacity-10",
+        overlay: "",
         text: "text-black",
         border: "border-[#0E1424]"
       };
@@ -350,6 +364,7 @@ const Navbar = ({ setIsLoggedIn }) => {
     if (currentPath.startsWith("/property-listing")) {
       return {
         background: "bg-[#0E1424] bg-opacity-10",
+        overlay: "",
         text: "text-black", 
         border: "border-[#0E1424]"
       };
@@ -359,12 +374,14 @@ const Navbar = ({ setIsLoggedIn }) => {
     if (isDarkBg) {
       return {
         background: "bg-white bg-opacity-10",
+        overlay: "",
         text: "text-white",
         border: "border-white"
       };
     } else {
       return {
         background: "bg-[#0E1424] bg-opacity-10",
+        overlay: "",
         text: "text-black", 
         border: "border-[#0E1424]"
       };
@@ -376,6 +393,17 @@ const Navbar = ({ setIsLoggedIn }) => {
   // Helper function to get search input styles
   const getSearchInputStyles = () => {
     const currentPath = location.pathname;
+    
+    // Special styling for home page
+    if (isHomePage) {
+      return {
+        background: "bg-white bg-opacity-20",
+        text: "text-white",
+        placeholder: "placeholder-gray-300",
+        border: "border-white border-opacity-30 focus:border-white",
+        icon: "text-white"
+      };
+    }
     
     if (currentPath.startsWith("/rewards") || currentPath.startsWith("/property-listing") || !isDarkBg) {
       return {
@@ -405,161 +433,169 @@ const Navbar = ({ setIsLoggedIn }) => {
           isVisible ? "transform translate-y-4" : "transform -translate-y-[6rem]"
         }`}
       >
-        {/* Logo */}
-        <Link
-          to={"/"}
-          className="text-2xl flex justify-center items-center gap-2 font-bold text-primary"
-        >
-          <img
-            className="w-12 h-12 scale-125"
-            src="/images/Logo1.png"
-            alt="logo"
-          />
-          <p>iProp91</p>
-        </Link>
-
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base items-center">
-          {/* Desktop Search Bar */}
-          <div className="relative">
-            <div className={`flex items-center ${searchInputStyles.background} rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-300 ${
-              isSearchFocused ? 'w-64' : 'w-48'
-            }`}>
-              <input
-                type="text"
-                placeholder="Search Properties"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleDesktopSearch}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-                className={` ${searchInputStyles.text} ${searchInputStyles.placeholder} border-none outline-none w-full text-sm bg-transparent`}
-              />
-              <button
-                onClick={handleDesktopSearch}
-                className={`ml-2 ${searchInputStyles.icon} hover:opacity-80 transition-opacity`}
-              >
-                <IoSearch className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          <div
-            className="hover:text-white/80 relative"
-            ref={servicesDropdownRef}
-            onBlur={handleCloseDropdown}
-            tabIndex={0}
+        {/* White opaque overlay for home page */}
+        {isHomePage && (
+          <div className="absolute inset-0 bg-white bg-opacity-10 rounded-xl"></div>
+        )}
+        
+        {/* Content with relative positioning to appear above overlay */}
+        <div className="relative flex items-center justify-between w-full">
+          {/* Logo */}
+          <Link
+            to={"/"}
+            className="text-2xl flex justify-center items-center gap-2 font-bold text-primary"
           >
-            <div
-              className="flex items-center cursor-pointer gap-1"
-              onClick={() => handleServicesDropdown()}
-              onMouseEnter={() => {
-                handleCancelCloseDropdown();
-                setServiceDown(true);
-              }}
-            >
-              <span className="whitespace-nowrap font-medium">Services</span>
-              <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
+            <img
+              className="w-12 h-12 scale-125"
+              src="/images/Logo1.png"
+              alt="logo"
+            />
+            <p>iProp91</p>
+          </Link>
+
+          {/* Desktop Links */}
+          <div className="hidden md:flex space-x-4 lg:space-x-8 text-sm lg:text-base items-center">
+            {/* Desktop Search Bar */}
+            <div className="relative">
+              <div className={`flex items-center ${searchInputStyles.background} rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-300 ${
+                isSearchFocused ? 'w-64' : 'w-48'
+              }`}>
+                <input
+                  type="text"
+                  placeholder="Search Properties"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleDesktopSearch}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  className={` ${searchInputStyles.text} ${searchInputStyles.placeholder} border-none outline-none w-full text-sm bg-transparent`}
+                />
+                <button
+                  onClick={handleDesktopSearch}
+                  className={`ml-2 ${searchInputStyles.icon} hover:opacity-80 transition-opacity`}
+                >
+                  <IoSearch className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Services Dropdown - Shows on hover or click with animation */}
             <div
-              className={`absolute top-8 left-0 z-10 transition-all duration-300 ease-in-out transform
-                ${
-                  serviceDown
-                    ? "opacity-100 translate-y-2 pointer-events-auto"
-                    : "opacity-0 translate-y-0 pointer-events-none"
-                }`}
-              onMouseEnter={() => {
-                handleCancelCloseDropdown();
-                setServiceDown(true);
-              }}
-              onMouseLeave={() => {
-                // Use the delayed close
-                handleCloseDropdown();
-              }}
+              className="hover:text-white/80 relative"
+              ref={servicesDropdownRef}
+              onBlur={handleCloseDropdown}
+              tabIndex={0}
             >
-              <div className="bg-white rounded-md shadow-lg overflow-hidden w-48">
-                <div className="p-3 lg:p-4 text-black flex flex-col gap-3 text-base">
-                  <button
-                    onClick={() =>
-                      handleServiceClick("Concierge", "/services/concierge", false)
-                    }
-                    className="hover:text-gray-600 transition-colors duration-200 text-left"
-                  >
-                    Concierge
-                  </button>
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <button
-                    onClick={() =>
-                      handleServiceClick(
-                        "Owners' Club",
-                        "/services/owners-club",
-                        false
-                      )
-                    }
-                    className="hover:text-gray-600 transition-colors duration-200 text-left"
-                  >
-                    Owners' Club
-                  </button>
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <button
-                    onClick={() =>
-                      handleServiceClick("iProp91 Safe", "/services/safe", false)
-                    }
-                    className="hover:text-gray-600 transition-colors duration-200 text-left"
-                  >
-                    Safe
-                  </button>
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <Link
-                    to="/services/verified-listings"
-                    className="hover:text-gray-600 transition-colors duration-200"
-                    onClick={() => {
-                      setServiceDown(false);
-                      setIsServiceClickOpen(false);
-                    }}
-                  >
-                    Listing
-                  </Link>
+              <div
+                className="flex items-center cursor-pointer gap-1"
+                onClick={() => handleServicesDropdown()}
+                onMouseEnter={() => {
+                  handleCancelCloseDropdown();
+                  setServiceDown(true);
+                }}
+              >
+                <span className="whitespace-nowrap font-medium">Services</span>
+                <span>{serviceDown ? <FaCaretUp /> : <FaCaretDown />}</span>
+              </div>
+
+              {/* Services Dropdown - Shows on hover or click with animation */}
+              <div
+                className={`absolute top-8 left-0 z-10 transition-all duration-300 ease-in-out transform
+                  ${
+                    serviceDown
+                      ? "opacity-100 translate-y-2 pointer-events-auto"
+                      : "opacity-0 translate-y-0 pointer-events-none"
+                  }`}
+                onMouseEnter={() => {
+                  handleCancelCloseDropdown();
+                  setServiceDown(true);
+                }}
+                onMouseLeave={() => {
+                  // Use the delayed close
+                  handleCloseDropdown();
+                }}
+              >
+                <div className="bg-white rounded-md shadow-lg overflow-hidden w-48">
+                  <div className="p-3 lg:p-4 text-black flex flex-col gap-3 text-base">
+                    <button
+                      onClick={() =>
+                        handleServiceClick("Concierge", "/services/concierge", false)
+                      }
+                      className="hover:text-gray-600 transition-colors duration-200 text-left"
+                    >
+                      Concierge
+                    </button>
+                    <div className="border-t border-gray-200 my-1"></div>
+                    <button
+                      onClick={() =>
+                        handleServiceClick(
+                          "Owners' Club",
+                          "/services/owners-club",
+                          false
+                        )
+                      }
+                      className="hover:text-gray-600 transition-colors duration-200 text-left"
+                    >
+                      Owners' Club
+                    </button>
+                    <div className="border-t border-gray-200 my-1"></div>
+                    <button
+                      onClick={() =>
+                        handleServiceClick("iProp91 Safe", "/services/safe", false)
+                      }
+                      className="hover:text-gray-600 transition-colors duration-200 text-left"
+                    >
+                      Safe
+                    </button>
+                    <div className="border-t border-gray-200 my-1"></div>
+                    <Link
+                      to="/services/verified-listings"
+                      className="hover:text-gray-600 transition-colors duration-200"
+                      onClick={() => {
+                        setServiceDown(false);
+                        setIsServiceClickOpen(false);
+                      }}
+                    >
+                      Listing
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <Link to="/nri" className="hover:text-white/80 font-medium">
+              NRI
+            </Link>
+            <Link to="/advice" className="hover:text-white/80 font-medium">
+              Advice
+            </Link>
+            <Link to="/lend" className="hover:text-white/80 font-medium">
+              Lend
+            </Link>
+            <Link
+              to="/rewards"
+              className="hover:text-white/80 flex items-center font-medium"
+            >
+              <PiHandCoinsFill className="text-lg lg:text-xl" />
+            </Link>
+
+            {user ? (
+              <Profile />
+            ) : (
+              <button
+                onClick={openAuthModal}
+                className="whitespace-nowrap font-medium"
+              >
+                Member login
+              </button>
+            )}
           </div>
 
-          <Link to="/nri" className="hover:text-white/80 font-medium">
-            NRI
-          </Link>
-          <Link to="/advice" className="hover:text-white/80 font-medium">
-            Advice
-          </Link>
-          <Link to="/lend" className="hover:text-white/80 font-medium">
-            Lend
-          </Link>
-          <Link
-            to="/rewards"
-            className="hover:text-white/80 flex items-center font-medium"
-          >
-            <PiHandCoinsFill className="text-lg lg:text-xl" />
-          </Link>
-
-          {user ? (
-            <Profile />
-          ) : (
-            <button
-              onClick={openAuthModal}
-              className="whitespace-nowrap font-medium"
-            >
-              Member login
+          {/* Mobile Menu Icon */}
+          <div className="md:hidden flex items-center z-[100]">
+            <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
+              {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
             </button>
-          )}
-        </div>
-
-        {/* Mobile Menu Icon */}
-        <div className="md:hidden flex items-center z-[100]">
-          <button onClick={toggleMobileMenu} className="text-gray-400 text-2xl">
-            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
-          </button>
+          </div>
         </div>
 
         {/* Mobile Menu Modal */}

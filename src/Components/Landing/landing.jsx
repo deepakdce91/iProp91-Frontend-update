@@ -141,7 +141,7 @@ const TypingLandingPage = () => {
             )}
           </div>
         )}
-    </>
+    </> 
   );
 };
 

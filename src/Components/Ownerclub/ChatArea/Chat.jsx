@@ -524,7 +524,7 @@ function MediaPreviewModal({ file, onClose, onSend }) {
 
 // -----------------------------------------------------------
 
-function Chats({
+function Chats({ 
   communityId,
   userId = "Guest",
   userName = "Guest",

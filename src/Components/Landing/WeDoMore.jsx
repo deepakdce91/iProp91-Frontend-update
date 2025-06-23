@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import "./style.css"; // Import your CSS file for styles
 import Auth from "../User/Login/Auth"; // Import your Auth component
 import { useAuth } from "../../context/AuthContext";
-import { useLocation } from "react-router-dom"; // Import useLocation to check current route
+import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 const toTitleCase = (str) => {
   return str
@@ -13,6 +13,12 @@ const toTitleCase = (str) => {
 };
 
 const RewardCard = ({ title, name, amount, status, icon, commonImageUrl, discountType }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate('/rewards');
+  };
+
   return (
     <div className="w-[250px] flex-shrink-0">
       <div
@@ -20,7 +26,9 @@ const RewardCard = ({ title, name, amount, status, icon, commonImageUrl, discoun
         reward-card rounded-xl shadow-md 
         transition-all duration-300 hover:scale-105 
         max-w-xs overflow-hidden flex
-        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[330px] sm:h-[300px]"
+        flex-col mx-3 max-sm:mx-0 no-selection-effect h-[330px] sm:h-[300px]
+        cursor-pointer"
+        onClick={handleCardClick}
       >
         {/* Image section with curved top corners */}
         <div className="w-full rounded-t-xl h-[60%] flex items-center justify-center overflow-hidden">

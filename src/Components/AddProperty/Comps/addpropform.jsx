@@ -273,7 +273,7 @@ function Addpropform() {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/documentType/fetchallDocumentTypes?userId=${tokenid.userId}`,
-        {
+        { 
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -968,7 +968,6 @@ function Addpropform() {
           </form>
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={2000} />
     </>
   );
 }
