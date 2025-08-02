@@ -145,7 +145,7 @@ const Verify = ({
   const createNewUser = async () => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/users/signup`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/signup`,
         {
           phone: phone,
         },
@@ -178,7 +178,7 @@ const Verify = ({
       const nameToUse = name || userId || "iProp91 User";
 
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/updateuserdetailsatSignup?userId=${userId}`,
         {
           name: nameToUse,
           email,
