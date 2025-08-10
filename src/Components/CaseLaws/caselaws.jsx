@@ -49,7 +49,7 @@ export default function CaseLaws() {
 
   // Function to extract PDF link and description
   const extractPdfLink = (content) => {
-    const linkMatch = content.match(/<a href="(.*?)">(.*?)<\/a>/);
+    const linkMatch = content?.match(/<a href="(.*?)">(.*?)<\/a>/);
     if (linkMatch) {
       return { url: linkMatch[1], text: linkMatch[2] };
     }
@@ -157,7 +157,7 @@ export default function CaseLaws() {
       <div className="w-full h-full flex flex-col pt-28">
         <Breadcrumb items={breadcrumbItems} className={"flex items-center space-x-2 my-3 text-black text-sm lg:text-base"} />
         {data && data.map((caseLaw, index) => {
-          const pdfLink = extractPdfLink(caseLaw.content);
+          const pdfLink = extractPdfLink(caseLaw?.content);
 
           return (
             <div
